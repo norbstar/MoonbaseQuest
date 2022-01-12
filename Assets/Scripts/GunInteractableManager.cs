@@ -94,6 +94,7 @@ public class GunInteractableManager : FocusManager
     void FixedUpdate()
     {
         var ray = new Ray(spawnPoint.transform.position, spawnPoint.transform.forward);
+        // Debug.DrawLine(ray.origin, ray.GetPoint(10f), Color.blue, 0.1f);
 
         if (Physics.Raycast(ray.origin, ray.direction, out RaycastHit hit, Mathf.Infinity, mixedLayerMask))
         {
@@ -188,10 +189,7 @@ public class GunInteractableManager : FocusManager
         if (TryGetController<HandController>(out HandController controller))
         {
             controller.SetHolding(gameObject);
-
-            // var rotation = gameObject.transform.rotation;
-            // gameObject.transform.localRotation = Quaternion.identity;
-            // gameObject.transform.parent = guns;
+            gameObject.transform.parent = guns;
             isHeld = true;
 
             var device = controller.GetInputDevice();
@@ -199,15 +197,15 @@ public class GunInteractableManager : FocusManager
             if (((int) device.characteristics) == ((int) LeftHand))
             {
                 ammoCanvasManager.transform.localPosition = new Vector3(-0.05f, 0.05f, 0f);
-                ammoCanvasManager.gameObject.SetActive(true);
-                // cameraManager.MarkDock(MainCameraManager.DockID.Left, false);
+                cameraManager.MarkDock(MainCameraManager.DockID.Left, false);
             }
             else if (((int) device.characteristics) == ((int) RightHand))
             {
                 ammoCanvasManager.transform.localPosition = new Vector3(0.05f, 0.05f, 0f);
-                ammoCanvasManager.gameObject.SetActive(true);
-                // cameraManager.MarkDock(MainCameraManager.DockID.Right, false);
+                cameraManager.MarkDock(MainCameraManager.DockID.Right, false);
             }
+    
+            ammoCanvasManager.gameObject.SetActive(true);
         }
     }
 
@@ -339,16 +337,16 @@ public class GunInteractableManager : FocusManager
             controller.SetHolding(null);
             isHeld = false;
 
-            // var device = controller.GetInputDevice();
+            var device = controller.GetInputDevice();
 
-            // if (((int) device.characteristics) == ((int) LeftHand))
-            // {
-            //     cameraManager.DockObject(gameObject, MainCameraManager.DockID.Left);
-            // }
-            // else if (((int) device.characteristics) == ((int) RightHand))
-            // {
-            //     cameraManager.DockObject(gameObject, MainCameraManager.DockID.Right);
-            // }
+            if (((int) device.characteristics) == ((int) LeftHand))
+            {
+                cameraManager.DockObject(gameObject, MainCameraManager.DockID.Left);
+            }
+            else if (((int) device.characteristics) == ((int) RightHand))
+            {
+                cameraManager.DockObject(gameObject, MainCameraManager.DockID.Right);
+            }
         }
     }
 

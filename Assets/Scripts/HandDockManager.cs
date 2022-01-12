@@ -3,9 +3,7 @@ using UnityEngine;
 public class HandDockManager : MonoBehaviour
 {
     [SerializeField] new Camera camera;
-    [SerializeField] GameObject container;
 
-    public GameObject Container { get { return container; } }
     public bool InUse { get { return inUse; } set { inUse = value; } }
 
     private bool inUse;

@@ -15,6 +15,9 @@ public class MainCameraManager : MonoBehaviour
     [Header("Hits")]
     [SerializeField] bool showHits;
     [SerializeField] GameObject hitPrefab;
+
+    [Header("Audio")]
+    [SerializeField] AudioClip holsterClip, unholsterClip;
     
     private GameObject hitPrefabInstance;
     private GameObject lastObjectHit;
@@ -30,51 +33,31 @@ public class MainCameraManager : MonoBehaviour
 
     public void DockObject(GameObject gameObject, DockID dockID)
     {
+        Transform parent = null;
+
         switch (dockID)
         {
-            // float newLocalScale = other.gameObject.transform.lossyScale.x / transform.lossyScale.x;
-            // this.transform.parent=other.gameObject.transform;
-            // this.transform.localScale = newLocalScale * Vector3.one;
-            
             case DockID.Left:
                 if (!leftDock.InUse)
                 {
-                    var newScale = new Vector3 {
-                        x = leftDock.Container.transform.lossyScale.x / guns.transform.lossyScale.x,
-                        y = leftDock.Container.transform.lossyScale.y / guns.transform.lossyScale.y,
-                        z = leftDock.Container.transform.lossyScale.z / guns.transform.lossyScale.z
-                    };
-
-                    // var rotation = gameObject.transform.rotation;
-                    gameObject.transform.localRotation = Quaternion.identity;
-
-                    gameObject.transform.parent = leftDock.Container.transform;
-                    gameObject.transform.localScale = new Vector3(newScale.x, newScale.y, newScale.z);
-                    gameObject.transform.localPosition = Vector3.zero;
-                    gameObject.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
-                    MarkDock(DockID.Left, true);
+                   parent = leftDock.transform;
                 }
                 break;
 
             case DockID.Right:
                 if (!rightDock.InUse)
                 {
-                    var newScale = new Vector3 {
-                        x = rightDock.Container.transform.lossyScale.x / guns.transform.lossyScale.x,
-                        y = rightDock.Container.transform.lossyScale.y / guns.transform.lossyScale.y,
-                        z = rightDock.Container.transform.lossyScale.z / guns.transform.lossyScale.z
-                    };
-
-                    // var rotation = gameObject.transform.rotation;
-                    gameObject.transform.localRotation = Quaternion.identity;
-
-                    gameObject.transform.parent = rightDock.Container.transform;
-                    gameObject.transform.localScale = new Vector3(newScale.x, newScale.y, newScale.z);
-                    gameObject.transform.localPosition = Vector3.zero;
-                    gameObject.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
-                    MarkDock(DockID.Right, true);
+                    parent = rightDock.transform;
                 }
                 break;
+        }
+
+        if (parent != null)
+        {
+            gameObject.transform.parent = parent;
+            gameObject.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
+            gameObject.transform.localPosition = Vector3.zero;
+            MarkDock(dockID, true);
         }
     }
 
@@ -90,6 +73,8 @@ public class MainCameraManager : MonoBehaviour
                 rightDock.InUse = inUse;
                 break;
         }
+
+        AudioSource.PlayClipAtPoint(inUse ? holsterClip : unholsterClip, transform.position, 1.0f);
     }
 
     void FixedUpdate()
@@ -97,7 +82,7 @@ public class MainCameraManager : MonoBehaviour
         // Debug.DrawRay(transform.TransformPoint(Vector3.zero), transform.forward, Color.red);
         
         var ray = new Ray(transform.TransformPoint(Vector3.zero), transform.forward);
-        Debug.DrawLine(ray.origin, ray.GetPoint(10f), Color.red, 0.1f);
+        // Debug.DrawLine(ray.origin, ray.GetPoint(10f), Color.red, 0.1f);
 
         if (Physics.Raycast(ray.origin, ray.direction, out RaycastHit hit, Mathf.Infinity, defaultLayerMask))
         {
