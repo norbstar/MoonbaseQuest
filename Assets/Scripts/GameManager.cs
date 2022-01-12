@@ -57,8 +57,6 @@ public class GameManager : MonoBehaviour/*CachedObject<GameManager>*/
 
     public void ResetScene()
     {
-        Debug.Log($"GameManager.ResetScene");
-
         UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
         ResetGameState();
         ResetScore();

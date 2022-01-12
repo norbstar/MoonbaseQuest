@@ -13,7 +13,6 @@ public class AndroidController : MonoBehaviour
 
     void Awake()
     {
-        Debug.Log($"Android Controller");
         ResolveDependencies();
     }
 
