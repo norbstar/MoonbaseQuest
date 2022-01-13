@@ -187,12 +187,12 @@ public class GunInteractableManager : FocusManager, IGesture
 
             if (((int) device.characteristics) == ((int) LeftHand))
             {
-                ammoCanvasManager.transform.localPosition = new Vector3(-0.05f, 0.05f, 0f);
+                ammoCanvasManager.transform.localPosition = new Vector3(-Mathf.Abs(ammoCanvasManager.transform.localPosition.x), 0.06f, 0f);
                 cameraManager.MarkDock(MainCameraManager.DockID.Left, false);
             }
             else if (((int) device.characteristics) == ((int) RightHand))
             {
-                ammoCanvasManager.transform.localPosition = new Vector3(0.05f, 0.05f, 0f);
+                ammoCanvasManager.transform.localPosition = new Vector3(Mathf.Abs(ammoCanvasManager.transform.localPosition.x), 0.06f, 0f);
                 cameraManager.MarkDock(MainCameraManager.DockID.Right, false);
             }
     
