@@ -1,13 +1,18 @@
+using System.Collections;
+
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
 [RequireComponent(typeof(XRGrabInteractable))]
-public class FlashbangInteractableManager : FocusManager, IGesture
+public class FlashbangInteractableManager : FocusManager
 {
     [SerializeField] IdentityCanvasManager identityCanvasManager;
 
     [Header("Trigger")]
     [SerializeField] GameObject pin;
+
+    [Header("Timings")]
+    [SerializeField] float fuseDelay = 3f;
 
     [Header("Hits")]
     [SerializeField] bool showHits;
@@ -15,6 +20,7 @@ public class FlashbangInteractableManager : FocusManager, IGesture
 
     [Header("Audio")]
     [SerializeField] AudioClip releaseClip;
+    [SerializeField] AudioClip detinationClip;
 
     // [Header("Physics")]
     // [SerializeField] float force = 100f;
@@ -23,7 +29,7 @@ public class FlashbangInteractableManager : FocusManager, IGesture
 
     private XRGrabInteractable interactable;
     private GameObject interactor;
-    private Rigidbody rigidBody;
+    // private Rigidbody rigidBody;
     private bool isHeld, released;
 
     void Awake()
@@ -35,7 +41,7 @@ public class FlashbangInteractableManager : FocusManager, IGesture
 
     private void ResolveDependencies()
     {
-        rigidBody = GetComponent<Rigidbody>() as Rigidbody;
+        // rigidBody = GetComponent<Rigidbody>() as Rigidbody;
         interactable = GetComponent<XRGrabInteractable>() as XRGrabInteractable;
     }
 
@@ -61,6 +67,24 @@ public class FlashbangInteractableManager : FocusManager, IGesture
         }
     }
 
+    public void OnActivated(ActivateEventArgs args)
+    {
+        if (released) return;
+        
+        // Debug.Log($"{gameObject.name}:On Activated");
+
+        pin.SetActive(false);
+        AudioSource.PlayClipAtPoint(releaseClip, transform.position, 1.0f);
+        // rigidBody.isKinematic = false;
+        // rigidBody.useGravity = true;
+        released = true;
+    }
+
+    public void OnDeactivated(DeactivateEventArgs args)
+    {
+        // Debug.Log($"{gameObject.name}:On Deactivated");
+    }
+
     public void OnSelectExited(SelectExitEventArgs args)
     {
         // Debug.Log($"{gameObject.name}:On Select Exited");
@@ -73,10 +97,19 @@ public class FlashbangInteractableManager : FocusManager, IGesture
 
         interactor = null;
 
-        // if (released)
-        // {
-        //     rigidBody.AddForce(transform.forward * force);
-        // }
+        if (released)
+        {
+            // rigidBody.AddForce(transform.forward * force);
+            StartCoroutine(ActuateCoroutine());
+        }
+    }
+
+    private IEnumerator ActuateCoroutine()
+    {
+        yield return new WaitForSeconds(fuseDelay);
+
+        AudioSource.PlayClipAtPoint(detinationClip, transform.position, 1.0f);
+        Destroy(gameObject);
     }
 
     private bool TryGetController<HandController>(out HandController controller)
@@ -92,24 +125,5 @@ public class FlashbangInteractableManager : FocusManager, IGesture
 
         controller = default(HandController);
         return false;
-    }
-
-    public void OnGesture(HandController.Gesture gesture, object value = null)
-    {
-        if (released) return;
-
-        // Debug.Log($"{gameObject.name} On Gesture:Gesture : {gesture}");
-
-        switch (gesture)
-        {
-            case HandController.Gesture.ThumbStick_Left:
-            case HandController.Gesture.ThumbStick_Right:
-                pin.SetActive(false);
-                AudioSource.PlayClipAtPoint(releaseClip, transform.position, 1.0f);
-                rigidBody.isKinematic = false;
-                rigidBody.useGravity = true;
-                released = true;
-                break;
-        }
     }
 }
