@@ -16,6 +16,9 @@ public class FlashbangInteractableManager : FocusManager, IGesture
     [Header("Audio")]
     [SerializeField] AudioClip releaseClip;
 
+    [Header("Physics")]
+    [SerializeField] float force = 100f;
+
     public bool IsHeld { get { return isHeld; } }
 
     private XRGrabInteractable interactable;
@@ -73,6 +76,11 @@ public class FlashbangInteractableManager : FocusManager, IGesture
         if (TryGetController<HandController>(out HandController controller))
         {
             controller.SetHolding(null);
+        }
+
+        if (released)
+        {
+            rigidBody.AddForce(transform.forward * force);
         }
     }
 
