@@ -326,9 +326,10 @@ public class GunInteractableManager : FocusManager, IGesture
             ammoCanvasManager.gameObject.SetActive(false);
             DockWeapon(controller);
             controller.SetHolding(null);
-            interactor = null;
             isHeld = false;
         }
+        
+        interactor = null;
     }
 
     private void DockWeapon(HandController controller)

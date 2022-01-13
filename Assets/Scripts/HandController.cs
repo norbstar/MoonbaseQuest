@@ -110,24 +110,12 @@ public class HandController : MonoBehaviour
             {
                 thisState |= Gesture.ThumbStick_Left;
                 holding?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Left);
-
-                // if (holding.TryGetComponent<IGesture>(out IGesture gesture))
-                // {
-                //     gesture.OnGesture(Gesture.ThumbStick_Left);
-                // }
-
                 hasState = true;
             }
             else if (thumbStickValue.x > 0.9f)
             {
                 thisState |= Gesture.ThumbStick_Right;
                 holding?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Right);
-
-                // if (holding.TryGetComponent<IGesture>(out IGesture gesture))
-                // {
-                //     gesture.OnGesture(Gesture.ThumbStick_Right);
-                // }
-
                 hasState = true;
             }
         }

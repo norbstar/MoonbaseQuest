@@ -8,7 +8,7 @@ public class InteractableManager : MonoBehaviour
     public bool IsHeld { get { return isHeld; } }
 
     private XRGrabInteractable interactable;
-    private GameObject lastEngageable;
+    private GameObject interactor;
     private Rigidbody rigidBody;
     private bool isHeld;
 
@@ -23,41 +23,36 @@ public class InteractableManager : MonoBehaviour
         interactable = GetComponent<XRGrabInteractable>() as XRGrabInteractable;
     }
 
-    public void OnTriggerEnter(Collider collider)
-    {
-        // Debug.Log($"{gameObject.name}:On Trigger Enter : {collider.gameObject.tag}");
-        
-        if (collider.gameObject.CompareTag("Hand"))
-        {
-            lastEngageable = collider.gameObject;
-        }
-    }
-
-    public void OnSelectEntered()
+    public void OnSelectEntered(SelectEnterEventArgs args)
     {
         // Debug.Log($"{gameObject.name}:On Select Entered");
+        interactor = args.interactorObject.transform.gameObject;
 
         if (TryGetController<HandController>(out HandController controller))
         {
             controller.SetHolding(gameObject);
+            isHeld = true;
         }
     }
 
-    public void OnSelectExited()
+    public void OnSelectExited(SelectExitEventArgs args)
     {
         // Debug.Log($"{gameObject.name}:On Select Exited");
 
         if (TryGetController<HandController>(out HandController controller))
         {
             controller.SetHolding(null);
+            isHeld = false;
         }
+
+        interactor = null;
     }
 
     private bool TryGetController<HandController>(out HandController controller)
     {
-        if (lastEngageable != null && lastEngageable.CompareTag("Hand"))
+        if (interactor != null && interactor.CompareTag("Hand"))
         {
-            if (lastEngageable.TryGetComponent<HandController>(out HandController handController))
+            if (interactor.TryGetComponent<HandController>(out HandController handController))
             {
                 controller = handController;
                 return true;
