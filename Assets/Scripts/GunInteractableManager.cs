@@ -54,7 +54,7 @@ public class GunInteractableManager : FocusManager, IGesture
     private XRGrabInteractable interactable;
     private CurveCreator curveCreator;
     private MainCameraManager cameraManager;
-    private GameObject lastEngageable;
+    private GameObject interactor;
     private Vector3 defaultPosition;
     private Quaternion defaultRotation;
     private GameObject lastObjectHit;
@@ -172,19 +172,10 @@ public class GunInteractableManager : FocusManager, IGesture
         identityCanvasManager.gameObject.SetActive(false);
     }
 
-    public void OnTriggerEnter(Collider collider)
-    {
-        // Debug.Log($"{gameObject.name}:On Trigger Enter : {collider.gameObject.tag}");
-        
-        if (collider.gameObject.CompareTag("Hand"))
-        {
-            lastEngageable = collider.gameObject;
-        }
-    }
-
-    public void OnSelectEntered()
+    public void OnSelectEntered(SelectEnterEventArgs args)
     {
         // Debug.Log($"{gameObject.name}:On Select Entered");
+        interactor = args.interactorObject.transform.gameObject;
 
         if (TryGetController<HandController>(out HandController controller))
         {
@@ -209,7 +200,7 @@ public class GunInteractableManager : FocusManager, IGesture
         }
     }
 
-    public void OnActivated()
+    public void OnActivated(ActivateEventArgs args)
     {
         // Debug.Log($"{gameObject.name}:On Activated");
 
@@ -250,8 +241,10 @@ public class GunInteractableManager : FocusManager, IGesture
         animator.SetTrigger("Fire");
         AudioSource.PlayClipAtPoint(hitClip, transform.position, 1.0f);
 
-        var controller = lastEngageable.GetComponent<HandController>() as HandController;
-        controller?.SetImpulse();
+        if (TryGetController<HandController>(out HandController controller))
+        {
+            controller.SetImpulse();
+        }
 
         if (spawnLaser)
         {
@@ -314,20 +307,17 @@ public class GunInteractableManager : FocusManager, IGesture
         }
     }
 
-    public void OnDeactivated()
+    public void OnDeactivated(DeactivateEventArgs args)
     {
         // Debug.Log($"{gameObject.name}:On Deactivated");
 
-        if (lastEngageable.CompareTag("Hand"))
+        if (fireRepeatCoroutine != null)
         {
-            if (fireRepeatCoroutine != null)
-            {
-                StopCoroutine(fireRepeatCoroutine);
-            }
+            StopCoroutine(fireRepeatCoroutine);
         }
     }
 
-    public void OnSelectExited()
+    public void OnSelectExited(SelectExitEventArgs args)
     {
         // Debug.Log($"{gameObject.name}:On Select Exited");
 
@@ -336,6 +326,7 @@ public class GunInteractableManager : FocusManager, IGesture
             ammoCanvasManager.gameObject.SetActive(false);
             DockWeapon(controller);
             controller.SetHolding(null);
+            interactor = null;
             isHeld = false;
         }
     }
@@ -356,9 +347,9 @@ public class GunInteractableManager : FocusManager, IGesture
 
     private bool TryGetController<HandController>(out HandController controller)
     {
-        if (lastEngageable != null && lastEngageable.CompareTag("Hand"))
+        if (interactor != null && interactor.CompareTag("Hand"))
         {
-            if (lastEngageable.TryGetComponent<HandController>(out HandController handController))
+            if (interactor.TryGetComponent<HandController>(out HandController handController))
             {
                 controller = handController;
                 return true;
