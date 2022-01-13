@@ -7,7 +7,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 
 [RequireComponent(typeof(XRGrabInteractable))]
 [RequireComponent(typeof(CurveCreator))]
-public class GunInteractableManager : FocusManager
+public class GunInteractableManager : FocusManager, IGesture
 {
     public enum Mode
     {
@@ -334,19 +334,23 @@ public class GunInteractableManager : FocusManager
         if (TryGetController<HandController>(out HandController controller))
         {
             ammoCanvasManager.gameObject.SetActive(false);
+            DockWeapon(controller);
             controller.SetHolding(null);
             isHeld = false;
+        }
+    }
 
-            var device = controller.GetInputDevice();
+    private void DockWeapon(HandController controller)
+    {
+        var device = controller.GetInputDevice();
 
-            if (((int) device.characteristics) == ((int) LeftHand))
-            {
-                cameraManager.DockObject(gameObject, MainCameraManager.DockID.Left);
-            }
-            else if (((int) device.characteristics) == ((int) RightHand))
-            {
-                cameraManager.DockObject(gameObject, MainCameraManager.DockID.Right);
-            }
+        if (((int) device.characteristics) == ((int) LeftHand))
+        {
+            cameraManager.DockObject(gameObject, MainCameraManager.DockID.Left);
+        }
+        else if (((int) device.characteristics) == ((int) RightHand))
+        {
+            cameraManager.DockObject(gameObject, MainCameraManager.DockID.Right);
         }
     }
 

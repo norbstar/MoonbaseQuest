@@ -34,11 +34,22 @@ public class HandController : MonoBehaviour
     private DebugCanvas debugCanvas;
     private Gesture lastState;
 
+    void Awake()
+    {
+        ResolveDependencies();
+    }
+
+    private void ResolveDependencies()
+    {
+        xrController = GetComponent<XRController>() as XRController;
+
+        var obj = FindObjectOfType<DebugCanvas>();
+        debugCanvas = obj?.GetComponent<DebugCanvas>() as DebugCanvas;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        ResolveDependencies();
-
         controllers = new List<InputDevice>();
         InputDevices.GetDevicesWithCharacteristics(characteristics, controllers);
 
@@ -53,14 +64,6 @@ public class HandController : MonoBehaviour
 
             SetState(Gesture.None);
         }
-    }
-
-    private void ResolveDependencies()
-    {
-        xrController = GetComponent<XRController>() as XRController;
-
-        var obj = FindObjectOfType<DebugCanvas>();
-        debugCanvas = obj?.GetComponent<DebugCanvas>() as DebugCanvas;
     }
 
     // Update is called once per frame
@@ -106,13 +109,25 @@ public class HandController : MonoBehaviour
             if (thumbStickValue.x < -0.9f)
             {
                 thisState |= Gesture.ThumbStick_Left;
-                holding?.GetComponent<GunInteractableManager>().OnGesture(Gesture.ThumbStick_Left);
+                holding?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Left);
+
+                // if (holding.TryGetComponent<IGesture>(out IGesture gesture))
+                // {
+                //     gesture.OnGesture(Gesture.ThumbStick_Left);
+                // }
+
                 hasState = true;
             }
             else if (thumbStickValue.x > 0.9f)
             {
                 thisState |= Gesture.ThumbStick_Right;
-                holding?.GetComponent<GunInteractableManager>().OnGesture(Gesture.ThumbStick_Right);
+                holding?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Right);
+
+                // if (holding.TryGetComponent<IGesture>(out IGesture gesture))
+                // {
+                //     gesture.OnGesture(Gesture.ThumbStick_Right);
+                // }
+
                 hasState = true;
             }
         }
