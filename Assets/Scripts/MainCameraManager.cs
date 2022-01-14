@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class MainCameraManager : MonoBehaviour
+public class MainCameraManager : Gizmo
 {
     public enum DockID
     {
@@ -9,15 +9,16 @@ public class MainCameraManager : MonoBehaviour
     }
 
     [Header("Docks")]
-    [SerializeField] HandDockManager leftDock;
-    [SerializeField] HandDockManager rightDock;
+    [SerializeField] DockManager leftDock;
+    [SerializeField] DockManager rightDock;
 
     [Header("Hits")]
     [SerializeField] bool showHits;
     [SerializeField] GameObject hitPrefab;
 
     [Header("Audio")]
-    [SerializeField] AudioClip holsterClip, unholsterClip;
+    [SerializeField] AudioClip dockClip;
+    [SerializeField] AudioClip undockClip;
     
     private GameObject hitPrefabInstance;
     private GameObject lastObjectHit;
@@ -31,50 +32,89 @@ public class MainCameraManager : MonoBehaviour
         guns = GameObject.Find("Objects/Guns").transform;
     }
 
-    public void DockObject(GameObject gameObject, DockID dockID)
+    public void DockObject(GameObject gameObject, DockID dockID, bool allowNegotiation = true)
     {
         Transform parent = null;
 
-        switch (dockID)
-        {
-            case DockID.Left:
-                if (!leftDock.InUse)
-                {
-                   parent = leftDock.transform;
-                }
-                break;
-
-            case DockID.Right:
-                if (!rightDock.InUse)
-                {
-                    parent = rightDock.transform;
-                }
-                break;
-        }
-
-        if (parent != null)
+        if (TryDockObject(gameObject, dockID, out parent))
         {
             gameObject.transform.parent = parent;
-            gameObject.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
+            gameObject.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
             gameObject.transform.localPosition = Vector3.zero;
             MarkDock(dockID, true);
         }
+        else if (allowNegotiation)
+        {
+            dockID = (dockID == DockID.Left) ? DockID.Right : DockID.Left;
+
+            if (TryDockObject(gameObject, dockID, out parent))
+            {
+                gameObject.transform.parent = parent;
+                gameObject.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+                gameObject.transform.localPosition = Vector3.zero;
+                MarkDock(dockID, true);
+            }
+        }
     }
 
-    public void MarkDock(DockID dockID, bool inUse)
+    private bool TryDockObject(GameObject gameObject, DockID dockID, out Transform parent)
     {
         switch (dockID)
         {
             case DockID.Left:
-                leftDock.InUse = inUse;
+                if (!leftDock.Occupied)
+                {
+                    if (gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidBody))
+                    {
+                        rigidBody.velocity = Vector3.zero;
+                        rigidBody.angularVelocity = Vector3.zero;
+                        rigidBody.isKinematic = true;
+                        rigidBody.useGravity = false;
+                    }
+
+                    parent = leftDock.transform;
+                    return true;
+                }
                 break;
 
             case DockID.Right:
-                rightDock.InUse = inUse;
+                if (!rightDock.Occupied)
+                {
+                    if (gameObject.TryGetComponent<Rigidbody>(out var rigidBody))
+                    {
+                        rigidBody.velocity = Vector3.zero;
+                        rigidBody.angularVelocity = Vector3.zero;
+                        rigidBody.isKinematic = true;
+                        rigidBody.useGravity = false;
+                    }
+
+                    parent = rightDock.transform;
+                    return true;
+                }
                 break;
         }
 
-        AudioSource.PlayClipAtPoint(inUse ? holsterClip : unholsterClip, transform.position, 1.0f);
+        parent = default(Transform);
+        return false;
+    }
+
+    public void MarkDock(DockID dockID, bool occupied)
+    {
+        switch (dockID)
+        {
+            case DockID.Left:
+                leftDock.Occupied = occupied;
+                break;
+
+            case DockID.Right:
+                rightDock.Occupied = occupied;
+                break;
+        }
+
+        Debug.Log($"Left Dock:Occupied : {leftDock.Occupied}");
+        Debug.Log($"Right Dock:Occupied : {rightDock.Occupied}");
+
+        AudioSource.PlayClipAtPoint(occupied ? dockClip : undockClip, transform.position, 1.0f);
     }
 
     void FixedUpdate()

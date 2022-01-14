@@ -52,6 +52,7 @@ public class GunInteractableManager : FocusManager, IGesture
     public bool IsHeld { get { return isHeld; } }
 
     private XRGrabInteractable interactable;
+    // private Rigidbody rigidBody;
     private CurveCreator curveCreator;
     private MainCameraManager cameraManager;
     private GameObject interactor;
@@ -87,6 +88,7 @@ public class GunInteractableManager : FocusManager, IGesture
     private void ResolveDependencies()
     {
         interactable = GetComponent<XRGrabInteractable>() as XRGrabInteractable;
+        // rigidBody = GetComponent<Rigidbody>() as Rigidbody;
         curveCreator = GetComponent<CurveCreator>() as CurveCreator;
         cameraManager = camera.GetComponent<MainCameraManager>() as MainCameraManager;
     }
@@ -197,6 +199,7 @@ public class GunInteractableManager : FocusManager, IGesture
             }
     
             ammoCanvasManager.gameObject.SetActive(true);
+            // rigidBody.useGravity = true;
         }
     }
 

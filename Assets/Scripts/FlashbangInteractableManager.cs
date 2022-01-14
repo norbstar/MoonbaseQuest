@@ -6,13 +6,20 @@ using UnityEngine.XR.Interaction.Toolkit;
 [RequireComponent(typeof(XRGrabInteractable))]
 public class FlashbangInteractableManager : FocusManager
 {
+    public enum State
+    {
+        Inactive,
+        Activated,
+        Deployed
+    }
+
     [SerializeField] IdentityCanvasManager identityCanvasManager;
 
     [Header("Trigger")]
     [SerializeField] GameObject pin;
 
     [Header("Timings")]
-    [SerializeField] float fuseDelay = 3f;
+    [SerializeField] float smokeDelay = 3f;
 
     [Header("Hits")]
     [SerializeField] bool showHits;
@@ -22,26 +29,26 @@ public class FlashbangInteractableManager : FocusManager
     [SerializeField] AudioClip releaseClip;
     [SerializeField] AudioClip detinationClip;
 
-    // [Header("Physics")]
-    // [SerializeField] float force = 100f;
+    [Header("Particles")]
+    [SerializeField] new ParticleSystem particleSystem;
 
     public bool IsHeld { get { return isHeld; } }
 
     private XRGrabInteractable interactable;
     private GameObject interactor;
-    // private Rigidbody rigidBody;
-    private bool isHeld, released;
+    private bool isHeld;
+    private State state;
 
     void Awake()
     {
         ResolveDependencies();
 
         identityCanvasManager.IdentityText = gameObject.name;
+        particleSystem.Stop();
     }
 
     private void ResolveDependencies()
     {
-        // rigidBody = GetComponent<Rigidbody>() as Rigidbody;
         interactable = GetComponent<XRGrabInteractable>() as XRGrabInteractable;
     }
 
@@ -69,15 +76,13 @@ public class FlashbangInteractableManager : FocusManager
 
     public void OnActivated(ActivateEventArgs args)
     {
-        if (released) return;
+        if (state == State.Inactive) return;
         
         // Debug.Log($"{gameObject.name}:On Activated");
 
         pin.SetActive(false);
         AudioSource.PlayClipAtPoint(releaseClip, transform.position, 1.0f);
-        // rigidBody.isKinematic = false;
-        // rigidBody.useGravity = true;
-        released = true;
+        state = State.Activated;
     }
 
     public void OnDeactivated(DeactivateEventArgs args)
@@ -97,19 +102,21 @@ public class FlashbangInteractableManager : FocusManager
 
         interactor = null;
 
-        if (released)
+        if (state == State.Activated)
         {
-            // rigidBody.AddForce(transform.forward * force);
             StartCoroutine(ActuateCoroutine());
         }
     }
 
     private IEnumerator ActuateCoroutine()
     {
-        yield return new WaitForSeconds(fuseDelay);
+        yield return new WaitForSeconds(smokeDelay);
 
         AudioSource.PlayClipAtPoint(detinationClip, transform.position, 1.0f);
-        Destroy(gameObject);
+        particleSystem.transform.parent = null;
+        particleSystem.Play();
+
+        state = State.Deployed;
     }
 
     private bool TryGetController<HandController>(out HandController controller)
