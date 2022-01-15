@@ -164,14 +164,13 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
             if (((int) device.characteristics) == ((int) LeftHand))
             {
                 ammoCanvasManager.transform.localPosition = new Vector3(-Mathf.Abs(ammoCanvasManager.transform.localPosition.x), 0.06f, 0f);
-                cameraManager.MarkDock(MainCameraManager.DockID.Left, false);
             }
             else if (((int) device.characteristics) == ((int) RightHand))
             {
                 ammoCanvasManager.transform.localPosition = new Vector3(Mathf.Abs(ammoCanvasManager.transform.localPosition.x), 0.06f, 0f);
-                cameraManager.MarkDock(MainCameraManager.DockID.Right, false);
             }
-    
+
+            cameraManager.UndockWeapon(gameObject);
             ammoCanvasManager.gameObject.SetActive(true);
         }
     }
@@ -305,11 +304,11 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
         if (((int) device.characteristics) == ((int) LeftHand))
         {
-            cameraManager.DockObject(gameObject, MainCameraManager.DockID.Left);
+            cameraManager.DockWeapon(gameObject, MainCameraManager.DockID.Left, Quaternion.Euler(90f, 0f, 0f));
         }
         else if (((int) device.characteristics) == ((int) RightHand))
         {
-            cameraManager.DockObject(gameObject, MainCameraManager.DockID.Right);
+            cameraManager.DockWeapon(gameObject, MainCameraManager.DockID.Right, Quaternion.Euler(90f, 0f, 0f));
         }
     }
 

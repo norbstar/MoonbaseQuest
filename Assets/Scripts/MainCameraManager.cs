@@ -8,6 +8,12 @@ public class MainCameraManager : Gizmo
         Right
     }
 
+    // public class Pose
+    // {
+    //     public Vector3 position;
+    //     public Quaternion rotation;
+    // }
+
     [Header("Docks")]
     [SerializeField] DockManager leftDock;
     [SerializeField] DockManager rightDock;
@@ -36,37 +42,75 @@ public class MainCameraManager : Gizmo
         guns = GameObject.Find("Objects/Guns").transform;
     }
 
-    public void DockObject(GameObject gameObject, DockID dockID, bool allowNegotiation = true)
+    public bool DockWeapon(GameObject gameObject, DockID dockID, Quaternion localRotation, bool allowNegotiation = true)
     {
         Transform parent = null;
 
-        if (TryDockObject(gameObject, dockID, out parent))
-        {
-            gameObject.transform.parent = parent;
-            gameObject.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
-            gameObject.transform.localPosition = Vector3.zero;
-            MarkDock(dockID, true);
-        }
-        else if (allowNegotiation)
+        // if (TryDockObject(gameObject, dockID, out parent))
+        // {
+        //     gameObject.transform.parent = parent;
+        //     gameObject.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+        //     gameObject.transform.localPosition = Vector3.zero;
+        //     MarkDock(dockID, true);
+        // }
+        // else if (allowNegotiation)
+        // {
+        //     dockID = (dockID == DockID.Left) ? DockID.Right : DockID.Left;
+
+        //     if (TryDockObject(gameObject, dockID, out parent))
+        //     {
+        //         gameObject.transform.parent = parent;
+        //         gameObject.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+        //         gameObject.transform.localPosition = Vector3.zero;
+        //         MarkDock(dockID, true);
+        //     }
+        // }
+
+        // if (TryDockObject(gameObject, dockID, out parent))
+        // {
+        //     gameObject.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+        //     gameObject.transform.localPosition = Vector3.zero;
+        // }
+        // else if (allowNegotiation)
+        // {
+        //     dockID = (dockID == DockID.Left) ? DockID.Right : DockID.Left;
+
+        //     if (TryDockObject(gameObject, dockID, out parent))
+        //     {
+        //         gameObject.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+        //         gameObject.transform.localPosition = Vector3.zero;
+        //     }
+        // }
+
+        // var pose = new Pose
+        // {
+        //     position = Vector3.zero,
+        //     rotation = Quaternion.Euler(90f, 0f, 0f)
+        // };
+
+        // if (!TryDockObject(gameObject, dockID, localRotation, out parent) && allowNegotiation)
+        // {
+        //     dockID = (dockID == DockID.Left) ? DockID.Right : DockID.Left;
+        //     TryDockObject(gameObject, dockID, localRotation, out parent);
+        // }
+
+        bool docked = false;
+
+        if (!(docked = TryDockObject(gameObject, dockID, localRotation, out parent)) && allowNegotiation)
         {
             dockID = (dockID == DockID.Left) ? DockID.Right : DockID.Left;
-
-            if (TryDockObject(gameObject, dockID, out parent))
-            {
-                gameObject.transform.parent = parent;
-                gameObject.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
-                gameObject.transform.localPosition = Vector3.zero;
-                MarkDock(dockID, true);
-            }
+            docked = TryDockObject(gameObject, dockID, localRotation, out parent);
         }
+
+        return docked;
     }
 
-    private bool TryDockObject(GameObject gameObject, DockID dockID, out Transform parent)
+    private bool TryDockObject(GameObject gameObject, DockID dockID, Quaternion localRotation, out Transform parent)
     {
         switch (dockID)
         {
             case DockID.Left:
-                if (!leftDock.Occupied)
+                if (!leftDock.Occupied.occupied)
                 {
                     if (gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidBody))
                     {
@@ -77,12 +121,18 @@ public class MainCameraManager : Gizmo
                     }
 
                     parent = leftDock.transform;
+            
+                    gameObject.transform.parent = parent;
+                    gameObject.transform.localRotation = localRotation;
+                    gameObject.transform.localPosition = Vector3.zero;
+                    MarkDock(dockID, gameObject, true);
+
                     return true;
                 }
                 break;
 
             case DockID.Right:
-                if (!rightDock.Occupied)
+                if (!rightDock.Occupied.occupied)
                 {
                     if (gameObject.TryGetComponent<Rigidbody>(out var rigidBody))
                     {
@@ -93,6 +143,12 @@ public class MainCameraManager : Gizmo
                     }
 
                     parent = rightDock.transform;
+
+                    gameObject.transform.parent = parent;
+                    gameObject.transform.localRotation = localRotation;
+                    gameObject.transform.localPosition = Vector3.zero;
+                    MarkDock(dockID, gameObject, true);
+
                     return true;
                 }
                 break;
@@ -102,16 +158,47 @@ public class MainCameraManager : Gizmo
         return false;
     }
 
-    public void MarkDock(DockID dockID, bool occupied)
+    public bool UndockWeapon(GameObject gameObject)
+    {
+        if (leftDock.Occupied.occupied && Object.ReferenceEquals(gameObject, leftDock.Occupied.gameObject))
+        {
+            MarkDock(DockID.Left, gameObject, false);
+            return true;
+        }
+        else if (rightDock.Occupied.occupied && Object.ReferenceEquals(gameObject, rightDock.Occupied.gameObject))
+        {
+            MarkDock(DockID.Right, gameObject, false);
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool IsDocked(GameObject gameObject)
+    {
+        return
+            (leftDock.Occupied.occupied && Object.ReferenceEquals(gameObject, leftDock.Occupied.gameObject)) ||
+            (rightDock.Occupied.occupied && Object.ReferenceEquals(gameObject, rightDock.Occupied.gameObject));
+    }
+
+     private void MarkDock(DockID dockID, GameObject gameObject, bool occupied)
     {
         switch (dockID)
         {
             case DockID.Left:
-                leftDock.Occupied = occupied;
+                leftDock.Occupied = new DockManager.OccupancyData
+                {
+                    occupied = occupied,
+                    gameObject = (occupied) ? gameObject : null
+                };
                 break;
 
             case DockID.Right:
-                rightDock.Occupied = occupied;
+                rightDock.Occupied = new DockManager.OccupancyData
+                {
+                    occupied = occupied,
+                    gameObject = (occupied) ? gameObject : null
+                };
                 break;
         }
 

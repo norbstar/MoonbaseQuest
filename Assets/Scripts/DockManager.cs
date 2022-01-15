@@ -1,9 +1,18 @@
+using System;
+
 using UnityEngine;
 
 public class DockManager : Gizmo
 {
+    [Serializable]
+    public class OccupancyData
+    {
+        public bool occupied;
+        public GameObject gameObject;
+    }
+    
     [Header("Status")]
-    [SerializeField] private bool occupied;
+    [SerializeField] private OccupancyData occupied;
 
-    public bool Occupied { get { return occupied; } set { occupied = value; } }
+    public OccupancyData Occupied { get { return (occupied != null) ? occupied : new OccupancyData(); } set { occupied = value; } }
 }
