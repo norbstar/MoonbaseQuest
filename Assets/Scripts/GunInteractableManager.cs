@@ -81,7 +81,6 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     private void ResolveDependencies()
     {
-        // rigidBody = GetComponent<Rigidbody>() as Rigidbody;
         curveCreator = GetComponent<CurveCreator>() as CurveCreator;
         cameraManager = camera.GetComponent<MainCameraManager>() as MainCameraManager;
     }
@@ -94,10 +93,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
         if (Physics.Raycast(ray.origin, ray.direction, out RaycastHit hit, Mathf.Infinity, mixedLayerMask))
         {
             var objectHit = hit.transform.gameObject;
-            // Debug.Log($"{gameObject.name}.Hit:{objectHit.name}");
-
             var point = hit.point;
-            // Debug.Log($"{gameObject.name}.Point:{point}");
 
             if (showHits)
             {
@@ -157,15 +153,12 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
         }
     }
 
-    public override void OnSelectEntered(SelectEnterEventArgs args)
+    protected override void OnSelectEntered(SelectEnterEventArgs args, HandController controller)
     {
-        base.OnSelectEntered(args);
+        gameObject.transform.parent = guns;
 
-        // Debug.Log($"{gameObject.name}:On Select Entered");
-
-        if (TryGetController<HandController>(out HandController controller))
+        if (controller = null)
         {
-            gameObject.transform.parent = guns;
             var device = controller.GetInputDevice();
 
             if (((int) device.characteristics) == ((int) LeftHand))
@@ -180,14 +173,11 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
             }
     
             ammoCanvasManager.gameObject.SetActive(true);
-            // rigidBody.useGravity = true;
         }
     }
 
     public void OnActivated(ActivateEventArgs args)
     {
-        // Debug.Log($"{gameObject.name}:On Activated");
-
         if (mode == Mode.Manual)
         {
             FireOnce();
@@ -293,23 +283,18 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     public void OnDeactivated(DeactivateEventArgs args)
     {
-        // Debug.Log($"{gameObject.name}:On Deactivated");
-
         if (fireRepeatCoroutine != null)
         {
             StopCoroutine(fireRepeatCoroutine);
         }
     }
 
-    public override void OnSelectExited(SelectExitEventArgs args)
+    protected override void OnSelectExited(SelectExitEventArgs args, HandController controller)
     {
-        base.OnSelectExited(args);
+        ammoCanvasManager.gameObject.SetActive(false);
 
-        // Debug.Log($"{gameObject.name}:On Select Exited");
-
-        if (TryGetController<HandController>(out HandController controller))
+        if (controller != null)
         {
-            ammoCanvasManager.gameObject.SetActive(false);
             DockWeapon(controller);
         }
     }
@@ -330,8 +315,6 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     public void OnGesture(HandController.Gesture gesture, object value = null)
     {
-        // Debug.Log($"{gameObject.name} On Gesture:Gesture : {gesture}");
-
         switch (gesture)
         {
             case HandController.Gesture.ThumbStick_Left:

@@ -7,7 +7,7 @@ public class InteractableManager : MonoBehaviour
     public bool IsHeld { get { return isHeld; } }
 
     protected XRGrabInteractable interactable;
-    
+
     private GameObject interactor;
     private bool isHeld;
 
@@ -21,7 +21,7 @@ public class InteractableManager : MonoBehaviour
         interactable = GetComponent<XRGrabInteractable>() as XRGrabInteractable;
     }
 
-    public virtual void OnSelectEntered(SelectEnterEventArgs args)
+    public void OnSelectEntered(SelectEnterEventArgs args)
     {
         interactor = args.interactorObject.transform.gameObject;
 
@@ -30,9 +30,13 @@ public class InteractableManager : MonoBehaviour
             controller.SetHolding(gameObject);
             isHeld = true;
         }
+
+        OnSelectEntered(args, controller);
     }
 
-    public virtual void OnSelectExited(SelectExitEventArgs args)
+    protected virtual void OnSelectEntered(SelectEnterEventArgs args, HandController controller) { }
+
+    public void OnSelectExited(SelectExitEventArgs args)
     {
         if (TryGetController<HandController>(out HandController controller))
         {
@@ -40,8 +44,12 @@ public class InteractableManager : MonoBehaviour
             isHeld = false;
         }
 
+        OnSelectExited(args, controller);
+
         interactor = null;
     }
+
+    protected virtual void OnSelectExited(SelectExitEventArgs args, HandController controller) { }
 
     protected bool TryGetController<HandController>(out HandController controller)
     {

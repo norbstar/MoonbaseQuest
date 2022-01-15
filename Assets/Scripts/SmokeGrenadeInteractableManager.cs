@@ -56,10 +56,8 @@ public class SmokeGrenadeInteractableManager : FocusableInteractableManager
         state = State.Activated;
     }
 
-    public override void OnSelectExited(SelectExitEventArgs args)
+    protected override void OnSelectExited(SelectExitEventArgs args, HandController controller)
     {
-        base.OnSelectExited(args);
-
         if (state == State.Activated)
         {
             StartCoroutine(ActuateCoroutine());
