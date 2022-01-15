@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 using UnityEngine;
@@ -22,6 +23,9 @@ public class HandController : MonoBehaviour
     [SerializeField] InputDeviceCharacteristics characteristics;
     [SerializeField] InputDevice controller;
     [SerializeField] new Camera camera;
+    
+    [Header("Teleport")]
+    [SerializeField] float teleportSpeed = 5f;
 
     public InputDeviceCharacteristics Characteristics { get { return characteristics; } }
     public InputDevice Controller { get { return controller; } }
@@ -100,13 +104,17 @@ public class HandController : MonoBehaviour
 
             if (gripValue > 0.1f)
             {
-                thisState |= Gesture.Grip;
-                hasState = true;
-
                 if (!thisState.HasFlag(Gesture.Grip) && (cameraManager.TryGetFocus(out GameObject focus)))
                 {
-                    Debug.Log($"{thisController.name}.Grip.Teleport:{focus.name}");
+                    if  (focus.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
+                    {
+                        // Debug.Log($"{thisController.name}.Grip.Teleport:{focus.name}");
+                        StartCoroutine(TeleportGrabable(focus));
+                    }
                 }
+
+                thisState |= Gesture.Grip;
+                hasState = true;
             }
         }
 
@@ -175,6 +183,17 @@ public class HandController : MonoBehaviour
     {
         var controller = GetComponent<XRController>() as XRController;
         return controller.inputDevice;
+    }
+
+    private IEnumerator TeleportGrabable(GameObject grabable)
+    {
+        float step =  teleportSpeed * Time.deltaTime;
+
+        while (Vector3.Distance(transform.position, grabable.transform.position) > 0.1f)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, grabable.transform.position, step);
+            yield return null;
+        }
     }
 
     private void Log(string message)
