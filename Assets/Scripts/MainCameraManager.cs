@@ -147,9 +147,6 @@ public class MainCameraManager : Gizmo
                 break;
         }
 
-        Debug.Log($"Left Dock:Occupied : {leftDock.Occupied}");
-        Debug.Log($"Right Dock:Occupied : {rightDock.Occupied}");
-
         AudioSource.PlayClipAtPoint(occupied ? dockClip : undockClip, transform.position, 1.0f);
     }
 
@@ -157,14 +154,7 @@ public class MainCameraManager : Gizmo
     {
         // Debug.DrawRay(transform.TransformPoint(Vector3.zero), transform.forward, Color.red);
 
-#if true
-        if (Physics.SphereCast(
-            transform.TransformPoint(Vector3.zero),
-            0.25f,
-            transform.forward,
-            out RaycastHit hit,
-            Mathf.Infinity,
-            defaultLayerMask))
+        if (Physics.SphereCast(transform.TransformPoint(Vector3.zero), 0.25f, transform.forward, out RaycastHit hit, Mathf.Infinity, defaultLayerMask))
         {
             var objectHit = hit.transform.gameObject;
             var point = hit.point;
@@ -218,67 +208,6 @@ public class MainCameraManager : Gizmo
             hitPrefabInstance?.SetActive(false);
             lastObjectHit = null;
         }
-#endif
-
-#if false
-        var ray = new Ray(transform.TransformPoint(Vector3.zero), transform.forward);
-        // Debug.DrawLine(ray.origin, ray.GetPoint(10f), Color.red, 0.1f);
-
-        if (Physics.Raycast(ray.origin, ray.direction, out RaycastHit hit, Mathf.Infinity, defaultLayerMask))
-        {
-            var objectHit = hit.transform.gameObject;
-            var point = hit.point;
-
-            if (showHits)
-            {
-                if (hitPrefabInstance == null)
-                {
-                    hitPrefabInstance = Instantiate(hitPrefab, point, objectHit.transform.rotation);
-                }
-                else
-                {
-                    hitPrefabInstance.transform.position = point;
-                    hitPrefabInstance.SetActive(true);
-                }
-            }
-
-            if (!GameObject.ReferenceEquals(objectHit, lastObjectHit))
-            {
-                if (lastFocus != null)
-                {
-                    lastFocus.LostFocus(gameObject);
-                    lastFocus = null;
-                }
-
-                if (objectHit.TryGetComponent<IFocus>(out IFocus focus))
-                {
-                    focus.GainedFocus(gameObject);
-                    lastFocus = focus;
-
-                    // var distanceToPoint = Vector3.Distance(transform.position, point);
-
-                    // if ((distanceToPoint <= farClippingDistance) && (distanceToPoint >= nearClippingDistance))
-                    // {
-                    //     focus.GainedFocus(gameObject);
-                    //     lastFocus = focus;
-                    // }
-                }
-
-                lastObjectHit = objectHit;
-            }
-        }
-        else
-        {
-            if (lastFocus != null)
-            {
-                lastFocus.LostFocus(gameObject);
-                lastFocus = null;
-            }
-
-            hitPrefabInstance?.SetActive(false);
-            lastObjectHit = null;
-        }
-#endif
     }
 
     public bool TryGetFocus(out GameObject focus)
