@@ -8,12 +8,6 @@ public class MainCameraManager : Gizmo
         Right
     }
 
-    // public class Pose
-    // {
-    //     public Vector3 position;
-    //     public Quaternion rotation;
-    // }
-
     [Header("Docks")]
     [SerializeField] DockManager leftDock;
     [SerializeField] DockManager rightDock;
@@ -45,55 +39,6 @@ public class MainCameraManager : Gizmo
     public bool DockWeapon(GameObject gameObject, DockID dockID, Quaternion localRotation, bool allowNegotiation = true)
     {
         Transform parent = null;
-
-        // if (TryDockObject(gameObject, dockID, out parent))
-        // {
-        //     gameObject.transform.parent = parent;
-        //     gameObject.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
-        //     gameObject.transform.localPosition = Vector3.zero;
-        //     MarkDock(dockID, true);
-        // }
-        // else if (allowNegotiation)
-        // {
-        //     dockID = (dockID == DockID.Left) ? DockID.Right : DockID.Left;
-
-        //     if (TryDockObject(gameObject, dockID, out parent))
-        //     {
-        //         gameObject.transform.parent = parent;
-        //         gameObject.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
-        //         gameObject.transform.localPosition = Vector3.zero;
-        //         MarkDock(dockID, true);
-        //     }
-        // }
-
-        // if (TryDockObject(gameObject, dockID, out parent))
-        // {
-        //     gameObject.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
-        //     gameObject.transform.localPosition = Vector3.zero;
-        // }
-        // else if (allowNegotiation)
-        // {
-        //     dockID = (dockID == DockID.Left) ? DockID.Right : DockID.Left;
-
-        //     if (TryDockObject(gameObject, dockID, out parent))
-        //     {
-        //         gameObject.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
-        //         gameObject.transform.localPosition = Vector3.zero;
-        //     }
-        // }
-
-        // var pose = new Pose
-        // {
-        //     position = Vector3.zero,
-        //     rotation = Quaternion.Euler(90f, 0f, 0f)
-        // };
-
-        // if (!TryDockObject(gameObject, dockID, localRotation, out parent) && allowNegotiation)
-        // {
-        //     dockID = (dockID == DockID.Left) ? DockID.Right : DockID.Left;
-        //     TryDockObject(gameObject, dockID, localRotation, out parent);
-        // }
-
         bool docked = false;
 
         if (!(docked = TryDockObject(gameObject, dockID, localRotation, out parent)) && allowNegotiation)
@@ -211,17 +156,18 @@ public class MainCameraManager : Gizmo
     void FixedUpdate()
     {
         // Debug.DrawRay(transform.TransformPoint(Vector3.zero), transform.forward, Color.red);
-        
-        var ray = new Ray(transform.TransformPoint(Vector3.zero), transform.forward);
-        // Debug.DrawLine(ray.origin, ray.GetPoint(10f), Color.red, 0.1f);
 
-        if (Physics.Raycast(ray.origin, ray.direction, out RaycastHit hit, Mathf.Infinity, defaultLayerMask))
+#if true
+        if (Physics.SphereCast(
+            transform.TransformPoint(Vector3.zero),
+            0.25f,
+            transform.forward,
+            out RaycastHit hit,
+            Mathf.Infinity,
+            defaultLayerMask))
         {
             var objectHit = hit.transform.gameObject;
-            // Debug.Log($"{gameObject.name}.Hit:{objectHit.name}");
-
             var point = hit.point;
-            // Debug.Log($"{gameObject.name}.Point:{point}");
 
             if (showHits)
             {
@@ -272,5 +218,78 @@ public class MainCameraManager : Gizmo
             hitPrefabInstance?.SetActive(false);
             lastObjectHit = null;
         }
+#endif
+
+#if false
+        var ray = new Ray(transform.TransformPoint(Vector3.zero), transform.forward);
+        // Debug.DrawLine(ray.origin, ray.GetPoint(10f), Color.red, 0.1f);
+
+        if (Physics.Raycast(ray.origin, ray.direction, out RaycastHit hit, Mathf.Infinity, defaultLayerMask))
+        {
+            var objectHit = hit.transform.gameObject;
+            var point = hit.point;
+
+            if (showHits)
+            {
+                if (hitPrefabInstance == null)
+                {
+                    hitPrefabInstance = Instantiate(hitPrefab, point, objectHit.transform.rotation);
+                }
+                else
+                {
+                    hitPrefabInstance.transform.position = point;
+                    hitPrefabInstance.SetActive(true);
+                }
+            }
+
+            if (!GameObject.ReferenceEquals(objectHit, lastObjectHit))
+            {
+                if (lastFocus != null)
+                {
+                    lastFocus.LostFocus(gameObject);
+                    lastFocus = null;
+                }
+
+                if (objectHit.TryGetComponent<IFocus>(out IFocus focus))
+                {
+                    focus.GainedFocus(gameObject);
+                    lastFocus = focus;
+
+                    // var distanceToPoint = Vector3.Distance(transform.position, point);
+
+                    // if ((distanceToPoint <= farClippingDistance) && (distanceToPoint >= nearClippingDistance))
+                    // {
+                    //     focus.GainedFocus(gameObject);
+                    //     lastFocus = focus;
+                    // }
+                }
+
+                lastObjectHit = objectHit;
+            }
+        }
+        else
+        {
+            if (lastFocus != null)
+            {
+                lastFocus.LostFocus(gameObject);
+                lastFocus = null;
+            }
+
+            hitPrefabInstance?.SetActive(false);
+            lastObjectHit = null;
+        }
+#endif
+    }
+
+    public bool TryGetFocus(out GameObject focus)
+    {
+        if (lastFocus != null)
+        {
+            focus = ((MonoBehaviour) lastFocus).gameObject;
+            return true;
+        }
+
+        focus = default(GameObject);
+        return false;
     }
 }

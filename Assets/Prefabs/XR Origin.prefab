@@ -401,7 +401,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2253587811663707131}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.25, y: 0, z: 0.5}
+  m_LocalPosition: {x: -0.25, y: 0, z: 0.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1313568065}
@@ -546,7 +546,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5528593820087393307}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.25, y: 0, z: 0.5}
+  m_LocalPosition: {x: 0.25, y: 0, z: 0.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 410581208}
@@ -1381,8 +1381,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3bff0ca9bfc47841bca8658881f1048, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enableLogging: 0
+  enableLogging: 1
   characteristics: 576
+  camera: {fileID: 7830393975865850514}
 --- !u!1 &7830393974967712891
 GameObject:
   m_ObjectHideFlags: 0
@@ -1674,8 +1675,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3bff0ca9bfc47841bca8658881f1048, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enableLogging: 0
+  enableLogging: 1
   characteristics: 320
+  camera: {fileID: 7830393975865850514}
 --- !u!1 &7830393975129581648
 GameObject:
   m_ObjectHideFlags: 0
@@ -2651,8 +2653,8 @@ MonoBehaviour:
   hitPrefab: {fileID: 6110918014904403394, guid: 5d95586bfd9e933439d256446fab489c, type: 3}
   dockClip: {fileID: 8300000, guid: 457e8934aa366d141a7373c2d7c134e3, type: 3}
   undockClip: {fileID: 8300000, guid: bca10f757ce3c3c4e9353aaa76e12489, type: 3}
-  nearClippingDistance: 0
-  farClippingDistance: 0
+  nearClippingDistance: 0.5
+  farClippingDistance: 2.5
 --- !u!1 &8692910005781040175
 GameObject:
   m_ObjectHideFlags: 0

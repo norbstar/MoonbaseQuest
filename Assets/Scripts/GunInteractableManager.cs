@@ -87,6 +87,8 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     void FixedUpdate()
     {
+        // Debug.DrawRay(transform.TransformPoint(Vector3.zero), transform.forward, Color.red);
+        
         var ray = new Ray(spawnPoint.transform.position, spawnPoint.transform.forward);
         // Debug.DrawLine(ray.origin, ray.GetPoint(10f), Color.blue, 0.1f);
 

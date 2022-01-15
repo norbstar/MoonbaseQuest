@@ -21,12 +21,14 @@ public class HandController : MonoBehaviour
     [SerializeField] bool enableLogging = false;
     [SerializeField] InputDeviceCharacteristics characteristics;
     [SerializeField] InputDevice controller;
+    [SerializeField] new Camera camera;
 
     public InputDeviceCharacteristics Characteristics { get { return characteristics; } }
     public InputDevice Controller { get { return controller; } }
     public bool IsHolding { get { return isHolding; } }
 
     private List<InputDevice> controllers;
+    private MainCameraManager cameraManager;
     private InputDevice thisController;
     private XRController xrController;
     private bool isHolding = false;
@@ -42,6 +44,7 @@ public class HandController : MonoBehaviour
     private void ResolveDependencies()
     {
         xrController = GetComponent<XRController>() as XRController;
+        cameraManager = camera.GetComponent<MainCameraManager>() as MainCameraManager;
 
         var obj = FindObjectOfType<DebugCanvas>();
         debugCanvas = obj?.GetComponent<DebugCanvas>() as DebugCanvas;
@@ -99,6 +102,11 @@ public class HandController : MonoBehaviour
             {
                 thisState |= Gesture.Grip;
                 hasState = true;
+
+                if (!thisState.HasFlag(Gesture.Grip) && (cameraManager.TryGetFocus(out GameObject focus)))
+                {
+                    Debug.Log($"{thisController.name}.Grip.Teleport:{focus.name}");
+                }
             }
         }
 
