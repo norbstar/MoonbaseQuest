@@ -60,7 +60,7 @@ public class HandController : MonoBehaviour
 
         if (thisController.isValid)
         {
-            if (enableLogging) Debug.Log($"{thisController.name}.Detected");
+            Log($"{thisController.name}.Detected");
 
             SetState(Gesture.None);
         }
@@ -76,7 +76,7 @@ public class HandController : MonoBehaviour
 
         if (thisController.TryGetFeatureValue(CommonUsages.trigger, out float triggerValue))
         {
-            if (enableLogging) Debug.Log($"{thisController.name}.Trigger:{triggerValue}");
+            Log($"{thisController.name}.Trigger:{triggerValue}");
             
             var handAnimationController = xrController.model.GetComponent<HandAnimationController>() as HandAnimationController;
             handAnimationController?.SetFloat("Trigger", triggerValue);
@@ -90,7 +90,7 @@ public class HandController : MonoBehaviour
 
         if (thisController.TryGetFeatureValue(CommonUsages.grip, out float gripValue))
         {
-            if (enableLogging) Debug.Log($"{thisController.name}.Grip:{gripValue}");
+            Log($"{thisController.name}.Grip:{gripValue}");
 
             var handAnimationController = xrController.model.GetComponent<HandAnimationController>() as HandAnimationController;
             handAnimationController?.SetFloat("Grip", gripValue);
@@ -104,7 +104,7 @@ public class HandController : MonoBehaviour
 
         if (thisController.TryGetFeatureValue(CommonUsages.primary2DAxis, out Vector2 thumbStickValue))
         {
-            if (enableLogging) Debug.Log($"{thisController.name}.Thumb Stick:{thumbStickValue.x} {thumbStickValue.y}");
+            Log($"{thisController.name}.Thumb Stick:{thumbStickValue.x} {thumbStickValue.y}");
 
             if (thumbStickValue.x < -0.9f)
             {
@@ -137,7 +137,7 @@ public class HandController : MonoBehaviour
 
     private void SetState(Gesture state)
     {
-        if (enableLogging) Debug.Log($"{thisController.name}.State : {state}");
+        Log($"{thisController.name}.State : {state}");
         this.lastState = state;
     }
 
@@ -146,7 +146,7 @@ public class HandController : MonoBehaviour
         isHolding = (obj != null);
         holding = obj;
 
-        if (enableLogging) Debug.Log($"{gameObject.name}.IsHolding : {isHolding}");
+        Log($"{gameObject.name}.IsHolding : {isHolding}");
     }
 
     public void SetImpulse(float amplitude = 1.0f, float duration = 0.1f, uint channel = 0)
@@ -167,5 +167,11 @@ public class HandController : MonoBehaviour
     {
         var controller = GetComponent<XRController>() as XRController;
         return controller.inputDevice;
+    }
+
+    private void Log(string message)
+    {
+        if (!enableLogging) return;
+        Debug.Log(message);
     }
 }

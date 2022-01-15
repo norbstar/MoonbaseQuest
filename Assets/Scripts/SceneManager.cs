@@ -36,33 +36,35 @@ public class SceneManager : MonoBehaviour
 
     private void OnDeviceConnected(InputDevice device)
     {
-        if (!enableLogging) return;
-
-        Debug.Log($"{device.name}.Connected");
+        Log($"{device.name}.Connected");
 
         if (((int) device.characteristics) == ((int) LeftHand))
         {
-            Debug.Log($"{device.name}.Identified as Left Hand");
+            Log($"{device.name}.Identified as Left Hand");
         }
         else if (((int) device.characteristics) == ((int) RightHand))
         {
-            Debug.Log($"{device.name}.Identified as Right Hand");
+            Log($"{device.name}.Identified as Right Hand");
         }
     }
 
     private void OnDeviceDisconnected(InputDevice device)
     {
-        if (!enableLogging) return;
-        
-        Debug.Log($"{device.name}.Disconnected");
+        Log($"{device.name}.Disconnected");
 
         if (((int) device.characteristics) == ((int) LeftHand))
         {
-            Debug.Log($"{device.name}.Identified as Left Hand");
+            Log($"{device.name}.Identified as Left Hand");
         }
         else if (((int) device.characteristics) == ((int) RightHand))
         {
-            Debug.Log($"{device.name}.Identified as Right Hand");
+            Log($"{device.name}.Identified as Right Hand");
         }
+    }
+
+    private void Log(string message)
+    {
+        if (!enableLogging) return;
+        Debug.Log(message);
     }
 }
