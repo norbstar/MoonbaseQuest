@@ -7,7 +7,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 
 [RequireComponent(typeof(XRGrabInteractable))]
 [RequireComponent(typeof(CurveCreator))]
-public class GunInteractableManager : FocusManager, IGesture
+public class GunInteractableManager : FocusableManager, IGesture
 {
     public enum Mode
     {

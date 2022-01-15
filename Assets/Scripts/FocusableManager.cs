@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public abstract class FocusManager : MonoBehaviour, IFocus
+public class FocusableManager : MonoBehaviour, IFocus
 {
     public bool HasFocus { get { return hasFocusCount > 0; } }
     public bool HasMultiFocus { get { return hasFocusCount > 1; } }
@@ -9,8 +9,6 @@ public abstract class FocusManager : MonoBehaviour, IFocus
 
     public void GainedFocus(GameObject focusObject)
     {
-        // Debug.Log($"{gameObject.name}.Focus:GainedFocus");
-
         if (!HasFocus)
         {
             OnFocusGained();
@@ -19,12 +17,10 @@ public abstract class FocusManager : MonoBehaviour, IFocus
         ++hasFocusCount;
     }
 
-    protected abstract void OnFocusGained();
+    protected virtual void OnFocusGained() { }
 
     public void LostFocus(GameObject focusObject)
     {
-        // Debug.Log($"{gameObject.name}.Focus:LostFocus");
-
         if (!HasMultiFocus)
         {
             OnFocusLost();
@@ -33,5 +29,5 @@ public abstract class FocusManager : MonoBehaviour, IFocus
         --hasFocusCount;
     }
 
-    protected abstract void OnFocusLost();
+    protected virtual void OnFocusLost() { }
 }

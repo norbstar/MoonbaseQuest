@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class IdentityManager : FocusManager
+public class IdentityManager : FocusableManager
 {
     [SerializeField] IdentityCanvasManager identityCanvasManager;
 

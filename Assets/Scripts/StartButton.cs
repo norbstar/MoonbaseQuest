@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
 [RequireComponent(typeof(FX.ScaleFX))]
-public class StartButton : FocusManager, IInteractableEvent
+public class StartButton : FocusableManager, IInteractableEvent
 {
     public enum Event
     {

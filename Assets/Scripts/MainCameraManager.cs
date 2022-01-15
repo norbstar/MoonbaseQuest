@@ -19,7 +19,11 @@ public class MainCameraManager : Gizmo
     [Header("Audio")]
     [SerializeField] AudioClip dockClip;
     [SerializeField] AudioClip undockClip;
-    
+
+    [Header("Identity")]
+    [SerializeField] float nearClippingDistance;
+    [SerializeField] float farClippingDistance;
+
     private GameObject hitPrefabInstance;
     private GameObject lastObjectHit;
     private IFocus lastFocus;
@@ -157,7 +161,15 @@ public class MainCameraManager : Gizmo
                 {
                     focus.GainedFocus(gameObject);
                     lastFocus = focus;
-                }            
+
+                    // var distanceToPoint = Vector3.Distance(transform.position, point);
+
+                    // if ((distanceToPoint <= farClippingDistance) && (distanceToPoint >= nearClippingDistance))
+                    // {
+                    //     focus.GainedFocus(gameObject);
+                    //     lastFocus = focus;
+                    // }
+                }
 
                 lastObjectHit = objectHit;
             }

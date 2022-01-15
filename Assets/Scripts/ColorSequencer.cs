@@ -13,15 +13,39 @@ public abstract class ColorSequencer : MonoBehaviour
     [SerializeField] Gradient gradient;
     [SerializeField] float duration = 10.0f;
     [SerializeField] Type type;
+    [SerializeField] bool autoStart = true;
     [SerializeField] bool repeat = false;
     [SerializeField] private Color preview;
 
     protected abstract void SetColor(Color color);
 
+    private Coroutine coroutine;
+    private bool inCoroutine = false;
+
     // Start is called before the first frame update
-    IEnumerator Start()
+    void Start()
     {
-        yield return StartCoroutine(ColorShiftCoroutine());
+        if (autoStart)
+        {
+            coroutine = StartCoroutine(ColorShiftCoroutine());
+        }
+    }
+
+    public void StartSequence()
+    {
+        if (!inCoroutine)
+        {
+            coroutine = StartCoroutine(ColorShiftCoroutine());
+        }
+    }
+
+    public void StopSequence()
+    {
+        if (coroutine != null)
+        {
+            StopCoroutine(coroutine);
+            inCoroutine = false;
+        }
     }
 
     private IEnumerator ColorShiftCoroutine()
@@ -29,6 +53,8 @@ public abstract class ColorSequencer : MonoBehaviour
         float startTime = Time.time;
         bool complete = false;
 
+        inCoroutine = true;
+        
         while (!complete)
         {
             float fractionComplete = (Time.time - startTime) / duration;
@@ -61,7 +87,7 @@ public abstract class ColorSequencer : MonoBehaviour
     {
         if (repeat)
         {
-            StartCoroutine(ColorShiftCoroutine());
+            coroutine = StartCoroutine(ColorShiftCoroutine());
         }
     }
 }
