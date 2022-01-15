@@ -6,7 +6,8 @@ public class InteractableManager : MonoBehaviour
 {
     public bool IsHeld { get { return isHeld; } }
 
-    private XRGrabInteractable interactable;
+    protected XRGrabInteractable interactable;
+    
     private GameObject interactor;
     private bool isHeld;
 

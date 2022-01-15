@@ -7,7 +7,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 
 [RequireComponent(typeof(XRGrabInteractable))]
 [RequireComponent(typeof(CurveCreator))]
-public class GunInteractableManager : FocusableManager, IGesture
+public class GunInteractableManager : FocusableInteractableManager, IGesture
 {
     public enum Mode
     {
@@ -25,7 +25,6 @@ public class GunInteractableManager : FocusableManager, IGesture
     private static InputDeviceCharacteristics LeftHand = (InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Left);
 
     [SerializeField] new Camera camera;
-    [SerializeField] IdentityCanvasManager identityCanvasManager;
     [SerializeField] Animator animator;
     [SerializeField] GameObject spawnPoint;
     [SerializeField] GameObject laserPrefab, laserFXPrefab;
@@ -49,20 +48,15 @@ public class GunInteractableManager : FocusableManager, IGesture
     [SerializeField] AudioClip autoClip;
     [SerializeField] AudioClip overloadedClip;
 
-    public bool IsHeld { get { return isHeld; } }
-
-    private XRGrabInteractable interactable;
     // private Rigidbody rigidBody;
     private CurveCreator curveCreator;
     private MainCameraManager cameraManager;
-    private GameObject interactor;
     private Vector3 defaultPosition;
     private Quaternion defaultRotation;
     private GameObject lastObjectHit;
     private IFocus lastFocus;
     private GameObject hitPrefabInstance;
     private int mixedLayerMask;
-    private bool isHeld;
     private Mode mode;
     private Coroutine fireRepeatCoroutine;
     private float heat;
@@ -71,13 +65,13 @@ public class GunInteractableManager : FocusableManager, IGesture
     private State state;
     private Transform guns;
 
-    void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         ResolveDependencies();
         CacheGunState();
 
         mixedLayerMask = LayerMask.GetMask("Default") | LayerMask.GetMask("Asteroid Layer");
-        identityCanvasManager.IdentityText = gameObject.name;
         overheatCanvasManager.SetMaxValue(overLoadThreshold);
         heatValues = curveCreator.Values;
         guns = GameObject.Find("Objects/Guns").transform;
@@ -87,7 +81,6 @@ public class GunInteractableManager : FocusableManager, IGesture
 
     private void ResolveDependencies()
     {
-        interactable = GetComponent<XRGrabInteractable>() as XRGrabInteractable;
         // rigidBody = GetComponent<Rigidbody>() as Rigidbody;
         curveCreator = GetComponent<CurveCreator>() as CurveCreator;
         cameraManager = camera.GetComponent<MainCameraManager>() as MainCameraManager;
@@ -164,27 +157,15 @@ public class GunInteractableManager : FocusableManager, IGesture
         }
     }
 
-    protected override void OnFocusGained()
+    public override void OnSelectEntered(SelectEnterEventArgs args)
     {
-        identityCanvasManager.gameObject.SetActive(true);
-    }
+        base.OnSelectEntered(args);
 
-    protected override void OnFocusLost()
-    {
-        identityCanvasManager.gameObject.SetActive(false);
-    }
-
-    public void OnSelectEntered(SelectEnterEventArgs args)
-    {
         // Debug.Log($"{gameObject.name}:On Select Entered");
-        interactor = args.interactorObject.transform.gameObject;
 
         if (TryGetController<HandController>(out HandController controller))
         {
-            controller.SetHolding(gameObject);
             gameObject.transform.parent = guns;
-            isHeld = true;
-
             var device = controller.GetInputDevice();
 
             if (((int) device.characteristics) == ((int) LeftHand))
@@ -320,19 +301,17 @@ public class GunInteractableManager : FocusableManager, IGesture
         }
     }
 
-    public void OnSelectExited(SelectExitEventArgs args)
+    public override void OnSelectExited(SelectExitEventArgs args)
     {
+        base.OnSelectExited(args);
+
         // Debug.Log($"{gameObject.name}:On Select Exited");
 
         if (TryGetController<HandController>(out HandController controller))
         {
             ammoCanvasManager.gameObject.SetActive(false);
             DockWeapon(controller);
-            controller.SetHolding(null);
-            isHeld = false;
         }
-        
-        interactor = null;
     }
 
     private void DockWeapon(HandController controller)
@@ -347,21 +326,6 @@ public class GunInteractableManager : FocusableManager, IGesture
         {
             cameraManager.DockObject(gameObject, MainCameraManager.DockID.Right);
         }
-    }
-
-    private bool TryGetController<HandController>(out HandController controller)
-    {
-        if (interactor != null && interactor.CompareTag("Hand"))
-        {
-            if (interactor.TryGetComponent<HandController>(out HandController handController))
-            {
-                controller = handController;
-                return true;
-            }
-        }
-
-        controller = default(HandController);
-        return false;
     }
 
     public void OnGesture(HandController.Gesture gesture, object value = null)
