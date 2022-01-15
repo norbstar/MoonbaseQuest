@@ -29,9 +29,9 @@ public class InteractableManager : MonoBehaviour
         {
             controller.SetHolding(gameObject);
             isHeld = true;
+        
+            OnSelectEntered(args, controller);
         }
-
-        OnSelectEntered(args, controller);
     }
 
     protected virtual void OnSelectEntered(SelectEnterEventArgs args, HandController controller) { }
@@ -42,10 +42,10 @@ public class InteractableManager : MonoBehaviour
         {
             controller.SetHolding(null);
             isHeld = false;
+            
+            OnSelectExited(args, controller);
         }
-
-        OnSelectExited(args, controller);
-
+            
         interactor = null;
     }
 

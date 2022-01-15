@@ -27,26 +27,16 @@ public class GameManager : MonoBehaviour/*CachedObject<GameManager>*/
     public static GameManager GetInstance()
     {
         var obj = GameObject.Find("Game Manager");
-        // Debug.Log($"GameManager Instance: Found : {obj != null}");
         return obj.GetComponent<GameManager>() as GameManager;
     }
 
-    // Update is called once per frame
-    // void Update()
-    // {
-    //     Debug.Log($"GameManager State : {gameState}");
-    // }
-
     public void StartLevel()
     {
-        // Debug.Log($"GameManager.StartLevel");
         gameState = State.InPlay;
     }
 
     public void ModifyScoreBy(int score)
     {
-        // Debug.Log($"GameManager.ModifyScoreBy:{this.score} += {score.ToString()}");
-
         this.score += score;
         EventReceived(EventType.Score, this.score);
     }

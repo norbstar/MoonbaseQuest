@@ -157,7 +157,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     {
         gameObject.transform.parent = guns;
 
-        if (controller = null)
+        if (controller != null)
         {
             var device = controller.GetInputDevice();
 
