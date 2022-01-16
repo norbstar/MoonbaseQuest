@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
 [RequireComponent(typeof(XRGrabInteractable))]
-public class InteractableManager : MonoBehaviour
+public class InteractableManager : MonoBehaviour, IInteractable
 {
     public bool IsHeld { get { return isHeld; } }
 

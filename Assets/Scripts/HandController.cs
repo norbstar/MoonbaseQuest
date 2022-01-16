@@ -106,14 +106,23 @@ public class HandController : MonoBehaviour
 
             if (gripValue > 0.1f)
             {
-                if (!thisState.HasFlag(Gesture.Grip) && (cameraManager.TryGetFocus(out GameObject focus)))
+                if (!thisState.HasFlag(Gesture.Grip) && (cameraManager.TryGetObjectHit(out GameObject obj)))
                 {
-                    if  (focus.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
+                    if  (obj.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
                     {
-                        // Debug.Log($"{thisController.name}.Grip.Teleport:{focus.name}");
-                        StartCoroutine(TeleportGrabbable(focus));
+                        // Debug.Log($"{thisController.name}.Grip.Teleport:{obj.name}");
+                        StartCoroutine(TeleportGrabbable(obj));
                     }
                 }
+
+                // if (!thisState.HasFlag(Gesture.Grip) && (cameraManager.TryGetFocus(out GameObject focus)))
+                // {
+                //     if  (focus.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
+                //     {
+                //         // Debug.Log($"{thisController.name}.Grip.Teleport:{focus.name}");
+                //         StartCoroutine(TeleportGrabbable(focus));
+                //     }
+                // }
 
                 thisState |= Gesture.Grip;
                 hasState = true;
