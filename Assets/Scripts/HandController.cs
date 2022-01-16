@@ -19,6 +19,7 @@ public class HandController : MonoBehaviour
         ThumbStick_Right = 8
     }
 
+
     [SerializeField] bool enableLogging = false;
     [SerializeField] InputDeviceCharacteristics characteristics;
     [SerializeField] InputDevice controller;
@@ -26,6 +27,7 @@ public class HandController : MonoBehaviour
     
     [Header("Teleport")]
     [SerializeField] float teleportSpeed = 5f;
+    [SerializeField] float nearDistance = 0.1f;
 
     public InputDeviceCharacteristics Characteristics { get { return characteristics; } }
     public InputDevice Controller { get { return controller; } }
@@ -88,7 +90,7 @@ public class HandController : MonoBehaviour
             var handAnimationController = xrController.model.GetComponent<HandAnimationController>() as HandAnimationController;
             handAnimationController?.SetFloat("Trigger", triggerValue);
 
-            if (triggerValue > 0.1f)
+            if (triggerValue > nearDistance)
             {
                 thisState |= Gesture.Trigger;
                 hasState = true;
@@ -109,7 +111,7 @@ public class HandController : MonoBehaviour
                     if  (focus.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
                     {
                         // Debug.Log($"{thisController.name}.Grip.Teleport:{focus.name}");
-                        StartCoroutine(TeleportGrabable(focus));
+                        StartCoroutine(TeleportGrabbable(focus));
                     }
                 }
 
@@ -185,13 +187,13 @@ public class HandController : MonoBehaviour
         return controller.inputDevice;
     }
 
-    private IEnumerator TeleportGrabable(GameObject grabable)
+    private IEnumerator TeleportGrabbable(GameObject grabbable)
     {
         float step =  teleportSpeed * Time.deltaTime;
 
-        while (Vector3.Distance(transform.position, grabable.transform.position) > 0.1f)
+        while (Vector3.Distance(transform.position, grabbable.transform.position) > 0.1f)
         {
-            transform.position = Vector3.MoveTowards(transform.position, grabable.transform.position, step);
+            grabbable.transform.position = Vector3.MoveTowards(grabbable.transform.position, transform.position, step);
             yield return null;
         }
     }

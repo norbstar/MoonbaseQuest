@@ -20,9 +20,9 @@ public class MainCameraManager : Gizmo
     [SerializeField] AudioClip dockClip;
     [SerializeField] AudioClip undockClip;
 
-    [Header("Identity")]
-    [SerializeField] float nearClippingDistance;
-    [SerializeField] float farClippingDistance;
+    [Header("Focus")]
+    [SerializeField] float nearDistance;
+    [SerializeField] float farDistance;
 
     private GameObject hitPrefabInstance;
     private GameObject lastObjectHit;
@@ -152,7 +152,7 @@ public class MainCameraManager : Gizmo
 
     void FixedUpdate()
     {
-        // Debug.DrawRay(transform.TransformPoint(Vector3.zero), transform.forward, Color.red);
+        Debug.DrawRay(transform.TransformPoint(Vector3.zero), transform.forward, Color.red);
 
         if (Physics.SphereCast(transform.TransformPoint(Vector3.zero), 0.25f, transform.forward, out RaycastHit hit, Mathf.Infinity, defaultLayerMask))
         {
@@ -182,16 +182,16 @@ public class MainCameraManager : Gizmo
 
                 if (objectHit.TryGetComponent<IFocus>(out IFocus focus))
                 {
-                    focus.GainedFocus(gameObject);
-                    lastFocus = focus;
+                    // focus.GainedFocus(gameObject);
+                    // lastFocus = focus;
 
-                    // var distanceToPoint = Vector3.Distance(transform.position, point);
+                    var distanceToPoint = Vector3.Distance(transform.position, point);
 
-                    // if ((distanceToPoint <= farClippingDistance) && (distanceToPoint >= nearClippingDistance))
-                    // {
-                    //     focus.GainedFocus(gameObject);
-                    //     lastFocus = focus;
-                    // }
+                    if ((distanceToPoint <= farDistance) && (distanceToPoint >= nearDistance))
+                    {
+                        focus.GainedFocus(gameObject);
+                        lastFocus = focus;
+                    }
                 }
 
                 lastObjectHit = objectHit;
