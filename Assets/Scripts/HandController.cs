@@ -22,7 +22,6 @@ public class HandController : MonoBehaviour
 
     [SerializeField] bool enableLogging = false;
     [SerializeField] InputDeviceCharacteristics characteristics;
-    [SerializeField] InputDevice controller;
     [SerializeField] new Camera camera;
     
     [Header("Teleport")]
@@ -30,12 +29,10 @@ public class HandController : MonoBehaviour
     [SerializeField] float nearDistance = 0.1f;
 
     public InputDeviceCharacteristics Characteristics { get { return characteristics; } }
-    public InputDevice Controller { get { return controller; } }
     public bool IsHolding { get { return isHolding; } }
 
-    private List<InputDevice> controllers;
     private MainCameraManager cameraManager;
-    private InputDevice thisController;
+    private InputDevice controller;
     private XRController xrController;
     private bool isHolding = false;
     private GameObject holding;
@@ -56,20 +53,19 @@ public class HandController : MonoBehaviour
         debugCanvas = obj?.GetComponent<DebugCanvas>() as DebugCanvas;
     }
 
-    // Start is called before the first frame update
-    void Start()
+    private void ResolveController()
     {
-        controllers = new List<InputDevice>();
+        List<InputDevice> controllers = new List<InputDevice>();
         InputDevices.GetDevicesWithCharacteristics(characteristics, controllers);
 
         if (controllers.Count > 0)
         {
-            thisController = controllers[0];
+            controller = controllers[0];
         }
 
-        if (thisController.isValid)
+        if (controller.isValid)
         {
-            Log($"{thisController.name}.Detected");
+            Log($"{controller.name}.Detected");
 
             SetState(Gesture.None);
         }
@@ -78,14 +74,18 @@ public class HandController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!thisController.isValid) return;
+        if (!controller.isValid)
+        {
+            ResolveController();
+            if (!controller.isValid) return;
+        }
 
         Gesture thisState = Gesture.None;
         bool hasState = false;
 
-        if (thisController.TryGetFeatureValue(CommonUsages.trigger, out float triggerValue))
+        if (controller.TryGetFeatureValue(CommonUsages.trigger, out float triggerValue))
         {
-            Log($"{thisController.name}.Trigger:{triggerValue}");
+            Log($"{controller.name}.Trigger:{triggerValue}");
             
             var handAnimationController = xrController.model.GetComponent<HandAnimationController>() as HandAnimationController;
             handAnimationController?.SetFloat("Trigger", triggerValue);
@@ -97,9 +97,9 @@ public class HandController : MonoBehaviour
             }
         }
 
-        if (thisController.TryGetFeatureValue(CommonUsages.grip, out float gripValue))
+        if (controller.TryGetFeatureValue(CommonUsages.grip, out float gripValue))
         {
-            Log($"{thisController.name}.Grip:{gripValue}");
+            Log($"{controller.name}.Grip:{gripValue}");
 
             var handAnimationController = xrController.model.GetComponent<HandAnimationController>() as HandAnimationController;
             handAnimationController?.SetFloat("Grip", gripValue);
@@ -129,9 +129,9 @@ public class HandController : MonoBehaviour
             }
         }
 
-        if (thisController.TryGetFeatureValue(CommonUsages.primary2DAxis, out Vector2 thumbStickValue))
+        if (controller.TryGetFeatureValue(CommonUsages.primary2DAxis, out Vector2 thumbStickValue))
         {
-            Log($"{thisController.name}.Thumb Stick:{thumbStickValue.x} {thumbStickValue.y}");
+            Log($"{controller.name}.Thumb Stick:{thumbStickValue.x} {thumbStickValue.y}");
 
             if (thumbStickValue.x < -0.9f)
             {
@@ -164,7 +164,7 @@ public class HandController : MonoBehaviour
 
     private void SetState(Gesture state)
     {
-        Log($"{thisController.name}.State : {state}");
+        Log($"{controller.name}.State : {state}");
         this.lastState = state;
     }
 

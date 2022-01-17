@@ -28,12 +28,10 @@ public class MainCameraManager : Gizmo
     private GameObject hitPrefabInstance;
     private GameObject lastObjectHit;
     private int defaultLayerMask;
-    private Transform guns;
     
     void Awake()
     {
         defaultLayerMask = LayerMask.GetMask("Default");
-        guns = GameObject.Find("Objects/Guns").transform;
     }
 
     public bool DockWeapon(GameObject gameObject, DockID dockID, Quaternion localRotation, bool allowNegotiation = true)

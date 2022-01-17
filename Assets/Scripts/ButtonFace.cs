@@ -2,14 +2,14 @@ using UnityEngine;
 
 public abstract class ButtonFace : MonoBehaviour
 {
-    public enum State
+    public enum EventType
     {
         OnEnter,
         OnStay,
         OnExit
     }
     
-    public delegate void Event(GameObject gameObject, State state);
+    public delegate void Event(GameObject gameObject, EventType type);
     public static event Event EventReceived;
 
     private int enterCount, stayCount, exitCount;
@@ -20,7 +20,7 @@ public abstract class ButtonFace : MonoBehaviour
         GameObject trigger = collider.gameObject;
         // Debug.Log($"{gameObject.name}.{trigger.name} OnTriggerEnter:[{enterCount}]");
     
-        EventReceived(gameObject, State.OnEnter);
+        EventReceived(gameObject, EventType.OnEnter);
     }
 
     // public void OnTriggerStay(Collider collider)
@@ -38,6 +38,6 @@ public abstract class ButtonFace : MonoBehaviour
         GameObject trigger = collider.gameObject;
         // Debug.Log($"{gameObject.name}.{trigger.name} OnTriggerExit:[{exitCount}]");
 
-        EventReceived(gameObject, State.OnExit);
+        EventReceived(gameObject, EventType.OnExit);
     }
 }

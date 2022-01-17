@@ -15,11 +15,11 @@ public class SpeedCanvas : MonoBehaviour
         SpeedButtonFace.EventReceived -= OnEvent;
     }
 
-    public void OnEvent(GameObject gameObject, ButtonFace.State state)
+    public void OnEvent(GameObject gameObject, ButtonFace.EventType type)
     {
-        // Debug.Log($"{gameObject.name}.OnEvent:[{gameObject.name}]");
+        // Debug.Log($"{this.gameObject.name}.OnEvent:[{gameObject.name}]:Type : {type}");
 
-        if (state == ButtonFace.State.OnEnter)
+        if (type == ButtonFace.EventType.OnEnter)
         {
             if (gameObject.name.Equals("Low Speed Button Face"))
             {

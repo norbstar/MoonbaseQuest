@@ -148,11 +148,11 @@ public class AnalyticsTerminalCanvas : MonoBehaviour
     //     }
     // }
 
-    public void OnEvent(GameObject gameObject, ButtonFace.State state)
+    public void OnEvent(GameObject gameObject, ButtonFace.EventType type)
     {
-        // Debug.Log($"{gameObject.name}.OnEvent:[{gameObject.name}]");
+        // Debug.Log($"{this.gameObject.name}.OnEvent:[{gameObject.name}]:Type : {type}");
 
-        if (gameObject.name.Equals("Clear Button Face") && (state == ButtonFace.State.OnEnter))
+        if (gameObject.name.Equals("Clear Button Face") && (type == ButtonFace.EventType.OnEnter))
         {
             Clear();
         }
