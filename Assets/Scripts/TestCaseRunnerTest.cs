@@ -5,20 +5,30 @@ using UnityEngine;
 
 public class TestCaseRunnerTest : MonoBehaviour
 {
-    [SerializeField] TestCaseRunner testCaseRunner;
-    [SerializeField] List<string> sequence;
+    [SerializeField] List<string> expectedSequence;
+    [SerializeField] List<string> postedSequence;
+
+    private TestCaseRunner testCaseRunner;
 
     // Start is called before the first frame update
     void Start()
     {
+        ResolveDependencies();
         StartCoroutine(PostSequenceCoroutine());
+    }
+
+    private void ResolveDependencies()
+    {
+        testCaseRunner = TestCaseRunner.GetInstance();
     }
 
     private IEnumerator PostSequenceCoroutine()
     {
         TestCaseRunner.EventReceived += OnEvent;
         
-        foreach (string item in sequence)
+        testCaseRunner.SetExpectedSequence(expectedSequence);
+        
+        foreach (string item in postedSequence)
         {
             yield return new WaitForSeconds(1f);
             testCaseRunner.Post(item);
@@ -45,7 +55,7 @@ public class TestCaseRunnerTest : MonoBehaviour
                 for (int idx = 0; idx < dataPoints.Count; idx++)
                 {
                     TestCaseRunner.DataPoint dataPoint = dataPoints[idx];
-                    Debug.Log($"{Time.time} DataPoint[{idx}] Expected : {dataPoint.expected} Posted : {dataPoint.posted} Result : {dataPoint.result}");
+                    Debug.Log($"{Time.time} DataPoint[{idx}] Expected : {dataPoint.expected} Posted : {dataPoint.posted} Pass : {dataPoint.pass}");
                 }
                 
                 break;

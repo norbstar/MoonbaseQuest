@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Collections.Generic;
 
@@ -7,8 +8,6 @@ using TMPro;
 
 public class TestCaseRunner : MonoBehaviour
 {
-    [SerializeField] new Camera camera;
-
     public delegate void Event(State state, object data = null);
     public static event Event EventReceived;
     
@@ -26,11 +25,12 @@ public class TestCaseRunner : MonoBehaviour
         Fail
     }
 
+    [Serializable]
     public class DataPoint
     {
         public string expected;
         public string posted;
-        public bool result;
+        public bool pass;
     }
 
     [Header("Components")]
@@ -51,12 +51,27 @@ public class TestCaseRunner : MonoBehaviour
     [SerializeField] Sprite failSprite;
     [SerializeField] AudioClip failAudio;
 
-    [Header("Config")]
-    [SerializeField] List<string> sequence;
+    [Header("Results")]
+    [SerializeField] private List<DataPoint> resultSequence;
 
+    private static TestCaseRunner instance;
+
+    private new Camera camera;
+    private List<string> sequence;
     private FX.RotateFX rotateFX;
     private List<string> postedSequence;
     private bool complete;
+
+    public static TestCaseRunner GetInstance()
+    {
+        if (instance == null)
+        {
+            var obj = GameObject.Find("Test Case Runner");
+            instance = obj?.GetComponent<TestCaseRunner>() as TestCaseRunner;
+        }
+
+        return instance;
+    }
 
     void Awake()
     {
@@ -66,6 +81,7 @@ public class TestCaseRunner : MonoBehaviour
 
     private void ResolveDependencies()
     {
+        camera = Camera.main;
         rotateFX = box.GetComponent<FX.RotateFX>() as FX.RotateFX;
     }
 
@@ -75,6 +91,11 @@ public class TestCaseRunner : MonoBehaviour
         Vector3 relativePosition = camera.transform.position - transform.position;
         Quaternion rotation = Quaternion.LookRotation(relativePosition, Vector3.up);
         canvas.transform.rotation = rotation;
+    }
+
+    public void SetExpectedSequence(List<string> sequence)
+    {
+        this.sequence = sequence;
     }
 
     public void Post(string data)
@@ -96,13 +117,23 @@ public class TestCaseRunner : MonoBehaviour
 
         postedSequence.Add(data);
 
+        var expected = sequence[resultSequence.Count];
+
+        resultSequence.Add(new DataPoint
+        {
+            expected = expected,
+            posted = data,
+            pass = expected.Equals(data)
+        });
+
         countTextUI.text = $"{postedSequence.Count}|{sequence.Count}";
 
         var expectedSequence = new List<string>(sequence.Take(postedSequence.Count));
-        var firstNotSecond = postedSequence.Except(expectedSequence).ToList();
-        var secondNotFirst = expectedSequence.Except(postedSequence).ToList();
+        // var firstNotSecond = postedSequence.Except(expectedSequence).ToList();
+        // var secondNotFirst = expectedSequence.Except(postedSequence).ToList();
 
-        if (firstNotSecond.Any() || secondNotFirst.Any())
+        // if (firstNotSecond.Any() || secondNotFirst.Any())
+        if (!resultSequence.Last<DataPoint>().pass)
         {
             rotateFX.Stop();
             stateTextUI.text = $"Stop";
@@ -134,7 +165,7 @@ public class TestCaseRunner : MonoBehaviour
             {
                 expected = expectedSequence[idx],
                 posted = postedSequence[idx],
-                result = postedSequence[idx].Equals(expectedSequence[idx])
+                pass = postedSequence[idx].Equals(expectedSequence[idx])
             });
         }
 
