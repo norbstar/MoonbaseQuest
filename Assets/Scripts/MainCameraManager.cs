@@ -36,6 +36,7 @@ public class MainCameraManager : Gizmo
 
     public bool DockWeapon(GameObject gameObject, DockID dockID, Quaternion localRotation, bool allowNegotiation = true)
     {
+        Debug.Log($"{Time.time} {gameObject.name} 1");
         Transform parent = null;
         bool docked = false;
 
@@ -55,8 +56,10 @@ public class MainCameraManager : Gizmo
             case DockID.Left:
                 if (!leftDock.Occupied.occupied)
                 {
+                    Debug.Log($"{Time.time} {gameObject.name} 2");
                     if (gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidBody))
                     {
+                        Debug.Log($"{Time.time} {gameObject.name} 3");
                         rigidBody.velocity = Vector3.zero;
                         rigidBody.angularVelocity = Vector3.zero;
                         rigidBody.isKinematic = true;
@@ -68,7 +71,9 @@ public class MainCameraManager : Gizmo
                     gameObject.transform.parent = parent;
                     gameObject.transform.localRotation = localRotation;
                     gameObject.transform.localPosition = Vector3.zero;
-                    MarkDock(dockID, gameObject, true);
+
+                    AudioSource.PlayClipAtPoint(dockClip, transform.position, 1.0f);
+                    SetDockStatus(dockID, gameObject, true);
 
                     return true;
                 }
@@ -77,8 +82,10 @@ public class MainCameraManager : Gizmo
             case DockID.Right:
                 if (!rightDock.Occupied.occupied)
                 {
+                    Debug.Log($"{Time.time} {gameObject.name} 4");
                     if (gameObject.TryGetComponent<Rigidbody>(out var rigidBody))
                     {
+                        Debug.Log($"{Time.time} {gameObject.name} 5");
                         rigidBody.velocity = Vector3.zero;
                         rigidBody.angularVelocity = Vector3.zero;
                         rigidBody.isKinematic = true;
@@ -90,7 +97,9 @@ public class MainCameraManager : Gizmo
                     gameObject.transform.parent = parent;
                     gameObject.transform.localRotation = localRotation;
                     gameObject.transform.localPosition = Vector3.zero;
-                    MarkDock(dockID, gameObject, true);
+
+                    AudioSource.PlayClipAtPoint(dockClip, transform.position, 1.0f);
+                    SetDockStatus(dockID, gameObject, true);
 
                     return true;
                 }
@@ -103,14 +112,36 @@ public class MainCameraManager : Gizmo
 
     public bool UndockWeapon(GameObject gameObject)
     {
+        Debug.Log($"{Time.time} {gameObject.name} 6");
+        
         if (leftDock.Occupied.occupied && Object.ReferenceEquals(gameObject, leftDock.Occupied.gameObject))
         {
-            MarkDock(DockID.Left, gameObject, false);
+            Debug.Log($"{Time.time} {gameObject.name} 7");
+
+            if (gameObject.TryGetComponent<Rigidbody>(out var rigidBody))
+            {
+                Debug.Log($"{Time.time} {gameObject.name} 8");
+                rigidBody.isKinematic = false;
+                rigidBody.useGravity = true;
+            }
+
+            AudioSource.PlayClipAtPoint(undockClip, transform.position, 1.0f);
+            SetDockStatus(DockID.Left, gameObject, false);
             return true;
         }
         else if (rightDock.Occupied.occupied && Object.ReferenceEquals(gameObject, rightDock.Occupied.gameObject))
         {
-            MarkDock(DockID.Right, gameObject, false);
+            Debug.Log($"{Time.time} {gameObject.name} 9");
+
+            if (gameObject.TryGetComponent<Rigidbody>(out var rigidBody))
+            {
+                Debug.Log($"{Time.time} {gameObject.name} 10");
+                rigidBody.isKinematic = false;
+                rigidBody.useGravity = true;
+            }
+
+            AudioSource.PlayClipAtPoint(undockClip, transform.position, 1.0f);
+            SetDockStatus(DockID.Right, gameObject, false);
             return true;
         }
 
@@ -124,8 +155,9 @@ public class MainCameraManager : Gizmo
             (rightDock.Occupied.occupied && Object.ReferenceEquals(gameObject, rightDock.Occupied.gameObject));
     }
 
-     private void MarkDock(DockID dockID, GameObject gameObject, bool occupied)
+    private void SetDockStatus(DockID dockID, GameObject gameObject, bool occupied)
     {
+        Debug.Log($"{Time.time} {gameObject.name} 11");
         switch (dockID)
         {
             case DockID.Left:
@@ -144,8 +176,6 @@ public class MainCameraManager : Gizmo
                 };
                 break;
         }
-
-        AudioSource.PlayClipAtPoint(occupied ? dockClip : undockClip, transform.position, 1.0f);
     }
 
     void FixedUpdate()

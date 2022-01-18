@@ -25,6 +25,7 @@ public class HandController : MonoBehaviour
     [SerializeField] new Camera camera;
     
     [Header("Teleport")]
+    [SerializeField] bool enableTeleport = true;
     [SerializeField] float teleportSpeed = 5f;
     [SerializeField] float nearDistance = 0.1f;
 
@@ -85,7 +86,8 @@ public class HandController : MonoBehaviour
 
         if (controller.TryGetFeatureValue(CommonUsages.trigger, out float triggerValue))
         {
-            Log($"{controller.name}.Trigger:{triggerValue}");
+            // Log($"{controller.name}.Trigger:{triggerValue}");
+            Debug.Log($"{Time.time} {gameObject.name} 1");
             
             var handAnimationController = xrController.model.GetComponent<HandAnimationController>() as HandAnimationController;
             handAnimationController?.SetFloat("Trigger", triggerValue);
@@ -99,7 +101,8 @@ public class HandController : MonoBehaviour
 
         if (controller.TryGetFeatureValue(CommonUsages.grip, out float gripValue))
         {
-            Log($"{controller.name}.Grip:{gripValue}");
+            // Log($"{controller.name}.Grip:{gripValue}");
+            Debug.Log($"{Time.time} {gameObject.name} 2");
 
             var handAnimationController = xrController.model.GetComponent<HandAnimationController>() as HandAnimationController;
             handAnimationController?.SetFloat("Grip", gripValue);
@@ -108,9 +111,10 @@ public class HandController : MonoBehaviour
             {
                 if (!thisState.HasFlag(Gesture.Grip) && (cameraManager.TryGetObjectHit(out GameObject obj)))
                 {
-                    if  (obj.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
+                    if  (enableTeleport && obj.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
                     {
                         // Debug.Log($"{thisController.name}.Grip.Teleport:{obj.name}");
+                        Debug.Log($"{Time.time} {gameObject.name} 3");
                         StartCoroutine(TeleportGrabbable(obj));
                     }
                 }
@@ -131,7 +135,8 @@ public class HandController : MonoBehaviour
 
         if (controller.TryGetFeatureValue(CommonUsages.primary2DAxis, out Vector2 thumbStickValue))
         {
-            Log($"{controller.name}.Thumb Stick:{thumbStickValue.x} {thumbStickValue.y}");
+            // Log($"{controller.name}.Thumb Stick:{thumbStickValue.x} {thumbStickValue.y}");
+            Debug.Log($"{Time.time} {gameObject.name} 4");
 
             if (thumbStickValue.x < -0.9f)
             {
@@ -164,7 +169,7 @@ public class HandController : MonoBehaviour
 
     private void SetState(Gesture state)
     {
-        Log($"{controller.name}.State : {state}");
+        // Log($"{controller.name}.State : {state}");
         this.lastState = state;
     }
 
@@ -173,7 +178,7 @@ public class HandController : MonoBehaviour
         isHolding = (obj != null);
         holding = obj;
 
-        Log($"{gameObject.name}.IsHolding : {isHolding}");
+        // Log($"{gameObject.name}.IsHolding : {isHolding}");
     }
 
     public void SetImpulse(float amplitude = 1.0f, float duration = 0.1f, uint channel = 0)
@@ -198,6 +203,7 @@ public class HandController : MonoBehaviour
 
     private IEnumerator TeleportGrabbable(GameObject grabbable)
     {
+        Debug.Log($"{Time.time} {gameObject.name} 5");
         float step =  teleportSpeed * Time.deltaTime;
 
         while (Vector3.Distance(transform.position, grabbable.transform.position) > 0.1f)

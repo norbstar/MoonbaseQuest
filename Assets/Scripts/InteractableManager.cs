@@ -6,6 +6,7 @@ public class InteractableManager : MonoBehaviour, IInteractable
 {
     public enum EventType
     {
+        OnSelectEntered,
         OnSelectExited
     }
 
@@ -17,7 +18,7 @@ public class InteractableManager : MonoBehaviour, IInteractable
     protected XRGrabInteractable interactable;
 
     private GameObject interactor;
-    private Transform objects;
+    protected Transform objects;
     private bool isHeld;
 
     protected virtual void Awake()
@@ -39,17 +40,19 @@ public class InteractableManager : MonoBehaviour, IInteractable
 
     public void OnSelectEntered(SelectEnterEventArgs args)
     {
-        interactor = args.interactorObject.transform.gameObject;
+        // Debug.Log($"{Time.time} {gameObject.name}.OnSelectEntered");
+        Debug.Log($"{Time.time} {gameObject.name} 1");
+        
+        // if (gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidBody))
+        // {
+        //     Debug.Log($"{Time.time} {gameObject.name}:Use Gravity: {rigidBody.useGravity}");
+        // }
 
-        if (gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidBody))
-        {
-            Debug.Log($"{Time.time} 3");
-            rigidBody.isKinematic = false;
-            rigidBody.useGravity = true;
-        }
+        interactor = args.interactorObject.transform.gameObject;
 
         if (TryGetController<HandController>(out HandController controller))
         {
+            Debug.Log($"{Time.time} {gameObject.name} 2");
             controller.SetHolding(gameObject);
             isHeld = true;
         
@@ -63,17 +66,26 @@ public class InteractableManager : MonoBehaviour, IInteractable
 
     public void OnSelectExited(SelectExitEventArgs args)
     {
-        // Debug.Log($"{this.gameObject.name}.Position:{transform.position}");
+        // Debug.Log($"{Time.time} {gameObject.name}.OnSelectExited");
+        Debug.Log($"{Time.time} {gameObject.name} 3");
+
+        if (gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidBody))
+        {
+            rigidBody.isKinematic = false;
+            // Debug.Log($"{Time.time} {gameObject.name}:Use Gravity: {rigidBody.useGravity} Is Kinematic : {rigidBody.isKinematic}");
+            Debug.Log($"{Time.time} {gameObject.name} 4");
+        }
+
+        transform.parent = objects;
 
         if (TryGetController<HandController>(out HandController controller))
         {
+            Debug.Log($"{Time.time} {gameObject.name} 5");
             controller.SetHolding(null);
             isHeld = false;
             
             OnSelectExited(args, controller);
         }
-
-        transform.parent = objects;
         
         if (EventReceived != null)
         {
@@ -84,15 +96,6 @@ public class InteractableManager : MonoBehaviour, IInteractable
     }
 
     protected virtual void OnSelectExited(SelectExitEventArgs args, HandController controller) { }
-
-    // public void OnExitedInsideStickyDock(GameObject trigger)
-    // {
-    //     Debug.Log($"{this.gameObject.name}.OnExitedInsideStickyDock:[{gameObject.name}]");
-
-    //     gameObject.transform.parent = trigger.transform;
-    //     gameObject.transform.localRotation = Quaternion.identity;
-    //     gameObject.transform.localPosition = Vector3.zero;
-    // }
 
     protected bool TryGetController<HandController>(out HandController controller)
     {

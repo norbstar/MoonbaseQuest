@@ -63,7 +63,6 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     private IList<float> heatValues;
     private int heatIndex;
     private State state;
-    private Transform guns;
 
     protected override void Awake()
     {
@@ -74,7 +73,6 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
         mixedLayerMask = LayerMask.GetMask("Default") | LayerMask.GetMask("Asteroid Layer");
         overheatCanvasManager.SetMaxValue(overLoadThreshold);
         heatValues = curveCreator.Values;
-        guns = GameObject.Find("Objects/Guns").transform;
 
         StartCoroutine(ManageHeatCoroutine());
     }
@@ -157,7 +155,9 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     protected override void OnSelectEntered(SelectEnterEventArgs args, HandController controller)
     {
-        gameObject.transform.parent = guns;
+        Debug.Log($"{Time.time} {gameObject.name} 1");
+
+        gameObject.transform.parent = objects;
 
         if (controller != null)
         {
@@ -292,6 +292,8 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     protected override void OnSelectExited(SelectExitEventArgs args, HandController controller)
     {
+        Debug.Log($"{Time.time} {gameObject.name} 2");
+
         ammoCanvasManager.gameObject.SetActive(false);
 
         if (controller != null)
@@ -302,14 +304,18 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     private void DockWeapon(HandController controller)
     {
+        Debug.Log($"{Time.time} {gameObject.name} 3");
+
         var device = controller.GetInputDevice();
 
         if (((int) device.characteristics) == ((int) LeftHand))
         {
+            Debug.Log($"{Time.time} {gameObject.name} 4");
             cameraManager.DockWeapon(gameObject, MainCameraManager.DockID.Left, Quaternion.Euler(90f, 0f, 0f));
         }
         else if (((int) device.characteristics) == ((int) RightHand))
         {
+            Debug.Log($"{Time.time} {gameObject.name} 5");
             cameraManager.DockWeapon(gameObject, MainCameraManager.DockID.Right, Quaternion.Euler(90f, 0f, 0f));
         }
     }
