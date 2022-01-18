@@ -48,7 +48,8 @@ public class MainCameraManager : Gizmo
     public bool DockWeapon(GameObject gameObject, DockID dockID, Quaternion localRotation, bool allowNegotiation = true)
     {
         // Debug.Log($"{Time.time} {gameObject.name} 1");
-        testCaseRunner.Post($"{className} 1");
+        Debug.Log($"{Time.time} {gameObject.name} {className}.DockWeapon:DockID : {dockID}");
+        testCaseRunner?.Post($"{className} 1");
         Transform parent = null;
         bool docked = false;
 
@@ -66,19 +67,25 @@ public class MainCameraManager : Gizmo
         switch (dockID)
         {
             case DockID.Left:
-                if (!leftDock.Occupied.occupied)
+                if (!leftDock.Data.occupied)
                 {
                     // Debug.Log($"{Time.time} {gameObject.name} 2");
-                    testCaseRunner.Post($"{className} 2");
+                    OccupyDock(dockID, gameObject);
+
                     if (gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidBody))
                     {
-                        // Debug.Log($"{Time.time} {gameObject.name} 3");
-                        testCaseRunner.Post($"{className} 3");
+                        Debug.Log($"{Time.time} {gameObject.name} {className}.DockWeapon:LeftHand Is Kinemetic : {rigidBody.isKinematic} Use Gravity : {rigidBody.useGravity}");
+                        testCaseRunner?.Post($"{className} 2 Is Kinemetic : {rigidBody.isKinematic} Use Gravity : {rigidBody.useGravity}");
+                        // Debug.Log($"{Time.time} {gameObject.name} 2");
+
                         rigidBody.velocity = Vector3.zero;
                         rigidBody.angularVelocity = Vector3.zero;
                         rigidBody.isKinematic = true;
                         rigidBody.useGravity = false;
                     }
+
+                    Debug.Log($"{Time.time} {gameObject.name} {className}.DockWeapon:LeftHand [Post] Is Kinemetic : {rigidBody.isKinematic} Use Gravity : {rigidBody.useGravity}");
+                    testCaseRunner?.Post($"{className} 3 Is Kinemetic : {rigidBody.isKinematic} Use Gravity : {rigidBody.useGravity}");
 
                     parent = leftDock.transform;
             
@@ -87,26 +94,31 @@ public class MainCameraManager : Gizmo
                     gameObject.transform.localPosition = Vector3.zero;
 
                     AudioSource.PlayClipAtPoint(dockClip, transform.position, 1.0f);
-                    SetDockStatus(dockID, gameObject, true);
 
                     return true;
                 }
                 break;
 
             case DockID.Right:
-                if (!rightDock.Occupied.occupied)
+                if (!rightDock.Data.occupied)
                 {
                     // Debug.Log($"{Time.time} {gameObject.name} 4");
-                    testCaseRunner.Post($"{className} 4");
+                    OccupyDock(dockID, gameObject);
+
                     if (gameObject.TryGetComponent<Rigidbody>(out var rigidBody))
                     {
+                        Debug.Log($"{Time.time} {gameObject.name} {className}.DockWeapon:RightHand Is Kinemetic : {rigidBody.isKinematic} Use Gravity : {rigidBody.useGravity}");
+                        testCaseRunner?.Post($"{className} 4 Is Kinemetic : {rigidBody.isKinematic} Use Gravity : {rigidBody.useGravity}");
                         // Debug.Log($"{Time.time} {gameObject.name} 5");
-                        testCaseRunner.Post($"{className} 5");
+                        
                         rigidBody.velocity = Vector3.zero;
                         rigidBody.angularVelocity = Vector3.zero;
                         rigidBody.isKinematic = true;
                         rigidBody.useGravity = false;
                     }
+
+                    Debug.Log($"{Time.time} {gameObject.name} {className}.DockWeapon:RightHand [Post] Is Kinemetic : {rigidBody.isKinematic} Use Gravity : {rigidBody.useGravity}");
+                    testCaseRunner?.Post($"{className} 5 Is Kinemetic : {rigidBody.isKinematic} Use Gravity : {rigidBody.useGravity}");
 
                     parent = rightDock.transform;
 
@@ -115,7 +127,6 @@ public class MainCameraManager : Gizmo
                     gameObject.transform.localPosition = Vector3.zero;
 
                     AudioSource.PlayClipAtPoint(dockClip, transform.position, 1.0f);
-                    SetDockStatus(dockID, gameObject, true);
 
                     return true;
                 }
@@ -128,7 +139,7 @@ public class MainCameraManager : Gizmo
 
     // public bool IsDocked(GameObject gameObject)
     // {
-    //     testCaseRunner.Post($"{className} 6");
+    //     testCaseRunner?.Post($"{className} 6");
 
     //     return
     //         (leftDock.Occupied.occupied && Object.ReferenceEquals(gameObject, leftDock.Occupied.gameObject)) ||
@@ -137,14 +148,15 @@ public class MainCameraManager : Gizmo
 
     public bool TryIsDocked(GameObject gameObject, out DockID dockID)
     {
-        testCaseRunner.Post($"{className} 6");
+        Debug.Log($"{Time.time} {gameObject.name} {className}.TryDockWeapon");
+        testCaseRunner?.Post($"{className} 6");
 
-        if (leftDock.Occupied.occupied && Object.ReferenceEquals(gameObject, leftDock.Occupied.gameObject))
+        if (leftDock.Data.occupied && Object.ReferenceEquals(gameObject, leftDock.Data.gameObject))
         {
             dockID = DockID.Left;
             return true;
         }
-        else if (rightDock.Occupied.occupied && Object.ReferenceEquals(gameObject, rightDock.Occupied.gameObject))
+        else if (rightDock.Data.occupied && Object.ReferenceEquals(gameObject, rightDock.Data.gameObject))
         {
             dockID = DockID.Right;
             return true;
@@ -161,59 +173,109 @@ public class MainCameraManager : Gizmo
             if (dockID == DockID.Left)
             {
                 // Debug.Log($"{Time.time} {gameObject.name} 7");
-                testCaseRunner.Post($"{className} 7");
 
-                if (gameObject.TryGetComponent<Rigidbody>(out var rigidBody))
-                {
-                    // Debug.Log($"{Time.time} {gameObject.name} 8");
-                    testCaseRunner.Post($"{className} 8");
-                    rigidBody.isKinematic = false;
-                    rigidBody.useGravity = true;
-                }
+                // if (gameObject.TryGetComponent<Rigidbody>(out var rigidBody))
+                // {
+                //     // Debug.Log($"{Time.time} {gameObject.name} 8");
+                //     rigidBody.isKinematic = false;
+                //     rigidBody.useGravity = leftDock.Data.useGravity;
+                //     Debug.Log($"{Time.time} {gameObject.name} {className}.UndockWeapon:LeftHand Is Kinemetic : {rigidBody.isKinematic} Use Gravity : {rigidBody.useGravity}");
+                //     testCaseRunner?.Post($"{className} 7 Is Kinemetic : {rigidBody.isKinematic} Use Gravity : {rigidBody.useGravity}");
+                // }
 
                 AudioSource.PlayClipAtPoint(undockClip, transform.position, 1.0f);
-                SetDockStatus(DockID.Left, gameObject, false);
+                FreeDock(DockID.Left);
             }
             else if (dockID == DockID.Right)
             {
                 // Debug.Log($"{Time.time} {gameObject.name} 9");
-                testCaseRunner.Post($"{className} 9");
 
                 if (gameObject.TryGetComponent<Rigidbody>(out var rigidBody))
                 {
                     // Debug.Log($"{Time.time} {gameObject.name} 10");
-                    testCaseRunner.Post($"{className} 10");
                     rigidBody.isKinematic = false;
-                    rigidBody.useGravity = true;
+                    rigidBody.useGravity = rightDock.Data.useGravity;
+                    Debug.Log($"{Time.time} {gameObject.name} {className}.UndockWeapon:RightHand Is Kinemetic : {rigidBody.isKinematic} Use Gravity : {rigidBody.useGravity}");
+                    testCaseRunner?.Post($"{className} 8 Is Kinemetic : {rigidBody.isKinematic} Use Gravity : {rigidBody.useGravity}");
                 }
 
                 AudioSource.PlayClipAtPoint(undockClip, transform.position, 1.0f);
-                SetDockStatus(DockID.Right, gameObject, false);
+                FreeDock(DockID.Right);
+            }
+
+            if (gameObject.TryGetComponent<Rigidbody>(out var rigidBody2))
+            {
+                Debug.Log($"{Time.time} {gameObject.name} {className}.UndockWeapon:[Post] Is Kinemetic : {rigidBody2.isKinematic} Use Gravity : {rigidBody2.useGravity}");
+                testCaseRunner?.Post($"{className} 16 Is Kinemetic : {rigidBody2.isKinematic} Use Gravity : {rigidBody2.useGravity}");
             }
         }
     }
 
-    private void SetDockStatus(DockID dockID, GameObject gameObject, bool occupied)
+    private void OccupyDock(DockID dockID, GameObject gameObject)
     {
-        // Debug.Log($"{Time.time} {gameObject.name} 11");
-        testCaseRunner.Post($"{className} 11");
+        Debug.Log($"{Time.time} {gameObject.name} {className}.OccupyDock:DockID : {dockID}");
+        testCaseRunner?.Post($"{className} 9");
+
+        bool useGravity = false;
+
+        if (gameObject.TryGetComponent<Rigidbody>(out var rigidBody))
+        {
+            Debug.Log($"{Time.time} {gameObject.name} {className}.OccupyDock:RigidBody");
+            testCaseRunner?.Post($"{className} 10");
+            useGravity = rigidBody.useGravity;
+        }
+
+        var data = new DockManager.OccupancyData
+        {
+            occupied = true,
+            gameObject = gameObject,
+            useGravity = useGravity
+        };
+
+        Debug.Log($"{Time.time} {gameObject.name} {className}.OccupyDock:Cache Use Gravity: {useGravity}");
 
         switch (dockID)
         {
             case DockID.Left:
-                leftDock.Occupied = new DockManager.OccupancyData
-                {
-                    occupied = occupied,
-                    gameObject = (occupied) ? gameObject : null
-                };
+                Debug.Log($"{Time.time} {gameObject.name} {className}.OccupyDock:LeftHand");
+                testCaseRunner?.Post($"{className} 11");
+                leftDock.Data = data;
                 break;
 
             case DockID.Right:
-                rightDock.Occupied = new DockManager.OccupancyData
-                {
-                    occupied = occupied,
-                    gameObject = (occupied) ? gameObject : null
-                };
+                Debug.Log($"{Time.time} {gameObject.name} {className}.OccupyDock:RightHand");
+                testCaseRunner?.Post($"{className} 12");
+                rightDock.Data = data;
+                break;
+        }
+    }
+
+    private void FreeDock(DockID dockID)
+    {
+        Debug.Log($"{Time.time} {gameObject.name} {className}.FreeDock:DockID : {dockID}");
+        testCaseRunner?.Post($"{className} 13");
+
+        if (gameObject.TryGetComponent<Rigidbody>(out var rigidBody))
+        {
+            // Debug.Log($"{Time.time} {gameObject.name} 8");
+            rigidBody.isKinematic = false;
+            rigidBody.useGravity = leftDock.Data.useGravity;
+            Debug.Log($"{Time.time} {gameObject.name} {className}.UndockWeapon:LeftHand Is Kinemetic : {rigidBody.isKinematic} Use Gravity : {rigidBody.useGravity}");
+            testCaseRunner?.Post($"{className} 7 Is Kinemetic : {rigidBody.isKinematic} Use Gravity : {rigidBody.useGravity}");
+        }
+
+        switch (dockID)
+        {
+            case DockID.Left:
+                Debug.Log($"{Time.time} {gameObject.name} {className}.FreeDock:LeftHand");
+                testCaseRunner?.Post($"{className} 14");
+                leftDock.Free();
+                break;
+
+            case DockID.Right:
+                Debug.Log($"{Time.time} {gameObject.name} {className}.FreeDock:RightHand");
+                testCaseRunner?.Post($"{className} 15");
+                rightDock.Free();
                 break;
         }
     }

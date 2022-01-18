@@ -35,6 +35,9 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     [SerializeField] GunOverheatCanvasManager overheatCanvasManager;
     [SerializeField] float speed = 5f;
 
+    [Header("Config")]
+    [SerializeField] bool autoDockEnabled = true;
+
     [Header("Hits")]
     [SerializeField] bool showHits;
     [SerializeField] GameObject hitPrefab;
@@ -161,7 +164,8 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     protected override void OnSelectEntered(SelectEnterEventArgs args, HandController controller)
     {
         // Debug.Log($"{Time.time} {gameObject.name} 1");
-        testCaseRunner.Post($"{className} 1");
+        Debug.Log($"{Time.time} {gameObject.name} {className}.OnSelectEntered");
+        testCaseRunner?.Post($"{className} 1");
 
         gameObject.transform.parent = objects;
 
@@ -303,11 +307,12 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     protected override void OnSelectExited(SelectExitEventArgs args, HandController controller)
     {
         // Debug.Log($"{Time.time} {gameObject.name} 2");
-        testCaseRunner.Post($"{className} 2");
+        Debug.Log($"{Time.time} {gameObject.name} {className}.OnSelectExited");
+        testCaseRunner?.Post($"{className} 2");
 
         ammoCanvasManager.gameObject.SetActive(false);
 
-        if (controller != null)
+        if (autoDockEnabled && (controller != null))
         {
             DockWeapon(controller);
         }
@@ -316,20 +321,23 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     private void DockWeapon(HandController controller)
     {
         // Debug.Log($"{Time.time} {gameObject.name} 3");
-        testCaseRunner.Post($"{className} 3");
+        Debug.Log($"{Time.time} {gameObject.name} {className}.DockWeapon");
+        testCaseRunner?.Post($"{className} 3");
 
         var device = controller.GetInputDevice();
 
         if (((int) device.characteristics) == ((int) LeftHand))
         {
             // Debug.Log($"{Time.time} {gameObject.name} 4");
-            testCaseRunner.Post($"{className} 4");
+            Debug.Log($"{Time.time} {gameObject.name} {className}.DockWeapon:LeftHand");
+            testCaseRunner?.Post($"{className} 4");
             cameraManager.DockWeapon(gameObject, MainCameraManager.DockID.Left, Quaternion.Euler(90f, 0f, 0f));
         }
         else if (((int) device.characteristics) == ((int) RightHand))
         {
             // Debug.Log($"{Time.time} {gameObject.name} 5");
-            testCaseRunner.Post($"{className} 5");
+            Debug.Log($"{Time.time} {gameObject.name} {className}.DockWeapon:RightHand");
+            testCaseRunner?.Post($"{className} 5");
             cameraManager.DockWeapon(gameObject, MainCameraManager.DockID.Right, Quaternion.Euler(90f, 0f, 0f));
         }
     }

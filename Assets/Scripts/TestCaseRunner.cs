@@ -1,12 +1,12 @@
 using System;
 using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 
 using UnityEngine;
 
 using TMPro;
 
-[RequireComponent(typeof(TestCaseRunnerSequence))]
 public class TestCaseRunner : MonoBehaviour
 {
     public delegate void Event(State state, object data = null);
@@ -52,13 +52,18 @@ public class TestCaseRunner : MonoBehaviour
     [SerializeField] Sprite failSprite;
     [SerializeField] AudioClip failAudio;
 
+    [Header("Scenario")]
+    [SerializeField] TestCaseRunnerSequenceScriptable testScript;
+
     [Header("Results")]
     [SerializeField] private List<DataPoint> resultSequence;
+
+    [Header("Config")]
+    [SerializeField] bool resetOnComplete;
 
     private static TestCaseRunner instance;
 
     private new Camera camera;
-    private TestCaseRunnerSequence testCaseRunnerSequence;
     private List<string> sequence;
     private FX.RotateFX rotateFX;
     private List<string> postedSequence;
@@ -78,7 +83,7 @@ public class TestCaseRunner : MonoBehaviour
     void Awake()
     {
         ResolveDependencies();
-        sequence = testCaseRunnerSequence.Sequence;
+        sequence = testScript.Sequence;
         postedSequence = new List<string>();
     }
 
@@ -86,7 +91,6 @@ public class TestCaseRunner : MonoBehaviour
     {
         camera = Camera.main;
         rotateFX = box.GetComponent<FX.RotateFX>() as FX.RotateFX;
-        testCaseRunnerSequence = GetComponent<TestCaseRunnerSequence>() as TestCaseRunnerSequence;
     }
 
     // Update is called once per frame
@@ -109,7 +113,7 @@ public class TestCaseRunner : MonoBehaviour
                 spriteRenderer.sprite = inProgressSprite;
             }
 
-            rotateFX.Start();
+            rotateFX.Go();
             stateTextUI.text = $"Start";
             EventReceived(State.Start);
         }
@@ -152,6 +156,11 @@ public class TestCaseRunner : MonoBehaviour
             EventReceived(State.End);
             complete = true;
         }
+
+        if (complete && resetOnComplete)
+        {
+            StartCoroutine(ResetRunner());
+        }
     }
 
     private List<DataPoint> GenerateDataPoints(List<string> postedSequence, List<string> expectedSequence)
@@ -171,7 +180,6 @@ public class TestCaseRunner : MonoBehaviour
         return dataPoints;
     }
     
-
     private void PostResult(Result result)
     {
         Sprite sprite = (result == Result.Pass) ? passSprite : failSprite;
@@ -184,5 +192,34 @@ public class TestCaseRunner : MonoBehaviour
         }
 
         AudioSource.PlayClipAtPoint(audioClip, transform.position, 1.0f);
+    }
+
+    private IEnumerator ResetRunner()
+    {
+        rotateFX.Reset();
+        countTextUI.text = string.Empty;
+
+        yield return StartCoroutine(CountdownToReset(3));
+
+        stateTextUI.text = string.Empty;
+
+        foreach (GameObject face in faces)
+        {
+            var spriteRenderer = face.GetComponent<SpriteRenderer>() as SpriteRenderer;
+            spriteRenderer.sprite = null;
+        }
+
+        postedSequence.Clear();
+        resultSequence.Clear();
+        complete = false;
+    }
+
+    private IEnumerator CountdownToReset(int seconds)
+    {
+        for (int idx = 0; idx < seconds; idx++)
+        {
+            stateTextUI.text = $"{seconds - idx} ...";
+            yield return new WaitForSeconds(1f);
+        }
     }
 }

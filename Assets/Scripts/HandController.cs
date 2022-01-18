@@ -100,7 +100,7 @@ public class HandController : MonoBehaviour
 
             // if (triggerValue > 0.1f)
             // {
-            //     testCaseRunner.Post($"{className} 1");
+            //     testCaseRunner?.Post($"{className} 1");
             // }
 
             if (triggerValue > nearDistance)
@@ -120,7 +120,7 @@ public class HandController : MonoBehaviour
 
             if (gripValue > 0.1f)
             {
-                // testCaseRunner.Post($"{className} 2");
+                // testCaseRunner?.Post($"{className} 2");
 
                 if (!thisState.HasFlag(Gesture.Grip) && (cameraManager.TryGetObjectHit(out GameObject obj)))
                 {
@@ -128,7 +128,7 @@ public class HandController : MonoBehaviour
                     {
                         // Debug.Log($"{thisController.name}.Grip.Teleport:{obj.name}");
                         // Debug.Log($"{Time.time} {gameObject.name} 3");
-                        // testCaseRunner.Post($"{className} 3");
+                        // testCaseRunner?.Post($"{className} 3");
                         StartCoroutine(TeleportGrabbable(obj));
                     }
                 }
@@ -154,7 +154,7 @@ public class HandController : MonoBehaviour
 
             if (thumbStickValue.x < -0.9f)
             {
-                // testCaseRunner.Post($"{className} 4");
+                // testCaseRunner?.Post($"{className} 4");
 
                 thisState |= Gesture.ThumbStick_Left;
                 holding?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Left);
@@ -162,7 +162,7 @@ public class HandController : MonoBehaviour
             }
             else if (thumbStickValue.x > 0.9f)
             {
-                // testCaseRunner.Post($"{className} 5");
+                // testCaseRunner?.Post($"{className} 5");
 
                 thisState |= Gesture.ThumbStick_Right;
                 holding?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Right);
@@ -222,7 +222,7 @@ public class HandController : MonoBehaviour
     private IEnumerator TeleportGrabbable(GameObject grabbable)
     {
         // Debug.Log($"{Time.time} {gameObject.name} 6");
-        // testCaseRunner.Post($"{className} 6");
+        // testCaseRunner?.Post($"{className} 6");
 
         float step =  teleportSpeed * Time.deltaTime;
 

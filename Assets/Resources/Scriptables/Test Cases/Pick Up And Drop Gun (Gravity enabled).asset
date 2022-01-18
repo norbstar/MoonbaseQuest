@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f2bdd558c26e1f943acee733bfe00d77, type: 3}
-  m_Name: Pick Up And Drop (No Gravity)
+  m_Name: Pick Up And Drop Gun (Gravity enabled)
   m_EditorClassIdentifier: 
   sequence:
   - InteractableManager 1
@@ -19,6 +19,6 @@ MonoBehaviour:
   - GunInteractableManager 1
   - MainCameraManager 6
   - InteractableManager 4
-  - 'InteractableManager 5 Is Kinemetic : False Use Gravity : False'
+  - 'InteractableManager 5 Is Kinemetic : False Use Gravity : True'
   - InteractableManager 6
   - GunInteractableManager 2

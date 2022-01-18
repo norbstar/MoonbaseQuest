@@ -121,7 +121,7 @@ public class StickyDockManager : DockManager
         {
             case InteractableManager.EventType.OnSelectEntered:
                 Debug.Log($"{Time.time} {gameObject.name} 10");
-                if (Object.ReferenceEquals(Occupied.gameObject, interactable.gameObject))
+                if (Object.ReferenceEquals(Data.gameObject, interactable.gameObject))
                 {
                     Debug.Log($"{Time.time} {gameObject.name} 11");
                     UndockInteractable();
@@ -131,7 +131,7 @@ public class StickyDockManager : DockManager
 
             case InteractableManager.EventType.OnSelectExited:
                 Debug.Log($"{Time.time} {gameObject.name} 12");
-                if (Occupied.occupied) return;
+                if (Data.occupied) return;
 
                 if ((collider.bounds.Contains(interactable.transform.position)) && (supportedTags.Contains(interactable.tag)))
                 {
@@ -151,7 +151,7 @@ public class StickyDockManager : DockManager
         interactable.transform.localRotation = Quaternion.identity;
         interactable.transform.localPosition = Vector3.zero;
 
-        Occupied = new OccupancyData
+        Data = new OccupancyData
         {
             occupied = true,
             gameObject = interactable.gameObject
@@ -173,7 +173,7 @@ public class StickyDockManager : DockManager
     private void UndockInteractable()
     {
         Debug.Log($"{Time.time} {gameObject.name} 17");
-        Occupied = new OccupancyData
+        Data = new OccupancyData
         {
             occupied = false,
             gameObject = null

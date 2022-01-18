@@ -8,4 +8,5 @@ public class TestCaseRunnerSequenceScriptable : ScriptableObject
     [SerializeField] List<string> sequence;
 
     public List<string> Sequence { get { return sequence; } }
+
 }

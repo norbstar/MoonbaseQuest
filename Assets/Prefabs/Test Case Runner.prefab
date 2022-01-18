@@ -1083,7 +1083,6 @@ GameObject:
   - component: {fileID: 8204520841861874138}
   - component: {fileID: 8204520841861874133}
   - component: {fileID: 1100238436}
-  - component: {fileID: 1100238439}
   m_Layer: 0
   m_Name: Test Case Runner
   m_TagString: Untagged
@@ -1135,6 +1134,7 @@ MonoBehaviour:
   passAudio: {fileID: 8300000, guid: 33ffe6133d61633498ca1b349fd9f847, type: 3}
   failSprite: {fileID: 21300000, guid: d25584ed6b7106b4ba1ef855daf791ff, type: 3}
   failAudio: {fileID: 8300000, guid: bf8deeb4d3f5d25478ce5ee1f0de2242, type: 3}
+  test: {fileID: 0}
   resultSequence: []
 --- !u!114 &1100238436
 MonoBehaviour:
@@ -1148,20 +1148,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e7e7059d0c76e2418675585dcced979, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1100238439
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8204520841861874139}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b25eea6b91222cf4eb597410cda6eb3c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sequence:
-  - 1
-  - 2
-  - 3
-  - 4

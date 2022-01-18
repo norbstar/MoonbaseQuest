@@ -2488,10 +2488,18 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1246022988}
     m_Modifications:
+    - target: {fileID: 1268839558, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
+      propertyPath: m_UseGravity
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1330650558, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
       propertyPath: camera
       value: 
       objectReference: {fileID: 903529585}
+    - target: {fileID: 1330650558, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
+      propertyPath: autoDockEnabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3855397916406632481, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
       propertyPath: m_Name
       value: Gun C
@@ -3499,6 +3507,96 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 585565866}
   m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1001 &586947839
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 1246022988}
+    m_Modifications:
+    - target: {fileID: 1268839558, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
+      propertyPath: m_UseGravity
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1330650558, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
+      propertyPath: camera
+      value: 
+      objectReference: {fileID: 903529585}
+    - target: {fileID: 1330650558, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
+      propertyPath: autoDockEnabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3855397916406632481, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
+      propertyPath: m_Name
+      value: Gun D
+      objectReference: {fileID: 0}
+    - target: {fileID: 3855397916406632481, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3855397916406632483, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
+      propertyPath: m_RootOrder
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3855397916406632483, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 3855397916406632483, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 3855397916406632483, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.175
+      objectReference: {fileID: 0}
+    - target: {fileID: 3855397916406632483, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3855397916406632483, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3855397916406632483, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3855397916406632483, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3855397916406632483, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3855397916406632483, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3855397916406632483, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4998587007212906209, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
+      propertyPath: m_InteractionManager
+      value: 
+      objectReference: {fileID: 1316067358}
+    - target: {fileID: 8936566811497130459, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8936566811497130459, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
+--- !u!4 &586947840 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3855397916406632483, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
+  m_PrefabInstance: {fileID: 586947839}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &607704963 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4913224624911944735, guid: 7a4b707b80e531040bd4afb1365213bd, type: 3}
@@ -6441,6 +6539,7 @@ Transform:
   - {fileID: 1877581012}
   - {fileID: 1638210917}
   - {fileID: 379588054}
+  - {fileID: 586947840}
   - {fileID: 1281138743}
   m_Father: {fileID: 54748947}
   m_RootOrder: 1
@@ -7063,7 +7162,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1462071621
 Transform:
   m_ObjectHideFlags: 0
@@ -7904,6 +8003,10 @@ PrefabInstance:
       propertyPath: camera
       value: 
       objectReference: {fileID: 903529585}
+    - target: {fileID: 1330650558, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
+      propertyPath: autoDockEnabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3855397916406632481, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
       propertyPath: m_Name
       value: Gun B
@@ -7997,7 +8100,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3855397916406632481, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
       propertyPath: m_Name
-      value: Gun D
+      value: Gun E
       objectReference: {fileID: 0}
     - target: {fileID: 3855397916406632481, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
       propertyPath: m_IsActive
@@ -8005,7 +8108,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3855397916406632483, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 3855397916406632483, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
       propertyPath: m_LocalPosition.x
@@ -14446,6 +14549,10 @@ PrefabInstance:
       propertyPath: camera
       value: 
       objectReference: {fileID: 903529585}
+    - target: {fileID: 1330650558, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
+      propertyPath: autoDockEnabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3855397916406632481, guid: 342a1b253568e854f9a2e953d07332d3, type: 3}
       propertyPath: m_Name
       value: Gun A
@@ -22609,66 +22716,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1100238439, guid: 44a184e349900c145b78ab965a487dd8, type: 3}
-      propertyPath: sequence.Array.size
-      value: 9
-      objectReference: {fileID: 0}
-    - target: {fileID: 1100238439, guid: 44a184e349900c145b78ab965a487dd8, type: 3}
-      propertyPath: sequence.Array.data[0]
-      value: InteractableManager 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1100238439, guid: 44a184e349900c145b78ab965a487dd8, type: 3}
-      propertyPath: sequence.Array.data[1]
-      value: 'InteractableManager 2 Is Kinemetic : True Use Gravity : False'
-      objectReference: {fileID: 0}
-    - target: {fileID: 1100238439, guid: 44a184e349900c145b78ab965a487dd8, type: 3}
-      propertyPath: sequence.Array.data[2]
-      value: InteractableManager 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 1100238439, guid: 44a184e349900c145b78ab965a487dd8, type: 3}
-      propertyPath: sequence.Array.data[3]
-      value: GunInteractableManager 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1100238439, guid: 44a184e349900c145b78ab965a487dd8, type: 3}
-      propertyPath: sequence.Array.data[4]
-      value: MainCameraManager 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 1100238439, guid: 44a184e349900c145b78ab965a487dd8, type: 3}
-      propertyPath: sequence.Array.data[5]
-      value: InteractableManager 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 1100238439, guid: 44a184e349900c145b78ab965a487dd8, type: 3}
-      propertyPath: sequence.Array.data[6]
-      value: 'InteractableManager 5 Is Kinemetic : False Use Gravity : True'
-      objectReference: {fileID: 0}
-    - target: {fileID: 1100238439, guid: 44a184e349900c145b78ab965a487dd8, type: 3}
-      propertyPath: sequence.Array.data[7]
-      value: InteractableManager 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 1100238439, guid: 44a184e349900c145b78ab965a487dd8, type: 3}
-      propertyPath: sequence.Array.data[8]
-      value: GunInteractableManager 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 1100238439, guid: 44a184e349900c145b78ab965a487dd8, type: 3}
-      propertyPath: sequence.Array.data[9]
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 1100238439, guid: 44a184e349900c145b78ab965a487dd8, type: 3}
-      propertyPath: sequence.Array.data[10]
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 1100238439, guid: 44a184e349900c145b78ab965a487dd8, type: 3}
-      propertyPath: sequence.Array.data[11]
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 1100238439, guid: 44a184e349900c145b78ab965a487dd8, type: 3}
-      propertyPath: sequence.Array.data[12]
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 1100238439, guid: 44a184e349900c145b78ab965a487dd8, type: 3}
-      propertyPath: sequence.Array.data[13]
-      value: 4
-      objectReference: {fileID: 0}
+    - target: {fileID: 8204520841861874133, guid: 44a184e349900c145b78ab965a487dd8, type: 3}
+      propertyPath: testScript
+      value: 
+      objectReference: {fileID: 11400000, guid: 6a74f5f0d048cca479e9eb9d63a8e34c, type: 2}
     - target: {fileID: 8204520841861874138, guid: 44a184e349900c145b78ab965a487dd8, type: 3}
       propertyPath: m_RootOrder
       value: 12
