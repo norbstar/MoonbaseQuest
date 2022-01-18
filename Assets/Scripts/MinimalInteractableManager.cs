@@ -25,7 +25,7 @@ public class MinimalInteractableManager : MonoBehaviour, IInteractable
     public void OnSelectEntered(SelectEnterEventArgs args)
     {
         Debug.Log($"{Time.time} {gameObject.name}.OnSelectEntered");
-        Debug.Log($"{Time.time} {gameObject.name}:Use Gravity: {rigidBody.useGravity}");
+        Debug.Log($"{Time.time} {gameObject.name}:Is Kinemetic : {rigidBody.isKinematic} Use Gravity : {rigidBody.useGravity}");
 
         transform.parent = objects;
     }
@@ -33,7 +33,7 @@ public class MinimalInteractableManager : MonoBehaviour, IInteractable
     public void OnSelectExited(SelectExitEventArgs args)
     {
         Debug.Log($"{Time.time} {gameObject.name}.OnSelectExited");
-        Debug.Log($"{Time.time} {gameObject.name}:Use Gravity: {rigidBody.useGravity}");
+        Debug.Log($"{Time.time} {gameObject.name}:Is Kinemetic : {rigidBody.isKinematic} Use Gravity : {rigidBody.useGravity}");
 
         transform.parent = objects;
     }

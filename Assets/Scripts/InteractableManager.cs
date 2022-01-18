@@ -1,9 +1,13 @@
+using System.Reflection;
+
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
 [RequireComponent(typeof(XRGrabInteractable))]
 public class InteractableManager : MonoBehaviour, IInteractable
 {
+    private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
+
     public enum EventType
     {
         OnSelectEntered,
@@ -20,16 +24,19 @@ public class InteractableManager : MonoBehaviour, IInteractable
     private GameObject interactor;
     protected Transform objects;
     private bool isHeld;
+    private TestCaseRunner testCaseRunner;
 
     protected virtual void Awake()
     {
         ResolveDependencies();
         objects = GameObject.Find("Objects").transform;
+        interactable.retainTransformParent = false;
     }
 
     private void ResolveDependencies()
     {
         interactable = GetComponent<XRGrabInteractable>() as XRGrabInteractable;
+        testCaseRunner = TestCaseRunner.GetInstance();
     }
 
     // Update is called once per frame
@@ -41,18 +48,21 @@ public class InteractableManager : MonoBehaviour, IInteractable
     public void OnSelectEntered(SelectEnterEventArgs args)
     {
         // Debug.Log($"{Time.time} {gameObject.name}.OnSelectEntered");
-        Debug.Log($"{Time.time} {gameObject.name} 1");
+        // Debug.Log($"{Time.time} {gameObject.name} 1");
+        // testCaseRunner.Post($"{className} 1");
+        testCaseRunner.Post($"{className} 1");
         
-        // if (gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidBody))
-        // {
-        //     Debug.Log($"{Time.time} {gameObject.name}:Use Gravity: {rigidBody.useGravity}");
-        // }
+        if (gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidBody))
+        {
+            testCaseRunner.Post($"{className} 2 Is Kinemetic : {rigidBody.isKinematic} Use Gravity : {rigidBody.useGravity}");
+        }
 
         interactor = args.interactorObject.transform.gameObject;
 
         if (TryGetController<HandController>(out HandController controller))
         {
-            Debug.Log($"{Time.time} {gameObject.name} 2");
+            // Debug.Log($"{Time.time} {gameObject.name} 2");
+            testCaseRunner.Post($"{className} 3");
             controller.SetHolding(gameObject);
             isHeld = true;
         
@@ -67,20 +77,22 @@ public class InteractableManager : MonoBehaviour, IInteractable
     public void OnSelectExited(SelectExitEventArgs args)
     {
         // Debug.Log($"{Time.time} {gameObject.name}.OnSelectExited");
-        Debug.Log($"{Time.time} {gameObject.name} 3");
+        // Debug.Log($"{Time.time} {gameObject.name} 3");
+        testCaseRunner.Post($"{className} 4");
 
         if (gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidBody))
         {
-            rigidBody.isKinematic = false;
             // Debug.Log($"{Time.time} {gameObject.name}:Use Gravity: {rigidBody.useGravity} Is Kinematic : {rigidBody.isKinematic}");
-            Debug.Log($"{Time.time} {gameObject.name} 4");
+            // Debug.Log($"{Time.time} {gameObject.name} 4");
+            testCaseRunner.Post($"{className} 5 Is Kinemetic : {rigidBody.isKinematic} Use Gravity : {rigidBody.useGravity}");
         }
 
-        transform.parent = objects;
+        // transform.parent = objects;
 
         if (TryGetController<HandController>(out HandController controller))
         {
-            Debug.Log($"{Time.time} {gameObject.name} 5");
+            // Debug.Log($"{Time.time} {gameObject.name} 5");
+            testCaseRunner.Post($"{className} 6");
             controller.SetHolding(null);
             isHeld = false;
             

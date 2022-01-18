@@ -6,6 +6,7 @@ using UnityEngine;
 
 using TMPro;
 
+[RequireComponent(typeof(TestCaseRunnerSequence))]
 public class TestCaseRunner : MonoBehaviour
 {
     public delegate void Event(State state, object data = null);
@@ -57,6 +58,7 @@ public class TestCaseRunner : MonoBehaviour
     private static TestCaseRunner instance;
 
     private new Camera camera;
+    private TestCaseRunnerSequence testCaseRunnerSequence;
     private List<string> sequence;
     private FX.RotateFX rotateFX;
     private List<string> postedSequence;
@@ -76,6 +78,7 @@ public class TestCaseRunner : MonoBehaviour
     void Awake()
     {
         ResolveDependencies();
+        sequence = testCaseRunnerSequence.Sequence;
         postedSequence = new List<string>();
     }
 
@@ -83,6 +86,7 @@ public class TestCaseRunner : MonoBehaviour
     {
         camera = Camera.main;
         rotateFX = box.GetComponent<FX.RotateFX>() as FX.RotateFX;
+        testCaseRunnerSequence = GetComponent<TestCaseRunnerSequence>() as TestCaseRunnerSequence;
     }
 
     // Update is called once per frame
@@ -91,11 +95,6 @@ public class TestCaseRunner : MonoBehaviour
         Vector3 relativePosition = camera.transform.position - transform.position;
         Quaternion rotation = Quaternion.LookRotation(relativePosition, Vector3.up);
         canvas.transform.rotation = rotation;
-    }
-
-    public void SetExpectedSequence(List<string> sequence)
-    {
-        this.sequence = sequence;
     }
 
     public void Post(string data)

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 
 using UnityEngine;
 using UnityEngine.XR;
@@ -9,6 +10,8 @@ using UnityEngine.XR.Interaction.Toolkit;
 [RequireComponent(typeof(XRController))]
 public class HandController : MonoBehaviour
 {
+    private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
+
     [Flags]
     public enum Gesture
     {
@@ -39,6 +42,7 @@ public class HandController : MonoBehaviour
     private GameObject holding;
     private DebugCanvas debugCanvas;
     private Gesture lastState;
+    private TestCaseRunner testCaseRunner;
 
     void Awake()
     {
@@ -52,6 +56,8 @@ public class HandController : MonoBehaviour
 
         var obj = FindObjectOfType<DebugCanvas>();
         debugCanvas = obj?.GetComponent<DebugCanvas>() as DebugCanvas;
+
+        testCaseRunner = TestCaseRunner.GetInstance();
     }
 
     private void ResolveController()
@@ -87,10 +93,15 @@ public class HandController : MonoBehaviour
         if (controller.TryGetFeatureValue(CommonUsages.trigger, out float triggerValue))
         {
             // Log($"{controller.name}.Trigger:{triggerValue}");
-            Debug.Log($"{Time.time} {gameObject.name} 1");
+            // Debug.Log($"{Time.time} {gameObject.name} 1");
             
             var handAnimationController = xrController.model.GetComponent<HandAnimationController>() as HandAnimationController;
             handAnimationController?.SetFloat("Trigger", triggerValue);
+
+            // if (triggerValue > 0.1f)
+            // {
+            //     testCaseRunner.Post($"{className} 1");
+            // }
 
             if (triggerValue > nearDistance)
             {
@@ -102,19 +113,22 @@ public class HandController : MonoBehaviour
         if (controller.TryGetFeatureValue(CommonUsages.grip, out float gripValue))
         {
             // Log($"{controller.name}.Grip:{gripValue}");
-            Debug.Log($"{Time.time} {gameObject.name} 2");
+            // Debug.Log($"{Time.time} {gameObject.name} 2");
 
             var handAnimationController = xrController.model.GetComponent<HandAnimationController>() as HandAnimationController;
             handAnimationController?.SetFloat("Grip", gripValue);
 
             if (gripValue > 0.1f)
             {
+                // testCaseRunner.Post($"{className} 2");
+
                 if (!thisState.HasFlag(Gesture.Grip) && (cameraManager.TryGetObjectHit(out GameObject obj)))
                 {
                     if  (enableTeleport && obj.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
                     {
                         // Debug.Log($"{thisController.name}.Grip.Teleport:{obj.name}");
-                        Debug.Log($"{Time.time} {gameObject.name} 3");
+                        // Debug.Log($"{Time.time} {gameObject.name} 3");
+                        // testCaseRunner.Post($"{className} 3");
                         StartCoroutine(TeleportGrabbable(obj));
                     }
                 }
@@ -136,16 +150,20 @@ public class HandController : MonoBehaviour
         if (controller.TryGetFeatureValue(CommonUsages.primary2DAxis, out Vector2 thumbStickValue))
         {
             // Log($"{controller.name}.Thumb Stick:{thumbStickValue.x} {thumbStickValue.y}");
-            Debug.Log($"{Time.time} {gameObject.name} 4");
+            // Debug.Log($"{Time.time} {gameObject.name} 4");
 
             if (thumbStickValue.x < -0.9f)
             {
+                // testCaseRunner.Post($"{className} 4");
+
                 thisState |= Gesture.ThumbStick_Left;
                 holding?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Left);
                 hasState = true;
             }
             else if (thumbStickValue.x > 0.9f)
             {
+                // testCaseRunner.Post($"{className} 5");
+
                 thisState |= Gesture.ThumbStick_Right;
                 holding?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Right);
                 hasState = true;
@@ -203,7 +221,9 @@ public class HandController : MonoBehaviour
 
     private IEnumerator TeleportGrabbable(GameObject grabbable)
     {
-        Debug.Log($"{Time.time} {gameObject.name} 5");
+        // Debug.Log($"{Time.time} {gameObject.name} 6");
+        // testCaseRunner.Post($"{className} 6");
+
         float step =  teleportSpeed * Time.deltaTime;
 
         while (Vector3.Distance(transform.position, grabbable.transform.position) > 0.1f)

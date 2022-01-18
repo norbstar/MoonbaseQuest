@@ -1,7 +1,11 @@
+using System.Reflection;
+
 using UnityEngine;
 
 public class MainCameraManager : Gizmo
 {
+    private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
+
     public enum DockID
     {
         Left,
@@ -28,15 +32,23 @@ public class MainCameraManager : Gizmo
     private GameObject hitPrefabInstance;
     private GameObject lastObjectHit;
     private int defaultLayerMask;
+    private TestCaseRunner testCaseRunner;
     
     void Awake()
     {
+        ResolveDependencies();
         defaultLayerMask = LayerMask.GetMask("Default");
+    }
+
+    private void ResolveDependencies()
+    {
+        testCaseRunner = TestCaseRunner.GetInstance();
     }
 
     public bool DockWeapon(GameObject gameObject, DockID dockID, Quaternion localRotation, bool allowNegotiation = true)
     {
-        Debug.Log($"{Time.time} {gameObject.name} 1");
+        // Debug.Log($"{Time.time} {gameObject.name} 1");
+        testCaseRunner.Post($"{className} 1");
         Transform parent = null;
         bool docked = false;
 
@@ -56,10 +68,12 @@ public class MainCameraManager : Gizmo
             case DockID.Left:
                 if (!leftDock.Occupied.occupied)
                 {
-                    Debug.Log($"{Time.time} {gameObject.name} 2");
+                    // Debug.Log($"{Time.time} {gameObject.name} 2");
+                    testCaseRunner.Post($"{className} 2");
                     if (gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidBody))
                     {
-                        Debug.Log($"{Time.time} {gameObject.name} 3");
+                        // Debug.Log($"{Time.time} {gameObject.name} 3");
+                        testCaseRunner.Post($"{className} 3");
                         rigidBody.velocity = Vector3.zero;
                         rigidBody.angularVelocity = Vector3.zero;
                         rigidBody.isKinematic = true;
@@ -82,10 +96,12 @@ public class MainCameraManager : Gizmo
             case DockID.Right:
                 if (!rightDock.Occupied.occupied)
                 {
-                    Debug.Log($"{Time.time} {gameObject.name} 4");
+                    // Debug.Log($"{Time.time} {gameObject.name} 4");
+                    testCaseRunner.Post($"{className} 4");
                     if (gameObject.TryGetComponent<Rigidbody>(out var rigidBody))
                     {
-                        Debug.Log($"{Time.time} {gameObject.name} 5");
+                        // Debug.Log($"{Time.time} {gameObject.name} 5");
+                        testCaseRunner.Post($"{className} 5");
                         rigidBody.velocity = Vector3.zero;
                         rigidBody.angularVelocity = Vector3.zero;
                         rigidBody.isKinematic = true;
@@ -110,54 +126,78 @@ public class MainCameraManager : Gizmo
         return false;
     }
 
-    public bool UndockWeapon(GameObject gameObject)
+    // public bool IsDocked(GameObject gameObject)
+    // {
+    //     testCaseRunner.Post($"{className} 6");
+
+    //     return
+    //         (leftDock.Occupied.occupied && Object.ReferenceEquals(gameObject, leftDock.Occupied.gameObject)) ||
+    //         (rightDock.Occupied.occupied && Object.ReferenceEquals(gameObject, rightDock.Occupied.gameObject));
+    // }
+
+    public bool TryIsDocked(GameObject gameObject, out DockID dockID)
     {
-        Debug.Log($"{Time.time} {gameObject.name} 6");
-        
+        testCaseRunner.Post($"{className} 6");
+
         if (leftDock.Occupied.occupied && Object.ReferenceEquals(gameObject, leftDock.Occupied.gameObject))
         {
-            Debug.Log($"{Time.time} {gameObject.name} 7");
-
-            if (gameObject.TryGetComponent<Rigidbody>(out var rigidBody))
-            {
-                Debug.Log($"{Time.time} {gameObject.name} 8");
-                rigidBody.isKinematic = false;
-                rigidBody.useGravity = true;
-            }
-
-            AudioSource.PlayClipAtPoint(undockClip, transform.position, 1.0f);
-            SetDockStatus(DockID.Left, gameObject, false);
+            dockID = DockID.Left;
             return true;
         }
         else if (rightDock.Occupied.occupied && Object.ReferenceEquals(gameObject, rightDock.Occupied.gameObject))
         {
-            Debug.Log($"{Time.time} {gameObject.name} 9");
-
-            if (gameObject.TryGetComponent<Rigidbody>(out var rigidBody))
-            {
-                Debug.Log($"{Time.time} {gameObject.name} 10");
-                rigidBody.isKinematic = false;
-                rigidBody.useGravity = true;
-            }
-
-            AudioSource.PlayClipAtPoint(undockClip, transform.position, 1.0f);
-            SetDockStatus(DockID.Right, gameObject, false);
+            dockID = DockID.Right;
             return true;
         }
 
+        dockID = default(DockID);
         return false;
     }
 
-    public bool IsDocked(GameObject gameObject)
+    public void UndockWeapon(GameObject gameObject)
     {
-        return
-            (leftDock.Occupied.occupied && Object.ReferenceEquals(gameObject, leftDock.Occupied.gameObject)) ||
-            (rightDock.Occupied.occupied && Object.ReferenceEquals(gameObject, rightDock.Occupied.gameObject));
+        if (TryIsDocked(gameObject, out DockID dockID))
+        {
+            if (dockID == DockID.Left)
+            {
+                // Debug.Log($"{Time.time} {gameObject.name} 7");
+                testCaseRunner.Post($"{className} 7");
+
+                if (gameObject.TryGetComponent<Rigidbody>(out var rigidBody))
+                {
+                    // Debug.Log($"{Time.time} {gameObject.name} 8");
+                    testCaseRunner.Post($"{className} 8");
+                    rigidBody.isKinematic = false;
+                    rigidBody.useGravity = true;
+                }
+
+                AudioSource.PlayClipAtPoint(undockClip, transform.position, 1.0f);
+                SetDockStatus(DockID.Left, gameObject, false);
+            }
+            else if (dockID == DockID.Right)
+            {
+                // Debug.Log($"{Time.time} {gameObject.name} 9");
+                testCaseRunner.Post($"{className} 9");
+
+                if (gameObject.TryGetComponent<Rigidbody>(out var rigidBody))
+                {
+                    // Debug.Log($"{Time.time} {gameObject.name} 10");
+                    testCaseRunner.Post($"{className} 10");
+                    rigidBody.isKinematic = false;
+                    rigidBody.useGravity = true;
+                }
+
+                AudioSource.PlayClipAtPoint(undockClip, transform.position, 1.0f);
+                SetDockStatus(DockID.Right, gameObject, false);
+            }
+        }
     }
 
     private void SetDockStatus(DockID dockID, GameObject gameObject, bool occupied)
     {
-        Debug.Log($"{Time.time} {gameObject.name} 11");
+        // Debug.Log($"{Time.time} {gameObject.name} 11");
+        testCaseRunner.Post($"{className} 11");
+
         switch (dockID)
         {
             case DockID.Left:

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 
 using UnityEngine;
 using UnityEngine.XR;
@@ -9,6 +10,8 @@ using UnityEngine.XR.Interaction.Toolkit;
 [RequireComponent(typeof(CurveCreator))]
 public class GunInteractableManager : FocusableInteractableManager, IGesture
 {
+    private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
+
     public enum Mode
     {
         Manual,
@@ -63,6 +66,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     private IList<float> heatValues;
     private int heatIndex;
     private State state;
+    private TestCaseRunner testCaseRunner;
 
     protected override void Awake()
     {
@@ -81,6 +85,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     {
         curveCreator = GetComponent<CurveCreator>() as CurveCreator;
         cameraManager = camera.GetComponent<MainCameraManager>() as MainCameraManager;
+        testCaseRunner = TestCaseRunner.GetInstance();
     }
 
     void FixedUpdate()
@@ -155,7 +160,8 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     protected override void OnSelectEntered(SelectEnterEventArgs args, HandController controller)
     {
-        Debug.Log($"{Time.time} {gameObject.name} 1");
+        // Debug.Log($"{Time.time} {gameObject.name} 1");
+        testCaseRunner.Post($"{className} 1");
 
         gameObject.transform.parent = objects;
 
@@ -172,7 +178,11 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
                 ammoCanvasManager.transform.localPosition = new Vector3(Mathf.Abs(ammoCanvasManager.transform.localPosition.x), 0.06f, 0f);
             }
 
-            cameraManager.UndockWeapon(gameObject);
+            if (cameraManager.TryIsDocked(gameObject, out MainCameraManager.DockID dockID))
+            {
+                cameraManager.UndockWeapon(gameObject);
+            }
+
             ammoCanvasManager.gameObject.SetActive(true);
         }
     }
@@ -292,7 +302,8 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     protected override void OnSelectExited(SelectExitEventArgs args, HandController controller)
     {
-        Debug.Log($"{Time.time} {gameObject.name} 2");
+        // Debug.Log($"{Time.time} {gameObject.name} 2");
+        testCaseRunner.Post($"{className} 2");
 
         ammoCanvasManager.gameObject.SetActive(false);
 
@@ -304,18 +315,21 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     private void DockWeapon(HandController controller)
     {
-        Debug.Log($"{Time.time} {gameObject.name} 3");
+        // Debug.Log($"{Time.time} {gameObject.name} 3");
+        testCaseRunner.Post($"{className} 3");
 
         var device = controller.GetInputDevice();
 
         if (((int) device.characteristics) == ((int) LeftHand))
         {
-            Debug.Log($"{Time.time} {gameObject.name} 4");
+            // Debug.Log($"{Time.time} {gameObject.name} 4");
+            testCaseRunner.Post($"{className} 4");
             cameraManager.DockWeapon(gameObject, MainCameraManager.DockID.Left, Quaternion.Euler(90f, 0f, 0f));
         }
         else if (((int) device.characteristics) == ((int) RightHand))
         {
-            Debug.Log($"{Time.time} {gameObject.name} 5");
+            // Debug.Log($"{Time.time} {gameObject.name} 5");
+            testCaseRunner.Post($"{className} 5");
             cameraManager.DockWeapon(gameObject, MainCameraManager.DockID.Right, Quaternion.Euler(90f, 0f, 0f));
         }
     }

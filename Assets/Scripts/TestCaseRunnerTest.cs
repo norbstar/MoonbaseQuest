@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class TestCaseRunnerTest : MonoBehaviour
 {
-    [SerializeField] List<string> expectedSequence;
     [SerializeField] List<string> postedSequence;
 
     private TestCaseRunner testCaseRunner;
@@ -26,8 +25,6 @@ public class TestCaseRunnerTest : MonoBehaviour
     {
         if (testCaseRunner != null)
         {
-            testCaseRunner.SetExpectedSequence(expectedSequence);
-            
             foreach (string item in postedSequence)
             {
                 yield return new WaitForSeconds(1f);
