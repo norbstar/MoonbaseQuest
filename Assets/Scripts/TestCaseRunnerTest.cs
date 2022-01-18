@@ -45,14 +45,31 @@ public class TestCaseRunnerTest : MonoBehaviour
         switch (state)
         {
             case TestCaseRunner.State.Start:
+                Debug.Log($"{Time.time} Start");
                 rotateFX.Start();
                 break;
 
+            case TestCaseRunner.State.Pass:
+                Debug.Log($"{Time.time} Pass");
+                break;
+
+            case TestCaseRunner.State.Fail:
+                Debug.Log($"{Time.time} Fail");
+
+                List<TestCaseRunner.DataPoint> dataPoints = (List<TestCaseRunner.DataPoint>) data;
+                
+                for (int idx = 0; idx < dataPoints.Count; idx++)
+                {
+                    TestCaseRunner.DataPoint dataPoint = dataPoints[idx];
+                    Debug.Log($"{Time.time} DataPoint[{idx}] Expected : {dataPoint.expected} Posted : {dataPoint.posted} Result : {dataPoint.result}");
+                }
+                
+                break;
+
             case TestCaseRunner.State.End:
+                Debug.Log($"{Time.time} End");
                 rotateFX.Stop();
-                TestCaseRunner.Result result = (TestCaseRunner.Result) data;
-                Debug.Log($"Test Completed Result {result}");
                 break;
         }
-    } 
+    }
 }

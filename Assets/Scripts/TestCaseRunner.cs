@@ -7,10 +7,12 @@ public class TestCaseRunner : MonoBehaviour
 {
     public delegate void Event(State state, object data = null);
     public static event Event EventReceived;
-
+    
     public enum State
     {
         Start,
+        Pass,
+        Fail,
         End
     }
 
@@ -20,7 +22,15 @@ public class TestCaseRunner : MonoBehaviour
         Fail
     }
 
+    public class DataPoint
+    {
+        public string expected;
+        public string posted;
+        public bool result;
+    }
+
     [SerializeField] List<GameObject> faces;
+    [SerializeField] Sprite inProgressSprite;
 
     [Header("Pass Scenario")]
     [SerializeField] Sprite passSprite;
@@ -47,28 +57,56 @@ public class TestCaseRunner : MonoBehaviour
 
         if (postedSequence.Count == 0)
         {
+            foreach (GameObject face in faces)
+            {
+                var spriteRenderer = face.GetComponent<SpriteRenderer>() as SpriteRenderer;
+                spriteRenderer.sprite = inProgressSprite;
+            }
+
             EventReceived(State.Start);
         }
 
         postedSequence.Add(data);
 
-        var croppedSequence = new List<string>(sequence.Take(postedSequence.Count));
-        var firstNotSecond = postedSequence.Except(croppedSequence).ToList();
-        var secondNotFirst = croppedSequence.Except(postedSequence).ToList();
+        var expectedSequence = new List<string>(sequence.Take(postedSequence.Count));
+        var firstNotSecond = postedSequence.Except(expectedSequence).ToList();
+        var secondNotFirst = expectedSequence.Except(postedSequence).ToList();
 
         if (firstNotSecond.Any() || secondNotFirst.Any())
         {
             PostResult(Result.Fail);
-            EventReceived(State.End, Result.Fail);
+            var dataPoints = GenerateDataPoints(postedSequence, expectedSequence);
+            EventReceived(State.Fail, dataPoints);
+            EventReceived(State.End);
             complete = true;
         }
         else if (postedSequence.Count == sequence.Count)
         {
             PostResult(Result.Pass);
-            EventReceived(State.End, Result.Pass);
+            var dataPoints = GenerateDataPoints(postedSequence, expectedSequence);
+            EventReceived(State.Pass, dataPoints);
+            EventReceived(State.End);
             complete = true;
         }
     }
+
+    private List<DataPoint> GenerateDataPoints(List<string> postedSequence, List<string> expectedSequence)
+    {
+        var dataPoints = new List<DataPoint>();
+
+        for (int idx = 0; idx < postedSequence.Count; idx++)
+        {
+            dataPoints.Add(new DataPoint
+            {
+                expected = expectedSequence[idx],
+                posted = postedSequence[idx],
+                result = postedSequence[idx].Equals(expectedSequence[idx])
+            });
+        }
+
+        return dataPoints;
+    }
+    
 
     private void PostResult(Result result)
     {
