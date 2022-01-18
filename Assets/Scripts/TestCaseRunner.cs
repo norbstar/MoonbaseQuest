@@ -3,9 +3,12 @@ using System.Collections.Generic;
 
 using UnityEngine;
 
-[RequireComponent(typeof(FX.RotateFX))]
+using TMPro;
+
 public class TestCaseRunner : MonoBehaviour
 {
+    [SerializeField] new Camera camera;
+
     public delegate void Event(State state, object data = null);
     public static event Event EventReceived;
     
@@ -30,7 +33,14 @@ public class TestCaseRunner : MonoBehaviour
         public bool result;
     }
 
+    [Header("Components")]
+    [SerializeField] GameObject box;
     [SerializeField] List<GameObject> faces;
+    [SerializeField] Canvas canvas;
+    [SerializeField] TextMeshProUGUI stateTextUI;
+    [SerializeField] TextMeshProUGUI countTextUI;
+
+    [Header("Progression")]
     [SerializeField] Sprite inProgressSprite;
 
     [Header("Pass Scenario")]
@@ -56,7 +66,15 @@ public class TestCaseRunner : MonoBehaviour
 
     private void ResolveDependencies()
     {
-        rotateFX = GetComponent<FX.RotateFX>() as FX.RotateFX;
+        rotateFX = box.GetComponent<FX.RotateFX>() as FX.RotateFX;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        Vector3 relativePosition = camera.transform.position - transform.position;
+        Quaternion rotation = Quaternion.LookRotation(relativePosition, Vector3.up);
+        canvas.transform.rotation = rotation;
     }
 
     public void Post(string data)
@@ -72,10 +90,13 @@ public class TestCaseRunner : MonoBehaviour
             }
 
             rotateFX.Start();
+            stateTextUI.text = $"Start";
             EventReceived(State.Start);
         }
 
         postedSequence.Add(data);
+
+        countTextUI.text = $"{postedSequence.Count}|{sequence.Count}";
 
         var expectedSequence = new List<string>(sequence.Take(postedSequence.Count));
         var firstNotSecond = postedSequence.Except(expectedSequence).ToList();
@@ -84,6 +105,7 @@ public class TestCaseRunner : MonoBehaviour
         if (firstNotSecond.Any() || secondNotFirst.Any())
         {
             rotateFX.Stop();
+            stateTextUI.text = $"Stop";
             PostResult(Result.Fail);
             var dataPoints = GenerateDataPoints(postedSequence, expectedSequence);
             EventReceived(State.Fail, dataPoints);
@@ -93,6 +115,7 @@ public class TestCaseRunner : MonoBehaviour
         else if (postedSequence.Count == sequence.Count)
         {
             rotateFX.Stop();
+            stateTextUI.text = $"Stop";
             PostResult(Result.Pass);
             var dataPoints = GenerateDataPoints(postedSequence, expectedSequence);
             EventReceived(State.Pass, dataPoints);

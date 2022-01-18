@@ -10,6 +10,7 @@ public class FlashlightInteractableManager : FocusableInteractableManager
         On
     }
 
+    [Header("Components")]
     [SerializeField] GameObject spotlight;
 
     [Header("Hits")]
@@ -19,7 +20,17 @@ public class FlashlightInteractableManager : FocusableInteractableManager
     [Header("Audio")]
     [SerializeField] AudioClip buttonClip;
 
+    [Header("Config")]
+    [SerializeField] State startState;
+
     private State state;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        state = startState;
+        spotlight.SetActive(state == State.On);
+    }
 
     public void OnActivated(ActivateEventArgs args)
     {

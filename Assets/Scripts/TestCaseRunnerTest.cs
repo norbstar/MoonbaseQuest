@@ -3,22 +3,10 @@ using System.Collections.Generic;
 
 using UnityEngine;
 
-[RequireComponent(typeof(TestCaseRunner))]
 public class TestCaseRunnerTest : MonoBehaviour
 {
+    [SerializeField] TestCaseRunner testCaseRunner;
     [SerializeField] List<string> sequence;
-
-    private TestCaseRunner testCaseRunner;
-
-    void Awake()
-    {
-        ResolveDependencies();
-    }
-
-    private void ResolveDependencies()
-    {
-        testCaseRunner = GetComponent<TestCaseRunner>() as TestCaseRunner;
-    }
 
     // Start is called before the first frame update
     void Start()
