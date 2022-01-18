@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using UnityEngine;
 
+[RequireComponent(typeof(FX.RotateFX))]
 public class TestCaseRunner : MonoBehaviour
 {
     public delegate void Event(State state, object data = null);
@@ -43,12 +44,19 @@ public class TestCaseRunner : MonoBehaviour
     [Header("Config")]
     [SerializeField] List<string> sequence;
 
+    private FX.RotateFX rotateFX;
     private List<string> postedSequence;
     private bool complete;
 
     void Awake()
     {
+        ResolveDependencies();
         postedSequence = new List<string>();
+    }
+
+    private void ResolveDependencies()
+    {
+        rotateFX = GetComponent<FX.RotateFX>() as FX.RotateFX;
     }
 
     public void Post(string data)
@@ -63,6 +71,7 @@ public class TestCaseRunner : MonoBehaviour
                 spriteRenderer.sprite = inProgressSprite;
             }
 
+            rotateFX.Start();
             EventReceived(State.Start);
         }
 
@@ -74,6 +83,7 @@ public class TestCaseRunner : MonoBehaviour
 
         if (firstNotSecond.Any() || secondNotFirst.Any())
         {
+            rotateFX.Stop();
             PostResult(Result.Fail);
             var dataPoints = GenerateDataPoints(postedSequence, expectedSequence);
             EventReceived(State.Fail, dataPoints);
@@ -82,6 +92,7 @@ public class TestCaseRunner : MonoBehaviour
         }
         else if (postedSequence.Count == sequence.Count)
         {
+            rotateFX.Stop();
             PostResult(Result.Pass);
             var dataPoints = GenerateDataPoints(postedSequence, expectedSequence);
             EventReceived(State.Pass, dataPoints);

@@ -4,13 +4,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(TestCaseRunner))]
-[RequireComponent(typeof(FX.RotateFX))]
 public class TestCaseRunnerTest : MonoBehaviour
 {
     [SerializeField] List<string> sequence;
 
     private TestCaseRunner testCaseRunner;
-    private FX.RotateFX rotateFX;
 
     void Awake()
     {
@@ -20,7 +18,6 @@ public class TestCaseRunnerTest : MonoBehaviour
     private void ResolveDependencies()
     {
         testCaseRunner = GetComponent<TestCaseRunner>() as TestCaseRunner;
-        rotateFX = GetComponent<FX.RotateFX>() as FX.RotateFX;
     }
 
     // Start is called before the first frame update
@@ -46,7 +43,6 @@ public class TestCaseRunnerTest : MonoBehaviour
         {
             case TestCaseRunner.State.Start:
                 Debug.Log($"{Time.time} Start");
-                rotateFX.Start();
                 break;
 
             case TestCaseRunner.State.Pass:
@@ -68,7 +64,6 @@ public class TestCaseRunnerTest : MonoBehaviour
 
             case TestCaseRunner.State.End:
                 Debug.Log($"{Time.time} End");
-                rotateFX.Stop();
                 break;
         }
     }
