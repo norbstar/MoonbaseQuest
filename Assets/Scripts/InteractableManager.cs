@@ -58,24 +58,13 @@ public class InteractableManager : MonoBehaviour, IInteractable
 
     public void OnSelectEntered(SelectEnterEventArgs args)
     {
-        Debug.Log($"{Time.time} {gameObject.name} {className}.OnSelectEntered");
-        testCaseRunner?.Post($"{className} 1");
-        
-        if (gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidBody))
-        {
-            Debug.Log($"{Time.time} {gameObject.name} {className}.OnSelectEntered:Is Kinemetic : {rigidBody.isKinematic} Use Gravity : {rigidBody.useGravity}");
-            testCaseRunner?.Post($"{className} 2 Is Kinemetic : {rigidBody.isKinematic} Use Gravity : {rigidBody.useGravity}");
-        }
-
         interactor = args.interactorObject.transform.gameObject;
 
         if (TryGetController<HandController>(out HandController controller))
         {
-            Debug.Log($"{Time.time} {gameObject.name} {className}.OnSelectEntered:HandController");
-            testCaseRunner?.Post($"{className} 3");
             controller.SetHolding(gameObject);
-            isHeld = true;
-        
+            isHeld = true;       
+
             OnSelectEntered(args, controller);
         }
 
@@ -86,24 +75,14 @@ public class InteractableManager : MonoBehaviour, IInteractable
 
     public void OnSelectExited(SelectExitEventArgs args)
     {
-        Debug.Log($"{Time.time} {gameObject.name} {className}.OnSelectExited");
-        testCaseRunner?.Post($"{className} 4");
-
         if (gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidBody))
         {
             rigidBody.isKinematic = cache.isKinematic;
             rigidBody.useGravity = cache.useGravity;
-            
-            Debug.Log($"{Time.time} {gameObject.name} {className}.OnSelectExited:Is Kinemetic : {rigidBody.isKinematic} Use Gravity : {rigidBody.useGravity}");
-            testCaseRunner?.Post($"{className} 5 Is Kinemetic : {rigidBody.isKinematic} Use Gravity : {rigidBody.useGravity}");
         }
-
-        // transform.parent = objects;
 
         if (TryGetController<HandController>(out HandController controller))
         {
-            Debug.Log($"{Time.time} {gameObject.name} {className}.OnSelectExited:HandController");
-            testCaseRunner?.Post($"{className} 6");
             controller.SetHolding(null);
             isHeld = false;
             

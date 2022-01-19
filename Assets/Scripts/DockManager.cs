@@ -9,7 +9,6 @@ public class DockManager : Gizmo
     {
         public bool occupied;
         public GameObject gameObject;
-        public bool useGravity;
     }
     
     [Header("Status")]

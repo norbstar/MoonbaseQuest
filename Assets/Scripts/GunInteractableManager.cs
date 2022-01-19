@@ -54,7 +54,6 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     [SerializeField] AudioClip autoClip;
     [SerializeField] AudioClip overloadedClip;
 
-    // private Rigidbody rigidBody;
     private CurveCreator curveCreator;
     private MainCameraManager cameraManager;
     private Vector3 defaultPosition;
@@ -93,10 +92,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     void FixedUpdate()
     {
-        // Debug.DrawRay(transform.TransformPoint(Vector3.zero), transform.forward, Color.red);
-        
         var ray = new Ray(spawnPoint.transform.position, spawnPoint.transform.forward);
-        // Debug.DrawLine(ray.origin, ray.GetPoint(10f), Color.blue, 0.1f);
 
         if (Physics.Raycast(ray.origin, ray.direction, out RaycastHit hit, Mathf.Infinity, mixedLayerMask))
         {
@@ -163,9 +159,6 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     protected override void OnSelectEntered(SelectEnterEventArgs args, HandController controller)
     {
-        Debug.Log($"{Time.time} {gameObject.name} {className}.OnSelectEntered");
-        testCaseRunner?.Post($"{className} 1");
-
         gameObject.transform.parent = objects;
 
         if (controller != null)
@@ -305,9 +298,6 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     protected override void OnSelectExited(SelectExitEventArgs args, HandController controller)
     {
-        Debug.Log($"{Time.time} {gameObject.name} {className}.OnSelectExited");
-        testCaseRunner?.Post($"{className} 2");
-
         ammoCanvasManager.gameObject.SetActive(false);
 
         if (autoDockEnabled && (controller != null))
@@ -318,30 +308,15 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     private void DockWeapon(HandController controller)
     {
-        Debug.Log($"{Time.time} {gameObject.name} {className}.DockWeapon");
-        testCaseRunner?.Post($"{className} 3");
-
         var device = controller.GetInputDevice();
 
         if (((int) device.characteristics) == ((int) LeftHand))
         {
-            Debug.Log($"{Time.time} {gameObject.name} {className}.DockWeapon:LeftHand");
-            testCaseRunner?.Post($"{className} 4");
-            
-            if (cameraManager.DockWeapon(gameObject, MainCameraManager.DockID.Left, Quaternion.Euler(90f, 0f, 0f)))
-            {
-                // TODO
-            }
+            cameraManager.DockWeapon(gameObject, MainCameraManager.DockID.Left, Quaternion.Euler(90f, 0f, 0f));
         }
         else if (((int) device.characteristics) == ((int) RightHand))
         {
-            Debug.Log($"{Time.time} {gameObject.name} {className}.DockWeapon:RightHand");
-            testCaseRunner?.Post($"{className} 5");
-            
-            if (cameraManager.DockWeapon(gameObject, MainCameraManager.DockID.Right, Quaternion.Euler(90f, 0f, 0f)))
-            {
-                // TODO
-            }
+            cameraManager.DockWeapon(gameObject, MainCameraManager.DockID.Right, Quaternion.Euler(90f, 0f, 0f));
         }
     }
 
