@@ -66,24 +66,8 @@ public class MainCameraManager : Gizmo
             case DockID.Left:
                 if (!leftDock.Data.occupied)
                 {
-                    OccupyDock(dockID, gameObject);
-
-                    if (gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidBody))
-                    {
-                        rigidBody.velocity = Vector3.zero;
-                        rigidBody.angularVelocity = Vector3.zero;
-                        rigidBody.isKinematic = true;
-                        rigidBody.useGravity = false;
-                    }
-
                     parent = leftDock.transform;
-            
-                    gameObject.transform.parent = parent;
-                    gameObject.transform.localRotation = localRotation;
-                    gameObject.transform.localPosition = Vector3.zero;
-
-                    AudioSource.PlayClipAtPoint(dockClip, transform.position, 1.0f);
-
+                    OccupyDock(dockID, gameObject, parent, localRotation);
                     return true;
                 }
                 break;
@@ -91,24 +75,8 @@ public class MainCameraManager : Gizmo
             case DockID.Right:
                 if (!rightDock.Data.occupied)
                 {
-                    OccupyDock(dockID, gameObject);
-
-                    if (gameObject.TryGetComponent<Rigidbody>(out var rigidBody))
-                    {
-                        rigidBody.velocity = Vector3.zero;
-                        rigidBody.angularVelocity = Vector3.zero;
-                        rigidBody.isKinematic = true;
-                        rigidBody.useGravity = false;
-                    }
-
                     parent = rightDock.transform;
-
-                    gameObject.transform.parent = parent;
-                    gameObject.transform.localRotation = localRotation;
-                    gameObject.transform.localPosition = Vector3.zero;
-
-                    AudioSource.PlayClipAtPoint(dockClip, transform.position, 1.0f);
-
+                    OccupyDock(dockID, gameObject, parent, localRotation);
                     return true;
                 }
                 break;
@@ -152,8 +120,20 @@ public class MainCameraManager : Gizmo
         }
     }
 
-    private void OccupyDock(DockID dockID, GameObject gameObject)
+    private void OccupyDock(DockID dockID, GameObject gameObject, Transform parent, Quaternion localRotation)
     {
+        if (gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidBody))
+        {
+            rigidBody.velocity = Vector3.zero;
+            rigidBody.angularVelocity = Vector3.zero;
+            rigidBody.isKinematic = true;
+            rigidBody.useGravity = false;
+        }
+
+        gameObject.transform.parent = parent;
+        gameObject.transform.localRotation = localRotation;
+        gameObject.transform.localPosition = Vector3.zero;
+        
         var data = new DockManager.OccupancyData
         {
             occupied = true,
@@ -170,13 +150,11 @@ public class MainCameraManager : Gizmo
                 rightDock.Data = data;
                 break;
         }
+
+        AudioSource.PlayClipAtPoint(dockClip, transform.position, 1.0f);
     }
 
-    private void FreeDock(DockID dockID)
-    {
-        var dock = (dockID == DockID.Left) ? leftDock : rightDock; 
-        dock.Free();
-    }
+    private void FreeDock(DockID dockID) => ((dockID == DockID.Left) ? leftDock : rightDock).Free();
 
     void FixedUpdate()
     {
@@ -200,7 +178,6 @@ public class MainCameraManager : Gizmo
 
         if (isValid)
         {
-
             if (showHits)
             {
                 if (hitPrefabInstance == null)
