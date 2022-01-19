@@ -163,7 +163,6 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     protected override void OnSelectEntered(SelectEnterEventArgs args, HandController controller)
     {
-        // Debug.Log($"{Time.time} {gameObject.name} 1");
         Debug.Log($"{Time.time} {gameObject.name} {className}.OnSelectEntered");
         testCaseRunner?.Post($"{className} 1");
 
@@ -306,7 +305,6 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     protected override void OnSelectExited(SelectExitEventArgs args, HandController controller)
     {
-        // Debug.Log($"{Time.time} {gameObject.name} 2");
         Debug.Log($"{Time.time} {gameObject.name} {className}.OnSelectExited");
         testCaseRunner?.Post($"{className} 2");
 
@@ -320,7 +318,6 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     private void DockWeapon(HandController controller)
     {
-        // Debug.Log($"{Time.time} {gameObject.name} 3");
         Debug.Log($"{Time.time} {gameObject.name} {className}.DockWeapon");
         testCaseRunner?.Post($"{className} 3");
 
@@ -328,17 +325,23 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
         if (((int) device.characteristics) == ((int) LeftHand))
         {
-            // Debug.Log($"{Time.time} {gameObject.name} 4");
             Debug.Log($"{Time.time} {gameObject.name} {className}.DockWeapon:LeftHand");
             testCaseRunner?.Post($"{className} 4");
-            cameraManager.DockWeapon(gameObject, MainCameraManager.DockID.Left, Quaternion.Euler(90f, 0f, 0f));
+            
+            if (cameraManager.DockWeapon(gameObject, MainCameraManager.DockID.Left, Quaternion.Euler(90f, 0f, 0f)))
+            {
+                // TODO
+            }
         }
         else if (((int) device.characteristics) == ((int) RightHand))
         {
-            // Debug.Log($"{Time.time} {gameObject.name} 5");
             Debug.Log($"{Time.time} {gameObject.name} {className}.DockWeapon:RightHand");
             testCaseRunner?.Post($"{className} 5");
-            cameraManager.DockWeapon(gameObject, MainCameraManager.DockID.Right, Quaternion.Euler(90f, 0f, 0f));
+            
+            if (cameraManager.DockWeapon(gameObject, MainCameraManager.DockID.Right, Quaternion.Euler(90f, 0f, 0f)))
+            {
+                // TODO
+            }
         }
     }
 
