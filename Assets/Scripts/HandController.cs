@@ -30,7 +30,11 @@ public class HandController : MonoBehaviour
     [Header("Teleport")]
     [SerializeField] bool enableTeleport = true;
     [SerializeField] float teleportSpeed = 5f;
-    [SerializeField] float nearDistance = 0.1f;
+
+    [Header("Inputs")]
+    [SerializeField] float triggerThreshold = 0.9f;
+    [SerializeField] float gripThreshold = 0.9f;
+    [SerializeField] float thumbStickThreshold = 0.9f;
 
     public InputDeviceCharacteristics Characteristics { get { return characteristics; } }
     public bool IsHolding { get { return isHolding; } }
@@ -41,7 +45,8 @@ public class HandController : MonoBehaviour
     private bool isHolding = false;
     private GameObject holding;
     private DebugCanvas debugCanvas;
-    private Gesture lastState;
+    // private Gesture lastState;
+    private Gesture state;
     private TestCaseRunner testCaseRunner;
 
     void Awake()
@@ -87,18 +92,18 @@ public class HandController : MonoBehaviour
             if (!controller.isValid) return;
         }
 
-        Gesture thisState = Gesture.None;
-        bool hasState = false;
-
         if (controller.TryGetFeatureValue(CommonUsages.trigger, out float triggerValue))
         {
             var handAnimationController = xrController.model.GetComponent<HandAnimationController>() as HandAnimationController;
             handAnimationController?.SetFloat("Trigger", triggerValue);
 
-            if (triggerValue > nearDistance)
+            if (triggerValue >= triggerThreshold)
             {
-                thisState |= Gesture.Trigger;
-                hasState = true;
+                state |= Gesture.Trigger;
+            }
+            else
+            {
+                state &= ~Gesture.Trigger;
             }
         }
 
@@ -107,55 +112,54 @@ public class HandController : MonoBehaviour
             var handAnimationController = xrController.model.GetComponent<HandAnimationController>() as HandAnimationController;
             handAnimationController?.SetFloat("Grip", gripValue);
 
-            if (gripValue > 0.1f)
+            if (gripValue >= gripThreshold)
             {
-                if (!thisState.HasFlag(Gesture.Grip) && (cameraManager.TryGetObjectHit(out GameObject obj)))
+                if (enableTeleport && (!state.HasFlag(Gesture.Grip)) && (cameraManager.TryGetObjectHit(out GameObject obj)))
                 {
-                    if  (enableTeleport && obj.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
+                    if (obj.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
                     {
+                        Debug.Log($"{gameObject.name}.Grip.Teleport:{obj.name}");
                         StartCoroutine(TeleportGrabbable(obj));
                     }
                 }
 
-                thisState |= Gesture.Grip;
-                hasState = true;
+                state |= Gesture.Grip;
+            }
+            else
+            {
+                state &= ~Gesture.Grip;
             }
         }
 
         if (controller.TryGetFeatureValue(CommonUsages.primary2DAxis, out Vector2 thumbStickValue))
         {
-            if (thumbStickValue.x < -0.9f)
+            if (thumbStickValue.x < -thumbStickThreshold)
             {
-                thisState |= Gesture.ThumbStick_Left;
+                state |= Gesture.ThumbStick_Left;
                 holding?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Left);
-                hasState = true;
             }
-            else if (thumbStickValue.x > 0.9f)
+            else
             {
-                thisState |= Gesture.ThumbStick_Right;
+                state &= ~Gesture.ThumbStick_Left;
+            }
+            
+            if (thumbStickValue.x > thumbStickThreshold)
+            {
+                state |= Gesture.ThumbStick_Right;
                 holding?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Right);
-                hasState = true;
+            }
+            else
+            {
+                state &= ~Gesture.ThumbStick_Right;
             }
         }
 
-        if (hasState)
-        {
-            SetState(thisState);
-        }
-        else
-        {
-            OnNone();
-        }
-    }
-
-    private void OnNone()
-    {
-        SetState(Gesture.None);
+        Debug.Log($"{gameObject.name}.State:{state}");
     }
 
     private void SetState(Gesture state)
     {
-        this.lastState = state;
+        this.state = state;
     }
 
     public void SetHolding(GameObject obj)

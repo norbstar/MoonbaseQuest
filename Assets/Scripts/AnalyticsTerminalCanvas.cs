@@ -10,7 +10,7 @@ using TMPro;
 public class AnalyticsTerminalCanvas : MonoBehaviour
 {
     [SerializeField] TextMeshProUGUI textUI;
-    [SerializeField] float refreshInterval = 0.5f;
+    [SerializeField] float refreshInterval = 0.25f;
 
     private IDictionary<string, string> elements = new Dictionary<string, string>();
     private bool refresh;
@@ -30,7 +30,7 @@ public class AnalyticsTerminalCanvas : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        // Debug.Log($"{gameObject.name}.RefreshInterval:{refreshInterval} secs");
+        Debug.Log($"Config.RefreshInterval:{refreshInterval} secs");
         StartCoroutine(MonitorLogs());
     }
 
@@ -38,16 +38,12 @@ public class AnalyticsTerminalCanvas : MonoBehaviour
     {
         Application.logMessageReceived += Log;
         ClearButtonFace.EventReceived += OnEvent;
-        ResetButtonFace.EventReceived += OnEvent;
-        gameManager.EventReceived += OnGameManagerEvent;
     }
 
     void OnDisable()
     {
         Application.logMessageReceived -= Log;
         ClearButtonFace.EventReceived -= OnEvent;
-        ResetButtonFace.EventReceived -= OnEvent;
-        gameManager.EventReceived -= OnGameManagerEvent;
     }
 
     public void Log(string logString, string stackTrace, LogType type)
@@ -126,48 +122,18 @@ public class AnalyticsTerminalCanvas : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
-    // void Update()
-    // {
-    //     if (refresh)
-    //     {
-    //         refresh = false;
-    //         textUI.text = string.Empty;
-
-    //         var sortedElements = from e in elements orderby e.Key select e;
-
-    //         foreach(KeyValuePair<string, string> element in sortedElements)
-    //         {
-    //             if (textUI.text.Length > 0)
-    //             {
-    //                 textUI.text = $"{textUI.text}\n";
-    //             }
-
-    //             textUI.text = (element.Value != null) ? $"{textUI.text}{element.Key} : {element.Value}" : $"{textUI.text}{element.Key}";
-    //         }
-    //     }
-    // }
-
     public void OnEvent(GameObject gameObject, ButtonFace.EventType type)
     {
-        // Debug.Log($"{this.gameObject.name}.OnEvent:[{gameObject.name}]:Type : {type}");
-
         if (gameObject.name.Equals("Clear Button Face") && (type == ButtonFace.EventType.OnEnter))
         {
             Clear();
         }
     }
 
-    public void OnGameManagerEvent(GameManager.EventType type, object obj)
-    {
-        // switch (type)
-        // {
-        //     case GameManager.EventType.Score:
-        //         int score = (int) obj;
-        //         Debug.Log($"{gameObject.name}.Score:[{score.ToString()}]");
-        //         break;
-        // }
-    }
-
     private void Clear() => elements.Clear();
+
+    void OnApplicationQuit()
+    {
+        Debug.Log($"Application terminated after {Time.time} seconds");
+    }
 }
