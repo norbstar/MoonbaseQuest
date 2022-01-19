@@ -4,6 +4,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 [RequireComponent(typeof(XRGrabInteractable))]
 public class FocusableInteractableManager : InteractableManager, IFocus
 {
+    [Header("Identity")]
     [SerializeField] IdentityCanvasManager identityCanvasManager;
 
     public bool HasFocus { get { return hasFocusCount > 0; } }

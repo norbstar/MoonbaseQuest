@@ -20,6 +20,9 @@ public class InteractableManager : MonoBehaviour, IInteractable
         OnSelectExited
     }
 
+    [Header("Debug")]
+    [SerializeField] bool enableLogging = false;
+
     public delegate void Event(InteractableManager interactable, EventType type);
     public static event Event EventReceived;
     
@@ -58,6 +61,8 @@ public class InteractableManager : MonoBehaviour, IInteractable
 
     public void OnSelectEntered(SelectEnterEventArgs args)
     {
+        Log($"{Time.time} {gameObject.name} {className} OnSelectEntered");
+
         interactor = args.interactorObject.transform.gameObject;
 
         if (TryGetController<HandController>(out HandController controller))
@@ -68,6 +73,11 @@ public class InteractableManager : MonoBehaviour, IInteractable
             OnSelectEntered(args, controller);
         }
 
+        if (EventReceived != null)
+        {
+            EventReceived(this, EventType.OnSelectEntered);
+        }
+
         transform.parent = objects;
     }
 
@@ -75,6 +85,8 @@ public class InteractableManager : MonoBehaviour, IInteractable
 
     public void OnSelectExited(SelectExitEventArgs args)
     {
+        Log($"{Time.time} {gameObject.name} {className} OnSelectExited");
+
         if (gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidBody))
         {
             rigidBody.isKinematic = cache.isKinematic;
@@ -112,5 +124,11 @@ public class InteractableManager : MonoBehaviour, IInteractable
 
         controller = default(HandController);
         return false;
+    }
+
+    private void Log(string message)
+    {
+        if (!enableLogging) return;
+        Debug.Log(message);
     }
 }

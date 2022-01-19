@@ -11,7 +11,7 @@ public class MainCameraManager : Gizmo
         Left,
         Right
     }
-
+    
     [Header("Docks")]
     [SerializeField] DockManager leftDock;
     [SerializeField] DockManager rightDock;
@@ -28,6 +28,9 @@ public class MainCameraManager : Gizmo
     [SerializeField] float focalRadius = 0.5f;
     [SerializeField] float nearDistance;
     [SerializeField] float farDistance;
+
+    [Header("Debug")]
+    [SerializeField] bool enableLogging = false;
 
     private GameObject hitPrefabInstance;
     private GameObject lastObjectHit;
@@ -228,5 +231,11 @@ public class MainCameraManager : Gizmo
 
         obj = default(GameObject);
         return false;
+    }
+
+    private void Log(string message)
+    {
+        if (!enableLogging) return;
+        Debug.Log(message);
     }
 }

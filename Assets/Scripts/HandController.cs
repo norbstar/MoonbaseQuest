@@ -22,8 +22,6 @@ public class HandController : MonoBehaviour
         ThumbStick_Right = 8
     }
 
-
-    [SerializeField] bool enableLogging = false;
     [SerializeField] InputDeviceCharacteristics characteristics;
     [SerializeField] new Camera camera;
     
@@ -36,6 +34,9 @@ public class HandController : MonoBehaviour
     [SerializeField] float gripThreshold = 0.9f;
     [SerializeField] float thumbStickThreshold = 0.9f;
 
+    [Header("Debug")]
+    [SerializeField] bool enableLogging = false;
+
     public InputDeviceCharacteristics Characteristics { get { return characteristics; } }
     public bool IsHolding { get { return isHolding; } }
 
@@ -45,8 +46,8 @@ public class HandController : MonoBehaviour
     private bool isHolding = false;
     private GameObject holding;
     private DebugCanvas debugCanvas;
-    // private Gesture lastState;
     private Gesture state;
+    private Gesture lastState;
     private TestCaseRunner testCaseRunner;
 
     void Awake()
@@ -77,7 +78,7 @@ public class HandController : MonoBehaviour
 
         if (controller.isValid)
         {
-            Log($"{controller.name}.Detected");
+            Log($"{Time.time} {gameObject.name} {className} ResolveController:{controller.name}.Detected");
 
             SetState(Gesture.None);
         }
@@ -91,6 +92,8 @@ public class HandController : MonoBehaviour
             ResolveController();
             if (!controller.isValid) return;
         }
+
+        lastState = state;
 
         if (controller.TryGetFeatureValue(CommonUsages.trigger, out float triggerValue))
         {
@@ -118,7 +121,7 @@ public class HandController : MonoBehaviour
                 {
                     if (obj.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
                     {
-                        Debug.Log($"{gameObject.name}.Grip.Teleport:{obj.name}");
+                        Log($"{Time.time} {gameObject.name} {className}.Grip.Teleport:{obj.name}");
                         StartCoroutine(TeleportGrabbable(obj));
                     }
                 }
@@ -154,7 +157,7 @@ public class HandController : MonoBehaviour
             }
         }
 
-        Debug.Log($"{gameObject.name}.State:{state}");
+        if (state != lastState) Log($"{Time.time} {gameObject.name} {className}.State:{state}");
     }
 
     private void SetState(Gesture state)
