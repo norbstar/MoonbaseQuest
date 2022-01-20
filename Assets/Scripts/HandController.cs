@@ -43,8 +43,9 @@ public class HandController : MonoBehaviour
     private MainCameraManager cameraManager;
     private InputDevice controller;
     private XRController xrController;
+    private bool isHovering = false;
     private bool isHolding = false;
-    private GameObject holding;
+    private GameObject interactable;
     private DebugCanvas debugCanvas;
     private Gesture state;
     private Gesture lastState;
@@ -87,6 +88,8 @@ public class HandController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        Log($"{gameObject.name} {className} Status:IsHovering {isHovering} IsHolding {isHolding}");
+        
         if (!controller.isValid)
         {
             ResolveController();
@@ -117,9 +120,9 @@ public class HandController : MonoBehaviour
 
             if (gripValue >= gripThreshold)
             {
-                if (enableTeleport && (!state.HasFlag(Gesture.Grip)) && (cameraManager.TryGetObjectHit(out GameObject obj)))
+                if (enableTeleport && (!isHovering) && (!state.HasFlag(Gesture.Grip)) && (cameraManager.TryGetObjectHit(out GameObject obj)))
                 {
-                    if (obj.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
+                    if (obj.TryGetComponent<InteractableManager>(out InteractableManager interactable))
                     {
                         Log($"{Time.time} {gameObject.name} {className}.Grip.Teleport:{obj.name}");
                         StartCoroutine(TeleportGrabbable(obj));
@@ -139,7 +142,7 @@ public class HandController : MonoBehaviour
             if (thumbStickValue.x < -thumbStickThreshold)
             {
                 state |= Gesture.ThumbStick_Left;
-                holding?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Left);
+                interactable?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Left);
             }
             else
             {
@@ -149,7 +152,7 @@ public class HandController : MonoBehaviour
             if (thumbStickValue.x > thumbStickThreshold)
             {
                 state |= Gesture.ThumbStick_Right;
-                holding?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Right);
+                interactable?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Right);
             }
             else
             {
@@ -165,10 +168,16 @@ public class HandController : MonoBehaviour
         this.state = state;
     }
 
+    public void SetHovering(GameObject obj)
+    {
+        isHovering = (obj != null);
+        interactable = obj;
+    }
+
     public void SetHolding(GameObject obj)
     {
         isHolding = (obj != null);
-        holding = obj;
+        interactable = obj;
     }
 
     public void SetImpulse(float amplitude = 1.0f, float duration = 0.1f, uint channel = 0)

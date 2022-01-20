@@ -110,7 +110,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
                     hitPrefabInstance.SetActive(true);
                 }
 
-                if (TryGetController<HandController>(out HandController controller))
+                if (TryGetController<HandController>(interactor, out HandController controller))
                 {
                     var renderer = hitPrefabInstance.GetComponent<Renderer>() as Renderer;
                     var device = controller.GetInputDevice();
@@ -221,7 +221,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
         animator.SetTrigger("Fire");
         AudioSource.PlayClipAtPoint(hitClip, transform.position, 1.0f);
 
-        if (TryGetController<HandController>(out HandController controller))
+        if (TryGetController<HandController>(interactor, out HandController controller))
         {
             controller.SetImpulse();
         }

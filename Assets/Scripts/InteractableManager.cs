@@ -35,7 +35,7 @@ public class InteractableManager : MonoBehaviour, IInteractable
 
     protected XRGrabInteractable interactable;
 
-    private GameObject interactor;
+    protected GameObject interactor;
     protected Transform objects;
     private Cache cache;
     private bool isHeld;
@@ -64,16 +64,50 @@ public class InteractableManager : MonoBehaviour, IInteractable
         testCaseRunner = TestCaseRunner.GetInstance();
     }
 
+    public void OnHoverEntered(HoverEnterEventArgs args)
+    {
+        Log($"{Time.time} {gameObject.name} {className} OnHoverEntered");
+
+        var interactor = args.interactorObject.transform.gameObject;
+
+        Log($"{Time.time} {gameObject.name} {className} OnHoverEntered:{interactor.name}");
+
+        if (TryGetController<HandController>(interactor, out HandController controller))
+        {
+            controller.SetHovering(gameObject);
+            OnHoverEntered(args, controller);
+        }
+    }
+
+    protected virtual void OnHoverEntered(HoverEnterEventArgs args, HandController controller) { }
+
+    public void OnHoverExited(HoverExitEventArgs args)
+    {
+        Log($"{Time.time} {gameObject.name} {className} OnHoverExited");
+
+        var interactor = args.interactorObject.transform.gameObject;
+        
+        if (TryGetController<HandController>(interactor, out HandController controller))
+        {
+            Log($"{Time.time} {gameObject.name} {className} OnHoverExited:{interactor.name}");
+
+            controller.SetHovering(null);
+            OnHoverExited(args, controller);
+        }
+    }
+
+    protected virtual void OnHoverExited(HoverExitEventArgs args, HandController controller) { }
+
     public void OnSelectEntered(SelectEnterEventArgs args)
     {
         Log($"{Time.time} {gameObject.name} {className} OnSelectEntered");
 
         interactor = args.interactorObject.transform.gameObject;
 
-        if (TryGetController<HandController>(out HandController controller))
+        if (TryGetController<HandController>(interactor, out HandController controller))
         {
             controller.SetHolding(gameObject);
-            isHeld = true;       
+            isHeld = true;
 
             OnSelectEntered(args, controller);
         }
@@ -98,7 +132,7 @@ public class InteractableManager : MonoBehaviour, IInteractable
             rigidBody.useGravity = cache.useGravity;
         }
 
-        if (TryGetController<HandController>(out HandController controller))
+        if (TryGetController<HandController>(interactor, out HandController controller))
         {
             controller.SetHolding(null);
             isHeld = false;
@@ -120,7 +154,7 @@ public class InteractableManager : MonoBehaviour, IInteractable
     
     public void HideTrackingVolume() => trackingVolume.SetActive(false);
     
-    protected bool TryGetController<HandController>(out HandController controller)
+    protected bool TryGetController<HandController>(GameObject interactor, out HandController controller)
     {
         if (interactor != null && interactor.CompareTag("Hand"))
         {

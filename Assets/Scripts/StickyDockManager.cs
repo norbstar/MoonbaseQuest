@@ -46,7 +46,11 @@ public class StickyDockManager : DockManager
 
     void FixedUpdate()
     {
-        if (trackedInteractable == null) return;
+        if (trackedInteractable == null)
+        {
+            HighlightDock(false);
+            return;
+        }
 
          if ((collider.bounds.Contains(trackedInteractable.OriginTransform.position)) && (supportedTags.Contains(trackedInteractable.tag)))
          {
