@@ -32,6 +32,7 @@ public class InteractableManager : MonoBehaviour, IInteractable
     
     public bool IsHeld { get { return isHeld; } }
     public Transform OriginTransform { get { return originTransform; } }
+    // public Transform Origin { get { return trackingVolume.transform; } }
 
     protected XRGrabInteractable interactable;
 

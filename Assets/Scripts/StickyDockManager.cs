@@ -26,6 +26,7 @@ public class StickyDockManager : DockManager
     private new MeshRenderer renderer;
     private Transform objects;
     private GameObject trackerPrefabInstance;
+    private bool canDock, isDocked;
 
     protected virtual void Awake()
     {
@@ -52,13 +53,17 @@ public class StickyDockManager : DockManager
             return;
         }
 
+        if (isDocked) return;
+
          if ((collider.bounds.Contains(trackedInteractable.OriginTransform.position)) && (supportedTags.Contains(trackedInteractable.tag)))
          {
              HighlightDock(true);
+             canDock = true;
          }
          else
          {
              HighlightDock(false);
+             canDock = false;
          }
     }
 
@@ -134,34 +139,29 @@ public class StickyDockManager : DockManager
 
     public void OnEvent(InteractableManager interactable, InteractableManager.EventType type)
     {
-        // switch (type)
-        // {
-        //     case InteractableManager.EventType.OnSelectEntered:
-        //         Log($"{Time.time} {gameObject.name} {className} OnEvent.OnSelectEntered");
+        switch (type)
+        {
+            case InteractableManager.EventType.OnSelectEntered:
+                Log($"{Time.time} {gameObject.name} {className} OnEvent.OnSelectEntered");
 
-        //         if (Object.ReferenceEquals(Data.gameObject, interactable.gameObject))
-        //         {
-        //             UndockInteractable();
-        //         }
+                if (Object.ReferenceEquals(Data.gameObject, interactable.gameObject))
+                {
+                    UndockInteractable();
+                }
 
-        //         break;
+                break;
 
-        //     case InteractableManager.EventType.OnSelectExited:
-        //         Log($"{Time.time} {gameObject.name} {className} OnEvent.OnSelectExited");
+            case InteractableManager.EventType.OnSelectExited:
+                Log($"{Time.time} {gameObject.name} {className} OnEvent.OnSelectExited");
 
-        //         if (Data.occupied) return;
+                if (Data.occupied) return;
 
-        //         Log($"{Time.time} {gameObject.name} {className} OnEvent.OnSelectEntered.Is Not Occupied");
-                
-        //         // Debug.Log($"{Time.time} {gameObject.name} {className} Position: {interactable.transform.position}");
-        //         // var adjustedPosition = GetAdjustedPosition(interactable);
-        //         // Debug.Log($"{Time.time} {gameObject.name} {className} Adjusted Position: {adjustedPosition}");
-        //         // if ((collider.bounds.Contains(adjustedPosition)) && (supportedTags.Contains(interactable.tag)))
-        //         // {
-        //         //     DockInteractable(interactable);
-        //         // }
-        //         break;
-        // }
+                if (canDock)
+                {
+                    DockInteractable(interactable);
+                }
+                break;
+        }
     }
 
     private void DockInteractable(InteractableManager interactable)
@@ -170,30 +170,20 @@ public class StickyDockManager : DockManager
 
         DampenVelocity(interactable.gameObject);
 
-        interactable.transform.parent = transform;
+        interactable.transform.SetParent(transform, true);
+        interactable.transform.localPosition = -interactable.OriginTransform.localPosition;
+        interactable.transform.rotation = Quaternion.identity;
 
-        var adjustedPosition = GetAdjustedPosition(interactable);
-        interactable.transform.position = adjustedPosition;
+        // trackedInteractable.HideTrackingVolume();
+        HighlightDock(false);
 
         Data = new OccupancyData
         {
             occupied = true,
             gameObject = interactable.gameObject
         };
-    }
 
-    private Vector3 GetAdjustedPosition(InteractableManager interactable)
-    {
-        var dockTransform = interactable.OriginTransform;
-        // return (dockTransform != null) ? Vector3.zero - (dockTransform.position * (dockTransform.localScale.x / transform.localScale.x)) : Vector3.zero;
-        return (dockTransform != null) ? interactable.transform.position - (dockTransform.position * (dockTransform.localScale.x / transform.localScale.x)) : interactable.transform.position;
-        // return (dockTransform != null) ? interactable.transform.position - dockTransform.position : interactable.transform.position;
-    }
-
-    private Quaternion GetAdjustedRotation(InteractableManager interactable)
-    {
-        var dockTransform = interactable.OriginTransform;
-        return (dockTransform != null) ? Quaternion.identity * Quaternion.Inverse(dockTransform.rotation) : Quaternion.identity;
+        isDocked = true;
     }
 
     private void DampenVelocity(GameObject gameObject)
@@ -213,11 +203,16 @@ public class StickyDockManager : DockManager
     {
         Log($"{Time.time} {gameObject.name} {className} OnEvent.UndockInteractable");
 
+        trackedInteractable.ShowTrackingVolume();
+        HighlightDock(true);
+
         Data = new OccupancyData
         {
             occupied = false,
             gameObject = null
         };
+
+        isDocked = false;
     }
 
     private void Log(string message)
