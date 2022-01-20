@@ -23,15 +23,18 @@ public class InteractableManager : MonoBehaviour, IInteractable
     [Header("Debug")]
     [SerializeField] bool enableLogging = false;
 
-    [Header("Docking")]
-    [SerializeField] Transform dockTransform;
+    [Header("Origin")]
+    [SerializeField] Transform originTransform;
+
+    [Header("Volumes")]
+    [SerializeField] GameObject trackingVolume;
     [SerializeField] GameObject dockingVolume;
 
     public delegate void Event(InteractableManager interactable, EventType type);
     public static event Event EventReceived;
     
     public bool IsHeld { get { return isHeld; } }
-    public Transform DockTransform { get { return dockTransform; } }
+    public Transform OriginTransform { get { return originTransform; } }
 
     protected XRGrabInteractable interactable;
 
@@ -116,9 +119,13 @@ public class InteractableManager : MonoBehaviour, IInteractable
 
     protected virtual void OnSelectExited(SelectExitEventArgs args, HandController controller) { }
 
-    public void ShowDockSite() => dockingVolume.SetActive(true);
+    public void ShowTrackingVolume() => trackingVolume.SetActive(true);
     
-    public void HideDockSite() => dockingVolume.SetActive(false);
+    public void ShowDockingVolume() => dockingVolume.SetActive(true);
+    
+    public void HideTrackingVolume() => trackingVolume.SetActive(false);
+    
+    public void HideDockingVolume() => dockingVolume.SetActive(false);
 
     protected bool TryGetController<HandController>(out HandController controller)
     {

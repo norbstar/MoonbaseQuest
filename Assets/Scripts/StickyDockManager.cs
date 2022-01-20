@@ -43,13 +43,15 @@ public class StickyDockManager : DockManager
     {
         if (trackedInteractable == null) return;
 
-        if ((collider.bounds.Contains(trackedInteractable.DockTransform.position)) && (supportedTags.Contains(trackedInteractable.tag)))
+        if ((collider.bounds.Contains(trackedInteractable.OriginTransform.position)) && (supportedTags.Contains(trackedInteractable.tag)))
         {
-            Debug.Log($"Dockable:true");
+            trackedInteractable.HideTrackingVolume();
+            trackedInteractable.ShowDockingVolume();
         }
         else
         {
-            Debug.Log($"Dockable:false");
+            trackedInteractable.HideDockingVolume();
+            trackedInteractable.ShowTrackingVolume();
         }
     }
 
@@ -72,11 +74,12 @@ public class StickyDockManager : DockManager
     {
         if (trackedInteractable != null)
         {
-            trackedInteractable.HideDockSite();
+            trackedInteractable.HideDockingVolume();
+            trackedInteractable.HideTrackingVolume();
         }
 
         trackedInteractable = interactable;
-        trackedInteractable.ShowDockSite();
+        trackedInteractable.ShowTrackingVolume();
     }
 
     public void OnTriggerExit(Collider collider)
@@ -85,16 +88,18 @@ public class StickyDockManager : DockManager
 
         if (trackedInteractable == null) return;
 
-        if (Object.ReferenceEquals(trigger, trackedInteractable.gameObject))
+        if (TryGetInteractable<InteractableManager>(trigger, out InteractableManager interactable))
         {
-            trackedInteractable.HideDockSite();
-            trackedInteractable = null;
-        }
-        else
-        {
-            if (TryGetInteractable<InteractableManager>(trigger, out InteractableManager interactable))
+            if (Object.ReferenceEquals(interactable.gameObject, trackedInteractable.gameObject))
             {
-                interactable.HideDockSite();
+                trackedInteractable.HideDockingVolume();
+                trackedInteractable.HideTrackingVolume();
+                trackedInteractable = null;
+            }
+            else
+            {
+                interactable.HideDockingVolume();
+                interactable.HideTrackingVolume();
             }
         }
     }
@@ -126,43 +131,34 @@ public class StickyDockManager : DockManager
 
     public void OnEvent(InteractableManager interactable, InteractableManager.EventType type)
     {
-        switch (type)
-        {
-            case InteractableManager.EventType.OnSelectEntered:
-                Log($"{Time.time} {gameObject.name} {className} OnEvent.OnSelectEntered");
+        // switch (type)
+        // {
+        //     case InteractableManager.EventType.OnSelectEntered:
+        //         Log($"{Time.time} {gameObject.name} {className} OnEvent.OnSelectEntered");
 
-                if (Object.ReferenceEquals(Data.gameObject, interactable.gameObject))
-                {
-                    UndockInteractable();
-                }
+        //         if (Object.ReferenceEquals(Data.gameObject, interactable.gameObject))
+        //         {
+        //             UndockInteractable();
+        //         }
 
-                break;
+        //         break;
 
-            case InteractableManager.EventType.OnSelectExited:
-                Log($"{Time.time} {gameObject.name} {className} OnEvent.OnSelectExited");
+        //     case InteractableManager.EventType.OnSelectExited:
+        //         Log($"{Time.time} {gameObject.name} {className} OnEvent.OnSelectExited");
 
-                if (Data.occupied) return;
+        //         if (Data.occupied) return;
 
-                Log($"{Time.time} {gameObject.name} {className} OnEvent.OnSelectEntered.Is Not Occupied");
+        //         Log($"{Time.time} {gameObject.name} {className} OnEvent.OnSelectEntered.Is Not Occupied");
                 
-                // Debug.Log($"{Time.time} {gameObject.name} {className} Position: {interactable.transform.position}");
-                // var adjustedPosition = GetAdjustedPosition(interactable);
-                // Debug.Log($"{Time.time} {gameObject.name} {className} Adjusted Position: {adjustedPosition}");
-                // if ((collider.bounds.Contains(adjustedPosition)) && (supportedTags.Contains(interactable.tag)))
-                // {
-                //     DockInteractable(interactable);
-                // }
-
-                if ((collider.bounds.Contains(trackedInteractable.DockTransform.position)) && (supportedTags.Contains(interactable.tag)))
-                {
-                    Debug.Log($"Dockable:true");
-                }
-                else
-                {
-                    Debug.Log($"Dockable:false");
-                }
-                break;
-        }
+        //         // Debug.Log($"{Time.time} {gameObject.name} {className} Position: {interactable.transform.position}");
+        //         // var adjustedPosition = GetAdjustedPosition(interactable);
+        //         // Debug.Log($"{Time.time} {gameObject.name} {className} Adjusted Position: {adjustedPosition}");
+        //         // if ((collider.bounds.Contains(adjustedPosition)) && (supportedTags.Contains(interactable.tag)))
+        //         // {
+        //         //     DockInteractable(interactable);
+        //         // }
+        //         break;
+        // }
     }
 
     private void DockInteractable(InteractableManager interactable)
@@ -185,7 +181,7 @@ public class StickyDockManager : DockManager
 
     private Vector3 GetAdjustedPosition(InteractableManager interactable)
     {
-        var dockTransform = interactable.DockTransform;
+        var dockTransform = interactable.OriginTransform;
         // return (dockTransform != null) ? Vector3.zero - (dockTransform.position * (dockTransform.localScale.x / transform.localScale.x)) : Vector3.zero;
         return (dockTransform != null) ? interactable.transform.position - (dockTransform.position * (dockTransform.localScale.x / transform.localScale.x)) : interactable.transform.position;
         // return (dockTransform != null) ? interactable.transform.position - dockTransform.position : interactable.transform.position;
@@ -193,7 +189,7 @@ public class StickyDockManager : DockManager
 
     private Quaternion GetAdjustedRotation(InteractableManager interactable)
     {
-        var dockTransform = interactable.DockTransform;
+        var dockTransform = interactable.OriginTransform;
         return (dockTransform != null) ? Quaternion.identity * Quaternion.Inverse(dockTransform.rotation) : Quaternion.identity;
     }
 
