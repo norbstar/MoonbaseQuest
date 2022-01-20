@@ -121,7 +121,15 @@ public class StickyDockManager : DockManager
 
         if (Object.ReferenceEquals(trigger, trackedInteractable.gameObject))
         {
+            trackedInteractable.HideDockSite();
             trackedInteractable = null;
+        }
+        else
+        {
+            if (TryGetInteractable<InteractableManager>(trigger, out InteractableManager interactable))
+            {
+                interactable.HideDockSite();
+            }
         }
     }
 

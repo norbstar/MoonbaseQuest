@@ -25,6 +25,7 @@ public class InteractableManager : MonoBehaviour, IInteractable
 
     [Header("Docking")]
     [SerializeField] Transform dockTransform;
+    [SerializeField] GameObject dockingVolume;
 
     public delegate void Event(InteractableManager interactable, EventType type);
     public static event Event EventReceived;
@@ -115,9 +116,9 @@ public class InteractableManager : MonoBehaviour, IInteractable
 
     protected virtual void OnSelectExited(SelectExitEventArgs args, HandController controller) { }
 
-    public virtual void ShowDockSite() { }
+    public void ShowDockSite() => dockingVolume.SetActive(true);
     
-    public virtual void HideDockSite() { }
+    public void HideDockSite() => dockingVolume.SetActive(false);
 
     protected bool TryGetController<HandController>(out HandController controller)
     {
