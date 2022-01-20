@@ -15,10 +15,15 @@ public class StickyDockManager : DockManager
     [SerializeField] bool showTrackers;
     [SerializeField] GameObject trackerPrefab;
 
+    [Header("Materials")]
+    [SerializeField] Material defaultMaterial;
+    [SerializeField] Material highlightMaterial;
+
     [Header("Debug")]
     [SerializeField] bool enableLogging = false;
 
     private new Collider collider;
+    private new MeshRenderer renderer;
     private Transform objects;
     private GameObject trackerPrefabInstance;
 
@@ -31,6 +36,7 @@ public class StickyDockManager : DockManager
     private void ResolveDependencies()
     {
         collider = GetComponent<Collider>() as Collider;
+        renderer = GetComponent<MeshRenderer>() as MeshRenderer;
     }
 
     void OnEnable()
@@ -38,21 +44,23 @@ public class StickyDockManager : DockManager
         InteractableManager.EventReceived += OnEvent;
     }
 
-    // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         if (trackedInteractable == null) return;
 
-        if ((collider.bounds.Contains(trackedInteractable.OriginTransform.position)) && (supportedTags.Contains(trackedInteractable.tag)))
-        {
-            trackedInteractable.HideTrackingVolume();
-            trackedInteractable.ShowDockingVolume();
-        }
-        else
-        {
-            trackedInteractable.HideDockingVolume();
-            trackedInteractable.ShowTrackingVolume();
-        }
+         if ((collider.bounds.Contains(trackedInteractable.OriginTransform.position)) && (supportedTags.Contains(trackedInteractable.tag)))
+         {
+             HighlightDock(true);
+         }
+         else
+         {
+             HighlightDock(false);
+         }
+    }
+
+    private void HighlightDock(bool enable)
+    {
+        renderer.material = (enable) ? highlightMaterial : defaultMaterial;
     }
 
     private InteractableManager trackedInteractable;
@@ -72,14 +80,11 @@ public class StickyDockManager : DockManager
 
     private void MarkTrackedObject(InteractableManager interactable)
     {
-        if (trackedInteractable != null)
+        if (trackedInteractable == null)
         {
-            trackedInteractable.HideDockingVolume();
-            trackedInteractable.HideTrackingVolume();
+            trackedInteractable = interactable;
+            trackedInteractable.ShowTrackingVolume();
         }
-
-        trackedInteractable = interactable;
-        trackedInteractable.ShowTrackingVolume();
     }
 
     public void OnTriggerExit(Collider collider)
@@ -92,14 +97,8 @@ public class StickyDockManager : DockManager
         {
             if (Object.ReferenceEquals(interactable.gameObject, trackedInteractable.gameObject))
             {
-                trackedInteractable.HideDockingVolume();
                 trackedInteractable.HideTrackingVolume();
                 trackedInteractable = null;
-            }
-            else
-            {
-                interactable.HideDockingVolume();
-                interactable.HideTrackingVolume();
             }
         }
     }

@@ -23,12 +23,9 @@ public class InteractableManager : MonoBehaviour, IInteractable
     [Header("Debug")]
     [SerializeField] bool enableLogging = false;
 
-    [Header("Origin")]
+    [Header("Tracking")]
     [SerializeField] Transform originTransform;
-
-    [Header("Volumes")]
     [SerializeField] GameObject trackingVolume;
-    [SerializeField] GameObject dockingVolume;
 
     public delegate void Event(InteractableManager interactable, EventType type);
     public static event Event EventReceived;
@@ -42,7 +39,7 @@ public class InteractableManager : MonoBehaviour, IInteractable
     protected Transform objects;
     private Cache cache;
     private bool isHeld;
-    private TestCaseRunner testCaseRunner;
+    protected TestCaseRunner testCaseRunner;
 
     protected virtual void Awake()
     {
@@ -121,12 +118,8 @@ public class InteractableManager : MonoBehaviour, IInteractable
 
     public void ShowTrackingVolume() => trackingVolume.SetActive(true);
     
-    public void ShowDockingVolume() => dockingVolume.SetActive(true);
-    
     public void HideTrackingVolume() => trackingVolume.SetActive(false);
     
-    public void HideDockingVolume() => dockingVolume.SetActive(false);
-
     protected bool TryGetController<HandController>(out HandController controller)
     {
         if (interactor != null && interactor.CompareTag("Hand"))

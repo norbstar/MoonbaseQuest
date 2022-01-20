@@ -68,7 +68,6 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     private IList<float> heatValues;
     private int heatIndex;
     private State state;
-    private TestCaseRunner testCaseRunner;
 
     protected override void Awake()
     {
