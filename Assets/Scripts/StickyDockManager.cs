@@ -11,11 +11,16 @@ public class StickyDockManager : DockManager
     [Header("Restrictions")]
     [SerializeField] List<string> supportedTags;
 
+    [Header("Tracking")]
+    [SerializeField] bool showTrackers;
+    [SerializeField] GameObject trackerPrefab;
+
     [Header("Debug")]
     [SerializeField] bool enableLogging = false;
 
     private new Collider collider;
     private Transform objects;
+    private GameObject trackerPrefabInstance;
 
     protected virtual void Awake()
     {
@@ -33,31 +38,112 @@ public class StickyDockManager : DockManager
         InteractableManager.EventReceived += OnEvent;
     }
 
-    // private void OnTriggerEnter(Collider collider)
-    // {
-    //     GameObject trigger = collider.gameObject;
-    //     var parent = trigger.transform.parent.parent;
-    //     PrepareObject(trigger, parent);
-    // }
+    private InteractableManager trackedInteractable;
 
-    // private void PrepareObject(GameObject gameObject, Transform parent)
-    // {
-    // }
+    public void OnTriggerEnter(Collider collider)
+    {
+        GameObject trigger = collider.gameObject;
 
-    // private void OnTriggerExit(Collider collider)
-    // {
-    //     GameObject trigger = collider.gameObject;
-    //     var parent = trigger.transform.parent.parent;
-    //     FreeObject(trigger, parent);
-    // }
+        if (TryGetInteractable<InteractableManager>(trigger, out InteractableManager interactable))
+        {
+            if (supportedTags.Contains(interactable.tag))
+            {
+                MarkTrackedObject(interactable);
+            }
+        }
+    }
 
-    // private void FreeObject(GameObject gameObject, Transform parent)
-    // {
-    //     if (Object.ReferenceEquals(gameObject.transform.parent, transform))
-    //     {
-    //         gameObject.transform.parent = objects;
-    //     }
-    // }
+    private void MarkTrackedObject(InteractableManager interactable)
+    {
+        if (trackedInteractable != null)
+        {
+            trackedInteractable.HideDockSite();
+        }
+
+        trackedInteractable = interactable;
+        trackedInteractable.ShowDockSite();
+    }
+
+#if false
+    public void OnTriggerStay(Collider collider)
+    {
+        GameObject trigger = collider.gameObject;
+
+        if (!Object.ReferenceEquals(trigger, trackedInteractable.gameObject)) return;
+
+#if false
+        if (TryGetInteractable<InteractableManager>(trigger, out InteractableManager interactable))
+        {
+            if (supportedTags.Contains(interactable.tag))
+            {
+                // Log($"{gameObject.name} {className} OnTriggerStay.ID:{interactable.name}");
+                // var adjustedPosition = GetAdjustedPosition(interactable);
+
+                if (showTrackers)
+                {
+                    if (trackerPrefabInstance == null)
+                    {
+                        // trackerPrefabInstance = Instantiate(trackerPrefab, /*transform.TransformPoint*/(adjustedPosition), Quaternion.identity);
+                        // trackerPrefabInstance = Instantiate(trackerPrefab, interactable.transform.position, Quaternion.identity);
+                        // trackerPrefabInstance = Instantiate(trackerPrefab, adjustedPosition, Quaternion.identity);
+
+                        // trackerPrefabInstance = Instantiate(trackerPrefab, interactable.transform.position, interactable.transform.localRotation);
+                        // var point = trackerPrefabInstance.transform.GetChild(0);
+                        // point.transform.localPosition = interactable.DockTransform.localPosition;
+                        // trackerPrefabInstance.transform.localRotation = interactable.transform.localRotation;
+
+                        trackerPrefabInstance = Instantiate(trackerPrefab);
+                        trackerPrefabInstance.transform.parent = interactable.transform;
+                        // trackerPrefabInstance.transform.rotation = interactable.transform.rotation;
+                        // trackerPrefabInstance.transform.position += interactable.DockTransform.localPosition;
+                        trackerPrefabInstance.transform.position = interactable.DockTransform.position;
+                    }
+                    else
+                    {
+                        // trackerPrefabInstance.transform.position = /*transform.TransformPoint*/(adjustedPosition);
+                        // trackerPrefabInstance.transform.position = interactable.transform.position;
+                        // trackerPrefabInstance.transform.position = adjustedPosition;
+
+                        // trackerPrefabInstance.transform.position = interactable.transform.position;
+                    }
+
+                    Log($"{gameObject.name} {className} OnTriggerStay.Position:{trackerPrefabInstance.transform.position}");
+                }
+            }
+        }
+#endif
+    }
+#endif
+
+    public void OnTriggerExit(Collider collider)
+    {
+        GameObject trigger = collider.gameObject;
+
+        if (Object.ReferenceEquals(trigger, trackedInteractable.gameObject))
+        {
+            trackedInteractable = null;
+        }
+    }
+
+    private bool TryGetInteractable<InteractableManager>(GameObject trigger, out InteractableManager interactable)
+    {
+        if (trigger.TryGetComponent<InteractableManager>(out InteractableManager interactableManager))
+        {
+            interactable = interactableManager;
+            return true;
+        }
+
+        var component = trigger.GetComponentInParent<InteractableManager>();
+
+        if (component != null)
+        {
+            interactable = component;
+            return true;
+        }
+
+        interactable = default(InteractableManager);
+        return false;
+    }
 
     void OnDisable()
     {
@@ -66,6 +152,7 @@ public class StickyDockManager : DockManager
 
     public void OnEvent(InteractableManager interactable, InteractableManager.EventType type)
     {
+#if false
         switch (type)
         {
             case InteractableManager.EventType.OnSelectEntered:
@@ -82,12 +169,17 @@ public class StickyDockManager : DockManager
                 if (Data.occupied) return;
 
                 Log($"{Time.time} {gameObject.name} {className} OnEvent.OnSelectEntered.Is Not Occupied");
-                if ((collider.bounds.Contains(interactable.transform.position)) && (supportedTags.Contains(interactable.tag)))
+                
+                Debug.Log($"{Time.time} {gameObject.name} {className} Position: {interactable.transform.position}");
+                var adjustedPosition = GetAdjustedPosition(interactable);
+                Debug.Log($"{Time.time} {gameObject.name} {className} Adjusted Position: {adjustedPosition}");
+                if ((collider.bounds.Contains(adjustedPosition)) && (supportedTags.Contains(interactable.tag)))
                 {
                     DockInteractable(interactable);
                 }
                 break;
         }
+#endif
     }
 
     private void DockInteractable(InteractableManager interactable)
@@ -97,14 +189,29 @@ public class StickyDockManager : DockManager
         DampenVelocity(interactable.gameObject);
 
         interactable.transform.parent = transform;
-        interactable.transform.localRotation = Quaternion.identity;
-        interactable.transform.localPosition = Vector3.zero;
+
+        var adjustedPosition = GetAdjustedPosition(interactable);
+        interactable.transform.position = adjustedPosition;
 
         Data = new OccupancyData
         {
             occupied = true,
             gameObject = interactable.gameObject
         };
+    }
+
+    private Vector3 GetAdjustedPosition(InteractableManager interactable)
+    {
+        var dockTransform = interactable.DockTransform;
+        // return (dockTransform != null) ? Vector3.zero - (dockTransform.position * (dockTransform.localScale.x / transform.localScale.x)) : Vector3.zero;
+        return (dockTransform != null) ? interactable.transform.position - (dockTransform.position * (dockTransform.localScale.x / transform.localScale.x)) : interactable.transform.position;
+        // return (dockTransform != null) ? interactable.transform.position - dockTransform.position : interactable.transform.position;
+    }
+
+    private Quaternion GetAdjustedRotation(InteractableManager interactable)
+    {
+        var dockTransform = interactable.DockTransform;
+        return (dockTransform != null) ? Quaternion.identity * Quaternion.Inverse(dockTransform.rotation) : Quaternion.identity;
     }
 
     private void DampenVelocity(GameObject gameObject)

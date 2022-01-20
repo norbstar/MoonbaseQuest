@@ -23,10 +23,14 @@ public class InteractableManager : MonoBehaviour, IInteractable
     [Header("Debug")]
     [SerializeField] bool enableLogging = false;
 
+    [Header("Docking")]
+    [SerializeField] Transform dockTransform;
+
     public delegate void Event(InteractableManager interactable, EventType type);
     public static event Event EventReceived;
     
     public bool IsHeld { get { return isHeld; } }
+    public Transform DockTransform { get { return dockTransform; } }
 
     protected XRGrabInteractable interactable;
 
@@ -110,6 +114,10 @@ public class InteractableManager : MonoBehaviour, IInteractable
     }
 
     protected virtual void OnSelectExited(SelectExitEventArgs args, HandController controller) { }
+
+    public virtual void ShowDockSite() { }
+    
+    public virtual void HideDockSite() { }
 
     protected bool TryGetController<HandController>(out HandController controller)
     {

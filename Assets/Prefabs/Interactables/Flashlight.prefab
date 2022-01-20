@@ -141,6 +141,7 @@ Transform:
   - {fileID: 2028865962}
   - {fileID: 927039045}
   - {fileID: 7867548648025196369}
+  - {fileID: 5916507681810088221}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
@@ -324,11 +325,44 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae616555696a9c246aa591069975bda9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enableLogging: 0
+  dockTransform: {fileID: 5916507681810088221}
   identityCanvasManager: {fileID: 7091276000827262297}
   spotlight: {fileID: 274990035286491658}
   showHits: 1
   hitPrefab: {fileID: 6110918014904403394, guid: 5d95586bfd9e933439d256446fab489c, type: 3}
   buttonClip: {fileID: 8300000, guid: 9f13a979b2c20314c9bbab7f0fce7f52, type: 3}
+  startState: 0
+--- !u!1 &5146721284148905914
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5916507681810088221}
+  m_Layer: 0
+  m_Name: Dock Transform
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5916507681810088221
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5146721284148905914}
+  m_LocalRotation: {x: -0, y: -0.7071068, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: -0, y: 0, z: 0.0441}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 274990033566334869}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &871621374
 PrefabInstance:
   m_ObjectHideFlags: 0
