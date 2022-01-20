@@ -38,6 +38,21 @@ public class StickyDockManager : DockManager
         InteractableManager.EventReceived += OnEvent;
     }
 
+    // Update is called once per frame
+    void Update()
+    {
+        if (trackedInteractable == null) return;
+
+        if ((collider.bounds.Contains(trackedInteractable.DockTransform.position)) && (supportedTags.Contains(trackedInteractable.tag)))
+        {
+            Debug.Log($"Dockable:true");
+        }
+        else
+        {
+            Debug.Log($"Dockable:false");
+        }
+    }
+
     private InteractableManager trackedInteractable;
 
     public void OnTriggerEnter(Collider collider)
@@ -64,60 +79,11 @@ public class StickyDockManager : DockManager
         trackedInteractable.ShowDockSite();
     }
 
-#if false
-    public void OnTriggerStay(Collider collider)
-    {
-        GameObject trigger = collider.gameObject;
-
-        if (!Object.ReferenceEquals(trigger, trackedInteractable.gameObject)) return;
-
-#if false
-        if (TryGetInteractable<InteractableManager>(trigger, out InteractableManager interactable))
-        {
-            if (supportedTags.Contains(interactable.tag))
-            {
-                // Log($"{gameObject.name} {className} OnTriggerStay.ID:{interactable.name}");
-                // var adjustedPosition = GetAdjustedPosition(interactable);
-
-                if (showTrackers)
-                {
-                    if (trackerPrefabInstance == null)
-                    {
-                        // trackerPrefabInstance = Instantiate(trackerPrefab, /*transform.TransformPoint*/(adjustedPosition), Quaternion.identity);
-                        // trackerPrefabInstance = Instantiate(trackerPrefab, interactable.transform.position, Quaternion.identity);
-                        // trackerPrefabInstance = Instantiate(trackerPrefab, adjustedPosition, Quaternion.identity);
-
-                        // trackerPrefabInstance = Instantiate(trackerPrefab, interactable.transform.position, interactable.transform.localRotation);
-                        // var point = trackerPrefabInstance.transform.GetChild(0);
-                        // point.transform.localPosition = interactable.DockTransform.localPosition;
-                        // trackerPrefabInstance.transform.localRotation = interactable.transform.localRotation;
-
-                        trackerPrefabInstance = Instantiate(trackerPrefab);
-                        trackerPrefabInstance.transform.parent = interactable.transform;
-                        // trackerPrefabInstance.transform.rotation = interactable.transform.rotation;
-                        // trackerPrefabInstance.transform.position += interactable.DockTransform.localPosition;
-                        trackerPrefabInstance.transform.position = interactable.DockTransform.position;
-                    }
-                    else
-                    {
-                        // trackerPrefabInstance.transform.position = /*transform.TransformPoint*/(adjustedPosition);
-                        // trackerPrefabInstance.transform.position = interactable.transform.position;
-                        // trackerPrefabInstance.transform.position = adjustedPosition;
-
-                        // trackerPrefabInstance.transform.position = interactable.transform.position;
-                    }
-
-                    Log($"{gameObject.name} {className} OnTriggerStay.Position:{trackerPrefabInstance.transform.position}");
-                }
-            }
-        }
-#endif
-    }
-#endif
-
     public void OnTriggerExit(Collider collider)
     {
         GameObject trigger = collider.gameObject;
+
+        if (trackedInteractable == null) return;
 
         if (Object.ReferenceEquals(trigger, trackedInteractable.gameObject))
         {
@@ -160,11 +126,11 @@ public class StickyDockManager : DockManager
 
     public void OnEvent(InteractableManager interactable, InteractableManager.EventType type)
     {
-#if false
         switch (type)
         {
             case InteractableManager.EventType.OnSelectEntered:
                 Log($"{Time.time} {gameObject.name} {className} OnEvent.OnSelectEntered");
+
                 if (Object.ReferenceEquals(Data.gameObject, interactable.gameObject))
                 {
                     UndockInteractable();
@@ -174,20 +140,29 @@ public class StickyDockManager : DockManager
 
             case InteractableManager.EventType.OnSelectExited:
                 Log($"{Time.time} {gameObject.name} {className} OnEvent.OnSelectExited");
+
                 if (Data.occupied) return;
 
                 Log($"{Time.time} {gameObject.name} {className} OnEvent.OnSelectEntered.Is Not Occupied");
                 
-                Debug.Log($"{Time.time} {gameObject.name} {className} Position: {interactable.transform.position}");
-                var adjustedPosition = GetAdjustedPosition(interactable);
-                Debug.Log($"{Time.time} {gameObject.name} {className} Adjusted Position: {adjustedPosition}");
-                if ((collider.bounds.Contains(adjustedPosition)) && (supportedTags.Contains(interactable.tag)))
+                // Debug.Log($"{Time.time} {gameObject.name} {className} Position: {interactable.transform.position}");
+                // var adjustedPosition = GetAdjustedPosition(interactable);
+                // Debug.Log($"{Time.time} {gameObject.name} {className} Adjusted Position: {adjustedPosition}");
+                // if ((collider.bounds.Contains(adjustedPosition)) && (supportedTags.Contains(interactable.tag)))
+                // {
+                //     DockInteractable(interactable);
+                // }
+
+                if ((collider.bounds.Contains(trackedInteractable.DockTransform.position)) && (supportedTags.Contains(interactable.tag)))
                 {
-                    DockInteractable(interactable);
+                    Debug.Log($"Dockable:true");
+                }
+                else
+                {
+                    Debug.Log($"Dockable:false");
                 }
                 break;
         }
-#endif
     }
 
     private void DockInteractable(InteractableManager interactable)

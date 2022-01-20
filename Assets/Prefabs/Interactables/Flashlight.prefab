@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 671728847}
-  - component: {fileID: 671728848}
+  - component: {fileID: 2112624397699843009}
   m_Layer: 0
   m_Name: Body
   m_TagString: Untagged
@@ -31,8 +31,8 @@ Transform:
   m_Father: {fileID: 927039045}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
---- !u!136 &671728848
-CapsuleCollider:
+--- !u!65 &2112624397699843009
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -41,10 +41,9 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  m_Radius: 0.037104964
-  m_Height: 0.26169878
-  m_Direction: 1
-  m_Center: {x: -0.0008553601, y: 0.031107664, z: 0.00058561197}
+  serializedVersion: 2
+  m_Size: {x: 0.07360021, y: 0.23114972, z: 0.07315098}
+  m_Center: {x: -0.00015211332, y: 0.03980681, z: 0.000047551872}
 --- !u!1 &927039044
 GameObject:
   m_ObjectHideFlags: 0
@@ -175,7 +174,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_InteractionManager: {fileID: 0}
   m_Colliders:
-  - {fileID: 671728848}
+  - {fileID: 0}
   m_InteractionLayerMask:
     serializedVersion: 2
     m_Bits: 4294967295
