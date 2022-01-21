@@ -30,26 +30,43 @@ public class StatsTerminalCanvas : MonoBehaviour
         {
             var now = DateTime.Now;
 
-            RefreshDate(now);
-            RefreshTime(now);
-            RefreshFPS();
+            GenerateDate(now);
+            GenerateTime(now);
+            GenerateFPS();
 
             yield return new WaitForSeconds(refreshInterval);
         }
     }
 
-    private void RefreshDate(DateTime now)
+    private void GenerateDate(DateTime now)
     {
         var date = now.ToString("dd/MM/yyyy");
         dateTextUI.text = date;
     }
 
-    private void RefreshTime(DateTime now)
+    private void GenerateTime(DateTime now)
     {
         var time = now.ToString("hh:mm");
         timeTextUI.text = time;
     }
 
+    private void GenerateFPS()
+    {
+        var fps = Convert.ToInt64(1.0f / Time.deltaTime);
+        float ms = 1000.0f / Mathf.Max(fps, 0.00001f);
+        ms = (float) Math.Round(ms * 100f) / 100f;
+
+        if (fps < 30)
+            fpsTextUI.color = new Color(1f, 1f, 0f);
+        else if (fps < 10)
+            fpsTextUI.color = Color.red;
+        else
+            fpsTextUI.color = Color.green;
+
+        fpsTextUI.text = $"{fps} [{ms}]";
+    }
+
+#if false
     private void RefreshFPS()
     {
         ++frames;
@@ -68,4 +85,5 @@ public class StatsTerminalCanvas : MonoBehaviour
             lastInterval = timeNow;
         }
     }
+#endif
 }

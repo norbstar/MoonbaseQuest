@@ -6,11 +6,12 @@ using UnityEngine.UI;
 using TMPro;
 
 [RequireComponent(typeof(Canvas))]
-public class GunAmmoCanvasManager : MonoBehaviour
+public class GunHUDCanvasManager : MonoBehaviour
 {
     [SerializeField] int defaultLoadout = 16;
     [SerializeField] TextMeshProUGUI ammoTextUI;
     [SerializeField] Image modeUI;
+    [SerializeField] Image intentUI;
     
     [Header("Sprites")]
     [SerializeField] Sprite singleShot;
@@ -62,5 +63,21 @@ public class GunAmmoCanvasManager : MonoBehaviour
                 modeUI.sprite = multiShot;
                 break;
         }
+    }
+
+    public void SetIntent(GunInteractableManager.Intent intent)
+    {
+        // switch (intent)
+        // {
+        //     case GunInteractableManager.Intent.Engaged:
+        //         intentUI.enabled = true;
+        //         break;
+
+        //     case GunInteractableManager.Intent.Disengaged:
+        //         intentUI.enabled = false;
+        //         break;
+        // }
+
+        intentUI.enabled = (intent == GunInteractableManager.Intent.Engaged);
     }
 }

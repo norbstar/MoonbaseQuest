@@ -37,7 +37,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     [SerializeField] Animator animator;
     [SerializeField] GameObject spawnPoint;
     [SerializeField] GameObject laserPrefab, laserFXPrefab;
-    [SerializeField] GunAmmoCanvasManager ammoCanvasManager;
+    [SerializeField] GunHUDCanvasManager hudCanvasManager;
     [SerializeField] GunOverheatCanvasManager overheatCanvasManager;
     [SerializeField] float speed = 5f;
 
@@ -175,11 +175,11 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
             if (((int) device.characteristics) == ((int) LeftHand))
             {
-                ammoCanvasManager.transform.localPosition = new Vector3(-Mathf.Abs(ammoCanvasManager.transform.localPosition.x), 0.06f, 0f);
+                hudCanvasManager.transform.localPosition = new Vector3(-Mathf.Abs(hudCanvasManager.transform.localPosition.x), 0.06f, 0f);
             }
             else if (((int) device.characteristics) == ((int) RightHand))
             {
-                ammoCanvasManager.transform.localPosition = new Vector3(Mathf.Abs(ammoCanvasManager.transform.localPosition.x), 0.06f, 0f);
+                hudCanvasManager.transform.localPosition = new Vector3(Mathf.Abs(hudCanvasManager.transform.localPosition.x), 0.06f, 0f);
             }
 
             if (cameraManager.TryIsDocked(gameObject, out MainCameraManager.DockID dockID))
@@ -187,7 +187,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
                 cameraManager.UndockWeapon(gameObject);
             }
 
-            ammoCanvasManager.gameObject.SetActive(true);
+            hudCanvasManager.gameObject.SetActive(true);
         }
     }
 
@@ -210,7 +210,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     private IEnumerator FireRepeat()
     {
-        while (ammoCanvasManager.AmmoCount > 0)
+        while (hudCanvasManager.AmmoCount > 0)
         {
             Fire();
             yield return new WaitForSeconds(0.1f);
@@ -225,7 +225,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
             return;
         }
 
-        if (ammoCanvasManager.AmmoCount == 0) return;
+        if (hudCanvasManager.AmmoCount == 0) return;
 
         animator.SetTrigger("Fire");
         AudioSource.PlayClipAtPoint(hitClip, transform.position, 1.0f);
@@ -250,7 +250,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
             interactableEvent.OnActivate(interactable);
         }
 
-        ammoCanvasManager.DecrementAmmoCount();
+        hudCanvasManager.DecrementAmmoCount();
         IncreaseHeat();
     }
 
@@ -306,7 +306,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     protected override void OnSelectExited(SelectExitEventArgs args, HandController controller)
     {
-        ammoCanvasManager.gameObject.SetActive(false);
+        hudCanvasManager.gameObject.SetActive(false);
 
         if (autoDockEnabled && (controller != null))
         {
@@ -358,7 +358,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
                 if (this.mode != Mode.Manual)
                 {
                     AudioSource.PlayClipAtPoint(manualClip, transform.position, 1.0f);
-                    ammoCanvasManager.SetMode(mode);
+                    hudCanvasManager.SetMode(mode);
                     this.mode = mode;
                 }
                 break;
@@ -367,7 +367,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
                 if (this.mode != Mode.Auto)
                 {
                     AudioSource.PlayClipAtPoint(autoClip, transform.position, 1.0f);
-                    ammoCanvasManager.SetMode(mode);
+                    hudCanvasManager.SetMode(mode);
                     this.mode = mode;
                 }
                 break;
@@ -384,6 +384,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
                 if (this.intent != Intent.Engaged)
                 {
                     AudioSource.PlayClipAtPoint(engagedClip, transform.position, 1.0f);
+                    hudCanvasManager.SetIntent(intent);
                     this.intent = intent;
                 }
                 break;
@@ -392,6 +393,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
                 if (this.intent != Intent.Disengaged)
                 {
                     AudioSource.PlayClipAtPoint(disengagedClip, transform.position, 1.0f);
+                    hudCanvasManager.SetIntent(intent);
                     this.intent = intent;
                 }
                 break;
@@ -410,5 +412,5 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
         defaultRotation = transform.rotation;
     }
 
-    public void RestoreAmmoCount() => ammoCanvasManager.RestoreAmmoCount();
+    public void RestoreAmmoCount() => hudCanvasManager.RestoreAmmoCount();
 }
