@@ -18,6 +18,12 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
         Auto
     }
 
+    public enum Intent
+    {
+        Engaged,
+        Disengaged
+    }
+
     public enum State
     {
         Active,
@@ -53,6 +59,8 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     [SerializeField] AudioClip manualClip;
     [SerializeField] AudioClip autoClip;
     [SerializeField] AudioClip overloadedClip;
+    [SerializeField] AudioClip engagedClip;
+    [SerializeField] AudioClip disengagedClip;
 
     private CurveCreator curveCreator;
     private MainCameraManager cameraManager;
@@ -63,6 +71,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     private GameObject hitPrefabInstance;
     private int mixedLayerMask;
     private Mode mode;
+    private Intent intent;
     private Coroutine fireRepeatCoroutine;
     private float heat;
     private IList<float> heatValues;
@@ -330,6 +339,14 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
             case HandController.Gesture.ThumbStick_Right:
                 SetMode(Mode.Auto);
                 break;
+
+            case HandController.Gesture.ThumbStick_Up:
+                SetIntent(Intent.Engaged);
+                break;
+
+            case HandController.Gesture.ThumbStick_Down:
+                SetIntent(Intent.Disengaged);
+                break;
         }
     }
 
@@ -352,6 +369,30 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
                     AudioSource.PlayClipAtPoint(autoClip, transform.position, 1.0f);
                     ammoCanvasManager.SetMode(mode);
                     this.mode = mode;
+                }
+                break;
+        }
+    }
+
+    private void SetIntent(Intent intent)
+    {
+        Log($"{gameObject.name} {className} Intent: {intent}");
+
+        switch (intent)
+        {
+            case Intent.Engaged:
+                if (this.intent != Intent.Engaged)
+                {
+                    AudioSource.PlayClipAtPoint(engagedClip, transform.position, 1.0f);
+                    this.intent = intent;
+                }
+                break;
+
+            case Intent.Disengaged:
+                if (this.intent != Intent.Disengaged)
+                {
+                    AudioSource.PlayClipAtPoint(disengagedClip, transform.position, 1.0f);
+                    this.intent = intent;
                 }
                 break;
         }

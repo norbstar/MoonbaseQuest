@@ -170,7 +170,7 @@ public class InteractableManager : MonoBehaviour, IInteractable
         return false;
     }
 
-    private void Log(string message)
+    protected void Log(string message)
     {
         if (!enableLogging) return;
         Debug.Log(message);

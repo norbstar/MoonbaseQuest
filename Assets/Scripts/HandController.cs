@@ -19,7 +19,9 @@ public class HandController : MonoBehaviour
         Trigger = 1,
         Grip = 2,
         ThumbStick_Left = 4,
-        ThumbStick_Right = 8
+        ThumbStick_Right = 8,
+        ThumbStick_Up = 16,
+        ThumbStick_Down = 32
     }
 
     [SerializeField] InputDeviceCharacteristics characteristics;
@@ -32,7 +34,7 @@ public class HandController : MonoBehaviour
     [Header("Inputs")]
     [SerializeField] float triggerThreshold = 0.9f;
     [SerializeField] float gripThreshold = 0.9f;
-    [SerializeField] float thumbStickThreshold = 0.9f;
+    [SerializeField] Vector2 thumbStickThreshold = new Vector2(0.9f, 0.9f);
 
     [Header("Debug")]
     [SerializeField] bool enableLogging = false;
@@ -139,7 +141,7 @@ public class HandController : MonoBehaviour
 
         if (controller.TryGetFeatureValue(CommonUsages.primary2DAxis, out Vector2 thumbStickValue))
         {
-            if (thumbStickValue.x < -thumbStickThreshold)
+            if (thumbStickValue.x <= -thumbStickThreshold.x)
             {
                 state |= Gesture.ThumbStick_Left;
                 interactable?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Left);
@@ -149,7 +151,7 @@ public class HandController : MonoBehaviour
                 state &= ~Gesture.ThumbStick_Left;
             }
             
-            if (thumbStickValue.x > thumbStickThreshold)
+            if (thumbStickValue.x > thumbStickThreshold.x)
             {
                 state |= Gesture.ThumbStick_Right;
                 interactable?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Right);
@@ -157,6 +159,26 @@ public class HandController : MonoBehaviour
             else
             {
                 state &= ~Gesture.ThumbStick_Right;
+            }
+
+            if (thumbStickValue.y <= -thumbStickThreshold.y)
+            {
+                state |= Gesture.ThumbStick_Up;
+                interactable?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Up);
+            }
+            else
+            {
+                state &= ~Gesture.ThumbStick_Up;
+            }
+            
+            if (thumbStickValue.y > thumbStickThreshold.y)
+            {
+                state |= Gesture.ThumbStick_Down;
+                interactable?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Down);
+            }
+            else
+            {
+                state &= ~Gesture.ThumbStick_Down;
             }
         }
 
