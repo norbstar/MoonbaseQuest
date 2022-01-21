@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Collections.Generic;
 
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
@@ -32,15 +33,15 @@ public class InteractableManager : MonoBehaviour, IInteractable
     
     public bool IsHeld { get { return isHeld; } }
     public Transform OriginTransform { get { return originTransform; } }
-    // public Transform Origin { get { return trackingVolume.transform; } }
+    public List<Collider> Colliders { get { return interactable.colliders; } }
 
     protected XRGrabInteractable interactable;
 
     protected GameObject interactor;
     protected Transform objects;
+    protected TestCaseRunner testCaseRunner;
     private Cache cache;
     private bool isHeld;
-    protected TestCaseRunner testCaseRunner;
 
     protected virtual void Awake()
     {

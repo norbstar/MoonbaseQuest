@@ -28,6 +28,8 @@ public class StickyDockManager : DockManager
     private GameObject trackerPrefabInstance;
     private bool canDock, isDocked;
 
+    // public Collider Colliders { get { return interactable.colliders; } }
+
     protected virtual void Awake()
     {
         ResolveDependencies();
@@ -106,8 +108,23 @@ public class StickyDockManager : DockManager
         {
             if (Object.ReferenceEquals(interactable.gameObject, trackedInteractable.gameObject))
             {
-                trackedInteractable.HideTrackingVolume();
-                trackedInteractable = null;
+                var colliders = interactable.Colliders;
+
+                bool verified = true;
+
+                foreach (Collider thisCollider in colliders)
+                {
+                    if ((thisCollider != collider) && (thisCollider.bounds.Intersects(this.collider.bounds)))
+                    {
+                        verified = false;
+                    }
+                }
+                    
+                if (verified)
+                {
+                    trackedInteractable.HideTrackingVolume();
+                    trackedInteractable = null;
+                }
             }
         }
     }
