@@ -15,6 +15,9 @@ public class StickyDockManager : DockManager
     [SerializeField] bool showTrackers;
     [SerializeField] GameObject trackerPrefab;
 
+    [Header("Compensation")]
+    [SerializeField] Vector3 adjustedRotation;
+
     [Header("Materials")]
     [SerializeField] Material defaultMaterial;
     [SerializeField] Material highlightMaterial;
@@ -189,9 +192,10 @@ public class StickyDockManager : DockManager
 
         interactable.transform.SetParent(transform, true);
         interactable.transform.localPosition = -interactable.OriginTransform.localPosition;
-        interactable.transform.rotation = Quaternion.identity;
-
-        // trackedInteractable.HideTrackingVolume();
+        interactable.transform.localRotation = Quaternion.identity;
+        interactable.transform.Rotate(adjustedRotation, Space.Self);
+        
+        trackedInteractable.HideTrackingVolume();
         HighlightDock(false);
 
         Data = new OccupancyData

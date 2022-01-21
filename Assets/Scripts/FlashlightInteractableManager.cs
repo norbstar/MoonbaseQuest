@@ -28,14 +28,19 @@ public class FlashlightInteractableManager : FocusableInteractableManager
     // Start is called before the first frame update
     void Start()
     {
-        state = startState;
+        SetState(startState);
         spotlight.SetActive(state == State.On);
     }
 
     public void OnActivated(ActivateEventArgs args)
     {
         AudioSource.PlayClipAtPoint(buttonClip, transform.position, 1.0f);
-        state = (state == State.Off) ? State.On : State.Off;
+        SetState((state == State.Off) ? State.On : State.Off);
+    }
+
+    public void SetState(State state)
+    {
+        this.state = state;
         spotlight.SetActive(state == State.On);
     }
 }

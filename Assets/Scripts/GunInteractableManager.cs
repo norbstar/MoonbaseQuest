@@ -54,6 +54,9 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     [Header("Over Load")]
     [SerializeField] float overLoadThreshold;
 
+    [Header("Docking")]
+    [SerializeField] StickyDockManager stickyDock;
+
     [Header("Audio")]
     [SerializeField] AudioClip hitClip;
     [SerializeField] AudioClip manualClip;
@@ -376,13 +379,19 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     private void SetIntent(Intent intent)
     {
+        if (!stickyDock.Data.occupied) return;
+
         Log($"{gameObject.name} {className} Intent: {intent}");
+
+        var dockedObject = stickyDock.Data.gameObject;
+        FlashlightInteractableManager manager = dockedObject.GetComponent<FlashlightInteractableManager>() as FlashlightInteractableManager;
 
         switch (intent)
         {
             case Intent.Engaged:
                 if (this.intent != Intent.Engaged)
                 {
+                    manager.SetState(FlashlightInteractableManager.State.On);
                     AudioSource.PlayClipAtPoint(engagedClip, transform.position, 1.0f);
                     hudCanvasManager.SetIntent(intent);
                     this.intent = intent;
@@ -392,6 +401,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
             case Intent.Disengaged:
                 if (this.intent != Intent.Disengaged)
                 {
+                    manager.SetState(FlashlightInteractableManager.State.Off);
                     AudioSource.PlayClipAtPoint(disengagedClip, transform.position, 1.0f);
                     hudCanvasManager.SetIntent(intent);
                     this.intent = intent;
