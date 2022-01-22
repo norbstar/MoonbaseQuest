@@ -30,8 +30,8 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
         Inactive
     }
 
-    private static InputDeviceCharacteristics RightHand = (InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Right);
-    private static InputDeviceCharacteristics LeftHand = (InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Left);
+    public static InputDeviceCharacteristics RightHand = (InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Right);
+    public static InputDeviceCharacteristics LeftHand = (InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Left);
 
     [SerializeField] new Camera camera;
     [SerializeField] Animator animator;
@@ -193,6 +193,8 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
             hudCanvasManager.gameObject.SetActive(true);
         }
+
+        // InteractableManager.EventReceived += OnEvent;
     }
 
     public void OnActivated(ActivateEventArgs args)
@@ -316,6 +318,8 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
         {
             DockWeapon(controller);
         }
+
+        // InteractableManager.EventReceived -= OnEvent;
     }
 
     private void DockWeapon(HandController controller)
@@ -410,6 +414,40 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
                 break;
         }
     }
+
+#if false
+    public void OnEvent(InteractableManager interactable, EventType eventType)
+    {
+        Debug.Log($"{this.gameObject.name}.OnEvent:[{gameObject.name}]:Type : {eventType}");
+
+        switch (eventType)
+        {
+            case EventType.OnSelectEntered:
+                if ( interactable.CompareTag("Flashlight"))
+                {
+                    /*
+                    TODO
+                    Needs more thought as this approach to showing/hiding the docking volume will only work
+                    if a flashlight is picked up and docked or picked up and put down before the gun is docked
+                    or dropped, otherwise you loose track of the active state once picked up again.
+                    */
+                }
+                break;
+
+            case EventType.OnSelectExited:
+                if ( interactable.CompareTag("Flashlight"))
+                {
+                    /*
+                    TODO
+                    Needs more thought as this approach to showing/hiding the docking volume will only work
+                    if a flashlight is picked up and docked or picked up and put down before the gun is docked
+                    or dropped, otherwise you loose track of the active state once picked up again.
+                    */
+                }
+                break;
+        }
+    }
+#endif
 
     public void RestoreCachedGunState()
     {

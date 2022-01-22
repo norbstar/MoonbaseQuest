@@ -9,8 +9,8 @@ public class MainCameraManager : Gizmo
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
     [Header("Components")]
-    [SerializeField] HandController leftHandControllerManager;
-    [SerializeField] HandController rightHandControllerManager;
+    [SerializeField] HandController leftHandController;
+    [SerializeField] HandController rightHandController;
     [SerializeField] HipDocksManager hipDocksManager;
 
     [Header("Hits")]
@@ -29,8 +29,8 @@ public class MainCameraManager : Gizmo
     [Header("Debug")]
     [SerializeField] bool enableLogging = false;
 
-    public HandController LeftHandControllerManager { get { return leftHandControllerManager; } }
-    public HandController RightHandControllerManager { get { return rightHandControllerManager; } }
+    public HandController LeftHandController { get { return leftHandController; } }
+    public HandController RightHandController { get { return rightHandController; } }
     public HipDocksManager HipDocksManager { get { return hipDocksManager; } }
 
     private GameObject hitPrefabInstance;
@@ -137,6 +137,24 @@ public class MainCameraManager : Gizmo
         newHits.ToList().ForEach(h => h.EnableTracking(true));
 
         trackedInteractables = verifiedHits;
+    }
+
+    public HandController GetOppositeHandController(HandController handController)
+    {
+        HandController otherHandController = null;
+
+        var device = handController.GetInputDevice();
+
+        if (((int) device.characteristics) == ((int) GunInteractableManager.LeftHand))
+        {
+            otherHandController = rightHandController;
+        }
+        else if (((int) device.characteristics) == ((int) GunInteractableManager.RightHand))
+        {
+            otherHandController = leftHandController;
+        }
+
+        return otherHandController;
     }
 
     private bool TryGetInteractable<InteractableManager>(GameObject trigger, out InteractableManager interactable)
