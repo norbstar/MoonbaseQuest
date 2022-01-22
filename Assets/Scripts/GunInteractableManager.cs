@@ -66,6 +66,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     [SerializeField] AudioClip disengagedClip;
 
     private CurveCreator curveCreator;
+    private MainCameraManager mainCameraManager;
     private HipDocksManager hipDocksManager;
     private Vector3 defaultPosition;
     private Quaternion defaultRotation;
@@ -80,12 +81,17 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     private IList<float> heatValues;
     private int heatIndex;
     private State state;
+    private bool dockedOccupied;
+    private GameObject docked;
 
     protected override void Awake()
     {
         base.Awake();
+        
         ResolveDependencies();
         CacheGunState();
+
+        stickyDock.EventReceived += OnAttachedEvent;
 
         mixedLayerMask = LayerMask.GetMask("Default") | LayerMask.GetMask("Asteroid Layer");
         overheatCanvasManager.SetMaxValue(overLoadThreshold);
@@ -97,7 +103,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     private void ResolveDependencies()
     {
         curveCreator = GetComponent<CurveCreator>() as CurveCreator;
-        var mainCameraManager = camera.GetComponent<MainCameraManager>() as MainCameraManager;
+        mainCameraManager = camera.GetComponent<MainCameraManager>() as MainCameraManager;
         hipDocksManager = mainCameraManager.HipDocksManager;
         testCaseRunner = TestCaseRunner.GetInstance();
     }
@@ -192,9 +198,21 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
             }
 
             hudCanvasManager.gameObject.SetActive(true);
+            
+            var opposingController = mainCameraManager.GetOppositeHandController(controller);
+
+            if (opposingController.IsHolding)
+            {
+                var interactable = opposingController.Interactable;
+                
+                if (interactable.CompareTag("Flashlight"))
+                {
+                    stickyDock.gameObject.SetActive(true);
+                }
+            }
         }
 
-        // InteractableManager.EventReceived += OnEvent;
+        InteractableManager.EventReceived += OnEvent;
     }
 
     public void OnActivated(ActivateEventArgs args)
@@ -319,7 +337,12 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
             DockWeapon(controller);
         }
 
-        // InteractableManager.EventReceived -= OnEvent;
+        if (!dockedOccupied)
+        {
+            stickyDock.gameObject.SetActive(false);
+        }
+
+        InteractableManager.EventReceived -= OnEvent;
     }
 
     private void DockWeapon(HandController controller)
@@ -415,39 +438,49 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
         }
     }
 
-#if false
     public void OnEvent(InteractableManager interactable, EventType eventType)
     {
-        Debug.Log($"{this.gameObject.name}.OnEvent:[{gameObject.name}]:Type : {eventType}");
+        Debug.Log($"{this.gameObject.name}.OnEvent:[{interactable.name}]:Type : {eventType}");
 
         switch (eventType)
         {
             case EventType.OnSelectEntered:
-                if ( interactable.CompareTag("Flashlight"))
+                if (interactable.CompareTag("Flashlight"))
                 {
-                    /*
-                    TODO
-                    Needs more thought as this approach to showing/hiding the docking volume will only work
-                    if a flashlight is picked up and docked or picked up and put down before the gun is docked
-                    or dropped, otherwise you loose track of the active state once picked up again.
-                    */
+                    stickyDock.gameObject.SetActive(true);
                 }
                 break;
 
             case EventType.OnSelectExited:
-                if ( interactable.CompareTag("Flashlight"))
+                if (interactable.CompareTag("Flashlight"))
                 {
-                    /*
-                    TODO
-                    Needs more thought as this approach to showing/hiding the docking volume will only work
-                    if a flashlight is picked up and docked or picked up and put down before the gun is docked
-                    or dropped, otherwise you loose track of the active state once picked up again.
-                    */
+                    if (!dockedOccupied)
+                    {
+                        stickyDock.gameObject.SetActive(false);
+                    }
                 }
                 break;
         }
     }
-#endif
+
+    public void OnAttachedEvent(StickyDockManager manager, StickyDockManager.EventType eventType, GameObject gameObject)
+    {
+        Debug.Log($"{this.gameObject.name}.OnAttachedEvent:[{gameObject.name}]:Type : {eventType}");
+
+        switch (eventType)
+        {
+            case StickyDockManager.EventType.OnDocked:
+                dockedOccupied = true;
+                docked = gameObject;
+                stickyDock.gameObject.SetActive(true);
+                break;
+
+            case StickyDockManager.EventType.OnUndocked:
+                dockedOccupied = false;
+                docked = null;
+                break;
+        }
+    }
 
     public void RestoreCachedGunState()
     {

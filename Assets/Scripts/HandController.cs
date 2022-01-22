@@ -41,6 +41,7 @@ public class HandController : MonoBehaviour
 
     public InputDeviceCharacteristics Characteristics { get { return characteristics; } }
     public bool IsHolding { get { return isHolding; } }
+    public GameObject Interactable { get { return interactable; } }
 
     private MainCameraManager cameraManager;
     private InputDevice controller;

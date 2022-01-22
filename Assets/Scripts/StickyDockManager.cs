@@ -8,6 +8,12 @@ public class StickyDockManager : DockManager
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
+    public enum EventType
+    {
+        OnDocked,
+        OnUndocked
+    }
+
     [Header("Restrictions")]
     [SerializeField] List<string> supportedTags;
 
@@ -25,13 +31,14 @@ public class StickyDockManager : DockManager
     [Header("Debug")]
     [SerializeField] bool enableLogging = false;
 
+    public delegate void Event(StickyDockManager manager, EventType type, GameObject gameObject);
+    public event Event EventReceived;
+
     private new Collider collider;
     private new MeshRenderer renderer;
     private Transform objects;
     private GameObject trackerPrefabInstance;
     private bool canDock, isDocked;
-
-    // public Collider Colliders { get { return interactable.colliders; } }
 
     void Awake()
     {
@@ -166,7 +173,7 @@ public class StickyDockManager : DockManager
 
                 if (Object.ReferenceEquals(Data.gameObject, interactable.gameObject))
                 {
-                    UndockInteractable();
+                    UndockInteractable(interactable);
                 }
 
                 break;
@@ -205,6 +212,7 @@ public class StickyDockManager : DockManager
         };
 
         isDocked = true;
+        EventReceived(this, EventType.OnDocked, interactable.gameObject);
     }
 
     private void DampenVelocity(GameObject gameObject)
@@ -220,7 +228,7 @@ public class StickyDockManager : DockManager
         }
     }
 
-    private void UndockInteractable()
+    private void UndockInteractable(InteractableManager interactable)
     {
         Log($"{Time.time} {gameObject.name} {className} OnEvent.UndockInteractable");
 
@@ -234,6 +242,7 @@ public class StickyDockManager : DockManager
         };
 
         isDocked = false;
+        EventReceived(this, EventType.OnUndocked, interactable.gameObject);
     }
 
     private void Log(string message)
