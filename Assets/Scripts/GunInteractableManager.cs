@@ -66,7 +66,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     [SerializeField] AudioClip disengagedClip;
 
     private CurveCreator curveCreator;
-    private MainCameraManager cameraManager;
+    private HipDocksManager hipDocksManager;
     private Vector3 defaultPosition;
     private Quaternion defaultRotation;
     private GameObject lastObjectHit;
@@ -97,7 +97,8 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     private void ResolveDependencies()
     {
         curveCreator = GetComponent<CurveCreator>() as CurveCreator;
-        cameraManager = camera.GetComponent<MainCameraManager>() as MainCameraManager;
+        var mainCameraManager = camera.GetComponent<MainCameraManager>() as MainCameraManager;
+        hipDocksManager = mainCameraManager.HipDocksManager;
         testCaseRunner = TestCaseRunner.GetInstance();
     }
 
@@ -185,9 +186,9 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
                 hudCanvasManager.transform.localPosition = new Vector3(Mathf.Abs(hudCanvasManager.transform.localPosition.x), 0.06f, 0f);
             }
 
-            if (cameraManager.TryIsDocked(gameObject, out MainCameraManager.DockID dockID))
+            if (hipDocksManager.TryIsDocked(gameObject, out HipDocksManager.DockID dockID))
             {
-                cameraManager.UndockWeapon(gameObject);
+                hipDocksManager.UndockWeapon(gameObject);
             }
 
             hudCanvasManager.gameObject.SetActive(true);
@@ -323,11 +324,11 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
         if (((int) device.characteristics) == ((int) LeftHand))
         {
-            cameraManager.DockWeapon(gameObject, MainCameraManager.DockID.Left, Quaternion.Euler(90f, 0f, 0f));
+            hipDocksManager.DockWeapon(gameObject, HipDocksManager.DockID.Left, Quaternion.Euler(90f, 0f, 0f));
         }
         else if (((int) device.characteristics) == ((int) RightHand))
         {
-            cameraManager.DockWeapon(gameObject, MainCameraManager.DockID.Right, Quaternion.Euler(90f, 0f, 0f));
+            hipDocksManager.DockWeapon(gameObject, HipDocksManager.DockID.Right, Quaternion.Euler(90f, 0f, 0f));
         }
     }
 

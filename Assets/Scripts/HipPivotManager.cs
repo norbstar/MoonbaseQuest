@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class LowerBodyPivotManager : Gizmo
+public class HipPivotManager : Gizmo
 {
     [Header("Pivot")]
     [SerializeField] new Camera camera;
