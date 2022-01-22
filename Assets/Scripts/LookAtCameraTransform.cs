@@ -18,7 +18,11 @@ public class LookAtCameraTransform : MonoBehaviour
     protected virtual void Awake()
     {
         originalScale = transform.localScale;
-        textUI.text = transform.parent.name;
+
+        if (textUI != null)
+        {
+            textUI.text = transform.parent.name;
+        }
     }
 
     // Update is called once per frame
@@ -28,13 +32,6 @@ public class LookAtCameraTransform : MonoBehaviour
 
         bool inRange = (distance >= nearDistance && distance <= farDistance);
         ShowChildren(inRange);
-        
-        // for (int idx = 0; idx < transform.childCount; idx++)
-        // {
-        //     var child = transform.GetChild(idx);
-        //     Debug.Log($"Child {child.name} {child.transform.localScale}");
-        // }
-
         ScaleWithDistance(distance);
 
         if (inRange)
@@ -67,19 +64,7 @@ public class LookAtCameraTransform : MonoBehaviour
         float nearDistanceScaleFactor = 1f;
         float farDistanceScaleFactor = 0.2f;
 
-        // for (int idx = 0; idx < transform.childCount; idx++)
-        // {
-        //     var child = transform.GetChild(idx);
-        //     Debug.Log($"Child {child.name} Original Scale:{originalScale}");
-
-        //     var scaleFactor = ( (distance - nearDistance) / (farDistance - nearDistance) ) * (farDistanceScaleFactor - nearDistanceScaleFactor) + nearDistanceScaleFactor;
-        //     child.transform.localScale = originalScale * scaleFactor;
-
-        //     Debug.Log($"Child Child {child.name} New Scale:{scaleFactor} {child.transform.localScale}");
-        // }
-
         var scaleFactor = ( (distance - nearDistance) / (farDistance - nearDistance) ) * (farDistanceScaleFactor - nearDistanceScaleFactor) + nearDistanceScaleFactor;
         transform.localScale = originalScale * scaleFactor;
-        Debug.Log($"New Scale:{scaleFactor} {transform.localScale}");
     }
 }
