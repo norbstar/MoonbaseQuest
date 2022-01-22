@@ -7,7 +7,7 @@ public class Gizmo : MonoBehaviour
     [SerializeField] Vector3 size = Vector3.one * 0.1f;
     [SerializeField] bool mapToWorldSpace = false;
 
-    protected virtual void OnDrawGizmos()
+    void OnDrawGizmos()
     {
         Gizmos.color = color;
 
@@ -15,11 +15,23 @@ public class Gizmo : MonoBehaviour
         {
             Gizmos.matrix = transform.localToWorldMatrix;
         }
-        else
-        {
-            Gizmos.matrix = transform.worldToLocalMatrix;
-        }
         
         Gizmos.DrawCube(transform.position, size);
     }
+
+    // protected virtual void OnDrawGizmos()
+    // {
+    //     Gizmos.color = color;
+
+    //     if (mapToWorldSpace)
+    //     {
+    //         Gizmos.matrix = transform.localToWorldMatrix;
+    //     }
+    //     else
+    //     {
+    //         Gizmos.matrix = transform.worldToLocalMatrix;
+    //     }
+        
+    //     Gizmos.DrawCube(transform.position, size);
+    // }
 }

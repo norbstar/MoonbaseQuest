@@ -33,7 +33,7 @@ public class StickyDockManager : DockManager
 
     // public Collider Colliders { get { return interactable.colliders; } }
 
-    protected virtual void Awake()
+    void Awake()
     {
         ResolveDependencies();
         objects = GameObject.Find("Objects").transform;

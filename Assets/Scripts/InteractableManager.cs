@@ -42,6 +42,7 @@ public class InteractableManager : MonoBehaviour, IInteractable
     protected TestCaseRunner testCaseRunner;
     private Cache cache;
     private bool isHeld;
+    private bool enableTracking;
 
     protected virtual void Awake()
     {
@@ -156,6 +157,13 @@ public class InteractableManager : MonoBehaviour, IInteractable
     
     public void HideTrackingVolume() => trackingVolume.SetActive(false);
     
+    public void EnableTracking(bool enable)
+    {
+        this.enableTracking = enable;
+
+        Log($"{gameObject.name} {className} EnableTracking:{enableTracking}");
+    }
+
     protected bool TryGetController<HandController>(GameObject interactor, out HandController controller)
     {
         if (interactor != null && interactor.CompareTag("Hand"))
