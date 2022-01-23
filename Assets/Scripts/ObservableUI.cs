@@ -13,11 +13,10 @@ public class ObservableUI : MonoBehaviour
 
     [SerializeField] float nearDistance = 0.5f;
     [SerializeField] float farDistance = 2.5f;
-    [SerializeField] float transitionPoint = 0.75f;
+    [SerializeField] float transitionDistance = 1.5f;
 
     private ProximityBaseController baseController;
     private Vector3 originalScale, baseScale;
-    private float transitionDistance;
 
     void Awake()
     {
@@ -39,7 +38,6 @@ public class ObservableUI : MonoBehaviour
         };
 
         transform.localScale = baseScale;
-        transitionDistance = (nearDistance + ((farDistance - nearDistance) * (1f - transitionPoint)));
     }
 
     private void ResolveDependencies()
@@ -84,8 +82,8 @@ public class ObservableUI : MonoBehaviour
 
     private void ScaleWithinFocusableRange(float distance)
     {
-        float nearDistanceScaleFactor = 4f;
-        float farDistanceScaleFactor = 1f;
+        float nearDistanceScaleFactor = 6.5f;
+        float farDistanceScaleFactor = 1.2f;
 
         var scaleFactor = ( (distance - nearDistance) / (transitionDistance - nearDistance) ) * (farDistanceScaleFactor - nearDistanceScaleFactor) + nearDistanceScaleFactor;
         transform.localScale = baseScale * scaleFactor;
