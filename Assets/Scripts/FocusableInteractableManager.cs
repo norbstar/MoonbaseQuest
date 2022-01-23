@@ -4,9 +4,6 @@ using UnityEngine.XR.Interaction.Toolkit;
 [RequireComponent(typeof(XRGrabInteractable))]
 public class FocusableInteractableManager : InteractableManager, IFocus
 {
-    [Header("Identity")]
-    [SerializeField] IdentityCanvasManager identityCanvasManager;
-
     public bool HasFocus { get { return hasFocusCount > 0; } }
     public bool HasMultiFocus { get { return hasFocusCount > 1; } }
 
@@ -15,13 +12,10 @@ public class FocusableInteractableManager : InteractableManager, IFocus
     protected override void Awake()
     {
         base.Awake();
-        identityCanvasManager.IdentityText = gameObject.name;
     }
 
     public void GainedFocus(GameObject focusObject)
     {
-        identityCanvasManager.gameObject.SetActive(true);
-
         if (!HasFocus)
         {
             OnFocusGained();
@@ -34,8 +28,6 @@ public class FocusableInteractableManager : InteractableManager, IFocus
 
     public void LostFocus(GameObject focusObject)
     {
-        identityCanvasManager.gameObject.SetActive(false);
-
         if (!HasMultiFocus)
         {
             OnFocusLost();
