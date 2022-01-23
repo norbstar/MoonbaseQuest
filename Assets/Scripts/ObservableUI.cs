@@ -1,31 +1,26 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-using TMPro;
-
 [RequireComponent(typeof(ProximityBaseController))]
 public class ObservableUI : MonoBehaviour
 {
-    [SerializeField] TextMeshProUGUI textUI;
     [SerializeField] Image image;
-    [SerializeField] Sprite observableSprite;
-    [SerializeField] Sprite focusSprite;
 
     [SerializeField] float nearDistance = 0.5f;
     [SerializeField] float farDistance = 2.5f;
-    [SerializeField] float transitionDistance = 1.5f;
 
-    private ProximityBaseController baseController;
+    public float NearDistance { get { return nearDistance; } }
+    public float FarDistance { get { return farDistance; } }
+
+    protected ProximityBaseController baseController;
+    protected float distance;
+    protected bool inRange;
+    
     private Vector3 originalScale, baseScale;
-
-    void Awake()
+    
+    public virtual void Awake()
     {
         ResolveDependencies();
-
-        if (textUI != null)
-        {
-            textUI.text = transform.parent.name;
-        }
 
         originalScale = transform.localScale;
         var referenceScale = baseController.Origin.transform.localScale;
@@ -46,46 +41,10 @@ public class ObservableUI : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    public virtual void Update()
     {
-        float distance = Vector3.Distance(baseController.Origin.transform.position, baseController.Camera.transform.position);
-        bool inRange = (distance >= nearDistance && distance <= farDistance);
+        distance = Vector3.Distance(baseController.Origin.transform.position, baseController.Camera.transform.position);
+        inRange = (distance >= nearDistance && distance <= farDistance);
         baseController.InRange = inRange;
-
-        if (inRange)
-        {
-            if (distance <= transitionDistance)
-            {
-                SetFocusMode(distance);
-            }
-            else
-            {
-                SetObservableMode();
-            }
-        }
-    }
-
-    private void SetObservableMode()
-    {
-        image.sprite = observableSprite;
-        textUI.gameObject.SetActive(false);
-        transform.localScale = baseScale;
-    }
-
-    private void SetFocusMode(float distance)
-    {
-        image.sprite = focusSprite;
-        textUI.gameObject.SetActive(true);
-
-        ScaleWithinFocusableRange(distance);
-    }
-
-    private void ScaleWithinFocusableRange(float distance)
-    {
-        float nearDistanceScaleFactor = 6.5f;
-        float farDistanceScaleFactor = 1.2f;
-
-        var scaleFactor = ( (distance - nearDistance) / (transitionDistance - nearDistance) ) * (farDistanceScaleFactor - nearDistanceScaleFactor) + nearDistanceScaleFactor;
-        transform.localScale = baseScale * scaleFactor;
     }
 }
