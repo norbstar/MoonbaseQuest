@@ -41,6 +41,10 @@ public class FocusableUI : ObservableUI
                 SetObservableMode();
             }
         }
+        else
+        {
+            focus.gameObject.SetActive(false);
+        }
     }
 
     private void SetObservableMode()
