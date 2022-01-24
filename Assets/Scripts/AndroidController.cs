@@ -1,13 +1,15 @@
 using UnityEngine;
 
-public class AndroidController : MonoBehaviour
+public class AndroidController : FocusableManager
 {
-    [SerializeField] GameObject target;
+    // [SerializeField] GameObject target;
     // [SerializeField] float force = 100f;
 
-    [Header("Eyes")]
-    [SerializeField] GameObject leftEyeSocket;
-    [SerializeField] GameObject rightEyeSocket;
+    // [Header("Eyes")]
+    // [SerializeField] GameObject leftEyeSocket;
+    // [SerializeField] GameObject rightEyeSocket;
+
+    // [SerializeField] ObservableUI observableUI;
 
     private Rigidbody rigidBody;
 
