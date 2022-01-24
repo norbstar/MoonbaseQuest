@@ -53,7 +53,7 @@ public class MainCameraManager : Gizmo
 
     void FixedUpdate()
     {
-        TrackInteractablesInRange(transform.position, scanRadius);
+        // TrackInteractablesInRange(transform.position, scanRadius);
 
         bool hitDetected = Physics.SphereCast(transform.TransformPoint(Vector3.zero), focalRadius, transform.forward, out RaycastHit hitInfo, Mathf.Infinity, defaultLayerMask);
         GameObject objectHit = null;

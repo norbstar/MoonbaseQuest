@@ -13,13 +13,11 @@ public class ProximityBaseController : MonoBehaviour
 
     private float offset = 0.1f;
     private bool inRange;
-
-    private bool isShown;
-
+    
     // Update is called once per frame
     void Update()
     {
-        ShowChildren(inRange);
+        // ShowChildren(inRange);
 
         if (inRange)
         {
@@ -29,18 +27,5 @@ public class ProximityBaseController : MonoBehaviour
             transform.rotation = rotation;
             transform.position = offsetPoint;
         }
-    }
-
-    private void ShowChildren(bool show)
-    {
-        if (isShown == show) return;
-
-        for (int idx = 0; idx < transform.childCount; idx++)
-        {
-            var child = transform.GetChild(idx);
-            child.gameObject.SetActive(show);
-        }
-
-        isShown = show;
     }
 }

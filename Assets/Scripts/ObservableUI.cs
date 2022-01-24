@@ -17,7 +17,7 @@ public class ObservableUI : MonoBehaviour
     protected bool inRange;
     
     private Vector3 originalScale, baseScale;
-    
+
     public virtual void Awake()
     {
         ResolveDependencies();
@@ -45,6 +45,7 @@ public class ObservableUI : MonoBehaviour
     {
         distance = Vector3.Distance(baseController.Origin.transform.position, baseController.Camera.transform.position);
         inRange = (distance >= nearDistance && distance <= farDistance);
+        image.gameObject.SetActive(inRange);
         baseController.InRange = inRange;
     }
 }

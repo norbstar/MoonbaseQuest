@@ -58,7 +58,7 @@ public class FocusableUI : ObservableUI
     private void ScaleWithinFocusableRange(float distance)
     {
         float farDistanceScaleFactor = 1.85f;
-        float nearDistanceScaleFactor = farDistanceScaleFactor * 5.5f;
+        float nearDistanceScaleFactor = farDistanceScaleFactor * 4f;
 
         var scaleFactor = ( (distance - NearDistance) / (transitionDistance - NearDistance) ) * (farDistanceScaleFactor - nearDistanceScaleFactor) + nearDistanceScaleFactor;
         focus.transform.localScale = originalFocusScale * scaleFactor;
