@@ -1,6 +1,5 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Collider))]
 public class LaserBeamFX : MonoBehaviour
 {
     // Start is called before the first frame update

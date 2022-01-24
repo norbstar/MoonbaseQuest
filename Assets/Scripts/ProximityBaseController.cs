@@ -3,10 +3,10 @@ using UnityEngine;
 public class ProximityBaseController : MonoBehaviour
 {
     [SerializeField] new Camera camera;
-    [SerializeField] GameObject origin;
+    [SerializeField] Transform origin;
 
     public Camera Camera { get { return camera; } }
-    public GameObject Origin { get { return origin; } }
+    public Transform Origin { get { return origin; } }
 
     public float Offset { get { return offset; } set { offset = value; } }
     public bool InRange { get { return inRange; } set { inRange = value; } }

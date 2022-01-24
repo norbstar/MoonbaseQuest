@@ -209,9 +209,15 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
                 {
                     stickyDock.gameObject.SetActive(true);
                 }
-            }
+            }    
         }
 
+        if (stickyDock.Data.occupied)
+        {
+            stickyDock.Data.gameObject.GetComponent<XRGrabInteractable>().enabled = true;
+            stickyDock.GetComponent<MeshRenderer>().enabled = true;
+        }
+            
         InteractableManager.EventReceived += OnEvent;
     }
 
@@ -341,6 +347,15 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
         {
             stickyDock.gameObject.SetActive(false);
         }
+        else
+        {
+            stickyDock.GetComponent<MeshRenderer>().enabled = false;
+        }
+
+        if (stickyDock.Data.occupied)
+        {
+            stickyDock.Data.gameObject.GetComponent<XRGrabInteractable>().enabled = false;
+        }
 
         InteractableManager.EventReceived -= OnEvent;
     }
@@ -445,14 +460,14 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
         switch (eventType)
         {
             case EventType.OnSelectEntered:
-                if (interactable.CompareTag("Flashlight"))
+                if (IsHeld && interactable.CompareTag("Flashlight"))
                 {
                     stickyDock.gameObject.SetActive(true);
                 }
                 break;
 
             case EventType.OnSelectExited:
-                if (interactable.CompareTag("Flashlight"))
+                if (IsHeld && interactable.CompareTag("Flashlight"))
                 {
                     if (!dockedOccupied)
                     {

@@ -28,6 +28,10 @@ public class StickyDockManager : DockManager
     [SerializeField] Material defaultMaterial;
     [SerializeField] Material highlightMaterial;
 
+    [Header("Audio")]
+    [SerializeField] AudioClip dockClip;
+    [SerializeField] AudioClip undockClip;
+
     [Header("Debug")]
     [SerializeField] bool enableLogging = false;
 
@@ -98,6 +102,16 @@ public class StickyDockManager : DockManager
             }
         }
     }
+
+    // public void ShowTrackingVolume()
+    // {
+    //     trackedInteractable.ShowTrackingVolume();
+    // }
+
+    // public void HideTrackingVolume()
+    // {
+    //     trackedInteractable.HideTrackingVolume();
+    // }
 
     private void MarkTrackedObject(InteractableManager interactable)
     {
@@ -202,6 +216,7 @@ public class StickyDockManager : DockManager
         interactable.transform.localRotation = Quaternion.identity;
         interactable.transform.Rotate(adjustedRotation, Space.Self);
         
+        AudioSource.PlayClipAtPoint(dockClip, transform.position, 1.0f);
         trackedInteractable.HideTrackingVolume();
         HighlightDock(false);
 
@@ -233,6 +248,7 @@ public class StickyDockManager : DockManager
     {
         Log($"{Time.time} {gameObject.name} {className} OnEvent.UndockInteractable");
 
+        AudioSource.PlayClipAtPoint(undockClip, transform.position, 1.0f);
         trackedInteractable.ShowTrackingVolume();
         HighlightDock(true);
 
