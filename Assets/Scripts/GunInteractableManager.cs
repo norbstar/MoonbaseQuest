@@ -91,7 +91,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
         ResolveDependencies();
         CacheGunState();
 
-        stickyDock.EventReceived += OnAttachedEvent;
+        stickyDock.EventReceived += OnDockEvent;
 
         mixedLayerMask = LayerMask.GetMask("Default") | LayerMask.GetMask("Asteroid Layer");
         overheatCanvasManager.SetMaxValue(overLoadThreshold);
@@ -419,7 +419,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
             case Intent.Engaged:
                 if (this.intent != Intent.Engaged)
                 {
-                    manager.SetState(FlashlightInteractableManager.State.On);
+                    manager.State = FlashlightInteractableManager.ActiveState.On;
                     AudioSource.PlayClipAtPoint(engagedClip, transform.position, 1.0f);
                     hudCanvasManager.SetIntent(intent);
                     this.intent = intent;
@@ -429,7 +429,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
             case Intent.Disengaged:
                 if (this.intent != Intent.Disengaged)
                 {
-                    manager.SetState(FlashlightInteractableManager.State.Off);
+                    manager.State = FlashlightInteractableManager.ActiveState.Off;
                     AudioSource.PlayClipAtPoint(disengagedClip, transform.position, 1.0f);
                     hudCanvasManager.SetIntent(intent);
                     this.intent = intent;
@@ -463,19 +463,36 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
         }
     }
 
-    public void OnAttachedEvent(StickyDockManager manager, StickyDockManager.EventType eventType, GameObject gameObject)
+    public void OnDockEvent(StickyDockManager manager, StickyDockManager.EventType eventType, GameObject gameObject)
     {
-        Debug.Log($"{this.gameObject.name}.OnAttachedEvent:[{gameObject.name}]:Type : {eventType}");
+        Debug.Log($"{this.gameObject.name}.OnDockEvent:[{gameObject.name}]:Type : {eventType}");
 
         switch (eventType)
         {
             case StickyDockManager.EventType.OnDocked:
+                stickyDock.gameObject.SetActive(true);
+                
+                FlashlightInteractableManager flashlightManager = gameObject.GetComponent<FlashlightInteractableManager>() as FlashlightInteractableManager;
+
+                if (flashlightManager.State == FlashlightInteractableManager.ActiveState.On)
+                {
+                    hudCanvasManager.SetIntent(Intent.Engaged);
+                    this.intent = Intent.Engaged;
+                }
+                else
+                {
+                    hudCanvasManager.SetIntent(Intent.Disengaged);
+                    this.intent = Intent.Disengaged;
+                }
+                
                 dockedOccupied = true;
                 docked = gameObject;
-                stickyDock.gameObject.SetActive(true);
                 break;
 
             case StickyDockManager.EventType.OnUndocked:
+                hudCanvasManager.SetIntent(Intent.Disengaged);
+                this.intent = Intent.Disengaged;
+                
                 dockedOccupied = false;
                 docked = null;
                 break;

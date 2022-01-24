@@ -30,6 +30,8 @@ public class FocusableUI : ObservableUI
     {
         base.Update();
 
+        if (isDisabled) return;
+
         if (inRange)
         {
             if (distance <= transitionDistance)

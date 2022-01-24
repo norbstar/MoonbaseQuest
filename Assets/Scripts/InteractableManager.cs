@@ -28,10 +28,14 @@ public class InteractableManager : MonoBehaviour, IInteractable
     [SerializeField] Transform originTransform;
     [SerializeField] GameObject trackingVolume;
 
+    [Header("Other")]
+    [SerializeField] FocusableUI focusableUI;
+
     public delegate void Event(InteractableManager interactable, EventType type);
     public static event Event EventReceived;
     
     public bool IsHeld { get { return isHeld; } }
+    public bool IsDocked { get { return isDocked; } }
     public Transform OriginTransform { get { return originTransform; } }
     public List<Collider> Colliders { get { return interactable.colliders; } }
 
@@ -41,7 +45,7 @@ public class InteractableManager : MonoBehaviour, IInteractable
     protected Transform objects;
     protected TestCaseRunner testCaseRunner;
     private Cache cache;
-    private bool isHeld;
+    private bool isHeld, isDocked;
     private bool enableTracking;
 
     protected virtual void Awake()
@@ -177,6 +181,12 @@ public class InteractableManager : MonoBehaviour, IInteractable
 
         controller = default(HandController);
         return false;
+    }
+
+    public void OnDockStatusChange(bool isDocked)
+    {
+        this.isDocked = isDocked;
+        focusableUI.SetActive(!isDocked);
     }
 
     protected void Log(string message)

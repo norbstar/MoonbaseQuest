@@ -4,7 +4,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 [RequireComponent(typeof(XRGrabInteractable))]
 public class FlashlightInteractableManager : FocusableInteractableManager
 {
-    public enum State
+    public enum ActiveState
     {
         Off,
         On
@@ -21,26 +21,33 @@ public class FlashlightInteractableManager : FocusableInteractableManager
     [SerializeField] AudioClip buttonClip;
 
     [Header("Config")]
-    [SerializeField] State startState;
+    [SerializeField] ActiveState startState;
 
-    private State state;
+    private ActiveState state;
 
     // Start is called before the first frame update
     void Start()
     {
-        SetState(startState);
-        spotlight.SetActive(state == State.On);
+        State = startState;
+        spotlight.SetActive(state == ActiveState.On);
     }
 
     public void OnActivated(ActivateEventArgs args)
     {
         AudioSource.PlayClipAtPoint(buttonClip, transform.position, 1.0f);
-        SetState((state == State.Off) ? State.On : State.Off);
+        State = (state == ActiveState.Off) ? ActiveState.On : ActiveState.Off;
     }
 
-    public void SetState(State state)
-    {
-        this.state = state;
-        spotlight.SetActive(state == State.On);
+    public ActiveState State {
+        get
+        {
+            return state;
+        }
+
+        set
+        {
+            state = value;
+            spotlight.SetActive(state == ActiveState.On);
+        }
     }
 }
