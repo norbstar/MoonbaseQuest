@@ -228,7 +228,11 @@ public class StickyDockManager : DockManager
 
         isDocked = true;
         interactable.OnDockStatusChange(isDocked);
-        EventReceived(this, EventType.OnDocked, interactable.gameObject);
+        
+        if (EventReceived != null)
+        {
+            EventReceived(this, EventType.OnDocked, interactable.gameObject);
+        }
     }
 
     private void DampenVelocity(GameObject gameObject)
@@ -260,7 +264,11 @@ public class StickyDockManager : DockManager
 
         isDocked = false;
         interactable.OnDockStatusChange(isDocked);
-        EventReceived(this, EventType.OnUndocked, interactable.gameObject);
+
+        if (EventReceived != null)
+        {
+            EventReceived(this, EventType.OnUndocked, interactable.gameObject);
+        }
     }
 
     private void Log(string message)
