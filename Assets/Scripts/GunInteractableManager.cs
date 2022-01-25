@@ -459,7 +459,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     public void OnEvent(InteractableManager interactable, EventType eventType)
     {
-        Debug.Log($"{this.gameObject.name}.OnEvent:[{interactable.name}]:Type : {eventType}");
+        Log($"{this.gameObject.name}.OnEvent:[{interactable.name}]:Type : {eventType}");
 
         switch (eventType)
         {
@@ -484,7 +484,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     public void OnDockEvent(StickyDockManager manager, StickyDockManager.EventType eventType, GameObject gameObject)
     {
-        Debug.Log($"{this.gameObject.name}.OnDockEvent:[{gameObject.name}]:Type : {eventType}");
+        Log($"{this.gameObject.name}.OnDockEvent:[{gameObject.name}]:Type : {eventType}");
 
         switch (eventType)
         {

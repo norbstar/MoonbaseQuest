@@ -18,6 +18,7 @@ public class MilitaryTargetManager : MonoBehaviour, IInteractableEvent
     [SerializeField] bool enableLogging = false;
 
     private Rigidbody rigidBody;
+    private MilitaryTargetPointMap pointMap;
 
     void Awake()
     {
@@ -27,6 +28,7 @@ public class MilitaryTargetManager : MonoBehaviour, IInteractableEvent
     private void ResolveDependencies()
     {
         rigidBody = GetComponent<Rigidbody>() as Rigidbody;
+        pointMap = GetComponent<MilitaryTargetPointMap>() as MilitaryTargetPointMap;
     }
 
     public void OnActivate(XRGrabInteractable interactable, Vector3 hitPoint)
@@ -38,7 +40,14 @@ public class MilitaryTargetManager : MonoBehaviour, IInteractableEvent
         instance.transform.parent = transform;
         instance.transform.localRotation = transform.localRotation;
 
-        scoreCanvasManager?.AddToScore(points);
+        if ((pointMap != null) && (pointMap.TryGetValueFromPoint(instance.transform, out var value)))
+        {
+            scoreCanvasManager?.AddToScore(value);
+        }
+        else
+        {
+            scoreCanvasManager?.AddToScore(points);
+        }
 
         Destroy(instance, 1.0f);
     }
