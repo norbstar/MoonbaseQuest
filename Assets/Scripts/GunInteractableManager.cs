@@ -33,7 +33,6 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     public static InputDeviceCharacteristics RightHand = (InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Right);
     public static InputDeviceCharacteristics LeftHand = (InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Left);
 
-    [SerializeField] new Camera camera;
     [SerializeField] Animator animator;
     [SerializeField] GameObject spawnPoint;
     [SerializeField] GameObject laserPrefab, laserFXPrefab;
@@ -65,6 +64,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     [SerializeField] AudioClip engagedClip;
     [SerializeField] AudioClip disengagedClip;
 
+    private new Camera camera;
     private CurveCreator curveCreator;
     private MainCameraManager mainCameraManager;
     private HipDocksManager hipDocksManager;
@@ -89,6 +89,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     {
         base.Awake();
         
+        camera = Camera.main;
         ResolveDependencies();
         CacheGunState();
 
