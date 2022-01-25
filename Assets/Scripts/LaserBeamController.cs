@@ -55,7 +55,6 @@ public class LaserBeamController : MonoBehaviour
     private void HandleInteraction(GameObject trigger)
     {
         // Debug.Log($"{gameObject.name}.HandleInteraction:{trigger.name}");
-        // Console.Log($"{gameObject.name}.HandleInteraction:{trigger.name}");
 
         if (trigger.CompareTag("Asteroid") && gameManager.GameState == GameManager.State.InPlay)
         {

@@ -14,8 +14,10 @@ public class DroneTargetManager : TargetManager, IDamage
         // TODO
     }
 
-    public override void Activate(XRGrabInteractable interactable)
+    public override void Activate(XRGrabInteractable interactable, Vector3 hitPoint)
     {
+        // Debug.Log($"{gameObject.name}.OnActivate:{interactable.name} {hitPoint}");
+
         Destroy(gameObject.transform.parent.gameObject);
     }
 

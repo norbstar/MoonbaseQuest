@@ -81,9 +81,9 @@ public class StartButton : FocusableManager, IInteractableEvent
         }));
     }
 
-    public void OnActivate(XRGrabInteractable interactable)
+    public void OnActivate(XRGrabInteractable interactable, Vector3 hitPoint)
     {
-        // Console.Log($"{gameObject.name}.OnActivate:{interactable.name}");
+        // Debug.Log($"{gameObject.name}.OnActivate:{interactable.name} {hitPoint}");
 
         AudioSource.PlayClipAtPoint(hitClip, transform.position, 1.0f);
         EventReceived(Event.OnTrigger);

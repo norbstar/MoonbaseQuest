@@ -5,11 +5,11 @@ public abstract class TargetManager : MonoBehaviour, IInteractableEvent
 {
     [SerializeField] AudioClip hitClip;
 
-    public void OnActivate(XRGrabInteractable interactable)
+    public void OnActivate(XRGrabInteractable interactable, Vector3 hitPoint)
     {
         AudioSource.PlayClipAtPoint(hitClip, transform.position, 1.0f);
-        Activate(interactable);
+        Activate(interactable, hitPoint);
     }
 
-    public abstract void Activate(XRGrabInteractable interactable);
+    public abstract void Activate(XRGrabInteractable interactable, Vector3 hitPoint);
 }

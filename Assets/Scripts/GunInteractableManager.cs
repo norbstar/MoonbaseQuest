@@ -71,6 +71,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     private Vector3 defaultPosition;
     private Quaternion defaultRotation;
     private GameObject lastObjectHit;
+    private Vector3 lastObjectHitPoint;
     private IFocus lastFocus;
     private GameObject hitPrefabInstance;
     private int mixedLayerMask;
@@ -161,6 +162,8 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
                 lastObjectHit = objectHit;
             }
+
+            lastObjectHitPoint = point;
         }
         else
         {
@@ -172,6 +175,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
             hitPrefabInstance?.SetActive(false);
             lastObjectHit = null;
+            lastObjectHitPoint = default(Vector3);
         }
     }
 
@@ -277,7 +281,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
         if ((lastObjectHit != null) && (lastObjectHit.TryGetComponent<IInteractableEvent>(out IInteractableEvent interactableEvent)))
         {
-            interactableEvent.OnActivate(interactable);
+            interactableEvent.OnActivate(interactable, lastObjectHitPoint);
         }
 
         hudCanvasManager.DecrementAmmoCount();

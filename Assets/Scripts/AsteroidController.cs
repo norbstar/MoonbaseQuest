@@ -43,9 +43,9 @@ public class AsteroidController : MonoBehaviour, IInteractableEvent, IDamage
         child.transform.Rotate(Vector3.up * Time.deltaTime * Random.Range(maxRotationSpeed / 4, maxRotationSpeed), Space.Self);
     }
 
-    public void OnActivate(XRGrabInteractable interactable)
+    public void OnActivate(XRGrabInteractable interactable, Vector3 hitPoint)
     {
-        // Console.Log($"{gameObject.name}.OnActivate:{interactable.name}");
+        // Debug.Log($"{gameObject.name}.OnActivate:{interactable.name} {hitPoint}");
 
         if (gameManager.GameState == GameManager.State.InPlay)
         {

@@ -18,10 +18,12 @@ public class HandController : MonoBehaviour
         None = 0,
         Trigger = 1,
         Grip = 2,
-        ThumbStick_Left = 4,
-        ThumbStick_Right = 8,
-        ThumbStick_Up = 16,
-        ThumbStick_Down = 32
+        ButtonA = 4,
+        ButtonB = 8,
+        ThumbStick_Left = 16,
+        ThumbStick_Right = 32,
+        ThumbStick_Up = 64,
+        ThumbStick_Down = 128
     }
 
     [SerializeField] InputDeviceCharacteristics characteristics;

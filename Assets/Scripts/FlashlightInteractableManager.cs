@@ -13,10 +13,6 @@ public class FlashlightInteractableManager : FocusableInteractableManager
     [Header("Components")]
     [SerializeField] GameObject spotlight;
 
-    [Header("Hits")]
-    [SerializeField] bool showHits;
-    [SerializeField] GameObject hitPrefab;
-
     [Header("Audio")]
     [SerializeField] AudioClip buttonClip;
 

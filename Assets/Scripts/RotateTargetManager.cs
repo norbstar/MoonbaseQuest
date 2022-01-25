@@ -17,8 +17,10 @@ public class RotateTargetManager : TargetManager, IDamage
         animator = GetComponent<Animator>() as Animator;
     }
 
-    public override void Activate(XRGrabInteractable interactable)
+    public override void Activate(XRGrabInteractable interactable, Vector3 hitPoint)
     {
+        // Debug.Log($"{gameObject.name}.OnActivate:{interactable.name} {hitPoint}");
+
         animator.SetTrigger("rotate");
     }
 
