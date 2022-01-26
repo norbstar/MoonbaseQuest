@@ -18,12 +18,13 @@ public class HandController : MonoBehaviour
         None = 0,
         Trigger = 1,
         Grip = 2,
-        ButtonA = 4,
-        ButtonB = 8,
+        ButtonAX = 4,
+        ButtonBY = 8,
         ThumbStick_Left = 16,
         ThumbStick_Right = 32,
         ThumbStick_Up = 64,
-        ThumbStick_Down = 128
+        ThumbStick_Down = 128,
+        Menu = 256
     }
 
     [SerializeField] InputDeviceCharacteristics characteristics;
@@ -38,6 +39,10 @@ public class HandController : MonoBehaviour
     [SerializeField] float gripThreshold = 0.9f;
     [SerializeField] Vector2 thumbStickThreshold = new Vector2(0.9f, 0.9f);
 
+    [Header("Stats")]
+    [SerializeField] private bool isHovering = false;
+    [SerializeField] private bool isHolding = false;
+
     [Header("Debug")]
     [SerializeField] bool enableLogging = false;
 
@@ -48,8 +53,8 @@ public class HandController : MonoBehaviour
     private MainCameraManager cameraManager;
     private InputDevice controller;
     private XRController xrController;
-    private bool isHovering = false;
-    private bool isHolding = false;
+    // private bool isHovering = false;
+    // private bool isHolding = false;
     private GameObject interactable;
     private DebugCanvas debugCanvas;
     private Gesture state;
@@ -84,7 +89,7 @@ public class HandController : MonoBehaviour
 
         if (controller.isValid)
         {
-            Log($"{Time.time} {gameObject.name} {className} ResolveController:{controller.name}.Detected");
+            Log($"{gameObject.name} {className} ResolveController:{controller.name}.Detected");
 
             SetState(Gesture.None);
         }
@@ -93,7 +98,7 @@ public class HandController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Log($"{gameObject.name} {className} Status:IsHovering {isHovering} IsHolding {isHolding}");
+        Log($"{gameObject.name} {className} State:Hovering {isHovering} Holding {isHolding}");
         
         if (!controller.isValid)
         {
@@ -129,7 +134,7 @@ public class HandController : MonoBehaviour
                 {
                     if (obj.TryGetComponent<InteractableManager>(out InteractableManager interactable))
                     {
-                        Log($"{Time.time} {gameObject.name} {className}.Grip.Teleport:{obj.name}");
+                        Log($"{gameObject.name} {className}.Grip.Teleport:{obj.name}");
                         StartCoroutine(TeleportGrabbable(obj));
                     }
                 }
@@ -139,6 +144,34 @@ public class HandController : MonoBehaviour
             else
             {
                 state &= ~Gesture.Grip;
+            }
+        }
+
+        if (controller.TryGetFeatureValue(CommonUsages.primaryButton, out bool buttonAXValue))
+        {
+            Log($"{gameObject.name} {className}.AXButton.Pressed:{buttonAXValue}");
+
+            if (buttonAXValue)
+            {
+                state |= Gesture.ButtonAX;
+            }
+            else
+            {
+                state &= ~Gesture.ButtonAX;
+            }
+        }
+
+        if (controller.TryGetFeatureValue(CommonUsages.secondaryButton, out bool buttonBYValue))
+        {
+            Log($"{gameObject.name} {className}.BYButton.Pressed:{buttonBYValue}");
+
+            if (buttonBYValue)
+            {
+                state |= Gesture.ButtonBY;
+            }
+            else
+            {
+                state &= ~Gesture.ButtonBY;
             }
         }
 
@@ -185,7 +218,21 @@ public class HandController : MonoBehaviour
             }
         }
 
-        if (state != lastState) Log($"{Time.time} {gameObject.name} {className}.State:{state}");
+        if (controller.TryGetFeatureValue(CommonUsages.menuButton, out bool menuButtonValue))
+        {
+            Log($"{gameObject.name} {className}.MenuButton.Pressed:{menuButtonValue}");
+
+            if (menuButtonValue)
+            {
+                state |= Gesture.Menu;
+            }
+            else
+            {
+                state &= ~Gesture.Menu;
+            }
+        }
+
+        if (state != lastState) Log($"{gameObject.name} {className}.State:{state}");
     }
 
     private void SetState(Gesture state)

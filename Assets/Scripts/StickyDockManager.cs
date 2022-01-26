@@ -183,7 +183,7 @@ public class StickyDockManager : DockManager
         switch (type)
         {
             case InteractableManager.EventType.OnSelectEntered:
-                Log($"{Time.time} {gameObject.name} {className} OnEvent.OnSelectEntered");
+                Log($"{gameObject.name} {className} OnEvent.OnSelectEntered");
 
                 if (Object.ReferenceEquals(Data.gameObject, interactable.gameObject))
                 {
@@ -193,7 +193,7 @@ public class StickyDockManager : DockManager
                 break;
 
             case InteractableManager.EventType.OnSelectExited:
-                Log($"{Time.time} {gameObject.name} {className} OnEvent.OnSelectExited");
+                Log($"{gameObject.name} {className} OnEvent.OnSelectExited");
 
                 if (Data.occupied) return;
 
@@ -207,7 +207,7 @@ public class StickyDockManager : DockManager
 
     private void DockInteractable(InteractableManager interactable)
     {
-        Log($"{Time.time} {gameObject.name} {className} OnEvent.DockInteractable");
+        Log($"{gameObject.name} {className} OnEvent.DockInteractable");
 
         DampenVelocity(interactable.gameObject);
 
@@ -237,7 +237,7 @@ public class StickyDockManager : DockManager
 
     private void DampenVelocity(GameObject gameObject)
     {
-        Log($"{Time.time} {gameObject.name} {className} OnEvent.DampenVelocity");
+        Log($"{gameObject.name} {className} OnEvent.DampenVelocity");
 
         if (gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidBody))
         {
@@ -250,7 +250,7 @@ public class StickyDockManager : DockManager
 
     private void UndockInteractable(InteractableManager interactable)
     {
-        Log($"{Time.time} {gameObject.name} {className} OnEvent.UndockInteractable");
+        Log($"{gameObject.name} {className} OnEvent.UndockInteractable");
 
         AudioSource.PlayClipAtPoint(undockClip, transform.position, 1.0f);
         trackedInteractable.ShowTrackingVolume();
