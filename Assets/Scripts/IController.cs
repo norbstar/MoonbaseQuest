@@ -1,4 +1,6 @@
 public interface IController
 {
-    void SetState(HandController.Gesture gesture);
+    void SetGestureState(HandController.Gesture gesture);
+
+    void SetHandGestureState(HandGestureCanvasManager.Gesture gesture);
 }

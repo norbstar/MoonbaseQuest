@@ -57,8 +57,7 @@ public class HandController : MonoBehaviour
     // private bool isHolding = false;
     private GameObject interactable;
     private DebugCanvas debugCanvas;
-    private Gesture state;
-    private Gesture lastState;
+    private Gesture gesture, lastGesture;
     private IController controllerCanvasManager;
     private TestCaseRunner testCaseRunner;
 
@@ -92,7 +91,7 @@ public class HandController : MonoBehaviour
         {
             Log($"{gameObject.name} {className} ResolveController:{controller.name}.Detected");
 
-            SetState(Gesture.None);
+            SetGesture(Gesture.None);
         }
     }
 
@@ -109,24 +108,24 @@ public class HandController : MonoBehaviour
 
         if (characteristics.HasFlag(InputDeviceCharacteristics.Left))
         {
-            var manager = GameObject.FindObjectOfType(typeof(LeftControllerCanvasManager));
+            var controllerManager = GameObject.FindObjectOfType(typeof(LeftControllerCanvasManager));
             
-            if (manager != null)
+            if (controllerManager != null)
             {
-                controllerCanvasManager = (IController) manager;
+                controllerCanvasManager = (IController) controllerManager;
             }
         }
         else
         {
-            var manager = GameObject.FindObjectOfType(typeof(RightControllerCanvasManager));
+            var controllerManager = GameObject.FindObjectOfType(typeof(RightControllerCanvasManager));
             
-            if (manager != null)
+            if (controllerManager != null)
             {
-                controllerCanvasManager = (IController) manager;
+                controllerCanvasManager = (IController) controllerManager;
             }
         }
 
-        lastState = state;
+        lastGesture = gesture;
 
         if (controller.TryGetFeatureValue(CommonUsages.trigger, out float triggerValue))
         {
@@ -135,11 +134,11 @@ public class HandController : MonoBehaviour
 
             if (triggerValue >= triggerThreshold)
             {
-                state |= Gesture.Trigger;
+                gesture |= Gesture.Trigger;
             }
             else
             {
-                state &= ~Gesture.Trigger;
+                gesture &= ~Gesture.Trigger;
             }
         }
 
@@ -150,7 +149,7 @@ public class HandController : MonoBehaviour
 
             if (gripValue >= gripThreshold)
             {
-                if (enableTeleport && (!isHovering) && (!state.HasFlag(Gesture.Grip)) && (cameraManager.TryGetObjectHit(out GameObject obj)))
+                if (enableTeleport && (!isHovering) && (!gesture.HasFlag(Gesture.Grip)) && (cameraManager.TryGetObjectHit(out GameObject obj)))
                 {
                     if (obj.TryGetComponent<InteractableManager>(out InteractableManager interactable))
                     {
@@ -159,11 +158,11 @@ public class HandController : MonoBehaviour
                     }
                 }
 
-                state |= Gesture.Grip;
+                gesture |= Gesture.Grip;
             }
             else
             {
-                state &= ~Gesture.Grip;
+                gesture &= ~Gesture.Grip;
             }
         }
 
@@ -173,11 +172,11 @@ public class HandController : MonoBehaviour
 
             if (buttonAXValue)
             {
-                state |= Gesture.Button_AX;
+                gesture |= Gesture.Button_AX;
             }
             else
             {
-                state &= ~Gesture.Button_AX;
+                gesture &= ~Gesture.Button_AX;
             }
         }
 
@@ -187,11 +186,11 @@ public class HandController : MonoBehaviour
 
             if (buttonBYValue)
             {
-                state |= Gesture.Button_BY;
+                gesture |= Gesture.Button_BY;
             }
             else
             {
-                state &= ~Gesture.Button_BY;
+                gesture &= ~Gesture.Button_BY;
             }
         }
 
@@ -199,42 +198,42 @@ public class HandController : MonoBehaviour
         {
             if (thumbStickValue.x <= -thumbStickThreshold.x)
             {
-                state |= Gesture.ThumbStick_Left;
+                gesture |= Gesture.ThumbStick_Left;
                 interactable?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Left);
             }
             else
             {
-                state &= ~Gesture.ThumbStick_Left;
+                gesture &= ~Gesture.ThumbStick_Left;
             }
             
             if (thumbStickValue.x > thumbStickThreshold.x)
             {
-                state |= Gesture.ThumbStick_Right;
+                gesture |= Gesture.ThumbStick_Right;
                 interactable?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Right);
             }
             else
             {
-                state &= ~Gesture.ThumbStick_Right;
+                gesture &= ~Gesture.ThumbStick_Right;
             }
 
             if (thumbStickValue.y <= -thumbStickThreshold.y)
             {
-                state |= Gesture.ThumbStick_Up;
+                gesture |= Gesture.ThumbStick_Up;
                 interactable?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Up);
             }
             else
             {
-                state &= ~Gesture.ThumbStick_Up;
+                gesture &= ~Gesture.ThumbStick_Up;
             }
             
             if (thumbStickValue.y > thumbStickThreshold.y)
             {
-                state |= Gesture.ThumbStick_Down;
+                gesture |= Gesture.ThumbStick_Down;
                 interactable?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Down);
             }
             else
             {
-                state &= ~Gesture.ThumbStick_Down;
+                gesture &= ~Gesture.ThumbStick_Down;
             }
         }
 
@@ -244,25 +243,52 @@ public class HandController : MonoBehaviour
 
             if (menuButtonValue)
             {
-                state |= Gesture.Menu_Oculus;
+                gesture |= Gesture.Menu_Oculus;
             }
             else
             {
-                state &= ~Gesture.Menu_Oculus;
+                gesture &= ~Gesture.Menu_Oculus;
             }
         }
 
         if (controllerCanvasManager != null)
         {
-            controllerCanvasManager.SetState(state);
+            controllerCanvasManager.SetGestureState(gesture);
         }
 
-        if (state != lastState) Log($"{gameObject.name} {className}.State:{state}");
+        UpdateHandGestureState();
+
+        if (gesture != lastGesture) Log($"{gameObject.name} {className}.State:{gesture}");
     }
 
-    private void SetState(Gesture state)
+    private void UpdateHandGestureState()
     {
-        this.state = state;
+        HandGestureCanvasManager.Gesture handGesture = HandGestureCanvasManager.Gesture.None;
+
+        if (isHovering)
+        {
+            handGesture |= HandGestureCanvasManager.Gesture.Hover;
+        }
+        else
+        {
+            handGesture &= ~HandGestureCanvasManager.Gesture.Hover;
+        }
+
+        if (isHolding)
+        {
+            handGesture |= HandGestureCanvasManager.Gesture.Grip;
+        }
+        else
+        {
+            handGesture &= ~HandGestureCanvasManager.Gesture.Grip;
+        }
+
+        controllerCanvasManager.SetHandGestureState(handGesture);
+    }
+
+    private void SetGesture(Gesture gesture)
+    {
+        this.gesture = gesture;
     }
 
     public void SetHovering(GameObject obj)

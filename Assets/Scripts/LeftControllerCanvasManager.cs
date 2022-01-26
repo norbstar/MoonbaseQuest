@@ -10,9 +10,12 @@ public class LeftControllerCanvasManager : MonoBehaviour, IController
     [SerializeField] GameObject x;
     [SerializeField] GameObject y;
 
+    [Header("Managers")]
+    [SerializeField] HandGestureCanvasManager handGestureCanvasManager;
+
     private HandController.Gesture lastGesture;
 
-    public void SetState(HandController.Gesture gesture)
+    public void SetGestureState(HandController.Gesture gesture)
     {
         SetTriggerState(gesture);
         SetGripState(gesture);
@@ -22,6 +25,11 @@ public class LeftControllerCanvasManager : MonoBehaviour, IController
         SetYState(gesture);
 
         lastGesture = gesture;
+    }
+
+    public void SetHandGestureState(HandGestureCanvasManager.Gesture gesture)
+    {
+        handGestureCanvasManager.SetGestureState(gesture);
     }
 
     private void SetTriggerState(HandController.Gesture gesture)
