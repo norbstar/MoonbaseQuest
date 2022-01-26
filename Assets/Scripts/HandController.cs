@@ -18,13 +18,13 @@ public class HandController : MonoBehaviour
         None = 0,
         Trigger = 1,
         Grip = 2,
-        ButtonAX = 4,
-        ButtonBY = 8,
+        Button_AX = 4,
+        Button_BY = 8,
         ThumbStick_Left = 16,
         ThumbStick_Right = 32,
         ThumbStick_Up = 64,
         ThumbStick_Down = 128,
-        Menu = 256
+        Menu_Oculus = 256
     }
 
     [SerializeField] InputDeviceCharacteristics characteristics;
@@ -59,6 +59,7 @@ public class HandController : MonoBehaviour
     private DebugCanvas debugCanvas;
     private Gesture state;
     private Gesture lastState;
+    private IController controllerCanvasManager;
     private TestCaseRunner testCaseRunner;
 
     void Awake()
@@ -104,6 +105,25 @@ public class HandController : MonoBehaviour
         {
             ResolveController();
             if (!controller.isValid) return;
+        }
+
+        if (characteristics.HasFlag(InputDeviceCharacteristics.Left))
+        {
+            var manager = GameObject.FindObjectOfType(typeof(LeftControllerCanvasManager));
+            
+            if (manager != null)
+            {
+                controllerCanvasManager = (IController) manager;
+            }
+        }
+        else
+        {
+            var manager = GameObject.FindObjectOfType(typeof(RightControllerCanvasManager));
+            
+            if (manager != null)
+            {
+                controllerCanvasManager = (IController) manager;
+            }
         }
 
         lastState = state;
@@ -153,11 +173,11 @@ public class HandController : MonoBehaviour
 
             if (buttonAXValue)
             {
-                state |= Gesture.ButtonAX;
+                state |= Gesture.Button_AX;
             }
             else
             {
-                state &= ~Gesture.ButtonAX;
+                state &= ~Gesture.Button_AX;
             }
         }
 
@@ -167,11 +187,11 @@ public class HandController : MonoBehaviour
 
             if (buttonBYValue)
             {
-                state |= Gesture.ButtonBY;
+                state |= Gesture.Button_BY;
             }
             else
             {
-                state &= ~Gesture.ButtonBY;
+                state &= ~Gesture.Button_BY;
             }
         }
 
@@ -224,12 +244,17 @@ public class HandController : MonoBehaviour
 
             if (menuButtonValue)
             {
-                state |= Gesture.Menu;
+                state |= Gesture.Menu_Oculus;
             }
             else
             {
-                state &= ~Gesture.Menu;
+                state &= ~Gesture.Menu_Oculus;
             }
+        }
+
+        if (controllerCanvasManager != null)
+        {
+            controllerCanvasManager.SetState(state);
         }
 
         if (state != lastState) Log($"{gameObject.name} {className}.State:{state}");
