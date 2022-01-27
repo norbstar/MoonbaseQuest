@@ -441,10 +441,10 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
         switch (eventType)
         {
             case SocketInteractorManager.EventType.OnDocked:
-                var dockedInteractable = manager.Data.gameObject;
-
-                if (dockedInteractable.TryGetComponent<FlashlightInteractableManager>(out var flashlightManager))
+                if (gameObject.TryGetComponent<FlashlightInteractableManager>(out var flashlightManager))
                 {
+                    Log("Yeah!!!");
+
                     if (flashlightManager.State == FlashlightInteractableManager.ActiveState.On)
                     {
                         hudCanvasManager.SetIntent(Intent.Engaged);
@@ -458,6 +458,10 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
                     
                     dockedOccupied = true;
                     docked = gameObject;
+                }
+                else
+                {
+                    Log("Oops!!!");
                 }
                 break;
 

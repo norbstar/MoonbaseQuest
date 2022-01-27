@@ -64,8 +64,8 @@ public class SocketInteractorManager : MonoBehaviour
 
     public void OnSelectEntered(SelectEnterEventArgs args)
     {
-        Log($"{Time.time} {gameObject.name} {className} OnSelectEntered");
-        interactor = args.interactorObject.transform.gameObject;
+        interactor = args.interactableObject.transform.gameObject;
+        Log($"{Time.time} {gameObject.name} {className} OnSelectEntered:Interactor Object : {args.interactorObject} Interactor : {interactor}");
         visualElement.enabled = false;
 
         Data = new OccupancyData
@@ -85,7 +85,7 @@ public class SocketInteractorManager : MonoBehaviour
      public void OnSelectExited(SelectExitEventArgs args)
     {
         Log($"{Time.time} {gameObject.name} {className} OnSelectExited");
-        interactor = args.interactorObject.transform.gameObject;
+        interactor = args.interactableObject.transform.gameObject;
         visualElement.enabled = true;
 
         Data = new OccupancyData
@@ -95,7 +95,7 @@ public class SocketInteractorManager : MonoBehaviour
         };
 
         isDocked = false;
-        
+
         if (EventReceived != null)
         {
             EventReceived(this, EventType.OnUndocked, interactor);

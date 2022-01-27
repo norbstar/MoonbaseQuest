@@ -21,11 +21,11 @@ public class InteractableManager : MonoBehaviour, IInteractable
         OnSelectExited
     }
 
+    [Header("Focus")]
+    [SerializeField] FocusableUI focusableUI;
+
     [Header("Debug")]
     [SerializeField] bool enableLogging = false;
-
-    [Header("Other")]
-    [SerializeField] FocusableUI focusableUI;
 
     public delegate void Event(InteractableManager interactable, EventType type);
     public static event Event EventReceived;

@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,6 +9,8 @@ using TMPro;
 [RequireComponent(typeof(Canvas))]
 public class GunHUDCanvasManager : MonoBehaviour
 {
+    private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
+
     [SerializeField] int defaultLoadout = 16;
     [SerializeField] TextMeshProUGUI ammoTextUI;
     [SerializeField] Image modeUI;
@@ -16,6 +19,9 @@ public class GunHUDCanvasManager : MonoBehaviour
     [Header("Sprites")]
     [SerializeField] Sprite singleShot;
     [SerializeField] Sprite multiShot;
+
+    [Header("Debug")]
+    [SerializeField] bool enableLogging = false;
 
     public int AmmoCount {
         get
@@ -67,6 +73,14 @@ public class GunHUDCanvasManager : MonoBehaviour
 
     public void SetIntent(GunInteractableEnums.Intent intent)
     {
+        Log($"{this.gameObject.name}.SetIntent:Intent : {intent}");
+
         intentUI.enabled = (intent == GunInteractableEnums.Intent.Engaged);
+    }
+
+    private void Log(string message)
+    {
+        if (!enableLogging) return;
+        Debug.Log(message);
     }
 }
