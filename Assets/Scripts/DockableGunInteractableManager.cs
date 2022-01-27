@@ -10,7 +10,7 @@ using static GunInteractableEnums;
 
 [RequireComponent(typeof(XRGrabInteractable))]
 [RequireComponent(typeof(CurveCreator))]
-public class GunInteractableManager : FocusableInteractableManager, IGesture
+public class DockableGunInteractableManager : DockableFocusableInteractableManager, IGesture
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
@@ -38,8 +38,8 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     [Header("Over Load")]
     [SerializeField] float overLoadThreshold;
 
-    [Header("Sockets")]
-    [SerializeField] SocketInteractorManager socketInteractorManager;
+    [Header("Docking")]
+    [SerializeField] StickyDockManager stickyDock;
 
     [Header("Audio")]
     [SerializeField] AudioClip hitClip;
@@ -60,9 +60,9 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     private IFocus lastFocus;
     private GameObject hitPrefabInstance;
     private int mixedLayerMask;
-    private GunInteractableEnums.Mode mode;
-    private GunInteractableEnums.Intent intent;
-    private GunInteractableEnums.State state;
+    private Mode mode;
+    private Intent intent;
+    private State state;
     private Coroutine fireRepeatCoroutine;
     private float heat;
     private IList<float> heatValues;
@@ -78,7 +78,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
         ResolveDependencies();
         CacheGunState();
 
-        socketInteractorManager.EventReceived += OnSocketEvent;
+        stickyDock.EventReceived += OnDockEvent;
 
         mixedLayerMask = LayerMask.GetMask("Default") | LayerMask.GetMask("Asteroid Layer");
         overheatCanvasManager.SetMaxValue(overLoadThreshold);
@@ -197,28 +197,30 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
                 
                 if (interactable.CompareTag("Flashlight"))
                 {
-                    // stickyDock.gameObject.SetActive(true);
+                    stickyDock.gameObject.SetActive(true);
                 }
             }    
         }
 
-        // if (stickyDock.Data.occupied)
-        // {
-        //     stickyDock.Data.gameObject.GetComponent<XRGrabInteractable>().enabled = true;
-        //     stickyDock.GetComponent<MeshRenderer>().enabled = true;
-        // }
+        if (stickyDock.Data.occupied)
+        {
+            stickyDock.Data.gameObject.GetComponent<XRGrabInteractable>().enabled = true;
+            stickyDock.GetComponent<MeshRenderer>().enabled = true;
+        }
 
         if (enableGravityOnGrab)
         {
             enableGravityOnGrab = false;
-            cache.isKinematic = false;
-            cache.useGravity = true;
+            rigidBody.isKinematic = false;
+            rigidBody.useGravity = true;
         }
+            
+        DockableInteractableManager.EventReceived += OnEvent;
     }
 
     public void OnActivated(ActivateEventArgs args)
     {
-        if (mode == GunInteractableEnums.Mode.Manual)
+        if (mode == Mode.Manual)
         {
             FireOnce();
         }
@@ -337,6 +339,22 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
         {
             DockWeapon(controller);
         }
+
+        if (!dockedOccupied)
+        {
+            stickyDock.gameObject.SetActive(false);
+        }
+        else
+        {
+            stickyDock.GetComponent<MeshRenderer>().enabled = false;
+        }
+
+        if (stickyDock.Data.occupied)
+        {
+            stickyDock.Data.gameObject.GetComponent<XRGrabInteractable>().enabled = false;
+        }
+
+        DockableInteractableManager.EventReceived -= OnEvent;
     }
 
     private void DockWeapon(HandController controller)
@@ -401,67 +419,89 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     private void SetIntent(Intent intent)
     {
-        if (!socketInteractorManager.Data.occupied) return;
+        if (!stickyDock.Data.occupied) return;
 
         Log($"{gameObject.name} {className} Intent: {intent}");
 
-        var dockedObject = socketInteractorManager.Data.gameObject;
+        var dockedObject = stickyDock.Data.gameObject;
+        FlashlightInteractableManager manager = dockedObject.GetComponent<FlashlightInteractableManager>() as FlashlightInteractableManager;
 
-        if (dockedObject.TryGetComponent<FlashlightInteractableManager>(out var manager))
+        switch (intent)
         {
-            switch (intent)
-            {
-                case Intent.Engaged:
-                    if (this.intent != Intent.Engaged)
-                    {
-                        manager.State = FlashlightInteractableManager.ActiveState.On;
-                        AudioSource.PlayClipAtPoint(engagedClip, transform.position, 1.0f);
-                        hudCanvasManager.SetIntent(intent);
-                        this.intent = intent;
-                    }
-                    break;
-
-                case Intent.Disengaged:
-                    if (this.intent != Intent.Disengaged)
-                    {
-                        manager.State = FlashlightInteractableManager.ActiveState.Off;
-                        AudioSource.PlayClipAtPoint(disengagedClip, transform.position, 1.0f);
-                        hudCanvasManager.SetIntent(intent);
-                        this.intent = intent;
-                    }
-                    break;
-            }
-        }
-    }
-
-    public void OnSocketEvent(SocketInteractorManager manager, SocketInteractorManager.EventType eventType, GameObject gameObject)
-    {
-        Log($"{this.gameObject.name}.OnSocketEvent:GameObject : {gameObject.name} Type : {eventType}");
-
-        switch (eventType)
-        {
-            case SocketInteractorManager.EventType.OnDocked:
-                var dockedInteractable = manager.Data.gameObject;
-
-                if (dockedInteractable.TryGetComponent<FlashlightInteractableManager>(out var flashlightManager))
+            case Intent.Engaged:
+                if (this.intent != Intent.Engaged)
                 {
-                    if (flashlightManager.State == FlashlightInteractableManager.ActiveState.On)
-                    {
-                        hudCanvasManager.SetIntent(Intent.Engaged);
-                        this.intent = Intent.Engaged;
-                    }
-                    else
-                    {
-                        hudCanvasManager.SetIntent(Intent.Disengaged);
-                        this.intent = Intent.Disengaged;
-                    }
-                    
-                    dockedOccupied = true;
-                    docked = gameObject;
+                    manager.State = FlashlightInteractableManager.ActiveState.On;
+                    AudioSource.PlayClipAtPoint(engagedClip, transform.position, 1.0f);
+                    hudCanvasManager.SetIntent(intent);
+                    this.intent = intent;
                 }
                 break;
 
-            case SocketInteractorManager.EventType.OnUndocked:
+            case Intent.Disengaged:
+                if (this.intent != Intent.Disengaged)
+                {
+                    manager.State = FlashlightInteractableManager.ActiveState.Off;
+                    AudioSource.PlayClipAtPoint(disengagedClip, transform.position, 1.0f);
+                    hudCanvasManager.SetIntent(intent);
+                    this.intent = intent;
+                }
+                break;
+        }
+    }
+
+    public void OnEvent(DockableInteractableManager interactable, EventType eventType)
+    {
+        Log($"{this.gameObject.name}.OnEvent:[{interactable.name}]:Type : {eventType}");
+
+        switch (eventType)
+        {
+            case EventType.OnSelectEntered:
+                if (IsHeld && interactable.CompareTag("Flashlight"))
+                {
+                    stickyDock.gameObject.SetActive(true);
+                }
+                break;
+
+            case EventType.OnSelectExited:
+                if (IsHeld && interactable.CompareTag("Flashlight"))
+                {
+                    if (!dockedOccupied)
+                    {
+                        stickyDock.gameObject.SetActive(false);
+                    }
+                }
+                break;
+        }
+    }
+
+    public void OnDockEvent(StickyDockManager manager, StickyDockManager.EventType eventType, GameObject gameObject)
+    {
+        Log($"{this.gameObject.name}.OnDockEvent:[{gameObject.name}]:Type : {eventType}");
+
+        switch (eventType)
+        {
+            case StickyDockManager.EventType.OnDocked:
+                stickyDock.gameObject.SetActive(true);
+                
+                FlashlightInteractableManager flashlightManager = gameObject.GetComponent<FlashlightInteractableManager>() as FlashlightInteractableManager;
+
+                if (flashlightManager.State == FlashlightInteractableManager.ActiveState.On)
+                {
+                    hudCanvasManager.SetIntent(Intent.Engaged);
+                    this.intent = Intent.Engaged;
+                }
+                else
+                {
+                    hudCanvasManager.SetIntent(Intent.Disengaged);
+                    this.intent = Intent.Disengaged;
+                }
+                
+                dockedOccupied = true;
+                docked = gameObject;
+                break;
+
+            case StickyDockManager.EventType.OnUndocked:
                 hudCanvasManager.SetIntent(Intent.Disengaged);
                 this.intent = Intent.Disengaged;
                 

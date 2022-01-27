@@ -40,7 +40,7 @@ public class InteractableManager : MonoBehaviour, IInteractable
     protected Transform objects;
     protected TestCaseRunner testCaseRunner;
 
-    private Cache cache;
+    protected Cache cache;
     private bool isHeld, isDocked;
     private bool enableTracking;
 

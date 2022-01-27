@@ -9,7 +9,7 @@ public class GunReclaimation : MonoBehaviour
         
         if (trigger.CompareTag("Gun"))
         {
-            var manager = trigger.GetComponent<GunInteractableManager>() as GunInteractableManager;
+            var manager = trigger.GetComponent<DockableGunInteractableManager>() as DockableGunInteractableManager;
 
             if (manager != null)
             {

@@ -51,33 +51,22 @@ public class GunHUDCanvasManager : MonoBehaviour
         AmmoCount = ammoCount;
     }
 
-    public void SetMode(GunInteractableManager.Mode mode)
+    public void SetMode(GunInteractableEnums.Mode mode)
     {
         switch (mode)
         {
-            case GunInteractableManager.Mode.Manual:
+            case GunInteractableEnums.Mode.Manual:
                 modeUI.sprite = singleShot;
                 break;
 
-            case GunInteractableManager.Mode.Auto:
+            case GunInteractableEnums.Mode.Auto:
                 modeUI.sprite = multiShot;
                 break;
         }
     }
 
-    public void SetIntent(GunInteractableManager.Intent intent)
+    public void SetIntent(GunInteractableEnums.Intent intent)
     {
-        // switch (intent)
-        // {
-        //     case GunInteractableManager.Intent.Engaged:
-        //         intentUI.enabled = true;
-        //         break;
-
-        //     case GunInteractableManager.Intent.Disengaged:
-        //         intentUI.enabled = false;
-        //         break;
-        // }
-
-        intentUI.enabled = (intent == GunInteractableManager.Intent.Engaged);
+        intentUI.enabled = (intent == GunInteractableEnums.Intent.Engaged);
     }
 }

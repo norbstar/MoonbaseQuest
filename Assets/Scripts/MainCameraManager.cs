@@ -147,11 +147,11 @@ public class MainCameraManager : Gizmo
 
         var device = handController.GetInputDevice();
 
-        if (((int) device.characteristics) == ((int) GunInteractableManager.LeftHand))
+        if (((int) device.characteristics) == ((int) DockableGunInteractableManager.LeftHand))
         {
             otherHandController = rightHandController;
         }
-        else if (((int) device.characteristics) == ((int) GunInteractableManager.RightHand))
+        else if (((int) device.characteristics) == ((int) DockableGunInteractableManager.RightHand))
         {
             otherHandController = leftHandController;
         }

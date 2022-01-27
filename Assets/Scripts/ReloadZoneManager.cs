@@ -11,7 +11,7 @@ public class ReloadZoneManager : MonoBehaviour
         if (collider.gameObject.CompareTag("Gun"))
         {
             var parent = collider.transform.parent.parent;
-            var manager = parent.GetComponent<GunInteractableManager>() as GunInteractableManager;
+            var manager = parent.GetComponent<DockableGunInteractableManager>() as DockableGunInteractableManager;
             
             if ((manager != null) && (manager.IsHeld))
             {
