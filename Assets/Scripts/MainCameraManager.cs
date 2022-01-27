@@ -141,22 +141,24 @@ public class MainCameraManager : Gizmo
     }
 #endif
 
-    public HandController GetOppositeHandController(HandController handController)
+    public bool TryGetOppositeHandController(HandController handController, out HandController opposingController)
     {
-        HandController otherHandController = null;
-
         var device = handController.GetInputDevice();
 
         if (((int) device.characteristics) == ((int) DockableGunInteractableManager.LeftHand))
         {
-            otherHandController = rightHandController;
+            opposingController = rightHandController;
         }
         else if (((int) device.characteristics) == ((int) DockableGunInteractableManager.RightHand))
         {
-            otherHandController = leftHandController;
+            opposingController = leftHandController;
+        }
+        else
+        {
+            opposingController = null;
         }
 
-        return otherHandController;
+        return (opposingController != null);
     }
 
     private bool TryGetInteractable<IInteractable>(GameObject trigger, out IInteractable interactable)

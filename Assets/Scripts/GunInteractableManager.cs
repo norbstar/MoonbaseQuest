@@ -58,7 +58,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     private new Camera camera;
     private CurveCreator curveCreator;
-    private MainCameraManager mainCameraManager;
+    private MainCameraManager cameraManager;
     private HipDocksManager hipDocksManager;
     private Vector3 defaultPosition;
     private Quaternion defaultRotation;
@@ -97,10 +97,29 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     private void ResolveDependencies()
     {
         curveCreator = GetComponent<CurveCreator>() as CurveCreator;
-        mainCameraManager = camera.GetComponent<MainCameraManager>() as MainCameraManager;
-        hipDocksManager = mainCameraManager.HipDocksManager;
+        cameraManager = camera.GetComponent<MainCameraManager>() as MainCameraManager;
+        hipDocksManager = cameraManager.HipDocksManager;
         testCaseRunner = TestCaseRunner.GetInstance();
     }
+
+    // Update is called once per frame
+    // void Update()
+    // {
+    //     if (IsHeld && (TryGetController<HandController>(interactor, out HandController controller)))
+    //     {
+    //         var opposingController = cameraManager.GetOppositeHandController(controller);
+
+    //         if (opposingController.IsHolding)
+    //         {
+    //             var interactable = opposingController.Interactable;
+                
+    //             if (interactable.CompareTag("Flashlight"))
+    //             {
+    //                 // TODO
+    //             }
+    //         }
+    //     }
+    // }
 
     void FixedUpdate()
     {
@@ -195,25 +214,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
             }
 
             hudCanvasManager.gameObject.SetActive(true);
-            
-            var opposingController = mainCameraManager.GetOppositeHandController(controller);
-
-            if (opposingController.IsHolding)
-            {
-                var interactable = opposingController.Interactable;
-                
-                if (interactable.CompareTag("Flashlight"))
-                {
-                    // stickyDock.gameObject.SetActive(true);
-                }
-            }    
         }
-
-        // if (stickyDock.Data.occupied)
-        // {
-        //     stickyDock.Data.gameObject.GetComponent<XRGrabInteractable>().enabled = true;
-        //     stickyDock.GetComponent<MeshRenderer>().enabled = true;
-        // }
 
         if (enableGravityOnGrab)
         {

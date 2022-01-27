@@ -31,6 +31,9 @@ public class SocketInteractorManager : MonoBehaviour
     [Header("Status")]
     [SerializeField] private OccupancyData occupied;
 
+    [Header("Optional settings")]
+    [SerializeField] bool startEnabled = true;
+
     [Header("Debug")]
     [SerializeField] bool enableLogging = false;
 
@@ -41,12 +44,26 @@ public class SocketInteractorManager : MonoBehaviour
 
     public void Free() => occupied = new SocketInteractorManager.OccupancyData();
 
+    private XRSocketInteractor socketInteractor;
     private Transform objects;
     private bool canDock, isDocked;
 
     void Awake()
     {
+        ResolveDependencies();
         objects = GameObject.Find("Objects").transform;
+        SetEnabled(startEnabled);
+    }
+
+    private void ResolveDependencies()
+    {
+        socketInteractor = GetComponent<XRSocketInteractor>() as XRSocketInteractor;
+    }
+
+    public void SetEnabled(bool enabled)
+    {
+        visualElement.enabled = enabled;
+        socketInteractor.enabled = enabled;
     }
 
      public void OnHoverEntered(HoverEnterEventArgs args)

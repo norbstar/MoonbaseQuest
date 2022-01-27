@@ -51,7 +51,7 @@ public class DockableGunInteractableManager : DockableFocusableInteractableManag
 
     private new Camera camera;
     private CurveCreator curveCreator;
-    private MainCameraManager mainCameraManager;
+    private MainCameraManager cameraManager;
     private HipDocksManager hipDocksManager;
     private Vector3 defaultPosition;
     private Quaternion defaultRotation;
@@ -90,8 +90,8 @@ public class DockableGunInteractableManager : DockableFocusableInteractableManag
     private void ResolveDependencies()
     {
         curveCreator = GetComponent<CurveCreator>() as CurveCreator;
-        mainCameraManager = camera.GetComponent<MainCameraManager>() as MainCameraManager;
-        hipDocksManager = mainCameraManager.HipDocksManager;
+        cameraManager = camera.GetComponent<MainCameraManager>() as MainCameraManager;
+        hipDocksManager = cameraManager.HipDocksManager;
         testCaseRunner = TestCaseRunner.GetInstance();
     }
 
@@ -189,17 +189,18 @@ public class DockableGunInteractableManager : DockableFocusableInteractableManag
 
             hudCanvasManager.gameObject.SetActive(true);
             
-            var opposingController = mainCameraManager.GetOppositeHandController(controller);
-
-            if (opposingController.IsHolding)
+            if (cameraManager.TryGetOppositeHandController(controller, out HandController opposingController))
             {
-                var interactable = opposingController.Interactable;
-                
-                if (interactable.CompareTag("Flashlight"))
+                if (opposingController.IsHolding)
                 {
-                    stickyDock.gameObject.SetActive(true);
+                    var interactable = opposingController.Interactable;
+                    
+                    if (interactable.GetGameObject().CompareTag("Flashlight"))
+                    {
+                        stickyDock.gameObject.SetActive(true);
+                    }
                 }
-            }    
+            }
         }
 
         if (stickyDock.Data.occupied)

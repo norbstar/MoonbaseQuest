@@ -67,6 +67,28 @@ public class InteractableManager : MonoBehaviour, IInteractable
         testCaseRunner = TestCaseRunner.GetInstance();
     }
 
+    public GameObject GetGameObject()
+    {
+        return gameObject;
+    }
+
+    public void OnOpposingEvent(HandController.State state, IInteractable obj)
+    {
+        var name = (obj != null) ? obj.GetGameObject().name : "none";
+        Log($"{gameObject.name} {className}.OnOpposingEvent:State : {state} GameObject : {name}");
+        
+        switch (state)
+        {
+            case HandController.State.Hovering:
+                // TODO
+                break;
+
+            case HandController.State.Holding:
+                // TODO
+                break;
+        }
+    }
+
     public void OnHoverEntered(HoverEnterEventArgs args)
     {
         Log($"{Time.time} {gameObject.name} {className} OnHoverEntered");
@@ -77,7 +99,7 @@ public class InteractableManager : MonoBehaviour, IInteractable
 
         if (TryGetController<HandController>(interactor, out HandController controller))
         {
-            controller.SetHovering(gameObject);
+            controller.SetHovering(this);
             OnHoverEntered(args, controller);
         }
     }
@@ -109,7 +131,7 @@ public class InteractableManager : MonoBehaviour, IInteractable
 
         if (TryGetController<HandController>(interactor, out HandController controller))
         {
-            controller.SetHolding(gameObject);
+            controller.SetHolding(this);
             isHeld = true;
 
             OnSelectEntered(args, controller);

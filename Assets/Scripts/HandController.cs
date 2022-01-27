@@ -27,6 +27,12 @@ public class HandController : MonoBehaviour
         Menu_Oculus = 256
     }
 
+    public enum State
+    {
+        Hovering,
+        Holding
+    }
+
     [SerializeField] InputDeviceCharacteristics characteristics;
     [SerializeField] new Camera camera;
     
@@ -44,14 +50,14 @@ public class HandController : MonoBehaviour
 
     public InputDeviceCharacteristics Characteristics { get { return characteristics; } }
     public bool IsHolding { get { return isHolding; } }
-    public GameObject Interactable { get { return interactable; } }
+    public IInteractable Interactable { get { return interactable; } }
 
     private MainCameraManager cameraManager;
     private InputDevice controller;
     private XRController xrController;
     private bool isHovering = false;
     private bool isHolding = false;
-    private GameObject interactable;
+    private IInteractable interactable;
     private DebugCanvas debugCanvas;
     private Gesture gesture, lastGesture;
     private IController controllerCanvasManager;
@@ -94,7 +100,7 @@ public class HandController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Log($"{gameObject.name} {className} State:Hovering {isHovering} Holding {isHolding}");
+        // Log($"{gameObject.name} {className} State:Hovering {isHovering} Holding {isHolding}");
         
         if (!controller.isValid)
         {
@@ -164,7 +170,7 @@ public class HandController : MonoBehaviour
 
         if (controller.TryGetFeatureValue(CommonUsages.primaryButton, out bool buttonAXValue))
         {
-            Log($"{gameObject.name} {className}.AXButton.Pressed:{buttonAXValue}");
+            // Log($"{gameObject.name} {className}.AXButton.Pressed:{buttonAXValue}");
 
             if (buttonAXValue)
             {
@@ -178,7 +184,7 @@ public class HandController : MonoBehaviour
 
         if (controller.TryGetFeatureValue(CommonUsages.secondaryButton, out bool buttonBYValue))
         {
-            Log($"{gameObject.name} {className}.BYButton.Pressed:{buttonBYValue}");
+            // Log($"{gameObject.name} {className}.BYButton.Pressed:{buttonBYValue}");
 
             if (buttonBYValue)
             {
@@ -192,10 +198,12 @@ public class HandController : MonoBehaviour
 
         if (controller.TryGetFeatureValue(CommonUsages.primary2DAxis, out Vector2 thumbStickValue))
         {
+            var gameObject = interactable?.GetGameObject();
+            
             if (thumbStickValue.x <= -thumbStickThreshold.x)
             {
                 gesture |= Gesture.ThumbStick_Left;
-                interactable?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Left);
+                gameObject?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Left);
             }
             else
             {
@@ -205,7 +213,7 @@ public class HandController : MonoBehaviour
             if (thumbStickValue.x > thumbStickThreshold.x)
             {
                 gesture |= Gesture.ThumbStick_Right;
-                interactable?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Right);
+                gameObject?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Right);
             }
             else
             {
@@ -215,7 +223,7 @@ public class HandController : MonoBehaviour
             if (thumbStickValue.y <= -thumbStickThreshold.y)
             {
                 gesture |= Gesture.ThumbStick_Up;
-                interactable?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Up);
+                gameObject?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Up);
             }
             else
             {
@@ -225,7 +233,7 @@ public class HandController : MonoBehaviour
             if (thumbStickValue.y > thumbStickThreshold.y)
             {
                 gesture |= Gesture.ThumbStick_Down;
-                interactable?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Down);
+                gameObject?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Down);
             }
             else
             {
@@ -235,7 +243,7 @@ public class HandController : MonoBehaviour
 
         if (controller.TryGetFeatureValue(CommonUsages.menuButton, out bool menuButtonValue))
         {
-            Log($"{gameObject.name} {className}.MenuButton.Pressed:{menuButtonValue}");
+            // Log($"{gameObject.name} {className}.MenuButton.Pressed:{menuButtonValue}");
 
             if (menuButtonValue)
             {
@@ -287,16 +295,36 @@ public class HandController : MonoBehaviour
         this.gesture = gesture;
     }
 
-    public void SetHovering(GameObject obj)
+    public void SetHovering(IInteractable obj)
     {
         isHovering = (obj != null);
         interactable = obj;
+
+        NotifyOpposingConroller(State.Hovering, obj);
     }
 
-    public void SetHolding(GameObject obj)
+    public void SetHolding(IInteractable obj)
     {
         isHolding = (obj != null);
         interactable = obj;
+
+        NotifyOpposingConroller(State.Holding, obj);
+    }
+
+    public void OnOpposingEvent(State state, IInteractable obj)
+    {
+        var name = (obj != null) ? obj.GetGameObject().name : "none";
+        Log($"{gameObject.name} {className}.OnOpposingEvent:State : {state} GameObject : {name}");
+
+        interactable.OnOpposingEvent(state, obj);
+    }
+
+    private void NotifyOpposingConroller(State state, IInteractable obj)
+    {
+        if (cameraManager.TryGetOppositeHandController(this, out HandController opposingController))
+        {
+            opposingController.OnOpposingEvent(state, obj);
+        }
     }
 
     public void SetImpulse(float amplitude = 1.0f, float duration = 0.1f, uint channel = 0)
