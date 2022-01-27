@@ -17,14 +17,21 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     public static InputDeviceCharacteristics RightHand = (InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Right);
     public static InputDeviceCharacteristics LeftHand = (InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Left);
 
+    [Header("Animations")]
     [SerializeField] Animator animator;
+
+    [Header("References")]
     [SerializeField] GameObject spawnPoint;
+
+    [Header("Prefabs")]
     [SerializeField] GameObject laserPrefab, laserFXPrefab;
+
+    [Header("UI")]
     [SerializeField] GunHUDCanvasManager hudCanvasManager;
     [SerializeField] GunOverheatCanvasManager overheatCanvasManager;
     [SerializeField] float speed = 5f;
 
-    [Header("Config")]
+    [Header("Optional Settings")]
     [SerializeField] bool enableAutoDock = true;
     [SerializeField] bool enableGravityOnGrab = true;
 
@@ -403,7 +410,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     {
         if (!socketInteractorManager.Data.occupied) return;
 
-        Log($"{gameObject.name} {className} Intent: {intent}");
+        Log($"{Time.time} {gameObject.name} {className} Intent: {intent}");
 
         var dockedObject = socketInteractorManager.Data.gameObject;
 
@@ -436,43 +443,71 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     public void OnSocketEvent(SocketInteractorManager manager, SocketInteractorManager.EventType eventType, GameObject gameObject)
     {
-        Log($"{this.gameObject.name}.OnSocketEvent:GameObject : {gameObject.name} Type : {eventType}");
+        Log($"{Time.time} {this.gameObject.name}.OnSocketEvent:GameObject : {gameObject.name} Type : {eventType}");
 
         switch (eventType)
         {
             case SocketInteractorManager.EventType.OnDocked:
-                if (gameObject.TryGetComponent<FlashlightInteractableManager>(out var flashlightManager))
-                {
-                    Log("Yeah!!!");
-
-                    if (flashlightManager.State == FlashlightInteractableManager.ActiveState.On)
-                    {
-                        hudCanvasManager.SetIntent(Intent.Engaged);
-                        this.intent = Intent.Engaged;
-                    }
-                    else
-                    {
-                        hudCanvasManager.SetIntent(Intent.Disengaged);
-                        this.intent = Intent.Disengaged;
-                    }
-                    
-                    dockedOccupied = true;
-                    docked = gameObject;
-                }
-                else
-                {
-                    Log("Oops!!!");
-                }
+                OnDocked(gameObject);
                 break;
 
             case SocketInteractorManager.EventType.OnUndocked:
-                hudCanvasManager.SetIntent(Intent.Disengaged);
-                this.intent = Intent.Disengaged;
-                
-                dockedOccupied = false;
-                docked = null;
+                OnUndocked(gameObject);
                 break;
         }
+    }
+
+    private void OnDocked(GameObject gameObject)
+    {
+        Log($"{Time.time} {this.gameObject.name}.OnDocked:GameObject : {gameObject.name}");
+
+        if (gameObject.TryGetComponent<FlashlightInteractableManager>(out var flashlightManager))
+        {
+            /*
+            Optional implementation that notifies the child docked flashlight of
+            the stage change. This is however not required as the socket interactor manager
+            notifies the flashlight instance directly via OnDockStatusChange.
+            */
+#if false
+            flashlightManager.OnDockStatusChange(true);
+#endif
+            if (flashlightManager.State == FlashlightInteractableManager.ActiveState.On)
+            {
+                hudCanvasManager.SetIntent(Intent.Engaged);
+                this.intent = Intent.Engaged;
+            }
+            else
+            {
+                hudCanvasManager.SetIntent(Intent.Disengaged);
+                this.intent = Intent.Disengaged;
+            }
+        }
+
+        dockedOccupied = true;
+        docked = gameObject;
+    }
+
+    private void OnUndocked(GameObject gameObject)
+    {
+        Log($"{Time.time} {this.gameObject.name}.OnUndocked:GameObject : {gameObject.name}");
+
+        /*
+        Optional implementation that notifies the child docked flashlight of
+        the stage change. This is however not required as the socket interactor manager
+        notifies the flashlight instance directly via OnDockStatusChange.
+        */
+#if false
+        if (gameObject.TryGetComponent<FlashlightInteractableManager>(out var flashlightManager))
+        {
+            flashlightManager.OnDockStatusChange(false);
+        }
+#endif
+
+        hudCanvasManager.SetIntent(Intent.Disengaged);
+        this.intent = Intent.Disengaged;
+        
+        dockedOccupied = false;
+        docked = null;
     }
 
     public void RestoreCachedGunState()

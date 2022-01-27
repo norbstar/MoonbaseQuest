@@ -1,9 +1,13 @@
+using System.Reflection;
+
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
 [RequireComponent(typeof(XRGrabInteractable))]
 public class FlashlightInteractableManager : FocusableInteractableManager
 {
+    private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
+
     public enum ActiveState
     {
         Off,

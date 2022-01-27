@@ -42,7 +42,6 @@ public class InteractableManager : MonoBehaviour, IInteractable
 
     protected Cache cache;
     private bool isHeld, isDocked;
-    private bool enableTracking;
 
     protected virtual void Awake()
     {
@@ -154,13 +153,6 @@ public class InteractableManager : MonoBehaviour, IInteractable
 
     protected virtual void OnSelectExited(SelectExitEventArgs args, HandController controller) { }
 
-    public void EnableTracking(bool enable)
-    {
-        this.enableTracking = enable;
-
-        Log($"{gameObject.name} {className} EnableTracking:{enableTracking}");
-    }
-
     protected bool TryGetController<HandController>(GameObject interactor, out HandController controller)
     {
         if (interactor != null && interactor.CompareTag("Hand"))
@@ -178,6 +170,8 @@ public class InteractableManager : MonoBehaviour, IInteractable
 
     public void OnDockStatusChange(bool isDocked)
     {
+        Log($"{Time.time} {gameObject.name} {className} OnDockStatusChange:Is Docked : {isDocked}");
+
         this.isDocked = isDocked;
         focusableUI.SetActive(!isDocked);
     }

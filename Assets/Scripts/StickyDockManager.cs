@@ -262,8 +262,8 @@ public class StickyDockManager : DockManager
             gameObject = null
         };
 
-        isDocked = false;
         interactable.OnDockStatusChange(isDocked);
+        isDocked = false;
 
         if (EventReceived != null)
         {

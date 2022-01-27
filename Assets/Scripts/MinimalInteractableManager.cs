@@ -38,8 +38,7 @@ public class MinimalInteractableManager : MonoBehaviour, IInteractable
         transform.parent = objects;
     }
 
-    public void EnableTracking(bool enable)
-    {
-        Debug.Log($"{Time.time} {gameObject.name} EnableTracking:{enable}");
-    }
+    public void EnableTracking(bool enable) { }
+
+    public void OnDockStatusChange(bool isDocked) { }
 }

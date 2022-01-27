@@ -41,7 +41,6 @@ public class SocketInteractorManager : MonoBehaviour
 
     public void Free() => occupied = new SocketInteractorManager.OccupancyData();
 
-    protected GameObject interactor;
     private Transform objects;
     private bool canDock, isDocked;
 
@@ -53,39 +52,49 @@ public class SocketInteractorManager : MonoBehaviour
      public void OnHoverEntered(HoverEnterEventArgs args)
     {
         Log($"{Time.time} {gameObject.name} {className} OnHoverEntered");
+
         visualElement.gameObject.SetActive(false);
     }
 
     public void OnHoverExited(HoverExitEventArgs args)
     {
         Log($"{Time.time} {gameObject.name} {className} OnHoverExited");
+
         visualElement.gameObject.SetActive(true);
     }
 
     public void OnSelectEntered(SelectEnterEventArgs args)
     {
-        interactor = args.interactableObject.transform.gameObject;
-        Log($"{Time.time} {gameObject.name} {className} OnSelectEntered:Interactor Object : {args.interactorObject} Interactor : {interactor}");
+        Log($"{Time.time} {gameObject.name} {className} OnSelectEntered");
+        var interactableGameObject = args.interactableObject.transform.gameObject;
         visualElement.enabled = false;
 
         Data = new OccupancyData
         {
             occupied = true,
-            gameObject = interactor
+            gameObject = interactableGameObject
         };
 
+        AudioSource.PlayClipAtPoint(dockClip, transform.position, 1.0f);
         isDocked = true;
+
+        if (interactableGameObject.TryGetComponent<IInteractable>(out IInteractable interactable))
+        {
+            Log($"{Time.time} {gameObject.name} {className} Prep OnDockStatusChange");
+            interactable.OnDockStatusChange(isDocked);
+        }
 
         if (EventReceived != null)
         {
-            EventReceived(this, EventType.OnDocked, interactor);
+            EventReceived(this, EventType.OnDocked, interactableGameObject);
         }
     }
 
      public void OnSelectExited(SelectExitEventArgs args)
     {
         Log($"{Time.time} {gameObject.name} {className} OnSelectExited");
-        interactor = args.interactableObject.transform.gameObject;
+
+        var interactableGameObject = args.interactableObject.transform.gameObject;
         visualElement.enabled = true;
 
         Data = new OccupancyData
@@ -94,11 +103,18 @@ public class SocketInteractorManager : MonoBehaviour
             gameObject = null
         };
 
+        AudioSource.PlayClipAtPoint(undockClip, transform.position, 1.0f);
+
         isDocked = false;
+
+        if (interactableGameObject.TryGetComponent<IInteractable>(out IInteractable interactable))
+        {
+            interactable.OnDockStatusChange(isDocked);
+        }
 
         if (EventReceived != null)
         {
-            EventReceived(this, EventType.OnUndocked, interactor);
+            EventReceived(this, EventType.OnUndocked, interactableGameObject);
         }
     }
 
