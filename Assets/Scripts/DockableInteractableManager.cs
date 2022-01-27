@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
 [RequireComponent(typeof(XRGrabInteractable))]
-public class InteractableManager : MonoBehaviour, IInteractable
+public class DockableInteractableManager : MonoBehaviour, IInteractable
 {
     public class Cache
     {
@@ -24,14 +24,19 @@ public class InteractableManager : MonoBehaviour, IInteractable
     [Header("Debug")]
     [SerializeField] bool enableLogging = false;
 
+    [Header("Tracking")]
+    [SerializeField] Transform originTransform;
+    [SerializeField] GameObject trackingVolume;
+
     [Header("Other")]
     [SerializeField] FocusableUI focusableUI;
 
-    public delegate void Event(InteractableManager interactable, EventType type);
+    public delegate void Event(DockableInteractableManager interactable, EventType type);
     public static event Event EventReceived;
     
     public bool IsHeld { get { return isHeld; } }
     public bool IsDocked { get { return isDocked; } }
+    public Transform OriginTransform { get { return originTransform; } }
     public List<Collider> Colliders { get { return interactable.colliders; } }
 
     protected XRGrabInteractable interactable;
@@ -154,6 +159,10 @@ public class InteractableManager : MonoBehaviour, IInteractable
 
     protected virtual void OnSelectExited(SelectExitEventArgs args, HandController controller) { }
 
+    public void ShowTrackingVolume() => trackingVolume.SetActive(true);
+    
+    public void HideTrackingVolume() => trackingVolume.SetActive(false);
+    
     public void EnableTracking(bool enable)
     {
         this.enableTracking = enable;

@@ -58,7 +58,7 @@ public class StickyDockManager : DockManager
 
     void OnEnable()
     {
-        InteractableManager.EventReceived += OnEvent;
+        DockableInteractableManager.EventReceived += OnEvent;
     }
 
     void FixedUpdate()
@@ -88,13 +88,13 @@ public class StickyDockManager : DockManager
         renderer.material = (enable) ? highlightMaterial : defaultMaterial;
     }
 
-    private InteractableManager trackedInteractable;
+    private DockableInteractableManager trackedInteractable;
 
     public void OnTriggerEnter(Collider collider)
     {
         GameObject trigger = collider.gameObject;
 
-        if (TryGetInteractable<InteractableManager>(trigger, out InteractableManager interactable))
+        if (TryGetInteractable<DockableInteractableManager>(trigger, out DockableInteractableManager interactable))
         {
             if (supportedTags.Contains(interactable.tag))
             {
@@ -113,7 +113,7 @@ public class StickyDockManager : DockManager
     //     trackedInteractable.HideTrackingVolume();
     // }
 
-    private void MarkTrackedObject(InteractableManager interactable)
+    private void MarkTrackedObject(DockableInteractableManager interactable)
     {
         if (trackedInteractable == null)
         {
@@ -128,7 +128,7 @@ public class StickyDockManager : DockManager
 
         if (trackedInteractable == null) return;
 
-        if (TryGetInteractable<InteractableManager>(trigger, out InteractableManager interactable))
+        if (TryGetInteractable<DockableInteractableManager>(trigger, out DockableInteractableManager interactable))
         {
             if (Object.ReferenceEquals(interactable.gameObject, trackedInteractable.gameObject))
             {
@@ -175,14 +175,14 @@ public class StickyDockManager : DockManager
 
     void OnDisable()
     {
-        InteractableManager.EventReceived -= OnEvent;
+        DockableInteractableManager.EventReceived -= OnEvent;
     }
 
-    public void OnEvent(InteractableManager interactable, InteractableManager.EventType type)
+    public void OnEvent(DockableInteractableManager interactable, DockableInteractableManager.EventType type)
     {
         switch (type)
         {
-            case InteractableManager.EventType.OnSelectEntered:
+            case DockableInteractableManager.EventType.OnSelectEntered:
                 Log($"{gameObject.name} {className} OnEvent.OnSelectEntered");
 
                 if (Object.ReferenceEquals(Data.gameObject, interactable.gameObject))
@@ -192,7 +192,7 @@ public class StickyDockManager : DockManager
 
                 break;
 
-            case InteractableManager.EventType.OnSelectExited:
+            case DockableInteractableManager.EventType.OnSelectExited:
                 Log($"{gameObject.name} {className} OnEvent.OnSelectExited");
 
                 if (Data.occupied) return;
@@ -205,7 +205,7 @@ public class StickyDockManager : DockManager
         }
     }
 
-    private void DockInteractable(InteractableManager interactable)
+    private void DockInteractable(DockableInteractableManager interactable)
     {
         Log($"{gameObject.name} {className} OnEvent.DockInteractable");
 
@@ -248,7 +248,7 @@ public class StickyDockManager : DockManager
         }
     }
 
-    private void UndockInteractable(InteractableManager interactable)
+    private void UndockInteractable(DockableInteractableManager interactable)
     {
         Log($"{gameObject.name} {className} OnEvent.UndockInteractable");
 

@@ -8,7 +8,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 
 [RequireComponent(typeof(XRGrabInteractable))]
 [RequireComponent(typeof(CurveCreator))]
-public class GunInteractableManager : FocusableInteractableManager, IGesture
+public class GunInteractableManager : DockableFocusableInteractableManager, IGesture
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
@@ -41,7 +41,8 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     [SerializeField] float speed = 5f;
 
     [Header("Config")]
-    [SerializeField] bool autoDockEnabled = true;
+    [SerializeField] bool enableAutoDock = true;
+    [SerializeField] bool enableGravityOnGrab = true;
 
     [Header("Hits")]
     [SerializeField] bool showHits;
@@ -222,8 +223,15 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
             stickyDock.Data.gameObject.GetComponent<XRGrabInteractable>().enabled = true;
             stickyDock.GetComponent<MeshRenderer>().enabled = true;
         }
+
+        if (enableGravityOnGrab)
+        {
+            enableGravityOnGrab = false;
+            rigidBody.isKinematic = false;
+            rigidBody.useGravity = true;
+        }
             
-        InteractableManager.EventReceived += OnEvent;
+        DockableInteractableManager.EventReceived += OnEvent;
     }
 
     public void OnActivated(ActivateEventArgs args)
@@ -343,7 +351,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     {
         hudCanvasManager.gameObject.SetActive(false);
 
-        if (autoDockEnabled && (controller != null))
+        if (enableAutoDock && (controller != null))
         {
             DockWeapon(controller);
         }
@@ -362,7 +370,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
             stickyDock.Data.gameObject.GetComponent<XRGrabInteractable>().enabled = false;
         }
 
-        InteractableManager.EventReceived -= OnEvent;
+        DockableInteractableManager.EventReceived -= OnEvent;
     }
 
     private void DockWeapon(HandController controller)
@@ -458,7 +466,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
         }
     }
 
-    public void OnEvent(InteractableManager interactable, EventType eventType)
+    public void OnEvent(DockableInteractableManager interactable, EventType eventType)
     {
         Log($"{this.gameObject.name}.OnEvent:[{interactable.name}]:Type : {eventType}");
 

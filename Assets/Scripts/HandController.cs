@@ -39,10 +39,6 @@ public class HandController : MonoBehaviour
     [SerializeField] float gripThreshold = 0.9f;
     [SerializeField] Vector2 thumbStickThreshold = new Vector2(0.9f, 0.9f);
 
-    [Header("Stats")]
-    [SerializeField] private bool isHovering = false;
-    [SerializeField] private bool isHolding = false;
-
     [Header("Debug")]
     [SerializeField] bool enableLogging = false;
 
@@ -53,8 +49,8 @@ public class HandController : MonoBehaviour
     private MainCameraManager cameraManager;
     private InputDevice controller;
     private XRController xrController;
-    // private bool isHovering = false;
-    // private bool isHolding = false;
+    private bool isHovering = false;
+    private bool isHolding = false;
     private GameObject interactable;
     private DebugCanvas debugCanvas;
     private Gesture gesture, lastGesture;
@@ -151,7 +147,7 @@ public class HandController : MonoBehaviour
             {
                 if (enableTeleport && (!isHovering) && (!gesture.HasFlag(Gesture.Grip)) && (cameraManager.TryGetObjectHit(out GameObject obj)))
                 {
-                    if (obj.TryGetComponent<InteractableManager>(out InteractableManager interactable))
+                    if (obj.TryGetComponent<IInteractable>(out IInteractable interactable))
                     {
                         Log($"{gameObject.name} {className}.Grip.Teleport:{obj.name}");
                         StartCoroutine(TeleportGrabbable(obj));

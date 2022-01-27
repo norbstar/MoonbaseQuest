@@ -5,7 +5,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 
 [RequireComponent(typeof(XRGrabInteractable))]
 [RequireComponent(typeof(Animator))]
-public class SmokeGrenadeInteractableManager : FocusableInteractableManager
+public class SmokeGrenadeInteractableManager : DockableFocusableInteractableManager
 {
     public enum State
     {

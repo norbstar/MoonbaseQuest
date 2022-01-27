@@ -36,14 +36,14 @@ public class MainCameraManager : Gizmo
     private GameObject hitPrefabInstance;
     private GameObject lastObjectHit;
     private int defaultLayerMask;
-    private List<InteractableManager> trackedInteractables;
+    private List<IInteractable> trackedInteractables;
     private TestCaseRunner testCaseRunner;
     
     void Awake()
     {
         ResolveDependencies();
         defaultLayerMask = LayerMask.GetMask("Default");
-        trackedInteractables = new List<InteractableManager>();
+        trackedInteractables = new List<IInteractable>();
     }
 
     private void ResolveDependencies()
@@ -115,29 +115,31 @@ public class MainCameraManager : Gizmo
         }
     }
 
+#if false
     private void TrackInteractablesInRange(Vector3 center, float radius)
     {
         Collider[] hits = Physics.OverlapSphere(center, radius);
-        List<InteractableManager> verifiedHits = new List<InteractableManager>();
+        List<IInteractable> verifiedHits = new List<IInteractable>();
 
         foreach (var hit in hits)
         {
             GameObject trigger = hit.gameObject;
 
-            if (TryGetInteractable<InteractableManager>(trigger, out InteractableManager interactable))
+            if (TryGetInteractable<IInteractable>(trigger, out IInteractable interactable))
             {
                 verifiedHits.Add(interactable);
             }
         }
 
-        IEnumerable<InteractableManager> obsoleteHits = trackedInteractables.ToArray<InteractableManager>().Except(verifiedHits);
+        IEnumerable<IInteractable> obsoleteHits = trackedInteractables.ToArray<IInteractable>().Except(verifiedHits);
         obsoleteHits.ToList().ForEach(h => h.EnableTracking(false));
         
-        IEnumerable<InteractableManager> newHits = verifiedHits.ToArray<InteractableManager>().Except(trackedInteractables);
+        IEnumerable<IInteractable> newHits = verifiedHits.ToArray<IInteractable>().Except(trackedInteractables);
         newHits.ToList().ForEach(h => h.EnableTracking(true));
 
         trackedInteractables = verifiedHits;
     }
+#endif
 
     public HandController GetOppositeHandController(HandController handController)
     {
@@ -157,15 +159,15 @@ public class MainCameraManager : Gizmo
         return otherHandController;
     }
 
-    private bool TryGetInteractable<InteractableManager>(GameObject trigger, out InteractableManager interactable)
+    private bool TryGetInteractable<IInteractable>(GameObject trigger, out IInteractable interactable)
     {
-        if (trigger.TryGetComponent<InteractableManager>(out InteractableManager interactableManager))
+        if (trigger.TryGetComponent<IInteractable>(out IInteractable interactableManager))
         {
             interactable = interactableManager;
             return true;
         }
 
-        var component = trigger.GetComponentInParent<InteractableManager>();
+        var component = trigger.GetComponentInParent<IInteractable>();
 
         if (component != null)
         {
@@ -173,7 +175,7 @@ public class MainCameraManager : Gizmo
             return true;
         }
 
-        interactable = default(InteractableManager);
+        interactable = default(IInteractable);
         return false;
     }
 
