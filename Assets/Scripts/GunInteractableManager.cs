@@ -102,25 +102,6 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
         testCaseRunner = TestCaseRunner.GetInstance();
     }
 
-    // Update is called once per frame
-    // void Update()
-    // {
-    //     if (IsHeld && (TryGetController<HandController>(interactor, out HandController controller)))
-    //     {
-    //         var opposingController = cameraManager.GetOppositeHandController(controller);
-
-    //         if (opposingController.IsHolding)
-    //         {
-    //             var interactable = opposingController.Interactable;
-                
-    //             if (interactable.CompareTag("Flashlight"))
-    //             {
-    //                 // TODO
-    //             }
-    //         }
-    //     }
-    // }
-
     void FixedUpdate()
     {
         var ray = new Ray(spawnPoint.transform.position, spawnPoint.transform.forward);
@@ -454,6 +435,22 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
             case SocketInteractorManager.EventType.OnUndocked:
                 OnUndocked(gameObject);
+                break;
+        }
+    }
+
+    public override void OnOpposingEvent(HandController.State state, bool isTrue, IInteractable obj)
+    {
+        var name = (obj != null) ? obj.GetGameObject().name : "none";
+        Log($"{gameObject.name} {className}.OnOpposingEvent:State : {state} GameObject : {name}");
+
+        switch (state)
+        {
+            case HandController.State.Holding:
+                if (obj.GetGameObject().CompareTag("Flashlight"))
+                {
+                    socketInteractorManager.SetEnabled(isTrue);
+                }
                 break;
         }
     }

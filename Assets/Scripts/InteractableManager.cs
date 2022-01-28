@@ -72,22 +72,7 @@ public class InteractableManager : MonoBehaviour, IInteractable
         return gameObject;
     }
 
-    public void OnOpposingEvent(HandController.State state, IInteractable obj)
-    {
-        var name = (obj != null) ? obj.GetGameObject().name : "none";
-        Log($"{gameObject.name} {className}.OnOpposingEvent:State : {state} GameObject : {name}");
-        
-        switch (state)
-        {
-            case HandController.State.Hovering:
-                // TODO
-                break;
-
-            case HandController.State.Holding:
-                // TODO
-                break;
-        }
-    }
+    public virtual void OnOpposingEvent(HandController.State state, bool isTrue, IInteractable obj) { }
 
     public void OnHoverEntered(HoverEnterEventArgs args)
     {

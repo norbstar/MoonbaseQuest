@@ -298,32 +298,30 @@ public class HandController : MonoBehaviour
     public void SetHovering(IInteractable obj)
     {
         isHovering = (obj != null);
+        NotifyOpposingConroller(State.Hovering, isHovering, (obj != null) ? obj : interactable);
         interactable = obj;
-
-        NotifyOpposingConroller(State.Hovering, obj);
     }
 
     public void SetHolding(IInteractable obj)
     {
         isHolding = (obj != null);
+        NotifyOpposingConroller(State.Holding, isHolding, (obj != null) ? obj : interactable);
         interactable = obj;
-
-        NotifyOpposingConroller(State.Holding, obj);
     }
 
-    public void OnOpposingEvent(State state, IInteractable obj)
+    public void OnOpposingEvent(State state, bool isTrue, IInteractable obj)
     {
         var name = (obj != null) ? obj.GetGameObject().name : "none";
         Log($"{gameObject.name} {className}.OnOpposingEvent:State : {state} GameObject : {name}");
 
-        interactable.OnOpposingEvent(state, obj);
+        interactable?.OnOpposingEvent(state, isTrue, obj);
     }
 
-    private void NotifyOpposingConroller(State state, IInteractable obj)
+    private void NotifyOpposingConroller(State state, bool isTrue, IInteractable obj)
     {
         if (cameraManager.TryGetOppositeHandController(this, out HandController opposingController))
         {
-            opposingController.OnOpposingEvent(state, obj);
+            opposingController.OnOpposingEvent(state, isTrue, obj);
         }
     }
 

@@ -7,5 +7,5 @@ public interface IInteractable
     void OnSelectEntered(SelectEnterEventArgs args);
     void OnSelectExited(SelectExitEventArgs args);
     void OnDockStatusChange(bool isDocked);
-    void OnOpposingEvent(HandController.State state, IInteractable obj);
+    void OnOpposingEvent(HandController.State state, bool isTrue, IInteractable obj);
 }

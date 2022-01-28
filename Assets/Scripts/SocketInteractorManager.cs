@@ -62,6 +62,8 @@ public class SocketInteractorManager : MonoBehaviour
 
     public void SetEnabled(bool enabled)
     {
+        Log($"{Time.time} {gameObject.name} {className} SetEnabled:{enabled}");
+
         visualElement.enabled = enabled;
         socketInteractor.enabled = enabled;
     }

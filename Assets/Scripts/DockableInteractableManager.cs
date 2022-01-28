@@ -78,7 +78,7 @@ public class DockableInteractableManager : MonoBehaviour, IInteractable
         return gameObject;
     }
 
-    public void OnOpposingEvent(HandController.State state, IInteractable obj)
+    public void OnOpposingEvent(HandController.State state, bool isTrue, IInteractable obj)
     {
         var name = (obj != null) ? obj.GetGameObject().name : "none";
         Log($"{gameObject.name} {className}.OnOpposingEvent:State : {state} GameObject : {name}");
