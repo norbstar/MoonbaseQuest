@@ -299,6 +299,7 @@ public class HandController : MonoBehaviour
     {
         Log($"{Time.time} {gameObject.name} {className}.SetHovering:Game Object : {obj.GetGameObject().name} Is Hovering : {isHovering}");
 
+        this.isHovering = isHovering;
         NotifyOpposingConroller(State.Hovering, isHovering, obj);
     }
 
@@ -306,8 +307,9 @@ public class HandController : MonoBehaviour
     {
         Log($"{Time.time} {gameObject.name} {className}.SetHolding:Game Object : {obj.GetGameObject().name} Is Holding : {isHolding}");
 
-        NotifyOpposingConroller(State.Holding, isHolding, obj);
+        this.isHolding = isHolding;
         interactable = obj;
+        NotifyOpposingConroller(State.Holding, isHolding, obj);
     }
 
     public void OnOpposingEvent(State state, bool isTrue, IInteractable obj)
