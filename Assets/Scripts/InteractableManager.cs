@@ -76,15 +76,12 @@ public class InteractableManager : MonoBehaviour, IInteractable
 
     public void OnHoverEntered(HoverEnterEventArgs args)
     {
-        Log($"{Time.time} {gameObject.name} {className} OnHoverEntered");
-
         var interactor = args.interactorObject.transform.gameObject;
-
         Log($"{Time.time} {gameObject.name} {className} OnHoverEntered:{interactor.name}");
 
         if (TryGetController<HandController>(interactor, out HandController controller))
         {
-            controller.SetHovering(this);
+            controller.SetHovering(this, true);
             OnHoverEntered(args, controller);
         }
     }
@@ -93,15 +90,12 @@ public class InteractableManager : MonoBehaviour, IInteractable
 
     public void OnHoverExited(HoverExitEventArgs args)
     {
-        Log($"{Time.time} {gameObject.name} {className} OnHoverExited");
-
         var interactor = args.interactorObject.transform.gameObject;
+        Log($"{Time.time} {gameObject.name} {className} OnHoverExited:{interactor.name}");
         
         if (TryGetController<HandController>(interactor, out HandController controller))
         {
-            Log($"{Time.time} {gameObject.name} {className} OnHoverExited:{interactor.name}");
-
-            controller.SetHovering(null);
+            controller.SetHovering(this, false);
             OnHoverExited(args, controller);
         }
     }
@@ -110,13 +104,12 @@ public class InteractableManager : MonoBehaviour, IInteractable
 
     public void OnSelectEntered(SelectEnterEventArgs args)
     {
-        Log($"{Time.time} {gameObject.name} {className} OnSelectEntered");
-
         interactor = args.interactorObject.transform.gameObject;
+        Log($"{Time.time} {gameObject.name} {className} OnSelectEntered:{interactor.name}");
 
         if (TryGetController<HandController>(interactor, out HandController controller))
         {
-            controller.SetHolding(this);
+            controller.SetHolding(this, true);
             isHeld = true;
 
             OnSelectEntered(args, controller);
@@ -134,7 +127,8 @@ public class InteractableManager : MonoBehaviour, IInteractable
 
     public void OnSelectExited(SelectExitEventArgs args)
     {
-        Log($"{Time.time} {gameObject.name} {className} OnSelectExited");
+        interactor = args.interactorObject.transform.gameObject;
+        Log($"{Time.time} {gameObject.name} {className} OnSelectExited:{interactor.name}");
 
         if (gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidBody))
         {
@@ -144,7 +138,7 @@ public class InteractableManager : MonoBehaviour, IInteractable
 
         if (TryGetController<HandController>(interactor, out HandController controller))
         {
-            controller.SetHolding(null);
+            controller.SetHolding(this, false);
             isHeld = false;
             
             OnSelectExited(args, controller);

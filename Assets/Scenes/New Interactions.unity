@@ -3922,13 +3922,21 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2278784301198585631, guid: c36cdc5767a6c704dbedb156040fee70, type: 3}
+      propertyPath: enableLogging
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4718120419137913721, guid: c36cdc5767a6c704dbedb156040fee70, type: 3}
+      propertyPath: m_InteractionManager
+      value: 
+      objectReference: {fileID: 1482864551}
     - target: {fileID: 4803885585738250673, guid: c36cdc5767a6c704dbedb156040fee70, type: 3}
       propertyPath: m_RootOrder
       value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 4803885585738250673, guid: c36cdc5767a6c704dbedb156040fee70, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 0.1862
       objectReference: {fileID: 0}
     - target: {fileID: 4803885585738250673, guid: c36cdc5767a6c704dbedb156040fee70, type: 3}
       propertyPath: m_LocalPosition.y
@@ -3936,7 +3944,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4803885585738250673, guid: c36cdc5767a6c704dbedb156040fee70, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.75
+      value: -0.591
       objectReference: {fileID: 0}
     - target: {fileID: 4803885585738250673, guid: c36cdc5767a6c704dbedb156040fee70, type: 3}
       propertyPath: m_LocalRotation.w
@@ -3969,6 +3977,10 @@ PrefabInstance:
     - target: {fileID: 4803885585738250674, guid: c36cdc5767a6c704dbedb156040fee70, type: 3}
       propertyPath: m_Name
       value: Flashlight
+      objectReference: {fileID: 0}
+    - target: {fileID: 4803885585738250674, guid: c36cdc5767a6c704dbedb156040fee70, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c36cdc5767a6c704dbedb156040fee70, type: 3}
@@ -4209,7 +4221,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1600404807
 Transform:
   m_ObjectHideFlags: 0
@@ -5557,11 +5569,11 @@ PrefabInstance:
       objectReference: {fileID: 1482864551}
     - target: {fileID: 3294760654318724617, guid: 89060543f57d0f64e8ec9b5614a25168, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3294760654318724617, guid: 89060543f57d0f64e8ec9b5614a25168, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6865224690916183440, guid: 89060543f57d0f64e8ec9b5614a25168, type: 3}
       propertyPath: m_InteractionManager
@@ -5614,6 +5626,10 @@ PrefabInstance:
     - target: {fileID: 7223026733434265587, guid: 89060543f57d0f64e8ec9b5614a25168, type: 3}
       propertyPath: m_Name
       value: Gun
+      objectReference: {fileID: 0}
+    - target: {fileID: 9076767786785327033, guid: 89060543f57d0f64e8ec9b5614a25168, type: 3}
+      propertyPath: enableLogging
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 89060543f57d0f64e8ec9b5614a25168, type: 3}

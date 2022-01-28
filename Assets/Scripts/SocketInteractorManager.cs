@@ -52,7 +52,7 @@ public class SocketInteractorManager : MonoBehaviour
     {
         ResolveDependencies();
         objects = GameObject.Find("Objects").transform;
-        SetEnabled(startEnabled);
+        Reveal(startEnabled);
     }
 
     private void ResolveDependencies()
@@ -60,12 +60,11 @@ public class SocketInteractorManager : MonoBehaviour
         socketInteractor = GetComponent<XRSocketInteractor>() as XRSocketInteractor;
     }
 
-    public void SetEnabled(bool enabled)
+    public void Reveal(bool reveal)
     {
-        Log($"{Time.time} {gameObject.name} {className} SetEnabled:{enabled}");
+        Log($"{Time.time} {gameObject.name} {className} Reveal:{reveal}");
 
-        visualElement.enabled = enabled;
-        socketInteractor.enabled = enabled;
+        visualElement.enabled = reveal;
     }
 
      public void OnHoverEntered(HoverEnterEventArgs args)

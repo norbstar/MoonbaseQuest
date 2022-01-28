@@ -441,17 +441,58 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     public override void OnOpposingEvent(HandController.State state, bool isTrue, IInteractable obj)
     {
-        var name = (obj != null) ? obj.GetGameObject().name : "none";
-        Log($"{gameObject.name} {className}.OnOpposingEvent:State : {state} GameObject : {name}");
+        Log($"{Time.time} {this.gameObject.name} {className}.OnOpposingEvent:State : {state} GameObject : {obj.GetGameObject().name}");
+
+        if (!IsHeld) return;
+
+        var gameObject = obj.GetGameObject();
 
         switch (state)
         {
             case HandController.State.Holding:
-                if (obj.GetGameObject().CompareTag("Flashlight"))
+                if ((!socketInteractorManager.Data.occupied) && (gameObject.CompareTag("Flashlight")))
                 {
-                    socketInteractorManager.SetEnabled(isTrue);
+                    socketInteractorManager.Reveal(isTrue);
+                    
+                    if (gameObject.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
+                    {
+                        // var testA = InteractionLayerMask.GetMask(new string[] { "Default", "Flashlight" });
+                        // Log($"{Time.time} {gameObject.name} {className}.TestA : {testA}");
+                        // var testB = InteractionLayerMask.GetMask(new string[] { "Default", "Gun Attached Flashlight" });
+                        // Log($"{Time.time} {gameObject.name} {className}.TestB : {testB}");
+                        // int layer1 = InteractionLayerMask.NameToLayer("Default");
+                        // Log($"{Time.time} {gameObject.name} {className}.Default Layer : {layer1}");
+                        // int layer2 = InteractionLayerMask.NameToLayer("Gun Attached Flashlight");
+                        // Log($"{Time.time} {gameObject.name} {className}.Gun Attached Flashlight Layer : {layer2}");
+
+                        // Log($"{Time.time} {gameObject.name} {className}.Pre Value : {interactable.interactionLayers.value}");
+                        
+                        if (isTrue)
+                        {                    
+                            interactable.interactionLayers = InteractionLayerMask.GetMask(new string[] { "Default", "Gun Compatible Flashlight" });
+                            Log($"{Time.time} {gameObject.name} {className}.InteractionLayers:{interactable.interactionLayers.value}");
+                        }
+                        else
+                        {
+                            StartCoroutine(DefaultInteractionLayers(interactable));
+                        }
+
+                        // Log($"{Time.time} {gameObject.name} {className}.Post Value : {interactable.interactionLayers.value}");
+                    }
                 }
                 break;
+        }
+    }
+
+    private IEnumerator DefaultInteractionLayers(XRGrabInteractable interactable)
+    {
+        Log($"{Time.time} {gameObject.name} {className}.DefaultInteractionLayers");
+
+        yield return new WaitForSeconds(1);
+
+        if (!socketInteractorManager.Data.occupied || !Object.ReferenceEquals(interactable.gameObject, socketInteractorManager.Data.gameObject))
+        {
+            interactable.interactionLayers = InteractionLayerMask.GetMask(new string[] { "Default", "Flashlight" });
         }
     }
 

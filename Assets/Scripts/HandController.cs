@@ -91,7 +91,7 @@ public class HandController : MonoBehaviour
 
         if (controller.isValid)
         {
-            Log($"{gameObject.name} {className} ResolveController:{controller.name}.Detected");
+            Log($"{Time.time} {gameObject.name} {className} ResolveController:{controller.name}.Detected");
 
             SetGesture(Gesture.None);
         }
@@ -100,7 +100,7 @@ public class HandController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Log($"{gameObject.name} {className} State:Hovering {isHovering} Holding {isHolding}");
+        // Log($"{Time.time} {gameObject.name} {className} State:Hovering {isHovering} Holding {isHolding}");
         
         if (!controller.isValid)
         {
@@ -155,7 +155,7 @@ public class HandController : MonoBehaviour
                 {
                     if (obj.TryGetComponent<IInteractable>(out IInteractable interactable))
                     {
-                        Log($"{gameObject.name} {className}.Grip.Teleport:{obj.name}");
+                        Log($"{Time.time} {gameObject.name} {className}.Grip.Teleport:{obj.name}");
                         StartCoroutine(TeleportGrabbable(obj));
                     }
                 }
@@ -170,7 +170,7 @@ public class HandController : MonoBehaviour
 
         if (controller.TryGetFeatureValue(CommonUsages.primaryButton, out bool buttonAXValue))
         {
-            // Log($"{gameObject.name} {className}.AXButton.Pressed:{buttonAXValue}");
+            // Log($"{Time.time} {gameObject.name} {className}.AXButton.Pressed:{buttonAXValue}");
 
             if (buttonAXValue)
             {
@@ -184,7 +184,7 @@ public class HandController : MonoBehaviour
 
         if (controller.TryGetFeatureValue(CommonUsages.secondaryButton, out bool buttonBYValue))
         {
-            // Log($"{gameObject.name} {className}.BYButton.Pressed:{buttonBYValue}");
+            // Log($"{Time.time} {gameObject.name} {className}.BYButton.Pressed:{buttonBYValue}");
 
             if (buttonBYValue)
             {
@@ -243,7 +243,7 @@ public class HandController : MonoBehaviour
 
         if (controller.TryGetFeatureValue(CommonUsages.menuButton, out bool menuButtonValue))
         {
-            // Log($"{gameObject.name} {className}.MenuButton.Pressed:{menuButtonValue}");
+            // Log($"{Time.time} {gameObject.name} {className}.MenuButton.Pressed:{menuButtonValue}");
 
             if (menuButtonValue)
             {
@@ -262,7 +262,7 @@ public class HandController : MonoBehaviour
 
         UpdateHandGestureState();
 
-        if (gesture != lastGesture) Log($"{gameObject.name} {className}.State:{gesture}");
+        if (gesture != lastGesture) Log($"{Time.time} {gameObject.name} {className}.State:{gesture}");
     }
 
     private void UpdateHandGestureState()
@@ -295,30 +295,32 @@ public class HandController : MonoBehaviour
         this.gesture = gesture;
     }
 
-    public void SetHovering(IInteractable obj)
+    public void SetHovering(IInteractable obj, bool isHovering)
     {
-        isHovering = (obj != null);
-        NotifyOpposingConroller(State.Hovering, isHovering, (obj != null) ? obj : interactable);
-        interactable = obj;
+        Log($"{Time.time} {gameObject.name} {className}.SetHovering:Game Object : {obj.GetGameObject().name} Is Hovering : {isHovering}");
+
+        NotifyOpposingConroller(State.Hovering, isHovering, obj);
     }
 
-    public void SetHolding(IInteractable obj)
+    public void SetHolding(IInteractable obj, bool isHolding)
     {
-        isHolding = (obj != null);
-        NotifyOpposingConroller(State.Holding, isHolding, (obj != null) ? obj : interactable);
+        Log($"{Time.time} {gameObject.name} {className}.SetHolding:Game Object : {obj.GetGameObject().name} Is Holding : {isHolding}");
+
+        NotifyOpposingConroller(State.Holding, isHolding, obj);
         interactable = obj;
     }
 
     public void OnOpposingEvent(State state, bool isTrue, IInteractable obj)
     {
-        var name = (obj != null) ? obj.GetGameObject().name : "none";
-        Log($"{gameObject.name} {className}.OnOpposingEvent:State : {state} GameObject : {name}");
+        Log($"{Time.time} {gameObject.name} {className}.OnOpposingEvent:State : {state} GameObject : {obj.GetGameObject().name}");
 
         interactable?.OnOpposingEvent(state, isTrue, obj);
     }
 
     private void NotifyOpposingConroller(State state, bool isTrue, IInteractable obj)
     {
+        Log($"{Time.time} {gameObject.name} {className}.NotifyOpposingConroller:State : {state} IsTrue : {isTrue} GameObject : {obj.GetGameObject().name}");
+
         if (cameraManager.TryGetOppositeHandController(this, out HandController opposingController))
         {
             opposingController.OnOpposingEvent(state, isTrue, obj);

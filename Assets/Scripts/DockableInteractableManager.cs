@@ -105,7 +105,7 @@ public class DockableInteractableManager : MonoBehaviour, IInteractable
 
         if (TryGetController<HandController>(interactor, out HandController controller))
         {
-            controller.SetHovering(this);
+            controller.SetHovering(this, true);
             OnHoverEntered(args, controller);
         }
     }
@@ -122,7 +122,7 @@ public class DockableInteractableManager : MonoBehaviour, IInteractable
         {
             Log($"{Time.time} {gameObject.name} {className} OnHoverExited:{interactor.name}");
 
-            controller.SetHovering(null);
+            controller.SetHovering(this, false);
             OnHoverExited(args, controller);
         }
     }
@@ -137,7 +137,7 @@ public class DockableInteractableManager : MonoBehaviour, IInteractable
 
         if (TryGetController<HandController>(interactor, out HandController controller))
         {
-            controller.SetHolding(this);
+            controller.SetHolding(this, true);
             isHeld = true;
 
             OnSelectEntered(args, controller);
@@ -165,7 +165,7 @@ public class DockableInteractableManager : MonoBehaviour, IInteractable
 
         if (TryGetController<HandController>(interactor, out HandController controller))
         {
-            controller.SetHolding(null);
+            controller.SetHolding(this, false);
             isHeld = false;
             
             OnSelectExited(args, controller);
