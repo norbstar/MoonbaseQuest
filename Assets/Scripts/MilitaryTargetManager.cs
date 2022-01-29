@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
 [RequireComponent(typeof(Rigidbody))]
-public class MilitaryTargetManager : MonoBehaviour, IInteractableEvent
+public class MilitaryTargetManager : BaseManager, IInteractableEvent
 {
     [Header("Audio")]
     [SerializeField] AudioClip hitClip;
@@ -13,9 +13,6 @@ public class MilitaryTargetManager : MonoBehaviour, IInteractableEvent
     [Header("Scoring")]
     [SerializeField] ScoreCanvasManager scoreCanvasManager;
     [SerializeField] int points = 10;
-
-    [Header("Debug")]
-    [SerializeField] bool enableLogging = false;
 
     private Rigidbody rigidBody;
     private MilitaryTargetPointMap pointMap;
@@ -50,11 +47,5 @@ public class MilitaryTargetManager : MonoBehaviour, IInteractableEvent
         }
 
         Destroy(instance, 1.0f);
-    }
-
-    private void Log(string message)
-    {
-        if (!enableLogging) return;
-        Debug.Log(message);
     }
 }

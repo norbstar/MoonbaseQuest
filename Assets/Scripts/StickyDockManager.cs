@@ -32,9 +32,6 @@ public class StickyDockManager : DockManager
     [SerializeField] AudioClip dockClip;
     [SerializeField] AudioClip undockClip;
 
-    [Header("Debug")]
-    [SerializeField] bool enableLogging = false;
-
     public delegate void Event(StickyDockManager manager, EventType type, GameObject gameObject);
     public event Event EventReceived;
 
@@ -94,7 +91,7 @@ public class StickyDockManager : DockManager
     {
         GameObject trigger = collider.gameObject;
 
-        if (TryGetInteractable<DockableInteractableManager>(trigger, out DockableInteractableManager interactable))
+        if (TryGet.TryGetInteractable<DockableInteractableManager>(trigger, out DockableInteractableManager interactable))
         {
             if (supportedTags.Contains(interactable.tag))
             {
@@ -128,7 +125,7 @@ public class StickyDockManager : DockManager
 
         if (trackedInteractable == null) return;
 
-        if (TryGetInteractable<DockableInteractableManager>(trigger, out DockableInteractableManager interactable))
+        if (TryGet.TryGetInteractable<DockableInteractableManager>(trigger, out DockableInteractableManager interactable))
         {
             if (Object.ReferenceEquals(interactable.gameObject, trackedInteractable.gameObject))
             {
@@ -151,26 +148,6 @@ public class StickyDockManager : DockManager
                 }
             }
         }
-    }
-
-    private bool TryGetInteractable<InteractableManager>(GameObject trigger, out InteractableManager interactable)
-    {
-        if (trigger.TryGetComponent<InteractableManager>(out InteractableManager interactableManager))
-        {
-            interactable = interactableManager;
-            return true;
-        }
-
-        var component = trigger.GetComponentInParent<InteractableManager>();
-
-        if (component != null)
-        {
-            interactable = component;
-            return true;
-        }
-
-        interactable = default(InteractableManager);
-        return false;
     }
 
     void OnDisable()
@@ -269,11 +246,5 @@ public class StickyDockManager : DockManager
         {
             EventReceived(this, EventType.OnUndocked, interactable.gameObject);
         }
-    }
-
-    private void Log(string message)
-    {
-        if (!enableLogging) return;
-        Debug.Log(message);
     }
 }

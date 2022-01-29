@@ -8,7 +8,7 @@ using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 
 [RequireComponent(typeof(XRController))]
-public class HandController : MonoBehaviour
+public class HandController : BaseManager
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
@@ -45,9 +45,6 @@ public class HandController : MonoBehaviour
     [SerializeField] float gripThreshold = 0.9f;
     [SerializeField] Vector2 thumbStickThreshold = new Vector2(0.9f, 0.9f);
 
-    [Header("Debug")]
-    [SerializeField] bool enableLogging = false;
-
     public InputDeviceCharacteristics Characteristics { get { return characteristics; } }
     public bool IsHolding { get { return isHolding; } }
     public IInteractable Interactable { get { return interactable; } }
@@ -61,7 +58,6 @@ public class HandController : MonoBehaviour
     private DebugCanvas debugCanvas;
     private Gesture gesture, lastGesture;
     private IController controllerCanvasManager;
-    private TestCaseRunner testCaseRunner;
 
     void Awake()
     {
@@ -75,8 +71,6 @@ public class HandController : MonoBehaviour
 
         var obj = FindObjectOfType<DebugCanvas>();
         debugCanvas = obj?.GetComponent<DebugCanvas>() as DebugCanvas;
-
-        testCaseRunner = TestCaseRunner.GetInstance();
     }
 
     private void ResolveController()
@@ -155,7 +149,6 @@ public class HandController : MonoBehaviour
                 {
                     if (obj.TryGetComponent<IInteractable>(out IInteractable interactable))
                     {
-                        Log($"{Time.time} {gameObject.name} {className}.Grip.Teleport:{obj.name}");
                         StartCoroutine(TeleportGrabbable(obj));
                     }
                 }
@@ -306,7 +299,7 @@ public class HandController : MonoBehaviour
     public void SetHolding(IInteractable obj, bool isHolding)
     {
         Log($"{Time.time} {gameObject.name} {className}.SetHolding:Game Object : {obj.GetGameObject().name} Is Holding : {isHolding}");
-
+ 
         this.isHolding = isHolding;
         interactable = obj;
         NotifyOpposingConroller(State.Holding, isHolding, obj);
@@ -331,6 +324,8 @@ public class HandController : MonoBehaviour
 
     public void SetImpulse(float amplitude = 1.0f, float duration = 0.1f, uint channel = 0)
     {
+        Log($"{Time.time} {gameObject.name} {className}.SetImpulse:Amplitude : {amplitude} Duration : {duration} Channel : {channel}");
+
         UnityEngine.XR.HapticCapabilities capabilities;
         InputDevice device = GetInputDevice();
 
@@ -351,6 +346,8 @@ public class HandController : MonoBehaviour
 
     private IEnumerator TeleportGrabbable(GameObject grabbable)
     {
+        Log($"{Time.time} {gameObject.name} {className}.TeleportGrabbable:Amplitude : {grabbable.name}");
+
         float step =  teleportSpeed * Time.deltaTime;
 
         while (Vector3.Distance(transform.position, grabbable.transform.position) > 0.1f)
@@ -358,11 +355,5 @@ public class HandController : MonoBehaviour
             grabbable.transform.position = Vector3.MoveTowards(grabbable.transform.position, transform.position, step);
             yield return null;
         }
-    }
-
-    private void Log(string message)
-    {
-        if (!enableLogging) return;
-        Debug.Log(message);
     }
 }

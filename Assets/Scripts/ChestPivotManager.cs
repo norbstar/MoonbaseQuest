@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class ChestPivotManager : Gizmo
+public class ChestPivotManager : GizmoManager
 {
     [Header("Pivot")]
     [SerializeField] new Camera camera;

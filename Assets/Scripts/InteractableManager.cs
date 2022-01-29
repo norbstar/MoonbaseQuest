@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
 [RequireComponent(typeof(XRGrabInteractable))]
-public class InteractableManager : MonoBehaviour, IInteractable
+public class InteractableManager : BaseManager, IInteractable
 {
     public class Cache
     {
@@ -24,9 +24,6 @@ public class InteractableManager : MonoBehaviour, IInteractable
     [Header("Focus")]
     [SerializeField] FocusableUI focusableUI;
 
-    [Header("Debug")]
-    [SerializeField] bool enableLogging = false;
-
     public delegate void Event(InteractableManager interactable, EventType type);
     public static event Event EventReceived;
     
@@ -38,7 +35,6 @@ public class InteractableManager : MonoBehaviour, IInteractable
     protected Rigidbody rigidBody;
     protected GameObject interactor;
     protected Transform objects;
-    protected TestCaseRunner testCaseRunner;
 
     protected Cache cache;
     private bool isHeld, isDocked;
@@ -64,7 +60,6 @@ public class InteractableManager : MonoBehaviour, IInteractable
     {
         interactable = GetComponent<XRGrabInteractable>() as XRGrabInteractable;
         rigidBody = GetComponent<Rigidbody>() as Rigidbody;
-        testCaseRunner = TestCaseRunner.GetInstance();
     }
 
     public GameObject GetGameObject()
@@ -79,7 +74,7 @@ public class InteractableManager : MonoBehaviour, IInteractable
         var interactor = args.interactorObject.transform.gameObject;
         Log($"{Time.time} {gameObject.name} {className} OnHoverEntered:{interactor.name}");
 
-        if (TryGetController<HandController>(interactor, out HandController controller))
+        if (TryGet.TryGetController<HandController>(interactor, out HandController controller))
         {
             controller.SetHovering(this, true);
             OnHoverEntered(args, controller);
@@ -93,7 +88,7 @@ public class InteractableManager : MonoBehaviour, IInteractable
         var interactor = args.interactorObject.transform.gameObject;
         Log($"{Time.time} {gameObject.name} {className} OnHoverExited:{interactor.name}");
         
-        if (TryGetController<HandController>(interactor, out HandController controller))
+        if (TryGet.TryGetController<HandController>(interactor, out HandController controller))
         {
             controller.SetHovering(this, false);
             OnHoverExited(args, controller);
@@ -107,7 +102,7 @@ public class InteractableManager : MonoBehaviour, IInteractable
         interactor = args.interactorObject.transform.gameObject;
         Log($"{Time.time} {gameObject.name} {className} OnSelectEntered:{interactor.name}");
 
-        if (TryGetController<HandController>(interactor, out HandController controller))
+        if (TryGet.TryGetController<HandController>(interactor, out HandController controller))
         {
             controller.SetHolding(this, true);
             isHeld = true;
@@ -136,7 +131,7 @@ public class InteractableManager : MonoBehaviour, IInteractable
             rigidBody.useGravity = cache.useGravity;
         }
 
-        if (TryGetController<HandController>(interactor, out HandController controller))
+        if (TryGet.TryGetController<HandController>(interactor, out HandController controller))
         {
             controller.SetHolding(this, false);
             isHeld = false;
@@ -154,32 +149,11 @@ public class InteractableManager : MonoBehaviour, IInteractable
 
     protected virtual void OnSelectExited(SelectExitEventArgs args, HandController controller) { }
 
-    protected bool TryGetController<HandController>(GameObject interactor, out HandController controller)
-    {
-        if (interactor != null && interactor.CompareTag("Hand"))
-        {
-            if (interactor.TryGetComponent<HandController>(out HandController handController))
-            {
-                controller = handController;
-                return true;
-            }
-        }
-
-        controller = default(HandController);
-        return false;
-    }
-
     public void OnDockStatusChange(bool isDocked)
     {
         Log($"{Time.time} {gameObject.name} {className} OnDockStatusChange:Is Docked : {isDocked}");
 
         this.isDocked = isDocked;
         focusableUI.SetActive(!isDocked);
-    }
-
-    protected void Log(string message)
-    {
-        if (!enableLogging) return;
-        Debug.Log(message);
     }
 }

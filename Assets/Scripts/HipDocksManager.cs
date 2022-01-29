@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class HipDocksManager : MonoBehaviour
+public class HipDocksManager : BaseManager
 {
         public enum DockID
     {
@@ -15,9 +15,6 @@ public class HipDocksManager : MonoBehaviour
     [Header("Audio")]
     [SerializeField] AudioClip dockClip;
     [SerializeField] AudioClip undockClip;
-
-    [Header("Debug")]
-    [SerializeField] bool enableLogging = false;
 
     public bool DockWeapon(GameObject gameObject, DockID dockID, Quaternion localRotation, bool allowNegotiation = true)
     {
@@ -129,10 +126,4 @@ public class HipDocksManager : MonoBehaviour
     }
 
     private void FreeDock(DockID dockID) => ((dockID == DockID.Left) ? leftDock : rightDock).Free();
-
-    private void Log(string message)
-    {
-        if (!enableLogging) return;
-        Debug.Log(message);
-    }
 }

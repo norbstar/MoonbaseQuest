@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
 [RequireComponent(typeof(XRSocketInteractor))]
-public class SocketInteractorManager : MonoBehaviour
+public class SocketInteractorManager : BaseManager
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
@@ -18,8 +18,11 @@ public class SocketInteractorManager : MonoBehaviour
 
     public enum EventType
     {
+        OnTriggered,
+        OnHovering,
         OnDocked,
-        OnUndocked
+        OnUndocked,
+        OnFree
     }
 
     [SerializeField] MeshRenderer visualElement;
@@ -31,17 +34,17 @@ public class SocketInteractorManager : MonoBehaviour
     [Header("Status")]
     [SerializeField] private OccupancyData occupied;
 
+    [Header("XR Socket")]
+    [SerializeField] new SphereCollider collider;
+
     [Header("Optional settings")]
     [SerializeField] bool startEnabled = true;
-
-    [Header("Debug")]
-    [SerializeField] bool enableLogging = false;
 
     public delegate void Event(SocketInteractorManager manager, EventType type, GameObject gameObject);
     public event Event EventReceived;
 
     public OccupancyData Data { get { return (occupied != null) ? occupied : new OccupancyData(); } set { occupied = value; } }
-
+    public bool IsOccupied { get { return occupied != null && occupied.occupied; } }
     public void Free() => occupied = new SocketInteractorManager.OccupancyData();
 
     private XRSocketInteractor socketInteractor;
@@ -63,22 +66,49 @@ public class SocketInteractorManager : MonoBehaviour
     public void Reveal(bool reveal)
     {
         Log($"{Time.time} {gameObject.name} {className} Reveal:{reveal}");
-
         visualElement.enabled = reveal;
+    }
+
+    public void EnableCollider(bool enable)
+    {
+        Log($"{Time.time} {gameObject.name} {className} EnableCollider:{enable}");
+        collider.enabled = enable;
+    }
+
+    public void OnTriggerEnter(Collider collider)
+    {
+        var trigger = collider.gameObject;
+        
+        if (EventReceived != null)
+        {
+            EventReceived(this, EventType.OnTriggered, trigger);
+        }
     }
 
      public void OnHoverEntered(HoverEnterEventArgs args)
     {
         Log($"{Time.time} {gameObject.name} {className} OnHoverEntered");
+        var interactableGameObject = args.interactableObject.transform.gameObject;
 
         visualElement.gameObject.SetActive(false);
+
+        if (EventReceived != null)
+        {
+            EventReceived(this, EventType.OnHovering, interactableGameObject);
+        }
     }
 
     public void OnHoverExited(HoverExitEventArgs args)
     {
         Log($"{Time.time} {gameObject.name} {className} OnHoverExited");
+        var interactableGameObject = args.interactableObject.transform.gameObject;
 
         visualElement.gameObject.SetActive(true);
+
+        if (EventReceived != null)
+        {
+            EventReceived(this, EventType.OnFree, interactableGameObject);
+        }
     }
 
     public void OnSelectEntered(SelectEnterEventArgs args)
@@ -134,11 +164,5 @@ public class SocketInteractorManager : MonoBehaviour
         {
             EventReceived(this, EventType.OnUndocked, interactableGameObject);
         }
-    }
-
-    private void Log(string message)
-    {
-        if (!enableLogging) return;
-        Debug.Log(message);
     }
 }

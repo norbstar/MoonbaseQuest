@@ -2,7 +2,7 @@ using System;
 
 using UnityEngine;
 
-public class DockManager : Gizmo
+public class DockManager : GizmoManager
 {
     [Serializable]
     public class OccupancyData

@@ -1,10 +1,8 @@
 using UnityEngine;
 using UnityEngine.XR;
 
-public class SceneManager : MonoBehaviour
+public class SceneManager : BaseManager
 {
-    [SerializeField] bool enableLogging = false;
-
     // private DebugCanvas debugCanvas;
 
     private static InputDeviceCharacteristics RightHand = (InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Right);
@@ -60,11 +58,5 @@ public class SceneManager : MonoBehaviour
         {
             Log($"{device.name}.Identified as Right Hand");
         }
-    }
-
-    private void Log(string message)
-    {
-        if (!enableLogging) return;
-        Debug.Log(message);
     }
 }

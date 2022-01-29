@@ -99,7 +99,6 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
         curveCreator = GetComponent<CurveCreator>() as CurveCreator;
         cameraManager = camera.GetComponent<MainCameraManager>() as MainCameraManager;
         hipDocksManager = cameraManager.HipDocksManager;
-        testCaseRunner = TestCaseRunner.GetInstance();
     }
 
     void FixedUpdate()
@@ -123,7 +122,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
                     hitPrefabInstance.SetActive(true);
                 }
 
-                if (TryGetController<HandController>(interactor, out HandController controller))
+                if (TryGet.TryGetController<HandController>(interactor, out HandController controller))
                 {
                     var renderer = hitPrefabInstance.GetComponent<Renderer>() as Renderer;
                     var device = controller.GetInputDevice();
@@ -196,23 +195,21 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
             hudCanvasManager.gameObject.SetActive(true);
 
-            Debug.Log("1");
-            if (cameraManager.TryGetOppositeHandController(controller, out HandController opposingController))
-            {
-                Debug.Log("2");
-                if (opposingController.IsHolding)
-                {
-                    Debug.Log("3");
-                    var interactable = opposingController.Interactable;
+            // if (cameraManager.TryGetOppositeHandController(controller, out HandController opposingController))
+            // {
+            //     if (opposingController.IsHolding)
+            //     {
+            //         var interactable = opposingController.Interactable;
                     
-                    if (interactable.GetGameObject().CompareTag("Flashlight"))
-                    {
-                        Debug.Log("4");
-                        HandleHoldingState(true, interactable);
-                    }
-                }
-            }
+            //         if (interactable.GetGameObject().CompareTag("Flashlight"))
+            //         {
+            //             HandleHoldingState(true, interactable);
+            //         }
+            //     }
+            // }
         }
+
+        socketInteractorManager.EnableCollider(true);
 
         if (enableGravityOnGrab)
         {
@@ -261,7 +258,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
         animator.SetTrigger("Fire");
         AudioSource.PlayClipAtPoint(hitClip, transform.position, 1.0f);
 
-        if (TryGetController<HandController>(interactor, out HandController controller))
+        if (TryGet.TryGetController<HandController>(interactor, out HandController controller))
         {
             controller.SetImpulse();
         }
@@ -339,6 +336,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     {
         hudCanvasManager.gameObject.SetActive(false);
         socketInteractorManager.Reveal(false);
+        socketInteractorManager.EnableCollider(false);
 
         if (enableAutoDock && (controller != null))
         {
@@ -408,7 +406,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     private void SetIntent(Intent intent)
     {
-        if (!socketInteractorManager.Data.occupied) return;
+        if (!socketInteractorManager.IsOccupied) return;
 
         Log($"{Time.time} {gameObject.name} {className} Intent: {intent}");
 
@@ -447,12 +445,24 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
         switch (eventType)
         {
+            case SocketInteractorManager.EventType.OnTriggered:
+                OnTriggered(gameObject);
+                break;
+
+            case SocketInteractorManager.EventType.OnHovering:
+                OnHovering(gameObject);
+                break;
+
             case SocketInteractorManager.EventType.OnDocked:
                 OnDocked(gameObject);
                 break;
 
             case SocketInteractorManager.EventType.OnUndocked:
                 OnUndocked(gameObject);
+                break;
+
+            case SocketInteractorManager.EventType.OnFree:
+                OnFree(gameObject);
                 break;
         }
     }
@@ -465,6 +475,9 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
         switch (state)
         {
+            case HandController.State.Hovering:
+                break;
+
             case HandController.State.Holding:
                 HandleHoldingState(isTrue, obj);
                 break;
@@ -474,38 +487,97 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     private void HandleHoldingState(bool isTrue, IInteractable obj)
     {
         Log($"{Time.time} {this.gameObject.name} {className}.HandleHoldingState:Is True: {isTrue} GameObject : {obj.GetGameObject().name}");
-
+        
         var gameObject = obj.GetGameObject();
 
-        if ((!socketInteractorManager.Data.occupied) && (gameObject.CompareTag("Flashlight")))
+        if ((!socketInteractorManager.IsOccupied) && (gameObject.CompareTag("Flashlight")))
         {
             socketInteractorManager.Reveal(isTrue);
             
-            if (gameObject.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
-            {
-                if (isTrue)
-                {                    
-                    interactable.interactionLayers = InteractionLayerMask.GetMask(new string[] { "Default", "Gun Compatible Flashlight" });
-                    Log($"{Time.time} {gameObject.name} {className}.InteractionLayers:{interactable.interactionLayers.value}");
-                }
-                else
-                {
-                    StartCoroutine(ConditionallyRevertInteractionLayers(interactable));
-                }
-            }
+            // if (gameObject.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
+            // {
+            //     if (isTrue)
+            //     {                  
+            //         interactable.interactionLayers = InteractionLayerMask.GetMask(new string[] { "Default", "Gun Compatible Flashlight" });
+            //         Log($"{Time.time} {gameObject.name} {className}.InteractionLayers:{interactable.interactionLayers.value}");
+            //     }
+            //     else
+            //     {
+            //         StartCoroutine(ConditionallyRevertInteractionLayers(interactable));
+            //     }
+            // }
         }
     }
 
-    private IEnumerator ConditionallyRevertInteractionLayers(XRGrabInteractable interactable)
+    // private IEnumerator ConditionallyRevertInteractionLayers(XRGrabInteractable interactable)
+    // {
+    //     Log($"{Time.time} {gameObject.name} {className}.ConditionallyRevertInteractionLayers");
+
+    //     yield return new WaitForSeconds(1);
+
+    //     if (!socketInteractorManager.IsOccupied || !Object.ReferenceEquals(interactable.gameObject, socketInteractorManager.Data.gameObject))
+    //     {
+    //         interactable.interactionLayers = InteractionLayerMask.GetMask(new string[] { "Default", "Flashlight" });
+    //     }
+    // }
+
+    private void OnTriggered(GameObject gameObject)
     {
-        Log($"{Time.time} {gameObject.name} {className}.ConditionallyRevertInteractionLayers");
-
-        yield return new WaitForSeconds(1);
-
-        if (!socketInteractorManager.Data.occupied || !Object.ReferenceEquals(interactable.gameObject, socketInteractorManager.Data.gameObject))
+        Log($"{Time.time} {this.gameObject.name}.OnTriggered:GameObject : {gameObject.name}");
+        
+        if ((!socketInteractorManager.IsOccupied) && (gameObject.CompareTag("Flashlight")))
         {
-            interactable.interactionLayers = InteractionLayerMask.GetMask(new string[] { "Default", "Flashlight" });
+            Log($"1");
+            if (TryGet.TryGetController<HandController>(interactor, out HandController controller))
+            {
+                Log($"2");
+                if (cameraManager.TryGetOppositeHandController(controller, out HandController opposingController))
+                {
+                    Log($"3");
+                    if ((opposingController.IsHolding) && (GameObject.ReferenceEquals(opposingController.Interactable.GetGameObject(), gameObject)))
+                    {
+                        Log($"4");
+                        if (gameObject.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
+                        {
+                            Log($"5");
+                            interactable.interactionLayers = InteractionLayerMask.GetMask(new string[] { "Default", "Gun Compatible Flashlight" });
+                        }
+                    }
+                }
+            }
         }
+
+#if false
+        Log($"1");
+        if (TryGetController<HandController>(gameObject, out HandController controller))
+        {
+            Log($"2");
+            if ((!socketInteractorManager.IsOccupied) && (cameraManager.TryGetOppositeHandController(controller, out HandController opposingController)))
+            {
+                Log($"3");
+                if (opposingController.IsHolding)
+                {
+                    Log($"4");
+                    var opposingInteractable = opposingController.Interactable;
+                    
+                    if (opposingInteractable.GetGameObject().CompareTag("Flashlight"))
+                    {
+                        Log($"5");
+                        if (gameObject.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
+                        {
+                            Log($"6");
+                            interactable.interactionLayers = InteractionLayerMask.GetMask(new string[] { "Default", "Gun Compatible Flashlight" });
+                        }
+                    }
+                }
+            }
+        }
+#endif
+    }
+
+    private void OnHovering(GameObject gameObject)
+    {
+        Log($"{Time.time} {this.gameObject.name}.OnHovering:GameObject : {gameObject.name}");
     }
 
     private void OnDocked(GameObject gameObject)
@@ -559,6 +631,16 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
         
         dockedOccupied = false;
         docked = null;
+    }
+
+    private void OnFree(GameObject gameObject)
+    {
+        Log($"{Time.time} {this.gameObject.name}.OnFree:GameObject : {gameObject.name}");
+
+        if (gameObject.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
+        {
+            interactable.interactionLayers = InteractionLayerMask.GetMask(new string[] { "Default", "Flashlight" });
+        }
     }
 
     public void RestoreCachedGunState()

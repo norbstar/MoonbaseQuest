@@ -92,7 +92,7 @@ public class DockableGunInteractableManager : DockableFocusableInteractableManag
         curveCreator = GetComponent<CurveCreator>() as CurveCreator;
         cameraManager = camera.GetComponent<MainCameraManager>() as MainCameraManager;
         hipDocksManager = cameraManager.HipDocksManager;
-        testCaseRunner = TestCaseRunner.GetInstance();
+        testCaseRunner = Test.TestCaseRunner.GetInstance();
     }
 
     void FixedUpdate()
@@ -116,7 +116,7 @@ public class DockableGunInteractableManager : DockableFocusableInteractableManag
                     hitPrefabInstance.SetActive(true);
                 }
 
-                if (TryGetController<HandController>(interactor, out HandController controller))
+                if (TryGet.TryGetController<HandController>(interactor, out HandController controller))
                 {
                     var renderer = hitPrefabInstance.GetComponent<Renderer>() as Renderer;
                     var device = controller.GetInputDevice();
@@ -258,7 +258,7 @@ public class DockableGunInteractableManager : DockableFocusableInteractableManag
         animator.SetTrigger("Fire");
         AudioSource.PlayClipAtPoint(hitClip, transform.position, 1.0f);
 
-        if (TryGetController<HandController>(interactor, out HandController controller))
+        if (TryGet.TryGetController<HandController>(interactor, out HandController controller))
         {
             controller.SetImpulse();
         }

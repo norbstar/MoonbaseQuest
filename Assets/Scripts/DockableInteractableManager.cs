@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
 [RequireComponent(typeof(XRGrabInteractable))]
-public class DockableInteractableManager : MonoBehaviour, IInteractable
+public class DockableInteractableManager : BaseManager, IInteractable
 {
     public class Cache
     {
@@ -20,9 +20,6 @@ public class DockableInteractableManager : MonoBehaviour, IInteractable
         OnSelectEntered,
         OnSelectExited
     }
-
-    [Header("Debug")]
-    [SerializeField] bool enableLogging = false;
 
     [Header("Tracking")]
     [SerializeField] Transform originTransform;
@@ -43,7 +40,7 @@ public class DockableInteractableManager : MonoBehaviour, IInteractable
     protected Rigidbody rigidBody;
     protected GameObject interactor;
     protected Transform objects;
-    protected TestCaseRunner testCaseRunner;
+    protected Test.TestCaseRunner testCaseRunner;
 
     private Cache cache;
     private bool isHeld, isDocked;
@@ -70,7 +67,7 @@ public class DockableInteractableManager : MonoBehaviour, IInteractable
     {
         interactable = GetComponent<XRGrabInteractable>() as XRGrabInteractable;
         rigidBody = GetComponent<Rigidbody>() as Rigidbody;
-        testCaseRunner = TestCaseRunner.GetInstance();
+        testCaseRunner = Test.TestCaseRunner.GetInstance();
     }
     
     public GameObject GetGameObject()
@@ -103,7 +100,7 @@ public class DockableInteractableManager : MonoBehaviour, IInteractable
 
         Log($"{Time.time} {gameObject.name} {className} OnHoverEntered:{interactor.name}");
 
-        if (TryGetController<HandController>(interactor, out HandController controller))
+        if (TryGet.TryGetController<HandController>(interactor, out HandController controller))
         {
             controller.SetHovering(this, true);
             OnHoverEntered(args, controller);
@@ -118,7 +115,7 @@ public class DockableInteractableManager : MonoBehaviour, IInteractable
 
         var interactor = args.interactorObject.transform.gameObject;
         
-        if (TryGetController<HandController>(interactor, out HandController controller))
+        if (TryGet.TryGetController<HandController>(interactor, out HandController controller))
         {
             Log($"{Time.time} {gameObject.name} {className} OnHoverExited:{interactor.name}");
 
@@ -135,7 +132,7 @@ public class DockableInteractableManager : MonoBehaviour, IInteractable
 
         interactor = args.interactorObject.transform.gameObject;
 
-        if (TryGetController<HandController>(interactor, out HandController controller))
+        if (TryGet.TryGetController<HandController>(interactor, out HandController controller))
         {
             controller.SetHolding(this, true);
             isHeld = true;
@@ -163,7 +160,7 @@ public class DockableInteractableManager : MonoBehaviour, IInteractable
             rigidBody.useGravity = cache.useGravity;
         }
 
-        if (TryGetController<HandController>(interactor, out HandController controller))
+        if (TryGet.TryGetController<HandController>(interactor, out HandController controller))
         {
             controller.SetHolding(this, false);
             isHeld = false;
@@ -191,31 +188,10 @@ public class DockableInteractableManager : MonoBehaviour, IInteractable
 
         Log($"{gameObject.name} {className} EnableTracking:{enableTracking}");
     }
-
-    protected bool TryGetController<HandController>(GameObject interactor, out HandController controller)
-    {
-        if (interactor != null && interactor.CompareTag("Hand"))
-        {
-            if (interactor.TryGetComponent<HandController>(out HandController handController))
-            {
-                controller = handController;
-                return true;
-            }
-        }
-
-        controller = default(HandController);
-        return false;
-    }
-
+    
     public void OnDockStatusChange(bool isDocked)
     {
         this.isDocked = isDocked;
         focusableUI.SetActive(!isDocked);
-    }
-
-    protected void Log(string message)
-    {
-        if (!enableLogging) return;
-        Debug.Log(message);
     }
 }

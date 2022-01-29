@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using System.Reflection;
-using System.Linq;
 
 using UnityEngine;
 
-public class MainCameraManager : Gizmo
+public class MainCameraManager : GizmoManager
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
@@ -26,9 +25,6 @@ public class MainCameraManager : Gizmo
     [SerializeField] float scanRadius = 2f;
     [SerializeField] Color scanVolumeColor = new Color(0f, 0f, 0f, 0.5f);
 
-    [Header("Debug")]
-    [SerializeField] bool enableLogging = false;
-
     public HandController LeftHandController { get { return leftHandController; } }
     public HandController RightHandController { get { return rightHandController; } }
     public HipDocksManager HipDocksManager { get { return hipDocksManager; } }
@@ -37,23 +33,18 @@ public class MainCameraManager : Gizmo
     private GameObject lastObjectHit;
     private int defaultLayerMask;
     private List<IInteractable> trackedInteractables;
-    private TestCaseRunner testCaseRunner;
     
     void Awake()
     {
-        ResolveDependencies();
         defaultLayerMask = LayerMask.GetMask("Default");
         trackedInteractables = new List<IInteractable>();
     }
 
-    private void ResolveDependencies()
-    {
-        testCaseRunner = TestCaseRunner.GetInstance();
-    }
-
     void FixedUpdate()
     {
-        // TrackInteractablesInRange(transform.position, scanRadius);
+#if false
+        TrackInteractablesInRange(transform.position, scanRadius);
+#endif
 
         bool hitDetected = Physics.SphereCast(transform.TransformPoint(Vector3.zero), focalRadius, transform.forward, out RaycastHit hitInfo, Mathf.Infinity, defaultLayerMask);
         GameObject objectHit = null;
@@ -125,7 +116,7 @@ public class MainCameraManager : Gizmo
         {
             GameObject trigger = hit.gameObject;
 
-            if (TryGetInteractable<IInteractable>(trigger, out IInteractable interactable))
+            if (TryGet.TryGetInteractable<IInteractable>(trigger, out IInteractable interactable))
             {
                 verifiedHits.Add(interactable);
             }
@@ -161,26 +152,6 @@ public class MainCameraManager : Gizmo
         return (opposingController != null);
     }
 
-    private bool TryGetInteractable<IInteractable>(GameObject trigger, out IInteractable interactable)
-    {
-        if (trigger.TryGetComponent<IInteractable>(out IInteractable interactableManager))
-        {
-            interactable = interactableManager;
-            return true;
-        }
-
-        var component = trigger.GetComponentInParent<IInteractable>();
-
-        if (component != null)
-        {
-            interactable = component;
-            return true;
-        }
-
-        interactable = default(IInteractable);
-        return false;
-    }
-
     public bool TryGetObjectHit(out GameObject obj)
     {
         if (lastObjectHit != null)
@@ -191,21 +162,5 @@ public class MainCameraManager : Gizmo
 
         obj = default(GameObject);
         return false;
-    }
-
-    // protected override void OnDrawGizmos()
-    // {
-    //     base.OnDrawGizmos();
-
-        // Gizmos.color = scanVolumeColor;
-        // Gizmos.matrix = transform.localToWorldMatrix;
-        
-        // Gizmos.DrawSphere(transform.position, scanRadius);
-    // }
-
-    private void Log(string message)
-    {
-        if (!enableLogging) return;
-        Debug.Log(message);
     }
 }

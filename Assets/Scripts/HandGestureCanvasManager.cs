@@ -4,7 +4,7 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class HandGestureCanvasManager : MonoBehaviour
+public class HandGestureCanvasManager : BaseManager
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
@@ -29,9 +29,6 @@ public class HandGestureCanvasManager : MonoBehaviour
      [Header("Color")]
      [SerializeField] Color defaultColor;
      [SerializeField] Color highlightColor;
-
-     [Header("Debug")]
-    [SerializeField] bool enableLogging = false;
 
     private Gesture lastGesture;
 
@@ -79,11 +76,5 @@ public class HandGestureCanvasManager : MonoBehaviour
         hover.color = (gesture.HasFlag(Gesture.Hover)) ? highlightColor : defaultColor;
 
         Log($"{gameObject.name} {className}.State:{gesture}");
-    }
-
-    private void Log(string message)
-    {
-        if (!enableLogging) return;
-        Debug.Log(message);
     }
 }

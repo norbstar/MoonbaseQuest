@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using UnityEngine;
 
-public class MilitaryTargetPointMap : MonoBehaviour
+public class MilitaryTargetPointMap : BaseManager
 {
     [Serializable]
     public class PointMap
@@ -14,9 +14,6 @@ public class MilitaryTargetPointMap : MonoBehaviour
 
     [SerializeField] List<PointMap> pointMaps;
     // [SerializeField] float cullingDistance = 0.1f;
-
-    [Header("Debug")]
-    [SerializeField] bool enableLogging = false;
 
     public List<PointMap> PointMaps { get { return pointMaps; } }
 
@@ -52,11 +49,5 @@ public class MilitaryTargetPointMap : MonoBehaviour
         
         value = default(int);
         return false;
-    }
-
-    private void Log(string message)
-    {
-        if (!enableLogging) return;
-        Debug.Log(message);
     }
 }
