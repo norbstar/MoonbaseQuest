@@ -12,6 +12,28 @@ public class HandController : BaseManager
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
+    // public class EventArgs
+    // {
+    //     public bool registerLeftHandGestures;
+    //     public bool registerRightHandGestures;
+    // }
+
+    // public class GestureDataPoint<T>
+    // {
+    //     public Gesture gesture;
+    //     public T data;
+    // }
+
+    public class RawGestureData
+    {
+        public Vector2 thumbStickValue;
+    }
+
+    public delegate void Event(Gesture gesture, RawGestureData rawGestureData, InputDeviceCharacteristics characteristics);
+    // public delegate void Event(GestureDataPoint<object> gesture, InputDeviceCharacteristics characteristics);
+    // public static event EventHandler<EventArgs> EventReceived;
+    public static event Event EventReceived;
+
     [Flags]
     public enum Gesture
     {
@@ -310,6 +332,34 @@ public class HandController : BaseManager
         if (gesture != lastGesture)
         {
             controllerCanvasManager?.SetGestureState(gesture);
+
+            if (EventReceived != null)
+            {
+                // var gestures = Enum.GetValues(typeof(Gesture));
+
+                // foreach (Gesture thisGesture in gestures)
+                // {
+                //     if (gesture.HasFlag(thisGesture))
+                //     {
+                //         switch(gesture)
+                //         {
+                //             // TODO
+                //         }
+                //     }
+                // }
+
+                // foreach (Delegate thisDelegate in EventReceived.GetInvocationList())
+                // {
+                //     thisDelegate.DynamicInvoke(gesture, characteristics);
+                // }
+
+                RawGestureData rawGestureData = new RawGestureData
+                {
+                    thumbStickValue = thumbStickValue
+                };
+                
+                EventReceived.Invoke(gesture, rawGestureData, characteristics);
+            }
         }
         
         controllerCanvasManager?.SetThumbStickCursor(thumbStickValue);

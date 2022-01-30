@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Reflection;
 
 using UnityEngine;
+using UnityEngine.XR;
 
 public class MainCameraManager : GizmoManager
 {
@@ -25,6 +26,9 @@ public class MainCameraManager : GizmoManager
     [SerializeField] float scanRadius = 2f;
     [SerializeField] Color scanVolumeColor = new Color(0f, 0f, 0f, 0.5f);
 
+    [Header("Movement")]
+    [SerializeField] float speed = 10.0f;
+
     public HandController LeftHandController { get { return leftHandController; } }
     public HandController RightHandController { get { return rightHandController; } }
     public HipDocksManager HipDocksManager { get { return hipDocksManager; } }
@@ -38,6 +42,8 @@ public class MainCameraManager : GizmoManager
     {
         defaultLayerMask = LayerMask.GetMask("Default");
         trackedInteractables = new List<IInteractable>();
+
+        HandController.EventReceived += OnHandEvent;
     }
 
     void FixedUpdate()
@@ -131,6 +137,24 @@ public class MainCameraManager : GizmoManager
         trackedInteractables = verifiedHits;
     }
 #endif
+
+    public void OnHandEvent(HandController.Gesture gesture, HandController.RawGestureData rawGestureData, InputDeviceCharacteristics characteristics)
+    {
+        float thumbstickX = rawGestureData.thumbStickValue.x;
+        float thumbstickY = rawGestureData.thumbStickValue.y;
+
+        if (characteristics.HasFlag(InputDeviceCharacteristics.Left))
+        {
+            Log($"Left Hand Gesture : {gesture}");
+        }
+        else
+        {
+            Log($"Right Hand Gesture : {gesture}");
+
+            Vector3 input = new Vector3(thumbstickX, thumbstickX, 0f);
+            transform.position += input * speed;
+        }
+    }
 
     public bool TryGetOppositeHandController(HandController handController, out HandController opposingController)
     {
