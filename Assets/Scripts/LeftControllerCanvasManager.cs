@@ -6,6 +6,7 @@ public class LeftControllerCanvasManager : MonoBehaviour, IController
     [SerializeField] GameObject trigger;
     [SerializeField] GameObject grip;
     [SerializeField] GameObject thumbStick;
+    [SerializeField] GameObject thumbStickClick;
     [SerializeField] GameObject menu;
     [SerializeField] GameObject x;
     [SerializeField] GameObject y;
@@ -20,6 +21,7 @@ public class LeftControllerCanvasManager : MonoBehaviour, IController
         SetTriggerState(gesture);
         SetGripState(gesture);
         SetThumbStickState(gesture);
+        SetThumbStickClickState(gesture);
         SetMenuState(gesture);
         SetXState(gesture);
         SetYState(gesture);
@@ -74,6 +76,21 @@ public class LeftControllerCanvasManager : MonoBehaviour, IController
         if (!(gesture.HasFlag(HandController.Gesture.ThumbStick_Up) || gesture.HasFlag(HandController.Gesture.ThumbStick_Left) || gesture.HasFlag(HandController.Gesture.ThumbStick_Right) || gesture.HasFlag(HandController.Gesture.ThumbStick_Down)) && thumbStick.activeSelf)
         {
             thumbStick.SetActive(false);
+        }
+    }
+
+    private void SetThumbStickClickState(HandController.Gesture gesture)
+    {
+        // thumbStickClick.SetActive(gesture.HasFlag(HandController.Gesture.ThumbStick_Click));
+
+        if (gesture.HasFlag(HandController.Gesture.ThumbStick_Click) && !thumbStickClick.activeSelf)
+        {
+            thumbStickClick.SetActive(true);
+        }
+
+        if (!(gesture.HasFlag(HandController.Gesture.ThumbStick_Click) && thumbStickClick.activeSelf))
+        {
+            thumbStickClick.SetActive(false);
         }
     }
 

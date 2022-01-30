@@ -173,6 +173,8 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     protected override void OnSelectEntered(SelectEnterEventArgs args, HandController controller)
     {
+        Log($"{Time.time} {gameObject.name} {className} OnSelectEntered");
+
         gameObject.transform.parent = objects;
 
         if (controller != null)
@@ -221,6 +223,8 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     public void OnActivated(ActivateEventArgs args)
     {
+        Log($"{Time.time} {gameObject.name} {className} OnActivated");
+
         if (mode == GunInteractableEnums.Mode.Manual)
         {
             FireOnce();
@@ -326,6 +330,8 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     public void OnDeactivated(DeactivateEventArgs args)
     {
+        Log($"{Time.time} {gameObject.name} {className} OnDeactivated");
+
         if (fireRepeatCoroutine != null)
         {
             StopCoroutine(fireRepeatCoroutine);
@@ -334,6 +340,8 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     protected override void OnSelectExited(SelectExitEventArgs args, HandController controller)
     {
+        Log($"{Time.time} {gameObject.name} {className} OnSelectExited");
+
         hudCanvasManager.gameObject.SetActive(false);
         socketInteractorManager.Reveal(false);
         socketInteractorManager.EnableCollider(false);
@@ -346,6 +354,8 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     private void DockWeapon(HandController controller)
     {
+        Log($"{Time.time} {gameObject.name} {className} DockWeapon");
+
         var device = controller.GetInputDevice();
 
         if (((int) device.characteristics) == ((int) LeftHand))
@@ -360,36 +370,54 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
     public void OnGesture(HandController.Gesture gesture, object value = null)
     {
+        Log($"{Time.time} {gameObject.name} {className} OnGesture:Gesture : {gesture} Value : {value}");
+
         switch (gesture)
         {
+            case HandController.Gesture.Grip:
+                break;
+
+            case HandController.Gesture.Trigger:
+                break;
+
+            case HandController.Gesture.Button_AX:
+                AlternateMode();
+                break;
+
+            case HandController.Gesture.Button_BY:
+                AlternateIntent();
+                break;
+
             case HandController.Gesture.ThumbStick_Left:
-                SetMode(Mode.Manual);
                 break;
             
             case HandController.Gesture.ThumbStick_Right:
-                SetMode(Mode.Auto);
                 break;
 
             case HandController.Gesture.ThumbStick_Up:
-                SetIntent(Intent.Engaged);
                 break;
 
             case HandController.Gesture.ThumbStick_Down:
-                SetIntent(Intent.Disengaged);
+                break;
+
+            case HandController.Gesture.ThumbStick_Click:
+                break;
+
+            case HandController.Gesture.Menu_Oculus:
                 break;
         }
     }
 
     private void SetMode(Mode mode)
     {
+        Log($"{Time.time} {gameObject.name} {className} SetMode: {mode}");
+
         switch (mode)
         {
             case Mode.Manual:
                 if (this.mode != Mode.Manual)
                 {
                     AudioSource.PlayClipAtPoint(manualClip, transform.position, 1.0f);
-                    hudCanvasManager.SetMode(mode);
-                    this.mode = mode;
                 }
                 break;
 
@@ -397,18 +425,27 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
                 if (this.mode != Mode.Auto)
                 {
                     AudioSource.PlayClipAtPoint(autoClip, transform.position, 1.0f);
-                    hudCanvasManager.SetMode(mode);
-                    this.mode = mode;
                 }
                 break;
         }
+        
+        hudCanvasManager.SetMode(mode);
+        this.mode = mode;
+    }
+
+    private void AlternateMode()
+    {
+        Log($"{Time.time} {gameObject.name} {className} AlternateMode");
+
+        Mode altMode = (mode == Mode.Manual) ? Mode.Auto : Mode.Manual;
+        SetMode(altMode);
     }
 
     private void SetIntent(Intent intent)
     {
-        if (!socketInteractorManager.IsOccupied) return;
-
         Log($"{Time.time} {gameObject.name} {className} Intent: {intent}");
+        
+        if (!socketInteractorManager.IsOccupied) return;
 
         var dockedObject = socketInteractorManager.Data.gameObject;
 
@@ -421,8 +458,6 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
                     {
                         manager.State = FlashlightInteractableManager.ActiveState.On;
                         AudioSource.PlayClipAtPoint(engagedClip, transform.position, 1.0f);
-                        hudCanvasManager.SetIntent(intent);
-                        this.intent = intent;
                     }
                     break;
 
@@ -430,13 +465,22 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
                     if (this.intent != Intent.Disengaged)
                     {
                         manager.State = FlashlightInteractableManager.ActiveState.Off;
-                        AudioSource.PlayClipAtPoint(disengagedClip, transform.position, 1.0f);
-                        hudCanvasManager.SetIntent(intent);
-                        this.intent = intent;
+                        AudioSource.PlayClipAtPoint(disengagedClip, transform.position, 1.0f);            
                     }
                     break;
             }
+
+            hudCanvasManager.SetIntent(intent);
+            this.intent = intent;
         }
+    }
+
+    private void AlternateIntent()
+    {
+        Log($"{Time.time} {gameObject.name} {className} AlternateIntent");
+
+        Intent altIntent = (intent == Intent.Engaged) ? Intent.Disengaged : Intent.Engaged;
+        SetIntent(altIntent);
     }
 
     public void OnSocketEvent(SocketInteractorManager manager, SocketInteractorManager.EventType eventType, GameObject gameObject)

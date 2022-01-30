@@ -24,7 +24,8 @@ public class HandController : BaseManager
         ThumbStick_Right = 32,
         ThumbStick_Up = 64,
         ThumbStick_Down = 128,
-        Menu_Oculus = 256
+        ThumbStick_Click = 256,
+        Menu_Oculus = 512
     }
 
     public enum State
@@ -33,7 +34,10 @@ public class HandController : BaseManager
         Holding
     }
 
+    [Header("Mapping")]
     [SerializeField] InputDeviceCharacteristics characteristics;
+
+    [Header("Camera")]
     [SerializeField] new Camera camera;
     
     [Header("Teleport")]
@@ -94,8 +98,6 @@ public class HandController : BaseManager
     // Update is called once per frame
     void Update()
     {
-        // Log($"{Time.time} {gameObject.name} {className} State:Hovering {isHovering} Holding {isHolding}");
-        
         if (!controller.isValid)
         {
             ResolveController();
@@ -123,14 +125,22 @@ public class HandController : BaseManager
 
         lastGesture = gesture;
 
+        var gameObject = interactable?.GetGameObject();
+
         if (controller.TryGetFeatureValue(CommonUsages.trigger, out float triggerValue))
         {
+            // Log($"{Time.time} {gameObject.name} {className}.Trigger.Value:{triggerValue}");
+
             var handAnimationController = xrController.model.GetComponent<HandAnimationController>() as HandAnimationController;
             handAnimationController?.SetFloat("Trigger", triggerValue);
 
             if (triggerValue >= triggerThreshold)
             {
-                gesture |= Gesture.Trigger;
+                if (!gesture.HasFlag(Gesture.Trigger))
+                {
+                    gesture |= Gesture.Trigger;
+                    gameObject?.GetComponent<IGesture>()?.OnGesture(Gesture.Trigger);
+                }
             }
             else
             {
@@ -140,6 +150,8 @@ public class HandController : BaseManager
 
         if (controller.TryGetFeatureValue(CommonUsages.grip, out float gripValue))
         {
+            // Log($"{Time.time} {gameObject.name} {className}.Grip.Value:{gripValue}");
+
             var handAnimationController = xrController.model.GetComponent<HandAnimationController>() as HandAnimationController;
             handAnimationController?.SetFloat("Grip", gripValue);
 
@@ -153,7 +165,11 @@ public class HandController : BaseManager
                     }
                 }
 
-                gesture |= Gesture.Grip;
+                if (!gesture.HasFlag(Gesture.Grip))
+                {
+                    gesture |= Gesture.Grip;
+                    gameObject?.GetComponent<IGesture>()?.OnGesture(Gesture.Grip);
+                }
             }
             else
             {
@@ -167,7 +183,11 @@ public class HandController : BaseManager
 
             if (buttonAXValue)
             {
-                gesture |= Gesture.Button_AX;
+                if (!gesture.HasFlag(Gesture.Button_AX))
+                {
+                    gesture |= Gesture.Button_AX;
+                    gameObject?.GetComponent<IGesture>()?.OnGesture(Gesture.Button_AX);
+                }
             }
             else
             {
@@ -181,7 +201,11 @@ public class HandController : BaseManager
 
             if (buttonBYValue)
             {
-                gesture |= Gesture.Button_BY;
+                if (!gesture.HasFlag(Gesture.Button_BY))
+                {
+                    gesture |= Gesture.Button_BY;
+                    gameObject?.GetComponent<IGesture>()?.OnGesture(Gesture.Button_BY);
+                }
             }
             else
             {
@@ -191,12 +215,15 @@ public class HandController : BaseManager
 
         if (controller.TryGetFeatureValue(CommonUsages.primary2DAxis, out Vector2 thumbStickValue))
         {
-            var gameObject = interactable?.GetGameObject();
-            
+            // Log($"{Time.time} {gameObject.name} {className}.Thumbstick.Value:{thumbStickValue}");
+
             if (thumbStickValue.x <= -thumbStickThreshold.x)
             {
-                gesture |= Gesture.ThumbStick_Left;
-                gameObject?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Left);
+                if (!gesture.HasFlag(Gesture.ThumbStick_Left))
+                {
+                    gesture |= Gesture.ThumbStick_Left;
+                    gameObject?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Left);
+                }
             }
             else
             {
@@ -205,8 +232,11 @@ public class HandController : BaseManager
             
             if (thumbStickValue.x > thumbStickThreshold.x)
             {
-                gesture |= Gesture.ThumbStick_Right;
-                gameObject?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Right);
+                if (!gesture.HasFlag(Gesture.ThumbStick_Right))
+                {
+                    gesture |= Gesture.ThumbStick_Right;
+                    gameObject?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Right);
+                }
             }
             else
             {
@@ -215,8 +245,11 @@ public class HandController : BaseManager
 
             if (thumbStickValue.y <= -thumbStickThreshold.y)
             {
-                gesture |= Gesture.ThumbStick_Up;
-                gameObject?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Up);
+                if (!gesture.HasFlag(Gesture.ThumbStick_Up))
+                {
+                    gesture |= Gesture.ThumbStick_Up;
+                    gameObject?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Up);
+                }
             }
             else
             {
@@ -225,12 +258,33 @@ public class HandController : BaseManager
             
             if (thumbStickValue.y > thumbStickThreshold.y)
             {
-                gesture |= Gesture.ThumbStick_Down;
-                gameObject?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Down);
+                if (!gesture.HasFlag(Gesture.ThumbStick_Down))
+                {
+                    gesture |= Gesture.ThumbStick_Down;
+                    gameObject?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Down);
+                }
             }
             else
             {
                 gesture &= ~Gesture.ThumbStick_Down;
+            }
+        }
+
+        if (controller.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out bool thumbstickClickValue))
+        {
+            // Log($"{Time.time} {gameObject.name} {className}.Thumbstick Click.Pressed:{thumbstickClickValue}");
+
+            if (thumbstickClickValue)
+            {
+                if (!gesture.HasFlag(Gesture.ThumbStick_Click))
+                {
+                    gesture |= Gesture.ThumbStick_Click;
+                    gameObject?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Click);
+                }
+            }
+            else
+            {
+                gesture &= ~Gesture.ThumbStick_Click;
             }
         }
 
@@ -240,7 +294,11 @@ public class HandController : BaseManager
 
             if (menuButtonValue)
             {
-                gesture |= Gesture.Menu_Oculus;
+                if (!gesture.HasFlag(Gesture.Menu_Oculus))
+                {
+                    gesture |= Gesture.Menu_Oculus;
+                    gameObject?.GetComponent<IGesture>()?.OnGesture(Gesture.Menu_Oculus);
+                }
             }
             else
             {
@@ -248,14 +306,14 @@ public class HandController : BaseManager
             }
         }
 
-        if (controllerCanvasManager != null)
+        var value = (int) gesture;
+
+        if (gesture != lastGesture)
         {
-            controllerCanvasManager.SetGestureState(gesture);
+            controllerCanvasManager?.SetGestureState(gesture);
         }
-
+        
         UpdateHandGestureState();
-
-        if (gesture != lastGesture) Log($"{Time.time} {gameObject.name} {className}.State:{gesture}");
     }
 
     private void UpdateHandGestureState()
