@@ -126,6 +126,7 @@ public class HandController : BaseManager
         lastGesture = gesture;
 
         var gameObject = interactable?.GetGameObject();
+        Vector2 thumbStickValue;
 
         if (controller.TryGetFeatureValue(CommonUsages.trigger, out float triggerValue))
         {
@@ -213,7 +214,7 @@ public class HandController : BaseManager
             }
         }
 
-        if (controller.TryGetFeatureValue(CommonUsages.primary2DAxis, out Vector2 thumbStickValue))
+        if (controller.TryGetFeatureValue(CommonUsages.primary2DAxis, out thumbStickValue))
         {
             // Log($"{Time.time} {gameObject.name} {className}.Thumbstick.Value:{thumbStickValue}");
 
@@ -306,12 +307,12 @@ public class HandController : BaseManager
             }
         }
 
-        var value = (int) gesture;
-
         if (gesture != lastGesture)
         {
             controllerCanvasManager?.SetGestureState(gesture);
         }
+        
+        controllerCanvasManager?.SetThumbStickCursor(thumbStickValue);
         
         UpdateHandGestureState();
     }
