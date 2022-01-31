@@ -5,17 +5,10 @@ public class GizmoManager : BaseManager
     [Header("Gizmo")]
     [SerializeField] Color color;
     [SerializeField] Vector3 size = Vector3.one * 0.1f;
-    [SerializeField] bool mapToWorldSpace = false;
 
     void OnDrawGizmos()
     {
         Gizmos.color = color;
-
-        if (mapToWorldSpace)
-        {
-            Gizmos.matrix = transform.localToWorldMatrix;
-        }
-        
         Gizmos.DrawCube(transform.position, size);
     }
 }

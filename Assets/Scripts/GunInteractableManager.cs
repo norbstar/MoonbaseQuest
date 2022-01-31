@@ -31,9 +31,8 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     [SerializeField] GunOverheatCanvasManager overheatCanvasManager;
     [SerializeField] float speed = 5f;
 
-    [Header("Optional Settings")]
+    [Header("Docking")]
     [SerializeField] bool enableAutoDock = true;
-    [SerializeField] bool enableGravityOnGrab = true;
 
     [Header("Hits")]
     [SerializeField] bool showHits;
@@ -212,13 +211,6 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
         }
 
         socketInteractorManager.EnableCollider(true);
-
-        if (enableGravityOnGrab)
-        {
-            enableGravityOnGrab = false;
-            cache.isKinematic = false;
-            cache.useGravity = true;
-        }
     }
 
     public void OnActivated(ActivateEventArgs args)
@@ -374,36 +366,12 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
         switch (gesture)
         {
-            case HandController.Gesture.Grip:
-                break;
-
-            case HandController.Gesture.Trigger:
-                break;
-
             case HandController.Gesture.Button_AX:
                 AlternateMode();
                 break;
 
             case HandController.Gesture.Button_BY:
                 AlternateIntent();
-                break;
-
-            case HandController.Gesture.ThumbStick_Left:
-                break;
-            
-            case HandController.Gesture.ThumbStick_Right:
-                break;
-
-            case HandController.Gesture.ThumbStick_Up:
-                break;
-
-            case HandController.Gesture.ThumbStick_Down:
-                break;
-
-            case HandController.Gesture.ThumbStick_Click:
-                break;
-
-            case HandController.Gesture.Menu_Oculus:
                 break;
         }
     }
@@ -479,6 +447,8 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     {
         Log($"{Time.time} {gameObject.name} {className} AlternateIntent");
 
+        if (!socketInteractorManager.IsOccupied) return;
+        
         Intent altIntent = (intent == Intent.Engaged) ? Intent.Disengaged : Intent.Engaged;
         SetIntent(altIntent);
     }

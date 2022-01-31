@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
 [RequireComponent(typeof(XRGrabInteractable))]
-public class InteractableManager : BaseManager, IInteractable
+public class InteractableManager : GizmoManager, IInteractable
 {
     public class Cache
     {
@@ -24,12 +24,16 @@ public class InteractableManager : BaseManager, IInteractable
     [Header("Focus")]
     [SerializeField] FocusableUI focusableUI;
 
+    [Header("Optional Settings")]
+    [SerializeField] bool enableGravityOnGrab = true;
+
     public delegate void Event(InteractableManager interactable, EventType type);
     public static event Event EventReceived;
     
     public bool IsHeld { get { return isHeld; } }
     public bool IsDocked { get { return isDocked; } }
     public List<Collider> Colliders { get { return interactable.colliders; } }
+    public bool EnableGravityOnGrab { get { return enableGravityOnGrab; } }
 
     protected XRGrabInteractable interactable;
     protected Rigidbody rigidBody;
@@ -113,6 +117,13 @@ public class InteractableManager : BaseManager, IInteractable
         if (EventReceived != null)
         {
             EventReceived(this, EventType.OnSelectEntered);
+        }
+
+        if (enableGravityOnGrab)
+        {
+            enableGravityOnGrab = false;
+            cache.isKinematic = false;
+            cache.useGravity = true;
         }
 
         transform.parent = objects;

@@ -808,13 +808,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59270038bf2bccd40bb22c24eb5dfc54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enableLogging: 0
   defaultLoadout: 99
   ammoTextUI: {fileID: 4502904538257131634}
   modeUI: {fileID: 6316616958201076948}
   intentUI: {fileID: 9017231021957971018}
   singleShot: {fileID: 21300000, guid: 1893e1200d7614b4bb8ca5c86a73568e, type: 3}
   multiShot: {fileID: 21300000, guid: 6f0b95c8b737a2343a3c759b0266c5d4, type: 3}
-  enableLogging: 0
 --- !u!1 &5540270214092111996
 GameObject:
   m_ObjectHideFlags: 0
@@ -1517,8 +1517,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36836ea991992bf44b859cd1744a1497, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  focusableUI: {fileID: 6428546107086856060}
   enableLogging: 1
+  color: {r: 1, g: 1, b: 1, a: 1}
+  size: {x: 0.05, y: 0.05, z: 0.05}
+  focusableUI: {fileID: 6428546107086856060}
+  enableGravityOnGrab: 1
   animator: {fileID: 5750515650073844060}
   spawnPoint: {fileID: 7223026732702330760}
   laserPrefab: {fileID: 1486858733783808492, guid: b152f303818ca674ea1dfee3a06859c4, type: 3}
@@ -1527,7 +1530,6 @@ MonoBehaviour:
   overheatCanvasManager: {fileID: 4726893903120137152}
   speed: 100
   enableAutoDock: 0
-  enableGravityOnGrab: 1
   showHits: 1
   hitPrefab: {fileID: 6110918014904403394, guid: 5d95586bfd9e933439d256446fab489c, type: 3}
   spawnLaser: 0
@@ -1964,6 +1966,10 @@ PrefabInstance:
     - target: {fileID: 2403369859537062255, guid: 5687dea7e11bc4e4dbb29bce8a7ef3c6, type: 3}
       propertyPath: m_LocalScale.z
       value: 0.625
+      objectReference: {fileID: 0}
+    - target: {fileID: 2403369859537062290, guid: 5687dea7e11bc4e4dbb29bce8a7ef3c6, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2403369859682423966, guid: 5687dea7e11bc4e4dbb29bce8a7ef3c6, type: 3}
       propertyPath: m_LocalPosition.y

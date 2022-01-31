@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
 [RequireComponent(typeof(XRGrabInteractable))]
-public class FlashlightInteractableManager : FocusableInteractableManager
+public class FlashlightInteractableManager : FocusableInteractableManager, IGesture
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
@@ -25,19 +25,6 @@ public class FlashlightInteractableManager : FocusableInteractableManager
 
     private ActiveState state;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        State = startState;
-        spotlight.SetActive(state == ActiveState.On);
-    }
-
-    public void OnActivated(ActivateEventArgs args)
-    {
-        AudioSource.PlayClipAtPoint(buttonClip, transform.position, 1.0f);
-        State = (state == ActiveState.Off) ? ActiveState.On : ActiveState.Off;
-    }
-
     public ActiveState State {
         get
         {
@@ -49,5 +36,30 @@ public class FlashlightInteractableManager : FocusableInteractableManager
             state = value;
             spotlight.SetActive(state == ActiveState.On);
         }
+    }
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        State = startState;
+        spotlight.SetActive(state == ActiveState.On);
+    }
+
+    public void OnGesture(HandController.Gesture gesture, object value = null)
+    {
+        Log($"{Time.time} {gameObject.name} {className} OnGesture:Gesture : {gesture} Value : {value}");
+
+        switch (gesture)
+        {
+            case HandController.Gesture.Button_AX:
+                AlternateLight();
+                break;
+        }
+    }
+
+    private void AlternateLight()
+    {
+        AudioSource.PlayClipAtPoint(buttonClip, transform.position, 1.0f);
+        State = (state == ActiveState.Off) ? ActiveState.On : ActiveState.Off;
     }
 }

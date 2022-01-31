@@ -5,7 +5,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 
 [RequireComponent(typeof(XRGrabInteractable))]
 [RequireComponent(typeof(Animator))]
-public class SmokeGrenadeInteractableManager : FocusableInteractableManager
+public class DockableSmokeGrenadeInteractableManager : DockableFocusableInteractableManager
 {
     public enum State
     {
@@ -33,7 +33,7 @@ public class SmokeGrenadeInteractableManager : FocusableInteractableManager
     protected override void Awake()
     {
         base.Awake();
-
+        
         ResolveDependencies();
         particleSystem.Stop();
     }
@@ -43,7 +43,7 @@ public class SmokeGrenadeInteractableManager : FocusableInteractableManager
         animator = GetComponent<Animator>() as Animator;
     }
 
-    public void OnDeactivated(DeactivateEventArgs args)
+    public void OnActivated(ActivateEventArgs args)
     {
         if (state != State.Inactive) return;
         

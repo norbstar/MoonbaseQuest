@@ -43,7 +43,7 @@ public class MainCameraManager : GizmoManager
         defaultLayerMask = LayerMask.GetMask("Default");
         trackedInteractables = new List<IInteractable>();
 
-        HandController.EventReceived += OnHandEvent;
+        // HandController.ThumbstickRawEventReceived += OnThumbstickRawEvent;
     }
 
     void FixedUpdate()
@@ -138,20 +138,17 @@ public class MainCameraManager : GizmoManager
     }
 #endif
 
-    public void OnHandEvent(HandController.Gesture gesture, HandController.RawGestureData rawGestureData, InputDeviceCharacteristics characteristics)
+    public void OnThumbstickRawEvent(Vector2 thumbStickValue, InputDeviceCharacteristics characteristics)
     {
-        float thumbstickX = rawGestureData.thumbStickValue.x;
-        float thumbstickY = rawGestureData.thumbStickValue.y;
-
         if (characteristics.HasFlag(InputDeviceCharacteristics.Left))
         {
-            Log($"Left Hand Gesture : {gesture}");
+            Log($"Left Hand Gesture:X : {thumbStickValue.x} Y : {thumbStickValue.y}");
         }
         else
         {
-            Log($"Right Hand Gesture : {gesture}");
+            Log($"Right Hand Gesture:X : {thumbStickValue.x} Y : {thumbStickValue.y}");
 
-            Vector3 input = new Vector3(thumbstickX, thumbstickX, 0f);
+            Vector3 input = new Vector3(-thumbStickValue.y, 0f, thumbStickValue.x);
             transform.position += input * speed;
         }
     }

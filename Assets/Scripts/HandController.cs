@@ -24,15 +24,19 @@ public class HandController : BaseManager
     //     public T data;
     // }
 
-    public class RawGestureData
-    {
-        public Vector2 thumbStickValue;
-    }
+    // public class RawGestureData
+    // {
+    //     public Vector2 thumbStickValue;
+    // }
 
-    public delegate void Event(Gesture gesture, RawGestureData rawGestureData, InputDeviceCharacteristics characteristics);
+    public delegate void GestureEvent(Gesture gesture, InputDeviceCharacteristics characteristics);
+    // public delegate void GestureEvent(Gesture gesture, RawGestureData rawGestureData, InputDeviceCharacteristics characteristics);
     // public delegate void Event(GestureDataPoint<object> gesture, InputDeviceCharacteristics characteristics);
     // public static event EventHandler<EventArgs> EventReceived;
-    public static event Event EventReceived;
+    public static event GestureEvent GestureEventReceived;
+
+    public delegate void ThumbstickRawEvent(Vector2 thumbStickValue, InputDeviceCharacteristics characteristics);
+    public static event ThumbstickRawEvent ThumbstickRawEventReceived;
 
     [Flags]
     public enum Gesture
@@ -67,9 +71,9 @@ public class HandController : BaseManager
     [SerializeField] float teleportSpeed = 5f;
 
     [Header("Inputs")]
-    [SerializeField] float triggerThreshold = 0.9f;
-    [SerializeField] float gripThreshold = 0.9f;
-    [SerializeField] Vector2 thumbStickThreshold = new Vector2(0.9f, 0.9f);
+    [SerializeField] float triggerThreshold = 0.1f;
+    [SerializeField] float gripThreshold = 0.5f;
+    [SerializeField] Vector2 thumbStickThreshold = new Vector2(0.1f, 0.1f);
 
     public InputDeviceCharacteristics Characteristics { get { return characteristics; } }
     public bool IsHolding { get { return isHolding; } }
@@ -333,7 +337,7 @@ public class HandController : BaseManager
         {
             controllerCanvasManager?.SetGestureState(gesture);
 
-            if (EventReceived != null)
+            if (GestureEventReceived != null)
             {
                 // var gestures = Enum.GetValues(typeof(Gesture));
 
@@ -353,15 +357,20 @@ public class HandController : BaseManager
                 //     thisDelegate.DynamicInvoke(gesture, characteristics);
                 // }
 
-                RawGestureData rawGestureData = new RawGestureData
-                {
-                    thumbStickValue = thumbStickValue
-                };
+                // RawGestureData rawGestureData = new RawGestureData
+                // {
+                //     thumbStickValue = thumbStickValue
+                // };
                 
-                EventReceived.Invoke(gesture, rawGestureData, characteristics);
+                GestureEventReceived.Invoke(gesture, characteristics);
             }
         }
         
+        if (ThumbstickRawEventReceived != null)
+        {
+            ThumbstickRawEventReceived.Invoke(thumbStickValue, characteristics);
+        }
+
         controllerCanvasManager?.SetThumbStickCursor(thumbStickValue);
         
         UpdateHandGestureState();
