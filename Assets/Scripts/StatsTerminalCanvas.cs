@@ -12,16 +12,28 @@ public class StatsTerminalCanvas : MonoBehaviour
     [SerializeField] TextMeshProUGUI fpsTextUI;
     [SerializeField] float refreshInterval = 0.25f;
 
-    private float lastInterval = 0;
-    private int frames = 0;
+    private float low, high, average;
+
+    // private float lastInterval = 0;
+    // private int frames = 0;
 
     // Start is called before the first frame update
     void Start()
     {
-        lastInterval = Time.realtimeSinceStartup;
-        frames = 0;
+        // lastInterval = Time.realtimeSinceStartup;
+        // frames = 0;
 
-        StartCoroutine(GenerateStats());
+        // StartCoroutine(GenerateStats());
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        var now = DateTime.Now;
+
+        GenerateDate(now);
+        GenerateTime(now);
+        GenerateFPS();
     }
 
     private IEnumerator GenerateStats()
@@ -52,9 +64,7 @@ public class StatsTerminalCanvas : MonoBehaviour
 
     private void GenerateFPS()
     {
-        Debug.Log($"{Time.deltaTime}");
-
-        var fps = Convert.ToInt64(1.0f / Time.deltaTime);
+        var fps = Convert.ToInt64(1.0f / Time.unscaledDeltaTime);
         float ms = 1000.0f / Mathf.Max(fps, 0.00001f);
         ms = (float) Math.Round(ms * 100f) / 100f;
 
@@ -66,6 +76,13 @@ public class StatsTerminalCanvas : MonoBehaviour
             fpsTextUI.color = Color.green;
 
         fpsTextUI.text = $"{fps} [{ms}]";
+
+        low = (low == 0 || fps < low) ? fps : low;
+        Debug.Log($"Low : {low}");
+        high = (high == 0 || fps > high) ? fps : high;
+        Debug.Log($"High : {high}");
+        average = (average + fps) / 2f;
+        Debug.Log($"Average : {average}");
     }
 
 #if false

@@ -398,7 +398,7 @@ public class HandController : BaseManager
             handGesture &= ~HandGestureCanvasManager.Gesture.Grip;
         }
 
-        controllerCanvasManager.SetHandGestureState(handGesture);
+        controllerCanvasManager?.SetHandGestureState(handGesture);
     }
 
     private void SetGesture(Gesture gesture)
