@@ -138,40 +138,20 @@ public class MainCameraManager : GizmoManager
     }
 #endif
 
-    public void OnThumbstickRawEvent(Vector2 thumbStickValue, InputDeviceCharacteristics characteristics)
-    {
-        if (characteristics.HasFlag(InputDeviceCharacteristics.Left))
-        {
-            Log($"Left Hand Gesture:X : {thumbStickValue.x} Y : {thumbStickValue.y}");
-        }
-        else
-        {
-            Log($"Right Hand Gesture:X : {thumbStickValue.x} Y : {thumbStickValue.y}");
+    // public void OnThumbstickRawEvent(Vector2 thumbStickValue, InputDeviceCharacteristics characteristics)
+    // {
+    //     if (characteristics.HasFlag(InputDeviceCharacteristics.Left))
+    //     {
+    //         Log($"Left Hand Gesture:X : {thumbStickValue.x} Y : {thumbStickValue.y}");
+    //     }
+    //     else
+    //     {
+    //         Log($"Right Hand Gesture:X : {thumbStickValue.x} Y : {thumbStickValue.y}");
 
-            Vector3 input = new Vector3(-thumbStickValue.y, 0f, thumbStickValue.x);
-            transform.position += input * speed;
-        }
-    }
-
-    public bool TryGetOppositeHandController(HandController handController, out HandController opposingController)
-    {
-        var device = handController.GetInputDevice();
-
-        if (((int) device.characteristics) == ((int) DockableGunInteractableManager.LeftHand))
-        {
-            opposingController = rightHandController;
-        }
-        else if (((int) device.characteristics) == ((int) DockableGunInteractableManager.RightHand))
-        {
-            opposingController = leftHandController;
-        }
-        else
-        {
-            opposingController = null;
-        }
-
-        return (opposingController != null);
-    }
+    //         Vector3 input = new Vector3(-thumbStickValue.y, 0f, thumbStickValue.x);
+    //         transform.position += input * speed;
+    //     }
+    // }
 
     public bool TryGetObjectHit(out GameObject obj)
     {

@@ -29,7 +29,6 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     [Header("UI")]
     [SerializeField] GunHUDCanvasManager hudCanvasManager;
     [SerializeField] GunOverheatCanvasManager overheatCanvasManager;
-    [SerializeField] float speed = 5f;
 
     [Header("Docking")]
     [SerializeField] bool enableAutoDock = true;
@@ -126,11 +125,11 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
                     var renderer = hitPrefabInstance.GetComponent<Renderer>() as Renderer;
                     var device = controller.GetInputDevice();
 
-                    if (((int) device.characteristics) == ((int) LeftHand))
+                    if ((int) device.characteristics == (int) LeftHand)
                     {
                         renderer.material.color = Color.red;
                     }
-                    else if (((int) device.characteristics) == ((int) RightHand))
+                    else if ((int) device.characteristics == (int) RightHand)
                     {
                         renderer.material.color = Color.blue;
                     }
@@ -173,24 +172,29 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
     protected override void OnSelectEntered(SelectEnterEventArgs args, HandController controller)
     {
         Log($"{Time.time} {gameObject.name} {className} OnSelectEntered");
+        Log($"{Time.time} {gameObject.name} {className} 3");
 
         gameObject.transform.parent = objects;
 
         if (controller != null)
         {
+            Log($"{Time.time} {gameObject.name} {className} 4");
             var device = controller.GetInputDevice();
 
-            if (((int) device.characteristics) == ((int) LeftHand))
+            if ((int) device.characteristics == (int) LeftHand)
             {
+                Log($"{Time.time} {gameObject.name} {className} 5");
                 hudCanvasManager.transform.localPosition = new Vector3(-Mathf.Abs(hudCanvasManager.transform.localPosition.x), 0.06f, 0f);
             }
-            else if (((int) device.characteristics) == ((int) RightHand))
+            else if ((int) device.characteristics == (int) RightHand)
             {
+                Log($"{Time.time} {gameObject.name} {className} 6");
                 hudCanvasManager.transform.localPosition = new Vector3(Mathf.Abs(hudCanvasManager.transform.localPosition.x), 0.06f, 0f);
             }
 
             if (hipDocksManager.TryIsDocked(gameObject, out HipDocksManager.DockID dockID))
             {
+                Log($"{Time.time} {gameObject.name} {className} 7");
                 hipDocksManager.UndockWeapon(gameObject);
             }
 
@@ -208,7 +212,11 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
             //         }
             //     }
             // }
+
+            Log($"{Time.time} {gameObject.name} {className} 8");
         }
+
+        Log($"{Time.time} {gameObject.name} {className} 9");
 
         socketInteractorManager.EnableCollider(true);
     }
@@ -350,11 +358,11 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
         var device = controller.GetInputDevice();
 
-        if (((int) device.characteristics) == ((int) LeftHand))
+        if ((int) device.characteristics == (int) LeftHand)
         {
             hipDocksManager.DockWeapon(gameObject, HipDocksManager.DockID.Left, Quaternion.Euler(90f, 0f, 0f));
         }
-        else if (((int) device.characteristics) == ((int) RightHand))
+        else if ((int) device.characteristics == (int) RightHand)
         {
             hipDocksManager.DockWeapon(gameObject, HipDocksManager.DockID.Right, Quaternion.Euler(90f, 0f, 0f));
         }
@@ -545,7 +553,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
             if (TryGet.TryGetController<HandController>(interactor, out HandController controller))
             {
                 Log($"2");
-                if (cameraManager.TryGetOppositeHandController(controller, out HandController opposingController))
+                if (TryGet.TryGetOppositeController(controller, out HandController opposingController))
                 {
                     Log($"3");
                     if ((opposingController.IsHolding) && (GameObject.ReferenceEquals(opposingController.Interactable.GetGameObject(), gameObject)))

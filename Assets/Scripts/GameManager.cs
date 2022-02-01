@@ -1,6 +1,5 @@
 using UnityEngine;
 
-[RequireComponent(typeof(AudioSource))]
 public class GameManager : MonoBehaviour/*CachedObject<GameManager>*/
 {   
     public enum State
@@ -8,8 +7,6 @@ public class GameManager : MonoBehaviour/*CachedObject<GameManager>*/
         NotInPlay,
         InPlay,
     }
-
-    private State gameState;
 
     public enum EventType
     {
@@ -22,6 +19,7 @@ public class GameManager : MonoBehaviour/*CachedObject<GameManager>*/
 
     public State GameState { get { return gameState; } set { gameState = value; } }
 
+    private State gameState;
     private int score = 0;
 
     public static GameManager GetInstance()

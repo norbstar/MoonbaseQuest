@@ -121,11 +121,11 @@ public class DockableGunInteractableManager : DockableFocusableInteractableManag
                     var renderer = hitPrefabInstance.GetComponent<Renderer>() as Renderer;
                     var device = controller.GetInputDevice();
 
-                    if (((int) device.characteristics) == ((int) LeftHand))
+                    if ((int) device.characteristics == (int) LeftHand)
                     {
                         renderer.material.color = Color.red;
                     }
-                    else if (((int) device.characteristics) == ((int) RightHand))
+                    else if ((int) device.characteristics == (int) RightHand)
                     {
                         renderer.material.color = Color.blue;
                     }
@@ -173,11 +173,11 @@ public class DockableGunInteractableManager : DockableFocusableInteractableManag
         {
             var device = controller.GetInputDevice();
 
-            if (((int) device.characteristics) == ((int) LeftHand))
+            if ((int) device.characteristics == (int) LeftHand)
             {
                 hudCanvasManager.transform.localPosition = new Vector3(-Mathf.Abs(hudCanvasManager.transform.localPosition.x), 0.06f, 0f);
             }
-            else if (((int) device.characteristics) == ((int) RightHand))
+            else if ((int) device.characteristics == (int) RightHand)
             {
                 hudCanvasManager.transform.localPosition = new Vector3(Mathf.Abs(hudCanvasManager.transform.localPosition.x), 0.06f, 0f);
             }
@@ -189,7 +189,7 @@ public class DockableGunInteractableManager : DockableFocusableInteractableManag
 
             hudCanvasManager.gameObject.SetActive(true);
             
-            if (cameraManager.TryGetOppositeHandController(controller, out HandController opposingController))
+            if (TryGet.TryGetOppositeController(controller, out HandController opposingController))
             {
                 if (opposingController.IsHolding)
                 {
@@ -362,11 +362,11 @@ public class DockableGunInteractableManager : DockableFocusableInteractableManag
     {
         var device = controller.GetInputDevice();
 
-        if (((int) device.characteristics) == ((int) LeftHand))
+        if ((int) device.characteristics == (int) LeftHand)
         {
             hipDocksManager.DockWeapon(gameObject, HipDocksManager.DockID.Left, Quaternion.Euler(90f, 0f, 0f));
         }
-        else if (((int) device.characteristics) == ((int) RightHand))
+        else if ((int) device.characteristics == (int) RightHand)
         {
             hipDocksManager.DockWeapon(gameObject, HipDocksManager.DockID.Right, Quaternion.Euler(90f, 0f, 0f));
         }

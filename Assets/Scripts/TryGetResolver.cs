@@ -1,11 +1,14 @@
 using System.Collections.Generic;
+using System.Reflection;
 using System.Linq;
 
 using UnityEngine;
 
-public class TryGet
+public class TryGetResolver : MonoBehaviour
 {
-    public static bool TryGetInteractable<IInteractable>(GameObject trigger, out IInteractable interactable)
+    private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
+
+    public bool TryGetInteractable<IInteractable>(GameObject trigger, out IInteractable interactable)
     {
         if (trigger.TryGetComponent<IInteractable>(out IInteractable interactableManager))
         {
@@ -25,13 +28,13 @@ public class TryGet
         return false;
     }
 
-    public static bool TryGetControllers<HandController>(out List<HandController> controllers)
+    public bool TryGetControllers<HandController>(out List<HandController> controllers)
     {
-        controllers = (GameObject.FindObjectsOfType(typeof(HandController)) as HandController[]).ToList<HandController>();
+        controllers = (FindObjectsOfType(typeof(HandController)) as HandController[]).ToList<HandController>();
         return (controllers.Count > 0);
     }
 
-    public static bool TryGetController<HandController>(GameObject interactor, out HandController controller)
+    public bool TryGetController<HandController>(GameObject interactor, out HandController controller)
     {
         if (interactor != null && interactor.CompareTag("Hand"))
         {
@@ -46,7 +49,7 @@ public class TryGet
         return false;
     }
 
-    public static bool TryGetOppositeController(HandController controller, out HandController opposingController)
+    public bool TryGetOppositeController(HandController controller, out HandController opposingController)
     {
         opposingController = null;
 

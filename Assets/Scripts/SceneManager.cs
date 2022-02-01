@@ -36,11 +36,11 @@ public class SceneManager : BaseManager
     {
         Log($"{device.name}.Connected");
 
-        if (((int) device.characteristics) == ((int) LeftHand))
+        if ((int) device.characteristics == (int) LeftHand)
         {
             Log($"{device.name}.Identified as Left Hand");
         }
-        else if (((int) device.characteristics) == ((int) RightHand))
+        else if ((int) device.characteristics == (int) RightHand)
         {
             Log($"{device.name}.Identified as Right Hand");
         }
@@ -50,11 +50,11 @@ public class SceneManager : BaseManager
     {
         Log($"{device.name}.Disconnected");
 
-        if (((int) device.characteristics) == ((int) LeftHand))
+        if ((int) device.characteristics == (int) LeftHand)
         {
             Log($"{device.name}.Identified as Left Hand");
         }
-        else if (((int) device.characteristics) == ((int) RightHand))
+        else if ((int) device.characteristics == (int) RightHand)
         {
             Log($"{device.name}.Identified as Right Hand");
         }

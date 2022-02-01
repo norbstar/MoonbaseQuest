@@ -52,6 +52,8 @@ public class StatsTerminalCanvas : MonoBehaviour
 
     private void GenerateFPS()
     {
+        Debug.Log($"{Time.deltaTime}");
+
         var fps = Convert.ToInt64(1.0f / Time.deltaTime);
         float ms = 1000.0f / Mathf.Max(fps, 0.00001f);
         ms = (float) Math.Round(ms * 100f) / 100f;
