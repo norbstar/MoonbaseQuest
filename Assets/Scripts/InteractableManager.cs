@@ -78,7 +78,7 @@ public class InteractableManager : GizmoManager, IInteractable
         var interactor = args.interactorObject.transform.gameObject;
         // Log($"{Time.time} {gameObject.name} {className} OnHoverEntered:{interactor.name}");
 
-        if (TryGet.TryGetController(interactor, out HandController controller))
+        if (TryGet.TryIdentifyController(interactor, out HandController controller))
         {
             controller.SetHovering(this, true);
             OnHoverEntered(args, controller);
@@ -92,7 +92,7 @@ public class InteractableManager : GizmoManager, IInteractable
         var interactor = args.interactorObject.transform.gameObject;
         // Log($"{Time.time} {gameObject.name} {className} OnHoverExited:{interactor.name}");
         
-        if (TryGet.TryGetController(interactor, out HandController controller))
+        if (TryGet.TryIdentifyController(interactor, out HandController controller))
         {
             controller.SetHovering(this, false);
             OnHoverExited(args, controller);
@@ -106,7 +106,7 @@ public class InteractableManager : GizmoManager, IInteractable
         interactor = args.interactorObject.transform.gameObject;
         // Log($"{Time.time} {gameObject.name} {className} OnSelectEntered:{interactor.name}");
 
-        if (TryGet.TryGetController(interactor, out HandController controller))
+        if (TryGet.TryIdentifyController(interactor, out HandController controller))
         {
             controller.SetHolding(this, true);
             isHeld = true;
@@ -142,7 +142,7 @@ public class InteractableManager : GizmoManager, IInteractable
             rigidBody.useGravity = cache.useGravity;
         }
 
-        if (TryGet.TryGetController(interactor, out HandController controller))
+        if (TryGet.TryIdentifyController(interactor, out HandController controller))
         {
             controller.SetHolding(this, false);
             isHeld = false;

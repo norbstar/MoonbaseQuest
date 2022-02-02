@@ -117,7 +117,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
                     hitPrefabInstance.SetActive(true);
                 }
 
-                if (TryGet.TryGetController(interactor, out HandController controller))
+                if (TryGet.TryIdentifyController(interactor, out HandController controller))
                 {
                     var renderer = hitPrefabInstance.GetComponent<Renderer>() as Renderer;
                     var device = controller.InputDevice;
@@ -197,7 +197,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
             hudCanvasManager.gameObject.SetActive(true);
 
-            // if (cameraManager.TryGetOppositeHandController(controller, out HandController opposingController))
+            // if (cameraManager.TryGetOpposingHandController(controller, out HandController opposingController))
             // {
             //     if (opposingController.IsHolding)
             //     {
@@ -259,7 +259,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         animator.SetTrigger("Fire");
         AudioSource.PlayClipAtPoint(hitClip, transform.position, 1.0f);
 
-        if (TryGet.TryGetController(interactor, out HandController controller))
+        if (TryGet.TryIdentifyController(interactor, out HandController controller))
         {
             controller.SetImpulse();
         }
@@ -369,15 +369,13 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
     {
         Log($"{Time.time} {gameObject.name} {className} OnActuation:Actuation : {actuation} Value : {value}");
 
-        switch (actuation)
+        if (actuation.HasFlag(HandController.Actuation.Button_AX))
         {
-            case HandController.Actuation.Button_AX:
-                AlternateMode();
-                break;
-
-            case HandController.Actuation.Button_BY:
-                AlternateIntent();
-                break;
+            AlternateMode();
+        }
+        else if (actuation.HasFlag(HandController.Actuation.Button_BY))
+        {
+            AlternateIntent();
         }
     }
 
@@ -547,10 +545,10 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         if ((!socketInteractorManager.IsOccupied) && (gameObject.CompareTag("Flashlight")))
         {
             Log($"1");
-            if (TryGet.TryGetController(interactor, out HandController controller))
+            if (TryGet.TryIdentifyController(interactor, out HandController controller))
             {
                 Log($"2");
-                if (TryGet.TryGetOppositeController(controller, out HandController opposingController))
+                if (TryGet.TryGetOpposingController(controller, out HandController opposingController))
                 {
                     Log($"3");
                     if ((opposingController.IsHolding) && (GameObject.ReferenceEquals(opposingController.Interactable.GetGameObject(), gameObject)))
@@ -571,7 +569,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         if (TryGetController<HandController>(gameObject, out HandController controller))
         {
             Log($"2");
-            if ((!socketInteractorManager.IsOccupied) && (cameraManager.TryGetOppositeHandController(controller, out HandController opposingController)))
+            if ((!socketInteractorManager.IsOccupied) && (cameraManager.TryGetOpposingHandController(controller, out HandController opposingController)))
             {
                 Log($"3");
                 if (opposingController.IsHolding)

@@ -49,7 +49,7 @@ public class TryGetResolver : MonoBehaviour
         return false;
     }
 
-    public bool TryGetOppositeController(HandController controller, out HandController opposingController)
+    public bool TryGetOpposingController(HandController controller, out HandController opposingController)
     {
         opposingController = null;
 

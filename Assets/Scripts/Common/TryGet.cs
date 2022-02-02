@@ -32,7 +32,7 @@ public class TryGet
         return (controllers.Count > 0);
     }
 
-    public static bool TryGetController(GameObject interactor, out HandController controller)
+    public static bool TryIdentifyController(GameObject interactor, out HandController controller)
     {
         if (interactor != null && interactor.CompareTag("Hand"))
         {
@@ -65,7 +65,7 @@ public class TryGet
         return false;
     }
 
-    public static bool TryGetOppositeController(HandController controller, out HandController opposingController)
+    public static bool TryGetOpposingController(HandController controller, out HandController opposingController)
     {
         opposingController = null;
 

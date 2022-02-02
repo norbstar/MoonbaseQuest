@@ -423,7 +423,7 @@ public class HandController : BaseManager
     {
         Log($"{Time.time} {gameObject.name} {className}.NotifyOpposingConroller:State : {state} IsTrue : {isTrue} GameObject : {obj.GetGameObject().name}");
 
-        if (TryGet.TryGetOppositeController(this, out HandController opposingController))
+        if (TryGet.TryGetOpposingController(this, out HandController opposingController))
         {
             opposingController.OnOpposingEvent(state, isTrue, obj);
         }
