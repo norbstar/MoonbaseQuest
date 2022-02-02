@@ -1,110 +1,141 @@
-using UnityEngine;
-using UnityEngine.XR.Interaction.Toolkit;
+using System.Reflection;
 
-public abstract class ControllerCanvasManager : MonoBehaviour, IController
+using UnityEngine;
+using UnityEngine.XR;
+
+public abstract class ControllerCanvasManager : MonoBehaviour
 {
+    private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
+
     [Header("Manager")]
-    [SerializeField] HandGestureCanvasManager handGestureCanvasManager;
+    [SerializeField] HandStateCanvasManager handGestureCanvasManager;
 
     [Header("Components")]
     [SerializeField] GameObject trigger;
     [SerializeField] GameObject grip;
-    [SerializeField] GameObject thumbStick;
-    [SerializeField] GameObject thumbStickClick;
-    [SerializeField] GameObject thumbStickCursor;
-
-    private HandController.Gesture lastGesture;
-
-    public virtual void SetGestureState(HandController.Gesture gesture)
-    {
-        lastGesture = gesture;
-
-        SetTriggerState(gesture);
-        SetGripState(gesture);
-        SetThumbStickState(gesture);
-        SetThumbStickClickState(gesture);
-    }
+    [SerializeField] GameObject thumbstick;
+    [SerializeField] GameObject thumbstickClick;
+    [SerializeField] GameObject thumbstickCursor;
 
     [Header("Optional Settings")]
-    [SerializeField] bool enableThumbStickCursor;
+    [SerializeField] bool enableThumbstickRaw;
 
-    private void SetTriggerState(HandController.Gesture gesture)
+    [Header("Debug")]
+    [SerializeField] bool enableLogging = false;
+
+    private HandController.Actuation lastGesture;
+
+    void OnEnable()
     {
-        // trigger.SetActive(gesture.HasFlag(HandController.Gesture.Trigger));
+        HandController.ActuationEventReceived += OnActuation;
+        HandController.ThumbstickRawEventReceived += OnThumbstickRaw;
+        HandController.StateEventReceived += OnState;
+    }
 
-        if (gesture.HasFlag(HandController.Gesture.Trigger) && !trigger.activeSelf)
+    void OnDisable()
+    {
+        HandController.ActuationEventReceived -= OnActuation;
+        HandController.ThumbstickRawEventReceived -= OnThumbstickRaw;
+        HandController.StateEventReceived -= OnState;
+    }
+
+    private void SetTriggerState(HandController.Actuation actuation)
+    {
+        if (actuation.HasFlag(HandController.Actuation.Trigger) && !trigger.activeSelf)
         {
             trigger.SetActive(true);
         }
 
-        if (!gesture.HasFlag(HandController.Gesture.Trigger) && trigger.activeSelf)
+        if (!actuation.HasFlag(HandController.Actuation.Trigger) && trigger.activeSelf)
         {
             trigger.SetActive(false);
         }
     }
 
-    private void SetGripState(HandController.Gesture gesture)
+    private void SetGripState(HandController.Actuation actuation)
     {
-        // grip.SetActive(gesture.HasFlag(HandController.Gesture.Grip));
-
-        if (gesture.HasFlag(HandController.Gesture.Grip) && !grip.activeSelf)
+        if (actuation.HasFlag(HandController.Actuation.Grip) && !grip.activeSelf)
         {
             grip.SetActive(true);
         }
 
-        if (!gesture.HasFlag(HandController.Gesture.Grip) && grip.activeSelf)
+        if (!actuation.HasFlag(HandController.Actuation.Grip) && grip.activeSelf)
         {
             grip.SetActive(false);
         }
     }
 
-    private void SetThumbStickState(HandController.Gesture gesture)
+    private void SetThumbstickState(HandController.Actuation actuation)
     {
-        // thumbStick.SetActive(gesture.HasFlag(HandController.Gesture.ThumbStick_Up) || gesture.HasFlag(HandController.Gesture.ThumbStick_Left) || gesture.HasFlag(HandController.Gesture.ThumbStick_Right) || gesture.HasFlag(HandController.Gesture.ThumbStick_Down));
-
-        if (gesture.HasFlag(HandController.Gesture.ThumbStick_Up) || gesture.HasFlag(HandController.Gesture.ThumbStick_Left) || gesture.HasFlag(HandController.Gesture.ThumbStick_Right) || gesture.HasFlag(HandController.Gesture.ThumbStick_Down) && !thumbStick.activeSelf)
+        if (actuation.HasFlag(HandController.Actuation.Thumbstick_Up) || actuation.HasFlag(HandController.Actuation.Thumbstick_Left) || actuation.HasFlag(HandController.Actuation.Thumbstick_Right) || actuation.HasFlag(HandController.Actuation.Thumbstick_Down) && !thumbstick.activeSelf)
         {
-            thumbStick.SetActive(true);
+            thumbstick.SetActive(true);
         }
 
-        if (!(gesture.HasFlag(HandController.Gesture.ThumbStick_Up) || gesture.HasFlag(HandController.Gesture.ThumbStick_Left) || gesture.HasFlag(HandController.Gesture.ThumbStick_Right) || gesture.HasFlag(HandController.Gesture.ThumbStick_Down)) && thumbStick.activeSelf)
+        if (!(actuation.HasFlag(HandController.Actuation.Thumbstick_Up) || actuation.HasFlag(HandController.Actuation.Thumbstick_Left) || actuation.HasFlag(HandController.Actuation.Thumbstick_Right) || actuation.HasFlag(HandController.Actuation.Thumbstick_Down)) && thumbstick.activeSelf)
         {
-            thumbStick.SetActive(false);
+            thumbstick.SetActive(false);
         }
     }
 
-    public void SetThumbStickCursor(Vector2 thumbStickValue)
+    private void SetThumbstickClickState(HandController.Actuation actuation)
     {
-        if (!enableThumbStickCursor) return;
-
-        float x = thumbStickValue.x * 4f;
-        float y = thumbStickValue.y * 4f;
-
-        if (!thumbStickCursor.activeSelf)
+        if (actuation.HasFlag(HandController.Actuation.Thumbstick_Click) && !thumbstickClick.activeSelf)
         {
-            thumbStickCursor.SetActive(true);
+            thumbstickClick.SetActive(true);
         }
 
-        thumbStickCursor.transform.GetChild(0).localPosition = new Vector3(x, y, 0f);
-    }
-
-    private void SetThumbStickClickState(HandController.Gesture gesture)
-    {
-        // thumbStickClick.SetActive(gesture.HasFlag(HandController.Gesture.ThumbStick_Click));
-
-        if (gesture.HasFlag(HandController.Gesture.ThumbStick_Click) && !thumbStickClick.activeSelf)
+        if (!(actuation.HasFlag(HandController.Actuation.Thumbstick_Click) && thumbstickClick.activeSelf))
         {
-            thumbStickClick.SetActive(true);
-        }
-
-        if (!(gesture.HasFlag(HandController.Gesture.ThumbStick_Click) && thumbStickClick.activeSelf))
-        {
-            thumbStickClick.SetActive(false);
+            thumbstickClick.SetActive(false);
         }
     }
 
-    public void SetHandGestureState(HandGestureCanvasManager.Gesture gesture)
+    public abstract void OnActuation(HandController.Actuation actuation, InputDeviceCharacteristics characteristics);
+
+    public virtual void SetActuation(HandController.Actuation actuation)
     {
-        handGestureCanvasManager.SetGestureState(gesture);
+        Log($"{Time.time} {gameObject.name} {className} SetActuation:Actuation : {actuation}");
+
+        lastGesture = actuation;
+
+        SetTriggerState(actuation);
+        SetGripState(actuation);
+        SetThumbstickState(actuation);
+        SetThumbstickClickState(actuation);
+    }
+
+    public abstract void OnThumbstickRaw(Vector2 value, InputDeviceCharacteristics characteristics);
+    
+    public void SetThumbstickRaw(Vector2 value)
+    {
+        Log($"{Time.time} {gameObject.name} {className} SetThumbstickRaw:Value : {value}");
+
+        if (!enableThumbstickRaw) return;
+
+        float x = value.x * 4f;
+        float y = value.y * 4f;
+
+        if (!thumbstickCursor.activeSelf)
+        {
+            thumbstickCursor.SetActive(true);
+        }
+
+        thumbstickCursor.transform.GetChild(0).localPosition = new Vector3(x, y, 0f);
+    }
+
+    public abstract void OnState(HandStateCanvasManager.State state, InputDeviceCharacteristics characteristics);
+
+    public void SetState(HandStateCanvasManager.State state)
+    {
+        Log($"{Time.time} {gameObject.name} {className} SetState:State : {state}");
+
+        handGestureCanvasManager.SetState(state);
+    }
+
+    protected void Log(string message)
+    {
+        if (!enableLogging) return;
+        Debug.Log(message);
     }
 }

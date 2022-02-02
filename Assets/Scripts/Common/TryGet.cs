@@ -2,10 +2,11 @@ using System.Collections.Generic;
 using System.Linq;
 
 using UnityEngine;
+using UnityEngine.XR;
 
 public class TryGet
 {
-    public static bool TryGetInteractable<IInteractable>(GameObject trigger, out IInteractable interactable)
+    public static bool TryGetInteractable(GameObject trigger, out IInteractable interactable)
     {
         if (trigger.TryGetComponent<IInteractable>(out IInteractable interactableManager))
         {
@@ -25,13 +26,13 @@ public class TryGet
         return false;
     }
 
-    public static bool TryGetControllers<HandController>(out List<HandController> controllers)
+    public static bool TryGetControllers(out List<HandController> controllers)
     {
         controllers = (GameObject.FindObjectsOfType(typeof(HandController)) as HandController[]).ToList<HandController>();
         return (controllers.Count > 0);
     }
 
-    public static bool TryGetController<HandController>(GameObject interactor, out HandController controller)
+    public static bool TryGetController(GameObject interactor, out HandController controller)
     {
         if (interactor != null && interactor.CompareTag("Hand"))
         {
@@ -46,22 +47,40 @@ public class TryGet
         return false;
     }
 
+    public static bool TryGetControllerWithCharacteristics(InputDeviceCharacteristics characteristics, out HandController controller)
+    {
+        if (TryGetControllers(out List<HandController> controllers))
+        {
+            foreach (HandController thisController in controllers)
+            {
+                if (((int) characteristics == (int) HandController.LeftHand) || ((int) characteristics == (int) HandController.RightHand))
+                {
+                    controller = thisController;
+                    return true;
+                }
+            }
+        }
+
+        controller = default(HandController);
+        return false;
+    }
+
     public static bool TryGetOppositeController(HandController controller, out HandController opposingController)
     {
         opposingController = null;
 
-        if (TryGetControllers<HandController>(out List<HandController> controllers))
+        if (TryGetControllers(out List<HandController> controllers))
         {
             var device = controller.GetInputDevice();
 
-            if ((int) device.characteristics == (int) DockableGunInteractableManager.LeftHand)
+            if ((int) device.characteristics == (int) HandController.LeftHand)
             {
-                var rightController = (HandController) controllers.First(hc => (int) hc.GetInputDevice().characteristics == (int) DockableGunInteractableManager.RightHand);
+                var rightController = (HandController) controllers.FirstOrDefault(hc => (int) hc.GetInputDevice().characteristics == (int) HandController.RightHand);
                 opposingController = (rightController != null) ? rightController : null;
             }
-            else if ((int) device.characteristics == (int) DockableGunInteractableManager.RightHand)
+            else if ((int) device.characteristics == (int) HandController.RightHand)
             {
-                var leftController = (HandController) controllers.First(hc => (int) hc.GetInputDevice().characteristics == (int) DockableGunInteractableManager.LeftHand);
+                var leftController = (HandController) controllers.FirstOrDefault(hc => (int) hc.GetInputDevice().characteristics == (int) HandController.LeftHand);
                 opposingController = (leftController != null) ? leftController : null;
             }
         }

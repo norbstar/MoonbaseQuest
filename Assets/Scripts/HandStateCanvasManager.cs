@@ -4,12 +4,12 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class HandGestureCanvasManager : BaseManager
+public class HandStateCanvasManager : BaseManager
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
     [Flags]
-    public enum Gesture
+    public enum State
     {
         None = 0,
         Grip = 1,
@@ -30,13 +30,13 @@ public class HandGestureCanvasManager : BaseManager
      [SerializeField] Color defaultColor;
      [SerializeField] Color highlightColor;
 
-    private Gesture lastGesture;
+    private State lastState;
 
-    public void SetGestureState(Gesture gesture)
+    public void SetState(State state)
     {
-        if (gesture == lastGesture) return;
+        if (state == lastState) return;
 
-        this.lastGesture = gesture;
+        this.lastState = state;
 
 #if false
         grip.color = defaultColor;
@@ -45,36 +45,36 @@ public class HandGestureCanvasManager : BaseManager
         claw.color = defaultColor;
         hover.color = defaultColor;
         
-        switch (gesture)
+        switch (state)
         {
-            case Gesture.Grip:
+            case State.Grip:
                 grip.color = highlightColor;
                 break;
 
-            case Gesture.Pinch:
+            case State.Pinch:
                 pinch.color = highlightColor;
                 break;
 
-            case Gesture.Point:
+            case State.Point:
                 point.color = highlightColor;
                 break;
 
-            case Gesture.Claw:
+            case State.Claw:
                 claw.color = highlightColor;
                 break;
 
-            case Gesture.Hover:
+            case State.Hover:
                 hover.color = highlightColor;
                 break;
         }
 #endif
 
-        grip.color = (gesture.HasFlag(Gesture.Grip)) ? highlightColor : defaultColor;
-        pinch.color = (gesture.HasFlag(Gesture.Pinch)) ? highlightColor : defaultColor;
-        point.color = (gesture.HasFlag(Gesture.Point)) ? highlightColor : defaultColor;
-        claw.color = (gesture.HasFlag(Gesture.Claw)) ? highlightColor : defaultColor;
-        hover.color = (gesture.HasFlag(Gesture.Hover)) ? highlightColor : defaultColor;
+        grip.color = (state.HasFlag(State.Grip)) ? highlightColor : defaultColor;
+        pinch.color = (state.HasFlag(State.Pinch)) ? highlightColor : defaultColor;
+        point.color = (state.HasFlag(State.Point)) ? highlightColor : defaultColor;
+        claw.color = (state.HasFlag(State.Claw)) ? highlightColor : defaultColor;
+        hover.color = (state.HasFlag(State.Hover)) ? highlightColor : defaultColor;
 
-        Log($"{gameObject.name} {className}.State:{gesture}");
+        Log($"{gameObject.name} {className}.State:{state}");
     }
 }

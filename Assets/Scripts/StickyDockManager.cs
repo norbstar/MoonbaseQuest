@@ -91,11 +91,13 @@ public class StickyDockManager : DockManager
     {
         GameObject trigger = collider.gameObject;
 
-        if (TryGet.TryGetInteractable<DockableInteractableManager>(trigger, out DockableInteractableManager interactable))
+        if (TryGet.TryGetInteractable(trigger, out IInteractable interactable))
         {
-            if (supportedTags.Contains(interactable.tag))
+            var gameObject = interactable.GetGameObject();
+
+            if (supportedTags.Contains(gameObject.tag))
             {
-                MarkTrackedObject(interactable);
+                MarkTrackedObject(gameObject.GetComponent<DockableInteractableManager>());
             }
         }
     }
@@ -125,11 +127,14 @@ public class StickyDockManager : DockManager
 
         if (trackedInteractable == null) return;
 
-        if (TryGet.TryGetInteractable<DockableInteractableManager>(trigger, out DockableInteractableManager interactable))
+        if (TryGet.TryGetInteractable(trigger, out IInteractable interactable))
         {
-            if (Object.ReferenceEquals(interactable.gameObject, trackedInteractable.gameObject))
+            var gameObject = interactable.GetGameObject();
+
+            if (Object.ReferenceEquals(gameObject, trackedInteractable.gameObject))
             {
-                var colliders = interactable.Colliders;
+                var manager = gameObject.GetComponent<DockableInteractableManager>() as DockableInteractableManager;
+                var colliders = manager.Colliders;
 
                 bool verified = true;
 

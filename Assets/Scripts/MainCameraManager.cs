@@ -138,17 +138,17 @@ public class MainCameraManager : GizmoManager
     }
 #endif
 
-    // public void OnThumbstickRawEvent(Vector2 thumbStickValue, InputDeviceCharacteristics characteristics)
+    // public void OnThumbstickRawEvent(Vector2 value, InputDeviceCharacteristics characteristics)
     // {
     //     if (characteristics.HasFlag(InputDeviceCharacteristics.Left))
     //     {
-    //         Log($"Left Hand Gesture:X : {thumbStickValue.x} Y : {thumbStickValue.y}");
+    //         Log($"Left Hand Gesture:X : {value.x} Y : {value.y}");
     //     }
     //     else
     //     {
-    //         Log($"Right Hand Gesture:X : {thumbStickValue.x} Y : {thumbStickValue.y}");
+    //         Log($"Right Hand Gesture:X : {value.x} Y : {value.y}");
 
-    //         Vector3 input = new Vector3(-thumbStickValue.y, 0f, thumbStickValue.x);
+    //         Vector3 input = new Vector3(-value.y, 0f, value.x);
     //         transform.position += input * speed;
     //     }
     // }

@@ -646,13 +646,14 @@ MonoBehaviour:
   handGestureCanvasManager: {fileID: 1278171713182324232}
   trigger: {fileID: 1722789096531168961}
   grip: {fileID: 1722789097079265053}
-  thumbStick: {fileID: 1722789095991674760}
-  thumbStickClick: {fileID: 2980626675278227054}
-  thumbStickCursor: {fileID: 8954023955743315292}
-  enableThumbStickCursor: 1
-  oculus: {fileID: 1722789096543613311}
-  a: {fileID: 1722789096486375820}
-  b: {fileID: 1722789096528768290}
+  thumbstick: {fileID: 1722789095991674760}
+  thumbstickClick: {fileID: 2980626675278227054}
+  thumbstickCursor: {fileID: 8954023955743315292}
+  enableThumbstickRaw: 1
+  enableLogging: 0
+  oculusButton: {fileID: 1722789096543613311}
+  aButton: {fileID: 1722789096486375820}
+  bButton: {fileID: 1722789096528768290}
 --- !u!1 &1722789097018361356
 GameObject:
   m_ObjectHideFlags: 0
@@ -1097,21 +1098,9 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1722789096952662795}
     m_Modifications:
-    - target: {fileID: 456105909941114646, guid: 04dc874c8b9dc854a90397def6be28e6, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -5
-      objectReference: {fileID: 0}
-    - target: {fileID: 456105910720707123, guid: 04dc874c8b9dc854a90397def6be28e6, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -5
-      objectReference: {fileID: 0}
-    - target: {fileID: 456105911183109729, guid: 04dc874c8b9dc854a90397def6be28e6, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -5
-      objectReference: {fileID: 0}
     - target: {fileID: 456105911336698738, guid: 04dc874c8b9dc854a90397def6be28e6, type: 3}
       propertyPath: m_Name
-      value: Hand Gesture Canvas
+      value: Hand State Canvas
       objectReference: {fileID: 0}
     - target: {fileID: 456105911336698749, guid: 04dc874c8b9dc854a90397def6be28e6, type: 3}
       propertyPath: m_RootOrder
@@ -1131,7 +1120,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 456105911336698749, guid: 04dc874c8b9dc854a90397def6be28e6, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -60
+      value: -60.000015
       objectReference: {fileID: 0}
     - target: {fileID: 456105911336698749, guid: 04dc874c8b9dc854a90397def6be28e6, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1168,14 +1157,6 @@ PrefabInstance:
     - target: {fileID: 456105911336698749, guid: 04dc874c8b9dc854a90397def6be28e6, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 456105911430591552, guid: 04dc874c8b9dc854a90397def6be28e6, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -5
-      objectReference: {fileID: 0}
-    - target: {fileID: 456105911638085768, guid: 04dc874c8b9dc854a90397def6be28e6, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 04dc874c8b9dc854a90397def6be28e6, type: 3}

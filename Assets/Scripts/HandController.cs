@@ -12,45 +12,31 @@ public class HandController : BaseManager
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
-    // public class EventArgs
-    // {
-    //     public bool registerLeftHandGestures;
-    //     public bool registerRightHandGestures;
-    // }
+    public static InputDeviceCharacteristics RightHand = (InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Right);
+    public static InputDeviceCharacteristics LeftHand = (InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Left);
 
-    // public class GestureDataPoint<T>
-    // {
-    //     public Gesture gesture;
-    //     public T data;
-    // }
+    public delegate void ActuationEvent(Actuation actuation, InputDeviceCharacteristics characteristics);
+    public static event ActuationEvent ActuationEventReceived;
 
-    // public class RawGestureData
-    // {
-    //     public Vector2 thumbStickValue;
-    // }
-
-    public delegate void GestureEvent(Gesture gesture, InputDeviceCharacteristics characteristics);
-    // public delegate void GestureEvent(Gesture gesture, RawGestureData rawGestureData, InputDeviceCharacteristics characteristics);
-    // public delegate void Event(GestureDataPoint<object> gesture, InputDeviceCharacteristics characteristics);
-    // public static event EventHandler<EventArgs> EventReceived;
-    public static event GestureEvent GestureEventReceived;
-
-    public delegate void ThumbstickRawEvent(Vector2 thumbStickValue, InputDeviceCharacteristics characteristics);
+    public delegate void ThumbstickRawEvent(Vector2 thumbstickValue, InputDeviceCharacteristics characteristics);
     public static event ThumbstickRawEvent ThumbstickRawEventReceived;
 
+    public delegate void StateEvent(HandStateCanvasManager.State state, InputDeviceCharacteristics characteristics);
+    public static event StateEvent StateEventReceived;
+
     [Flags]
-    public enum Gesture
+    public enum Actuation
     {
         None = 0,
         Trigger = 1,
         Grip = 2,
         Button_AX = 4,
         Button_BY = 8,
-        ThumbStick_Left = 16,
-        ThumbStick_Right = 32,
-        ThumbStick_Up = 64,
-        ThumbStick_Down = 128,
-        ThumbStick_Click = 256,
+        Thumbstick_Left = 16,
+        Thumbstick_Right = 32,
+        Thumbstick_Up = 64,
+        Thumbstick_Down = 128,
+        Thumbstick_Click = 256,
         Menu_Oculus = 512
     }
 
@@ -73,7 +59,7 @@ public class HandController : BaseManager
     [Header("Inputs")]
     [SerializeField] float triggerThreshold = 0.1f;
     [SerializeField] float gripThreshold = 0.5f;
-    [SerializeField] Vector2 thumbStickThreshold = new Vector2(0.1f, 0.1f);
+    [SerializeField] Vector2 thumbstickThreshold = new Vector2(0.1f, 0.1f);
 
     public InputDeviceCharacteristics Characteristics { get { return characteristics; } }
     public bool IsHolding { get { return isHolding; } }
@@ -86,8 +72,7 @@ public class HandController : BaseManager
     private bool isHolding = false;
     private IInteractable interactable;
     private DebugCanvas debugCanvas;
-    private Gesture gesture, lastGesture;
-    private IController controllerCanvasManager;
+    private Actuation actuation, lastActuation;
 
     void Awake()
     {
@@ -117,7 +102,7 @@ public class HandController : BaseManager
         {
             Log($"{Time.time} {gameObject.name} {className} ResolveController:{controller.name}.Detected");
 
-            SetGesture(Gesture.None);
+            SetActuation(Actuation.None);
         }
     }
 
@@ -130,29 +115,10 @@ public class HandController : BaseManager
             if (!controller.isValid) return;
         }
 
-        if (characteristics.HasFlag(InputDeviceCharacteristics.Left))
-        {
-            var controllerManager = GameObject.FindObjectOfType(typeof(LeftControllerCanvasManager));
-            
-            if (controllerManager != null)
-            {
-                controllerCanvasManager = (IController) controllerManager;
-            }
-        }
-        else
-        {
-            var controllerManager = GameObject.FindObjectOfType(typeof(RightControllerCanvasManager));
-            
-            if (controllerManager != null)
-            {
-                controllerCanvasManager = (IController) controllerManager;
-            }
-        }
-
-        lastGesture = gesture;
+        lastActuation = actuation;
 
         var gameObject = interactable?.GetGameObject();
-        Vector2 thumbStickValue;
+        Vector2 thumbstickValue;
 
         if (controller.TryGetFeatureValue(CommonUsages.trigger, out float triggerValue))
         {
@@ -163,15 +129,15 @@ public class HandController : BaseManager
 
             if (triggerValue >= triggerThreshold)
             {
-                if (!gesture.HasFlag(Gesture.Trigger))
+                if (!actuation.HasFlag(Actuation.Trigger))
                 {
-                    gesture |= Gesture.Trigger;
-                    gameObject?.GetComponent<IGesture>()?.OnGesture(Gesture.Trigger);
+                    actuation |= Actuation.Trigger;
+                    // gameObject?.GetComponent<IActuation>()?.OnActuation(Actuation.Trigger);
                 }
             }
             else
             {
-                gesture &= ~Gesture.Trigger;
+                actuation &= ~Actuation.Trigger;
             }
         }
 
@@ -184,7 +150,7 @@ public class HandController : BaseManager
 
             if (gripValue >= gripThreshold)
             {
-                if (enableTeleport && (!isHovering) && (!gesture.HasFlag(Gesture.Grip)) && (cameraManager.TryGetObjectHit(out GameObject obj)))
+                if (enableTeleport && (!isHovering) && (!actuation.HasFlag(Actuation.Grip)) && (cameraManager.TryGetObjectHit(out GameObject obj)))
                 {
                     if (obj.TryGetComponent<IInteractable>(out IInteractable interactable))
                     {
@@ -192,15 +158,15 @@ public class HandController : BaseManager
                     }
                 }
 
-                if (!gesture.HasFlag(Gesture.Grip))
+                if (!actuation.HasFlag(Actuation.Grip))
                 {
-                    gesture |= Gesture.Grip;
-                    gameObject?.GetComponent<IGesture>()?.OnGesture(Gesture.Grip);
+                    actuation |= Actuation.Grip;
+                    // gameObject?.GetComponent<IActuation>()?.OnActuation(Actuation.Grip);
                 }
             }
             else
             {
-                gesture &= ~Gesture.Grip;
+                actuation &= ~Actuation.Grip;
             }
         }
 
@@ -210,15 +176,15 @@ public class HandController : BaseManager
 
             if (buttonAXValue)
             {
-                if (!gesture.HasFlag(Gesture.Button_AX))
+                if (!actuation.HasFlag(Actuation.Button_AX))
                 {
-                    gesture |= Gesture.Button_AX;
-                    gameObject?.GetComponent<IGesture>()?.OnGesture(Gesture.Button_AX);
+                    actuation |= Actuation.Button_AX;
+                    // gameObject?.GetComponent<IActuation>()?.OnActuation(Actuation.Button_AX);
                 }
             }
             else
             {
-                gesture &= ~Gesture.Button_AX;
+                actuation &= ~Actuation.Button_AX;
             }
         }
 
@@ -228,72 +194,72 @@ public class HandController : BaseManager
 
             if (buttonBYValue)
             {
-                if (!gesture.HasFlag(Gesture.Button_BY))
+                if (!actuation.HasFlag(Actuation.Button_BY))
                 {
-                    gesture |= Gesture.Button_BY;
-                    gameObject?.GetComponent<IGesture>()?.OnGesture(Gesture.Button_BY);
+                    actuation |= Actuation.Button_BY;
+                    // gameObject?.GetComponent<IActuation>()?.OnActuation(Actuation.Button_BY);
                 }
             }
             else
             {
-                gesture &= ~Gesture.Button_BY;
+                actuation &= ~Actuation.Button_BY;
             }
         }
 
-        if (controller.TryGetFeatureValue(CommonUsages.primary2DAxis, out thumbStickValue))
+        if (controller.TryGetFeatureValue(CommonUsages.primary2DAxis, out thumbstickValue))
         {
-            // Log($"{Time.time} {gameObject.name} {className}.Thumbstick.Value:{thumbStickValue}");
+            // Log($"{Time.time} {gameObject.name} {className}.Thumbstick.Value:{thumbstickValue}");
 
-            if (thumbStickValue.x <= -thumbStickThreshold.x)
+            if (thumbstickValue.x <= -thumbstickThreshold.x)
             {
-                if (!gesture.HasFlag(Gesture.ThumbStick_Left))
+                if (!actuation.HasFlag(Actuation.Thumbstick_Left))
                 {
-                    gesture |= Gesture.ThumbStick_Left;
-                    gameObject?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Left);
+                    actuation |= Actuation.Thumbstick_Left;
+                    // gameObject?.GetComponent<IActuation>()?.OnActuation(Actuation.Thumbstick_Left);
                 }
             }
             else
             {
-                gesture &= ~Gesture.ThumbStick_Left;
+                actuation &= ~Actuation.Thumbstick_Left;
             }
             
-            if (thumbStickValue.x > thumbStickThreshold.x)
+            if (thumbstickValue.x > thumbstickThreshold.x)
             {
-                if (!gesture.HasFlag(Gesture.ThumbStick_Right))
+                if (!actuation.HasFlag(Actuation.Thumbstick_Right))
                 {
-                    gesture |= Gesture.ThumbStick_Right;
-                    gameObject?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Right);
+                    actuation |= Actuation.Thumbstick_Right;
+                    // gameObject?.GetComponent<IActuation>()?.OnActuation(Actuation.Thumbstick_Right);
                 }
             }
             else
             {
-                gesture &= ~Gesture.ThumbStick_Right;
+                actuation &= ~Actuation.Thumbstick_Right;
             }
 
-            if (thumbStickValue.y <= -thumbStickThreshold.y)
+            if (thumbstickValue.y <= -thumbstickThreshold.y)
             {
-                if (!gesture.HasFlag(Gesture.ThumbStick_Up))
+                if (!actuation.HasFlag(Actuation.Thumbstick_Up))
                 {
-                    gesture |= Gesture.ThumbStick_Up;
-                    gameObject?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Up);
+                    actuation |= Actuation.Thumbstick_Up;
+                    // gameObject?.GetComponent<IActuation>()?.OnActuation(Actuation.Thumbstick_Up);
                 }
             }
             else
             {
-                gesture &= ~Gesture.ThumbStick_Up;
+                actuation &= ~Actuation.Thumbstick_Up;
             }
             
-            if (thumbStickValue.y > thumbStickThreshold.y)
+            if (thumbstickValue.y > thumbstickThreshold.y)
             {
-                if (!gesture.HasFlag(Gesture.ThumbStick_Down))
+                if (!actuation.HasFlag(Actuation.Thumbstick_Down))
                 {
-                    gesture |= Gesture.ThumbStick_Down;
-                    gameObject?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Down);
+                    actuation |= Actuation.Thumbstick_Down;
+                    // gameObject?.GetComponent<IActuation>()?.OnActuation(Actuation.Thumbstick_Down);
                 }
             }
             else
             {
-                gesture &= ~Gesture.ThumbStick_Down;
+                actuation &= ~Actuation.Thumbstick_Down;
             }
         }
 
@@ -303,15 +269,15 @@ public class HandController : BaseManager
 
             if (thumbstickClickValue)
             {
-                if (!gesture.HasFlag(Gesture.ThumbStick_Click))
+                if (!actuation.HasFlag(Actuation.Thumbstick_Click))
                 {
-                    gesture |= Gesture.ThumbStick_Click;
-                    gameObject?.GetComponent<IGesture>()?.OnGesture(Gesture.ThumbStick_Click);
+                    actuation |= Actuation.Thumbstick_Click;
+                    // gameObject?.GetComponent<IActuation>()?.OnActuation(Actuation.Thumbstick_Click);
                 }
             }
             else
             {
-                gesture &= ~Gesture.ThumbStick_Click;
+                actuation &= ~Actuation.Thumbstick_Click;
             }
         }
 
@@ -321,106 +287,84 @@ public class HandController : BaseManager
 
             if (menuButtonValue)
             {
-                if (!gesture.HasFlag(Gesture.Menu_Oculus))
+                if (!actuation.HasFlag(Actuation.Menu_Oculus))
                 {
-                    gesture |= Gesture.Menu_Oculus;
-                    gameObject?.GetComponent<IGesture>()?.OnGesture(Gesture.Menu_Oculus);
+                    actuation |= Actuation.Menu_Oculus;
+                    // gameObject?.GetComponent<IActuation>()?.OnActuation(Actuation.Menu_Oculus);
                 }
             }
             else
             {
-                gesture &= ~Gesture.Menu_Oculus;
+                actuation &= ~Actuation.Menu_Oculus;
             }
         }
 
-        if (gesture != lastGesture)
+        if (actuation != lastActuation)
         {
-            controllerCanvasManager?.SetGestureState(gesture);
+            gameObject?.GetComponent<IActuation>()?.OnActuation(actuation);
 
-            if (GestureEventReceived != null)
+            if (ActuationEventReceived != null)
             {
-                // var gestures = Enum.GetValues(typeof(Gesture));
-
-                // foreach (Gesture thisGesture in gestures)
-                // {
-                //     if (gesture.HasFlag(thisGesture))
-                //     {
-                //         switch(gesture)
-                //         {
-                //             // TODO
-                //         }
-                //     }
-                // }
-
-                // foreach (Delegate thisDelegate in EventReceived.GetInvocationList())
-                // {
-                //     thisDelegate.DynamicInvoke(gesture, characteristics);
-                // }
-
-                // RawGestureData rawGestureData = new RawGestureData
-                // {
-                //     thumbStickValue = thumbStickValue
-                // };
-                
-                GestureEventReceived.Invoke(gesture, characteristics);
+                ActuationEventReceived.Invoke(actuation, characteristics);
             }
         }
         
         if (ThumbstickRawEventReceived != null)
         {
-            ThumbstickRawEventReceived.Invoke(thumbStickValue, characteristics);
+            ThumbstickRawEventReceived.Invoke(thumbstickValue, characteristics);
         }
-
-        controllerCanvasManager?.SetThumbStickCursor(thumbStickValue);
         
-        UpdateHandGestureState();
+        UpdateState();
     }
 
-    private void UpdateHandGestureState()
+    private void UpdateState()
     {
-        HandGestureCanvasManager.Gesture handGesture = HandGestureCanvasManager.Gesture.None;
+        HandStateCanvasManager.State state = HandStateCanvasManager.State.None;
 
         if (isHovering)
         {
-            handGesture |= HandGestureCanvasManager.Gesture.Hover;
+            state |= HandStateCanvasManager.State.Hover;
         }
         else
         {
-            handGesture &= ~HandGestureCanvasManager.Gesture.Hover;
+            state &= ~HandStateCanvasManager.State.Hover;
         }
 
         if (isHolding)
         {
-            handGesture |= HandGestureCanvasManager.Gesture.Grip;
+            state |= HandStateCanvasManager.State.Grip;
         }
         else
         {
-            handGesture &= ~HandGestureCanvasManager.Gesture.Grip;
+            state &= ~HandStateCanvasManager.State.Grip;
         }
 
-        controllerCanvasManager?.SetHandGestureState(handGesture);
+        if (StateEventReceived != null)
+        {
+            StateEventReceived.Invoke(state, characteristics);
+        }
     }
 
-    private void SetGesture(Gesture gesture)
+    private void SetActuation(Actuation actuation)
     {
-        this.gesture = gesture;
+        this.actuation = actuation;
     }
 
-    public void SetHovering(IInteractable obj, bool isHovering)
+    public void SetHovering(IInteractable interactable, bool isHovering)
     {
-        Log($"{Time.time} {gameObject.name} {className}.SetHovering:Game Object : {obj.GetGameObject().name} Is Hovering : {isHovering}");
+        Log($"{Time.time} {gameObject.name} {className}.SetHovering:Game Object : {interactable.GetGameObject().name} Is Hovering : {isHovering}");
 
         this.isHovering = isHovering;
-        NotifyOpposingConroller(State.Hovering, isHovering, obj);
+        NotifyOpposingController(State.Hovering, isHovering, interactable);
     }
 
-    public void SetHolding(IInteractable obj, bool isHolding)
+    public void SetHolding(IInteractable interactable, bool isHolding)
     {
-        Log($"{Time.time} {gameObject.name} {className}.SetHolding:Game Object : {obj.GetGameObject().name} Is Holding : {isHolding}");
+        Log($"{Time.time} {gameObject.name} {className}.SetHolding:Game Object : {interactable.GetGameObject().name} Is Holding : {isHolding}");
  
         this.isHolding = isHolding;
-        interactable = obj;
-        NotifyOpposingConroller(State.Holding, isHolding, obj);
+        this.interactable = interactable;
+        NotifyOpposingController(State.Holding, isHolding, interactable);
     }
 
     public void OnOpposingEvent(State state, bool isTrue, IInteractable obj)
@@ -430,7 +374,7 @@ public class HandController : BaseManager
         interactable?.OnOpposingEvent(state, isTrue, obj);
     }
 
-    private void NotifyOpposingConroller(State state, bool isTrue, IInteractable obj)
+    private void NotifyOpposingController(State state, bool isTrue, IInteractable obj)
     {
         Log($"{Time.time} {gameObject.name} {className}.NotifyOpposingConroller:State : {state} IsTrue : {isTrue} GameObject : {obj.GetGameObject().name}");
 

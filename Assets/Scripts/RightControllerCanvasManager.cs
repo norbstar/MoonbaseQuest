@@ -1,63 +1,89 @@
+using System.Reflection;
+
 using UnityEngine;
+using UnityEngine.XR;
 
 public class RightControllerCanvasManager : ControllerCanvasManager
 {
+    private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
+
     [Header("Other Components")]
-    [SerializeField] GameObject oculus;
-    [SerializeField] GameObject a;
-    [SerializeField] GameObject b;
+    [SerializeField] GameObject oculusButton;
+    [SerializeField] GameObject aButton;
+    [SerializeField] GameObject bButton;
 
-    public override void SetGestureState(HandController.Gesture gesture)
+    private void SetOculusButtonState(HandController.Actuation actuation)
     {
-        base.SetGestureState(gesture);
-
-        SetOculusState(gesture);
-        SetAState(gesture);
-        SetBState(gesture);
-    }
-
-    private void SetOculusState(HandController.Gesture gesture)
-    {
-        // menu.SetActive(gesture.HasFlag(HandController.Gesture.Menu_Oculus));
-
-        if (gesture.HasFlag(HandController.Gesture.Menu_Oculus) && !oculus.activeSelf)
+        if (actuation.HasFlag(HandController.Actuation.Menu_Oculus) && !oculusButton.activeSelf)
         {
-            oculus.SetActive(true);
+            oculusButton.SetActive(true);
         }
 
-        if (!gesture.HasFlag(HandController.Gesture.Menu_Oculus) && oculus.activeSelf)
+        if (!actuation.HasFlag(HandController.Actuation.Menu_Oculus) && oculusButton.activeSelf)
         {
-            oculus.SetActive(false);
+            oculusButton.SetActive(false);
         }
     }
 
-    private void SetAState(HandController.Gesture gesture)
+    private void SetAButtonState(HandController.Actuation actuation)
     {
-        // x.SetActive(gesture.HasFlag(HandController.Gesture.Button_AX));
-
-        if (gesture.HasFlag(HandController.Gesture.Button_AX) && !a.activeSelf)
+        if (actuation.HasFlag(HandController.Actuation.Button_AX) && !aButton.activeSelf)
         {
-            a.SetActive(true);
+            aButton.SetActive(true);
         }
 
-        if (!gesture.HasFlag(HandController.Gesture.Button_AX) && a.activeSelf)
+        if (!actuation.HasFlag(HandController.Actuation.Button_AX) && aButton.activeSelf)
         {
-            a.SetActive(false);
+            aButton.SetActive(false);
         }
     }
     
-    private void SetBState(HandController.Gesture gesture)
+    private void SetBButtonState(HandController.Actuation actuation)
     {
-        // y.SetActive(gesture.HasFlag(HandController.Gesture.Button_BY));
-
-        if (gesture.HasFlag(HandController.Gesture.Button_BY) && !b.activeSelf)
+        if (actuation.HasFlag(HandController.Actuation.Button_BY) && !bButton.activeSelf)
         {
-            b.SetActive(true);
+            bButton.SetActive(true);
         }
 
-        if (!gesture.HasFlag(HandController.Gesture.Button_BY) && b.activeSelf)
+        if (!actuation.HasFlag(HandController.Actuation.Button_BY) && bButton.activeSelf)
         {
-            b.SetActive(false);
+            bButton.SetActive(false);
+        }
+    }
+
+    public override void OnActuation(HandController.Actuation actuation, InputDeviceCharacteristics characteristics)
+    {
+        if ((int) characteristics == (int) HandController.RightHand)
+        {
+            Log($"{Time.time} {gameObject.name} {className} OnActuation:Actuation : {actuation}");
+            SetActuation(actuation);
+        }
+    }
+
+    public override void SetActuation(HandController.Actuation actuation)
+    {
+        base.SetActuation(actuation);
+
+        SetOculusButtonState(actuation);
+        SetAButtonState(actuation);
+        SetBButtonState(actuation);
+    }
+
+    public override void OnThumbstickRaw(Vector2 value, InputDeviceCharacteristics characteristics)
+    {
+        if ((int) characteristics == (int) HandController.RightHand)
+        {
+            Log($"{Time.time} {gameObject.name} {className} OnThumbstickRaw:Value : {value}");
+            SetThumbstickRaw(value);
+        }
+    }
+
+    public override void OnState(HandStateCanvasManager.State handGesture, InputDeviceCharacteristics characteristics)
+    {
+        if ((int) characteristics == (int) HandController.RightHand)
+        {
+            Log($"{Time.time} {gameObject.name} {className} OnHandGesture:HandGesture : {handGesture}");
+            SetState(handGesture);
         }
     }
 }

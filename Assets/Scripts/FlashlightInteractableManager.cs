@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
 [RequireComponent(typeof(XRGrabInteractable))]
-public class FlashlightInteractableManager : FocusableInteractableManager, IGesture
+public class FlashlightInteractableManager : FocusableInteractableManager, IActuation
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
@@ -45,13 +45,13 @@ public class FlashlightInteractableManager : FocusableInteractableManager, IGest
         spotlight.SetActive(state == ActiveState.On);
     }
 
-    public void OnGesture(HandController.Gesture gesture, object value = null)
+    public void OnActuation(HandController.Actuation actuation, object value = null)
     {
-        Log($"{Time.time} {gameObject.name} {className} OnGesture:Gesture : {gesture} Value : {value}");
+        Log($"{Time.time} {gameObject.name} {className} OnActuation:Actuation : {actuation} Value : {value}");
 
-        switch (gesture)
+        switch (actuation)
         {
-            case HandController.Gesture.Button_AX:
+            case HandController.Actuation.Button_AX:
                 AlternateLight();
                 break;
         }

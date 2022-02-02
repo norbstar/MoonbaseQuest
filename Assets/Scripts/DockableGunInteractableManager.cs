@@ -10,12 +10,9 @@ using static GunInteractableEnums;
 
 [RequireComponent(typeof(XRGrabInteractable))]
 [RequireComponent(typeof(CurveCreator))]
-public class DockableGunInteractableManager : DockableFocusableInteractableManager, IGesture
+public class DockableGunInteractableManager : DockableFocusableInteractableManager, IActuation
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
-
-    public static InputDeviceCharacteristics RightHand = (InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Right);
-    public static InputDeviceCharacteristics LeftHand = (InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Left);
 
     [SerializeField] Animator animator;
     [SerializeField] GameObject spawnPoint;
@@ -116,16 +113,16 @@ public class DockableGunInteractableManager : DockableFocusableInteractableManag
                     hitPrefabInstance.SetActive(true);
                 }
 
-                if (TryGet.TryGetController<HandController>(interactor, out HandController controller))
+                if (TryGet.TryGetController(interactor, out HandController controller))
                 {
                     var renderer = hitPrefabInstance.GetComponent<Renderer>() as Renderer;
                     var device = controller.GetInputDevice();
 
-                    if ((int) device.characteristics == (int) LeftHand)
+                    if ((int) device.characteristics == (int) HandController.LeftHand)
                     {
                         renderer.material.color = Color.red;
                     }
-                    else if ((int) device.characteristics == (int) RightHand)
+                    else if ((int) device.characteristics == (int) HandController.RightHand)
                     {
                         renderer.material.color = Color.blue;
                     }
@@ -173,11 +170,11 @@ public class DockableGunInteractableManager : DockableFocusableInteractableManag
         {
             var device = controller.GetInputDevice();
 
-            if ((int) device.characteristics == (int) LeftHand)
+            if ((int) device.characteristics == (int) HandController.LeftHand)
             {
                 hudCanvasManager.transform.localPosition = new Vector3(-Mathf.Abs(hudCanvasManager.transform.localPosition.x), 0.06f, 0f);
             }
-            else if ((int) device.characteristics == (int) RightHand)
+            else if ((int) device.characteristics == (int) HandController.RightHand)
             {
                 hudCanvasManager.transform.localPosition = new Vector3(Mathf.Abs(hudCanvasManager.transform.localPosition.x), 0.06f, 0f);
             }
@@ -258,7 +255,7 @@ public class DockableGunInteractableManager : DockableFocusableInteractableManag
         animator.SetTrigger("Fire");
         AudioSource.PlayClipAtPoint(hitClip, transform.position, 1.0f);
 
-        if (TryGet.TryGetController<HandController>(interactor, out HandController controller))
+        if (TryGet.TryGetController(interactor, out HandController controller))
         {
             controller.SetImpulse();
         }
@@ -362,33 +359,33 @@ public class DockableGunInteractableManager : DockableFocusableInteractableManag
     {
         var device = controller.GetInputDevice();
 
-        if ((int) device.characteristics == (int) LeftHand)
+        if ((int) device.characteristics == (int) HandController.LeftHand)
         {
             hipDocksManager.DockWeapon(gameObject, HipDocksManager.DockID.Left, Quaternion.Euler(90f, 0f, 0f));
         }
-        else if ((int) device.characteristics == (int) RightHand)
+        else if ((int) device.characteristics == (int) HandController.RightHand)
         {
             hipDocksManager.DockWeapon(gameObject, HipDocksManager.DockID.Right, Quaternion.Euler(90f, 0f, 0f));
         }
     }
 
-    public void OnGesture(HandController.Gesture gesture, object value = null)
+    public void OnActuation(HandController.Actuation actuation, object value = null)
     {
-        switch (gesture)
+        switch (actuation)
         {
-            case HandController.Gesture.ThumbStick_Left:
+            case HandController.Actuation.Thumbstick_Left:
                 SetMode(Mode.Manual);
                 break;
             
-            case HandController.Gesture.ThumbStick_Right:
+            case HandController.Actuation.Thumbstick_Right:
                 SetMode(Mode.Auto);
                 break;
 
-            case HandController.Gesture.ThumbStick_Up:
+            case HandController.Actuation.Thumbstick_Up:
                 SetIntent(Intent.Engaged);
                 break;
 
-            case HandController.Gesture.ThumbStick_Down:
+            case HandController.Actuation.Thumbstick_Down:
                 SetIntent(Intent.Disengaged);
                 break;
         }

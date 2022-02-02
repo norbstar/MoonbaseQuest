@@ -737,13 +737,14 @@ MonoBehaviour:
   handGestureCanvasManager: {fileID: 8471296748125432665}
   trigger: {fileID: 8471296746475737250}
   grip: {fileID: 8471296746476942465}
-  thumbStick: {fileID: 8471296746349028732}
-  thumbStickClick: {fileID: 5481827574732357257}
-  thumbStickCursor: {fileID: 1910056597787091167}
-  enableThumbStickCursor: 1
-  menu: {fileID: 8471296746496912208}
-  x: {fileID: 8471296747480659212}
-  y: {fileID: 8471296747799497789}
+  thumbstick: {fileID: 8471296746349028732}
+  thumbstickClick: {fileID: 5481827574732357257}
+  thumbstickCursor: {fileID: 1910056597787091167}
+  enableThumbstickRaw: 1
+  enableLogging: 0
+  menuButton: {fileID: 8471296746496912208}
+  xButton: {fileID: 8471296747480659212}
+  yButton: {fileID: 8471296747799497789}
 --- !u!1 &8471296747077326722
 GameObject:
   m_ObjectHideFlags: 0
@@ -1111,7 +1112,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 456105911336698738, guid: 04dc874c8b9dc854a90397def6be28e6, type: 3}
       propertyPath: m_Name
-      value: Hand Gesture Canvas
+      value: Hand State Canvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 456105911336698748, guid: 04dc874c8b9dc854a90397def6be28e6, type: 3}
+      propertyPath: enableLogging
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 456105911336698749, guid: 04dc874c8b9dc854a90397def6be28e6, type: 3}
       propertyPath: m_RootOrder
@@ -1167,6 +1172,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 456105911336698749, guid: 04dc874c8b9dc854a90397def6be28e6, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 456105911380302501, guid: 04dc874c8b9dc854a90397def6be28e6, type: 3}
+      propertyPath: m_PresetInfoIsWorld
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 456105911430591552, guid: 04dc874c8b9dc854a90397def6be28e6, type: 3}

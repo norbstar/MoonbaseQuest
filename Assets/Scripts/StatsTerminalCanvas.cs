@@ -13,6 +13,7 @@ public class StatsTerminalCanvas : MonoBehaviour
     [SerializeField] float refreshInterval = 0.25f;
 
     private float low, high, average;
+    private float refreshTime;
 
     // private float lastInterval = 0;
     // private int frames = 0;
@@ -29,11 +30,16 @@ public class StatsTerminalCanvas : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        var now = DateTime.Now;
+        if (Time.time >= refreshTime)
+        {
+            var now = DateTime.Now;
 
-        GenerateDate(now);
-        GenerateTime(now);
-        GenerateFPS();
+            GenerateDate(now);
+            GenerateTime(now);
+            GenerateFPS();
+
+            refreshTime += refreshInterval;
+        }
     }
 
     private IEnumerator GenerateStats()
@@ -78,11 +84,11 @@ public class StatsTerminalCanvas : MonoBehaviour
         fpsTextUI.text = $"{fps} [{ms}]";
 
         low = (low == 0 || fps < low) ? fps : low;
-        Debug.Log($"Low : {low}");
+        // Debug.Log($"Low : {low}");
         high = (high == 0 || fps > high) ? fps : high;
-        Debug.Log($"High : {high}");
+        // Debug.Log($"High : {high}");
         average = (average + fps) / 2f;
-        Debug.Log($"Average : {average}");
+        // Debug.Log($"Average : {average}");
     }
 
 #if false

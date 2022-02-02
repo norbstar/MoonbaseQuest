@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 456105909579509901}
   - component: {fileID: 456105909579509890}
   m_Layer: 5
-  m_Name: Hover Gesture Canvas
+  m_Name: Hover Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -190,7 +190,7 @@ GameObject:
   - component: {fileID: 456105909893187249}
   - component: {fileID: 456105909893187254}
   m_Layer: 5
-  m_Name: Claw Gesture Canvas
+  m_Name: Claw Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -365,7 +365,7 @@ GameObject:
   - component: {fileID: 456105910019006053}
   - component: {fileID: 456105910019006042}
   m_Layer: 5
-  m_Name: Pinch Gesture Canvas
+  m_Name: Pinch Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1173,7 +1173,7 @@ GameObject:
   - component: {fileID: 456105910941563826}
   - component: {fileID: 456105910941563827}
   m_Layer: 5
-  m_Name: Point Gesture Canvas
+  m_Name: Point Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1480,7 +1480,7 @@ GameObject:
   - component: {fileID: 456105911336698749}
   - component: {fileID: 456105911336698748}
   m_Layer: 0
-  m_Name: Hand Gesture Canvas
+  m_Name: Hand State Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1517,6 +1517,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4f16fc98c336b44da0bac021d826b06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enableLogging: 0
   grip: {fileID: 456105909941114641}
   pinch: {fileID: 456105910720707122}
   point: {fileID: 456105911430591555}
@@ -1524,7 +1525,6 @@ MonoBehaviour:
   hover: {fileID: 456105911183109728}
   defaultColor: {r: 0, g: 0, b: 0, a: 0.2509804}
   highlightColor: {r: 0.101960786, g: 1, b: 0, a: 1}
-  enableLogging: 0
 --- !u!1 &456105911380302491
 GameObject:
   m_ObjectHideFlags: 0
@@ -1538,7 +1538,7 @@ GameObject:
   - component: {fileID: 456105911380302501}
   - component: {fileID: 456105911380302490}
   m_Layer: 5
-  m_Name: Grip Gesture Canvas
+  m_Name: Grip Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

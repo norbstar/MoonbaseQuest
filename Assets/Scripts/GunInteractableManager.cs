@@ -10,12 +10,9 @@ using static GunInteractableEnums;
 
 [RequireComponent(typeof(XRGrabInteractable))]
 [RequireComponent(typeof(CurveCreator))]
-public class GunInteractableManager : FocusableInteractableManager, IGesture
+public class GunInteractableManager : FocusableInteractableManager, IActuation
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
-
-    public static InputDeviceCharacteristics RightHand = (InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Right);
-    public static InputDeviceCharacteristics LeftHand = (InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Left);
 
     [Header("Animations")]
     [SerializeField] Animator animator;
@@ -120,16 +117,16 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
                     hitPrefabInstance.SetActive(true);
                 }
 
-                if (TryGet.TryGetController<HandController>(interactor, out HandController controller))
+                if (TryGet.TryGetController(interactor, out HandController controller))
                 {
                     var renderer = hitPrefabInstance.GetComponent<Renderer>() as Renderer;
                     var device = controller.GetInputDevice();
 
-                    if ((int) device.characteristics == (int) LeftHand)
+                    if ((int) device.characteristics == (int) HandController.LeftHand)
                     {
                         renderer.material.color = Color.red;
                     }
-                    else if ((int) device.characteristics == (int) RightHand)
+                    else if ((int) device.characteristics == (int) HandController.RightHand)
                     {
                         renderer.material.color = Color.blue;
                     }
@@ -181,12 +178,12 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
             Log($"{Time.time} {gameObject.name} {className} 4");
             var device = controller.GetInputDevice();
 
-            if ((int) device.characteristics == (int) LeftHand)
+            if ((int) device.characteristics == (int) HandController.LeftHand)
             {
                 Log($"{Time.time} {gameObject.name} {className} 5");
                 hudCanvasManager.transform.localPosition = new Vector3(-Mathf.Abs(hudCanvasManager.transform.localPosition.x), 0.06f, 0f);
             }
-            else if ((int) device.characteristics == (int) RightHand)
+            else if ((int) device.characteristics == (int) HandController.RightHand)
             {
                 Log($"{Time.time} {gameObject.name} {className} 6");
                 hudCanvasManager.transform.localPosition = new Vector3(Mathf.Abs(hudCanvasManager.transform.localPosition.x), 0.06f, 0f);
@@ -262,7 +259,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
         animator.SetTrigger("Fire");
         AudioSource.PlayClipAtPoint(hitClip, transform.position, 1.0f);
 
-        if (TryGet.TryGetController<HandController>(interactor, out HandController controller))
+        if (TryGet.TryGetController(interactor, out HandController controller))
         {
             controller.SetImpulse();
         }
@@ -358,27 +355,27 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
 
         var device = controller.GetInputDevice();
 
-        if ((int) device.characteristics == (int) LeftHand)
+        if ((int) device.characteristics == (int) HandController.LeftHand)
         {
             hipDocksManager.DockWeapon(gameObject, HipDocksManager.DockID.Left, Quaternion.Euler(90f, 0f, 0f));
         }
-        else if ((int) device.characteristics == (int) RightHand)
+        else if ((int) device.characteristics == (int) HandController.RightHand)
         {
             hipDocksManager.DockWeapon(gameObject, HipDocksManager.DockID.Right, Quaternion.Euler(90f, 0f, 0f));
         }
     }
 
-    public void OnGesture(HandController.Gesture gesture, object value = null)
+    public void OnActuation(HandController.Actuation actuation, object value = null)
     {
-        Log($"{Time.time} {gameObject.name} {className} OnGesture:Gesture : {gesture} Value : {value}");
+        Log($"{Time.time} {gameObject.name} {className} OnActuation:Actuation : {actuation} Value : {value}");
 
-        switch (gesture)
+        switch (actuation)
         {
-            case HandController.Gesture.Button_AX:
+            case HandController.Actuation.Button_AX:
                 AlternateMode();
                 break;
 
-            case HandController.Gesture.Button_BY:
+            case HandController.Actuation.Button_BY:
                 AlternateIntent();
                 break;
         }
@@ -550,7 +547,7 @@ public class GunInteractableManager : FocusableInteractableManager, IGesture
         if ((!socketInteractorManager.IsOccupied) && (gameObject.CompareTag("Flashlight")))
         {
             Log($"1");
-            if (TryGet.TryGetController<HandController>(interactor, out HandController controller))
+            if (TryGet.TryGetController(interactor, out HandController controller))
             {
                 Log($"2");
                 if (TryGet.TryGetOppositeController(controller, out HandController opposingController))
