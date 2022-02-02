@@ -116,7 +116,7 @@ public class DockableGunInteractableManager : DockableFocusableInteractableManag
                 if (TryGet.TryGetController(interactor, out HandController controller))
                 {
                     var renderer = hitPrefabInstance.GetComponent<Renderer>() as Renderer;
-                    var device = controller.GetInputDevice();
+                    var device = controller.InputDevice;
 
                     if ((int) device.characteristics == (int) HandController.LeftHand)
                     {
@@ -168,7 +168,7 @@ public class DockableGunInteractableManager : DockableFocusableInteractableManag
 
         if (controller != null)
         {
-            var device = controller.GetInputDevice();
+            var device = controller.InputDevice;
 
             if ((int) device.characteristics == (int) HandController.LeftHand)
             {
@@ -357,7 +357,7 @@ public class DockableGunInteractableManager : DockableFocusableInteractableManag
 
     private void DockWeapon(HandController controller)
     {
-        var device = controller.GetInputDevice();
+        var device = controller.InputDevice;
 
         if ((int) device.characteristics == (int) HandController.LeftHand)
         {

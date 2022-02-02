@@ -28,14 +28,14 @@ public abstract class ControllerCanvasManager : MonoBehaviour
     void OnEnable()
     {
         HandController.ActuationEventReceived += OnActuation;
-        HandController.ThumbstickRawEventReceived += OnThumbstickRaw;
+        HandController.RawDataEventReceived += OnRawData;
         HandController.StateEventReceived += OnState;
     }
 
     void OnDisable()
     {
         HandController.ActuationEventReceived -= OnActuation;
-        HandController.ThumbstickRawEventReceived -= OnThumbstickRaw;
+        HandController.RawDataEventReceived -= OnRawData;
         HandController.StateEventReceived -= OnState;
     }
 
@@ -105,7 +105,7 @@ public abstract class ControllerCanvasManager : MonoBehaviour
         SetThumbstickClickState(actuation);
     }
 
-    public abstract void OnThumbstickRaw(Vector2 value, InputDeviceCharacteristics characteristics);
+    public abstract void OnRawData(HandController.RawData rawData, InputDeviceCharacteristics characteristics);
     
     public void SetThumbstickRaw(Vector2 value)
     {

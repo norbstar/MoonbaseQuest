@@ -476,6 +476,10 @@ PrefabInstance:
       propertyPath: m_InteractionManager
       value: 
       objectReference: {fileID: 1482864551}
+    - target: {fileID: 7830393975865850514, guid: f8848fc8a98e75f48a146527456cfcbf, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f8848fc8a98e75f48a146527456cfcbf, type: 3}
 --- !u!1001 &130814548
@@ -1211,7 +1215,7 @@ Camera:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 366067116}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_ClearFlags: 1
   m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
@@ -2849,18 +2853,6 @@ PrefabInstance:
       value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 8689592321124081410, guid: 501bd53a33601694bbbcc3c77f0ac880, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.45
-      objectReference: {fileID: 0}
-    - target: {fileID: 8689592321124081410, guid: 501bd53a33601694bbbcc3c77f0ac880, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0.45
-      objectReference: {fileID: 0}
-    - target: {fileID: 8689592321124081410, guid: 501bd53a33601694bbbcc3c77f0ac880, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 0.45
-      objectReference: {fileID: 0}
-    - target: {fileID: 8689592321124081410, guid: 501bd53a33601694bbbcc3c77f0ac880, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.12
       objectReference: {fileID: 0}
@@ -2904,14 +2896,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Pilot Seat
       objectReference: {fileID: 0}
-    - target: {fileID: 8689592321125408546, guid: 501bd53a33601694bbbcc3c77f0ac880, type: 3}
-      propertyPath: m_Mesh
-      value: 
-      objectReference: {fileID: -2731311451542596151, guid: 7592ed541ecd0af41b082006f12551c3, type: 3}
-    - target: {fileID: 8689592321126505954, guid: 501bd53a33601694bbbcc3c77f0ac880, type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100002, guid: e3ae06a3979f53046aa05330d69de1fa, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 501bd53a33601694bbbcc3c77f0ac880, type: 3}
 --- !u!4 &1431167306 stripped
@@ -3339,7 +3323,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1614734851}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b063f819bc430894ba1b17a2fb40982b, type: 3}
   m_Name: 

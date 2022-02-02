@@ -5,22 +5,31 @@ public class ActiveCameraManager : MonoBehaviour {
     [SerializeField] Camera _3rdPersonCamera;
     [SerializeField] Camera overheadCamera;
     
-    [ContextMenu("Show Main View")]
-    public void ShowMainView() {
+    // Start is called before the first frame update
+    void Start()
+    {
+        EnableMainView();
+    }
+
+    [ContextMenu("Enable Main View")]
+    public void EnableMainView()
+    {
         mainCamera.enabled = true;
         _3rdPersonCamera.enabled = false;
         overheadCamera.enabled = false;
     }
 
-    [ContextMenu("Show 3rd Person View")]
-    public void ShowThirdPersonView() {
+    [ContextMenu("Enable 3rd Person View")]
+    public void EnableThirdPersonView()
+    {
         mainCamera.enabled = false;
         _3rdPersonCamera.enabled = true;
         overheadCamera.enabled = false;
     }
 
-    [ContextMenu("Show Overhead View")]
-    public void ShowOverheadView() {
+    [ContextMenu("Enable Overhead View")]
+    public void EnableOverheadView()
+    {
         mainCamera.enabled = false;
         _3rdPersonCamera.enabled = false;
         overheadCamera.enabled = true;

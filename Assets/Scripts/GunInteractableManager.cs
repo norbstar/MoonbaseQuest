@@ -120,7 +120,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
                 if (TryGet.TryGetController(interactor, out HandController controller))
                 {
                     var renderer = hitPrefabInstance.GetComponent<Renderer>() as Renderer;
-                    var device = controller.GetInputDevice();
+                    var device = controller.InputDevice;
 
                     if ((int) device.characteristics == (int) HandController.LeftHand)
                     {
@@ -176,7 +176,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         if (controller != null)
         {
             Log($"{Time.time} {gameObject.name} {className} 4");
-            var device = controller.GetInputDevice();
+            var device = controller.InputDevice;
 
             if ((int) device.characteristics == (int) HandController.LeftHand)
             {
@@ -353,7 +353,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
     {
         Log($"{Time.time} {gameObject.name} {className} DockWeapon");
 
-        var device = controller.GetInputDevice();
+        var device = controller.InputDevice;
 
         if ((int) device.characteristics == (int) HandController.LeftHand)
         {

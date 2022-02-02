@@ -55,16 +55,16 @@ public class TryGetResolver : MonoBehaviour
 
         if (TryGetControllers<HandController>(out List<HandController> controllers))
         {
-            var device = controller.GetInputDevice();
+            var device = controller.InputDevice;
 
             if ((int) device.characteristics == (int) HandController.LeftHand)
             {
-                var rightController = (HandController) controllers.First(hc => (int) hc.GetInputDevice().characteristics == (int) HandController.RightHand);
+                var rightController = (HandController) controllers.First(hc => (int) hc.InputDevice.characteristics == (int) HandController.RightHand);
                 opposingController = (rightController != null) ? rightController : null;
             }
             else if ((int) device.characteristics == (int) HandController.RightHand)
             {
-                var leftController = (HandController) controllers.First(hc => (int) hc.GetInputDevice().characteristics == (int) HandController.LeftHand);
+                var leftController = (HandController) controllers.First(hc => (int) hc.InputDevice.characteristics == (int) HandController.LeftHand);
                 opposingController = (leftController != null) ? leftController : null;
             }
         }

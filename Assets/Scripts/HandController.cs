@@ -18,8 +18,15 @@ public class HandController : BaseManager
     public delegate void ActuationEvent(Actuation actuation, InputDeviceCharacteristics characteristics);
     public static event ActuationEvent ActuationEventReceived;
 
-    public delegate void ThumbstickRawEvent(Vector2 thumbstickValue, InputDeviceCharacteristics characteristics);
-    public static event ThumbstickRawEvent ThumbstickRawEventReceived;
+    public class RawData
+    {
+        public float triggerValue, gripValue;
+        public bool buttonAXValue, buttonBYValue, thumbstickClickValue, menuButtonValue;
+        public Vector2 thumbstickValue;
+    }
+
+    public delegate void RawDataEvent(RawData rawData, InputDeviceCharacteristics characteristics);
+    public static event RawDataEvent RawDataEventReceived;
 
     public delegate void StateEvent(HandStateCanvasManager.State state, InputDeviceCharacteristics characteristics);
     public static event StateEvent StateEventReceived;
@@ -56,12 +63,13 @@ public class HandController : BaseManager
     [SerializeField] bool enableTeleport = true;
     [SerializeField] float teleportSpeed = 5f;
 
-    [Header("Inputs")]
+    [Header("Balancing")]
     [SerializeField] float triggerThreshold = 0.1f;
     [SerializeField] float gripThreshold = 0.5f;
     [SerializeField] Vector2 thumbstickThreshold = new Vector2(0.1f, 0.1f);
 
     public InputDeviceCharacteristics Characteristics { get { return characteristics; } }
+    public InputDevice InputDevice { get { return GetComponent<XRController>().inputDevice; } }
     public bool IsHolding { get { return isHolding; } }
     public IInteractable Interactable { get { return interactable; } }
 
@@ -106,6 +114,175 @@ public class HandController : BaseManager
         }
     }
 
+    private Actuation HandleTrigger(float value, Actuation actuation)
+    {
+        var handAnimationController = xrController.model.GetComponent<HandAnimationController>() as HandAnimationController;
+        handAnimationController?.SetFloat("Trigger", value);
+
+        if (value >= triggerThreshold)
+        {
+            if (!actuation.HasFlag(Actuation.Trigger))
+            {
+                actuation |= Actuation.Trigger;
+            }
+        }
+        else
+        {
+            actuation &= ~Actuation.Trigger;
+        }
+
+        return actuation;
+    }
+
+    private Actuation HandleGrip(float value, Actuation actuation)
+    {
+        var handAnimationController = xrController.model.GetComponent<HandAnimationController>() as HandAnimationController;
+        handAnimationController?.SetFloat("Grip", value);
+
+        if (value >= gripThreshold)
+        {
+            if (enableTeleport && (!isHovering) && (!actuation.HasFlag(Actuation.Grip)) && (cameraManager.TryGetObjectHit(out GameObject obj)))
+            {
+                if (obj.TryGetComponent<IInteractable>(out IInteractable interactable))
+                {
+                    StartCoroutine(TeleportGrabbable(obj));
+                }
+            }
+
+            if (!actuation.HasFlag(Actuation.Grip))
+            {
+                actuation |= Actuation.Grip;
+            }
+        }
+        else
+        {
+            actuation &= ~Actuation.Grip;
+        }
+
+        return actuation;
+    }
+
+    private Actuation HandleAXButton(bool value, Actuation actuation)
+    {
+        if (value)
+        {
+            if (!actuation.HasFlag(Actuation.Button_AX))
+            {
+                actuation |= Actuation.Button_AX;
+            }
+        }
+        else
+        {
+            actuation &= ~Actuation.Button_AX;
+        }
+
+        return actuation;
+    }
+
+    private Actuation HandleBYButton(bool value, Actuation actuation)
+    {
+        if (value)
+        {
+            if (!actuation.HasFlag(Actuation.Button_BY))
+            {
+                actuation |= Actuation.Button_BY;
+            }
+        }
+        else
+        {
+            actuation &= ~Actuation.Button_BY;
+        }
+
+        return actuation;
+    }
+
+    private Actuation Handle2DAxis(Vector2 value, Actuation actuation)
+    {
+        if (value.x <= -thumbstickThreshold.x)
+        {
+            if (!actuation.HasFlag(Actuation.Thumbstick_Left))
+            {
+                actuation |= Actuation.Thumbstick_Left;
+            }
+        }
+        else
+        {
+            actuation &= ~Actuation.Thumbstick_Left;
+        }
+        
+        if (value.x > thumbstickThreshold.x)
+        {
+            if (!actuation.HasFlag(Actuation.Thumbstick_Right))
+            {
+                actuation |= Actuation.Thumbstick_Right;
+            }
+        }
+        else
+        {
+            actuation &= ~Actuation.Thumbstick_Right;
+        }
+
+        if (value.y <= -thumbstickThreshold.y)
+        {
+            if (!actuation.HasFlag(Actuation.Thumbstick_Up))
+            {
+                actuation |= Actuation.Thumbstick_Up;
+            }
+        }
+        else
+        {
+            actuation &= ~Actuation.Thumbstick_Up;
+        }
+        
+        if (value.y > thumbstickThreshold.y)
+        {
+            if (!actuation.HasFlag(Actuation.Thumbstick_Down))
+            {
+                actuation |= Actuation.Thumbstick_Down;
+            }
+        }
+        else
+        {
+            actuation &= ~Actuation.Thumbstick_Down;
+        }
+
+        return actuation;
+    }
+
+    private Actuation Handle2DAxisClick(bool value, Actuation actuation)
+    {
+        if (value)
+        {
+            if (!actuation.HasFlag(Actuation.Thumbstick_Click))
+            {
+                actuation |= Actuation.Thumbstick_Click;
+            }
+        }
+        else
+        {
+            actuation &= ~Actuation.Thumbstick_Click;
+        }
+
+        return actuation;
+    }
+
+    private Actuation HandleMenuButton(bool value, Actuation actuation)
+    {
+        if (value)
+        {
+            if (!actuation.HasFlag(Actuation.Menu_Oculus))
+            {
+                actuation |= Actuation.Menu_Oculus;
+            }
+        }
+        else
+        {
+            actuation &= ~Actuation.Menu_Oculus;
+        }
+
+        return actuation;
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -118,185 +295,44 @@ public class HandController : BaseManager
         lastActuation = actuation;
 
         var gameObject = interactable?.GetGameObject();
+        
+        float triggerValue, gripValue;
+        bool buttonAXValue, buttonBYValue, thumbstickClickValue, menuButtonValue;
         Vector2 thumbstickValue;
 
-        if (controller.TryGetFeatureValue(CommonUsages.trigger, out float triggerValue))
+        if (controller.TryGetFeatureValue(CommonUsages.trigger, out triggerValue))
         {
-            // Log($"{Time.time} {gameObject.name} {className}.Trigger.Value:{triggerValue}");
-
-            var handAnimationController = xrController.model.GetComponent<HandAnimationController>() as HandAnimationController;
-            handAnimationController?.SetFloat("Trigger", triggerValue);
-
-            if (triggerValue >= triggerThreshold)
-            {
-                if (!actuation.HasFlag(Actuation.Trigger))
-                {
-                    actuation |= Actuation.Trigger;
-                    // gameObject?.GetComponent<IActuation>()?.OnActuation(Actuation.Trigger);
-                }
-            }
-            else
-            {
-                actuation &= ~Actuation.Trigger;
-            }
+            actuation = HandleTrigger(triggerValue, actuation);
         }
 
-        if (controller.TryGetFeatureValue(CommonUsages.grip, out float gripValue))
+        if (controller.TryGetFeatureValue(CommonUsages.grip, out gripValue))
         {
-            // Log($"{Time.time} {gameObject.name} {className}.Grip.Value:{gripValue}");
-
-            var handAnimationController = xrController.model.GetComponent<HandAnimationController>() as HandAnimationController;
-            handAnimationController?.SetFloat("Grip", gripValue);
-
-            if (gripValue >= gripThreshold)
-            {
-                if (enableTeleport && (!isHovering) && (!actuation.HasFlag(Actuation.Grip)) && (cameraManager.TryGetObjectHit(out GameObject obj)))
-                {
-                    if (obj.TryGetComponent<IInteractable>(out IInteractable interactable))
-                    {
-                        StartCoroutine(TeleportGrabbable(obj));
-                    }
-                }
-
-                if (!actuation.HasFlag(Actuation.Grip))
-                {
-                    actuation |= Actuation.Grip;
-                    // gameObject?.GetComponent<IActuation>()?.OnActuation(Actuation.Grip);
-                }
-            }
-            else
-            {
-                actuation &= ~Actuation.Grip;
-            }
+            actuation = HandleGrip(gripValue, actuation);
         }
 
-        if (controller.TryGetFeatureValue(CommonUsages.primaryButton, out bool buttonAXValue))
+        if (controller.TryGetFeatureValue(CommonUsages.primaryButton, out buttonAXValue))
         {
-            // Log($"{Time.time} {gameObject.name} {className}.AXButton.Pressed:{buttonAXValue}");
-
-            if (buttonAXValue)
-            {
-                if (!actuation.HasFlag(Actuation.Button_AX))
-                {
-                    actuation |= Actuation.Button_AX;
-                    // gameObject?.GetComponent<IActuation>()?.OnActuation(Actuation.Button_AX);
-                }
-            }
-            else
-            {
-                actuation &= ~Actuation.Button_AX;
-            }
+            actuation = HandleAXButton(buttonAXValue, actuation);
         }
 
-        if (controller.TryGetFeatureValue(CommonUsages.secondaryButton, out bool buttonBYValue))
+        if (controller.TryGetFeatureValue(CommonUsages.secondaryButton, out buttonBYValue))
         {
-            // Log($"{Time.time} {gameObject.name} {className}.BYButton.Pressed:{buttonBYValue}");
-
-            if (buttonBYValue)
-            {
-                if (!actuation.HasFlag(Actuation.Button_BY))
-                {
-                    actuation |= Actuation.Button_BY;
-                    // gameObject?.GetComponent<IActuation>()?.OnActuation(Actuation.Button_BY);
-                }
-            }
-            else
-            {
-                actuation &= ~Actuation.Button_BY;
-            }
+            actuation = HandleBYButton(buttonBYValue, actuation);
         }
 
         if (controller.TryGetFeatureValue(CommonUsages.primary2DAxis, out thumbstickValue))
         {
-            // Log($"{Time.time} {gameObject.name} {className}.Thumbstick.Value:{thumbstickValue}");
-
-            if (thumbstickValue.x <= -thumbstickThreshold.x)
-            {
-                if (!actuation.HasFlag(Actuation.Thumbstick_Left))
-                {
-                    actuation |= Actuation.Thumbstick_Left;
-                    // gameObject?.GetComponent<IActuation>()?.OnActuation(Actuation.Thumbstick_Left);
-                }
-            }
-            else
-            {
-                actuation &= ~Actuation.Thumbstick_Left;
-            }
-            
-            if (thumbstickValue.x > thumbstickThreshold.x)
-            {
-                if (!actuation.HasFlag(Actuation.Thumbstick_Right))
-                {
-                    actuation |= Actuation.Thumbstick_Right;
-                    // gameObject?.GetComponent<IActuation>()?.OnActuation(Actuation.Thumbstick_Right);
-                }
-            }
-            else
-            {
-                actuation &= ~Actuation.Thumbstick_Right;
-            }
-
-            if (thumbstickValue.y <= -thumbstickThreshold.y)
-            {
-                if (!actuation.HasFlag(Actuation.Thumbstick_Up))
-                {
-                    actuation |= Actuation.Thumbstick_Up;
-                    // gameObject?.GetComponent<IActuation>()?.OnActuation(Actuation.Thumbstick_Up);
-                }
-            }
-            else
-            {
-                actuation &= ~Actuation.Thumbstick_Up;
-            }
-            
-            if (thumbstickValue.y > thumbstickThreshold.y)
-            {
-                if (!actuation.HasFlag(Actuation.Thumbstick_Down))
-                {
-                    actuation |= Actuation.Thumbstick_Down;
-                    // gameObject?.GetComponent<IActuation>()?.OnActuation(Actuation.Thumbstick_Down);
-                }
-            }
-            else
-            {
-                actuation &= ~Actuation.Thumbstick_Down;
-            }
+            actuation = Handle2DAxis(thumbstickValue, actuation);
         }
 
-        if (controller.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out bool thumbstickClickValue))
+        if (controller.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out thumbstickClickValue))
         {
-            // Log($"{Time.time} {gameObject.name} {className}.Thumbstick Click.Pressed:{thumbstickClickValue}");
-
-            if (thumbstickClickValue)
-            {
-                if (!actuation.HasFlag(Actuation.Thumbstick_Click))
-                {
-                    actuation |= Actuation.Thumbstick_Click;
-                    // gameObject?.GetComponent<IActuation>()?.OnActuation(Actuation.Thumbstick_Click);
-                }
-            }
-            else
-            {
-                actuation &= ~Actuation.Thumbstick_Click;
-            }
+            actuation = Handle2DAxisClick(thumbstickClickValue, actuation);
         }
 
-        if (controller.TryGetFeatureValue(CommonUsages.menuButton, out bool menuButtonValue))
+        if (controller.TryGetFeatureValue(CommonUsages.menuButton, out menuButtonValue))
         {
-            // Log($"{Time.time} {gameObject.name} {className}.MenuButton.Pressed:{menuButtonValue}");
-
-            if (menuButtonValue)
-            {
-                if (!actuation.HasFlag(Actuation.Menu_Oculus))
-                {
-                    actuation |= Actuation.Menu_Oculus;
-                    // gameObject?.GetComponent<IActuation>()?.OnActuation(Actuation.Menu_Oculus);
-                }
-            }
-            else
-            {
-                actuation &= ~Actuation.Menu_Oculus;
-            }
+            actuation = HandleMenuButton(menuButtonValue, actuation);
         }
 
         if (actuation != lastActuation)
@@ -309,9 +345,18 @@ public class HandController : BaseManager
             }
         }
         
-        if (ThumbstickRawEventReceived != null)
+        if (RawDataEventReceived != null)
         {
-            ThumbstickRawEventReceived.Invoke(thumbstickValue, characteristics);
+            RawDataEventReceived.Invoke(new RawData
+            {
+                triggerValue = triggerValue,
+                gripValue = gripValue,
+                buttonAXValue = buttonAXValue,
+                buttonBYValue = buttonBYValue,
+                thumbstickClickValue = thumbstickClickValue,
+                menuButtonValue = menuButtonValue,
+                thumbstickValue = thumbstickValue
+            }, characteristics);
         }
         
         UpdateState();
@@ -389,7 +434,7 @@ public class HandController : BaseManager
         Log($"{Time.time} {gameObject.name} {className}.SetImpulse:Amplitude : {amplitude} Duration : {duration} Channel : {channel}");
 
         UnityEngine.XR.HapticCapabilities capabilities;
-        InputDevice device = GetInputDevice();
+        InputDevice device = InputDevice;
 
         if (device.TryGetHapticCapabilities(out capabilities))
         {
@@ -398,12 +443,6 @@ public class HandController : BaseManager
                 device.SendHapticImpulse(channel, amplitude, duration);
             }
         }
-    }
-
-    public InputDevice GetInputDevice()
-    {
-        var controller = GetComponent<XRController>() as XRController;
-        return controller.inputDevice;
     }
 
     private IEnumerator TeleportGrabbable(GameObject grabbable)

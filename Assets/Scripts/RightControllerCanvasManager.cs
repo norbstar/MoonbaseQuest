@@ -69,12 +69,12 @@ public class RightControllerCanvasManager : ControllerCanvasManager
         SetBButtonState(actuation);
     }
 
-    public override void OnThumbstickRaw(Vector2 value, InputDeviceCharacteristics characteristics)
+    public override void OnRawData(HandController.RawData rawData, InputDeviceCharacteristics characteristics)
     {
         if ((int) characteristics == (int) HandController.RightHand)
         {
-            Log($"{Time.time} {gameObject.name} {className} OnThumbstickRaw:Value : {value}");
-            SetThumbstickRaw(value);
+            Log($"{Time.time} {gameObject.name} {className} OnThumbstickRaw:Value : {rawData.thumbstickValue}");
+            SetThumbstickRaw(rawData.thumbstickValue);
         }
     }
 
