@@ -1685,6 +1685,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1542087013699602179}
     m_Modifications:
+    - target: {fileID: 1296943804, guid: cba3492090a087243bfce69895b0ca35, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4084646948065164149, guid: cba3492090a087243bfce69895b0ca35, type: 3}
       propertyPath: m_SizeDelta.y
       value: 0
@@ -1750,6 +1754,14 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4084646948843479320, guid: cba3492090a087243bfce69895b0ca35, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4084646948843479320, guid: cba3492090a087243bfce69895b0ca35, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4084646948843479320, guid: cba3492090a087243bfce69895b0ca35, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -1761,10 +1773,10 @@ PrefabInstance:
       propertyPath: m_text
       value: "The terminal is a repository for aiding in  the debugging process.
         Supports both in place and snapshot logging.\n\ne.g.\nLog($\"Direction :
-        {direction} Distance : {distance}\");\n\nLog($\"{Time.time} OnGesture:Gesture
-        : {gesture} Value : {value}\");\n\n[SerializeField] bool enableLogging =
-        false;\n\nprotected void Log(string message)\r\n{\r\n    if (!enableLogging)
-        return;\r\n    Debug.Log(message);\r\n}\n"
+        {direction} Distance : {distance}\");\n\nLog($\"{Time.time} OnActuation:Actuation
+        : {actuation} Value : {value}\");\n\n[SerializeField] bool enableLogging
+        = false;\n\nprotected void Log(string message)\r\n{\r\n    if (!enableLogging)
+        return;\r\n    Debug.Log(message);\r\n}"
       objectReference: {fileID: 0}
     - target: {fileID: 4084646949057936233, guid: cba3492090a087243bfce69895b0ca35, type: 3}
       propertyPath: m_AnchorMax.x
@@ -1784,6 +1796,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4084646949305604881, guid: cba3492090a087243bfce69895b0ca35, type: 3}
       propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4084646949305604881, guid: cba3492090a087243bfce69895b0ca35, type: 3}
+      propertyPath: m_AnchorMin.y
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -1918,6 +1934,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1542087013699602179}
     m_Modifications:
+    - target: {fileID: 9057367172537713090, guid: 01d808f54cad33840a762aead947afed, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 9057367173067967682, guid: 01d808f54cad33840a762aead947afed, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -1964,7 +1984,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9057367173067967682, guid: 01d808f54cad33840a762aead947afed, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.01
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9057367173067967682, guid: 01d808f54cad33840a762aead947afed, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1984,11 +2004,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9057367173067967682, guid: 01d808f54cad33840a762aead947afed, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -0.9259997
+      value: 0.145
       objectReference: {fileID: 0}
     - target: {fileID: 9057367173067967682, guid: 01d808f54cad33840a762aead947afed, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 2.641
+      value: 1.8307
       objectReference: {fileID: 0}
     - target: {fileID: 9057367173067967682, guid: 01d808f54cad33840a762aead947afed, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

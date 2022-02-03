@@ -5,7 +5,7 @@ using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 
 [RequireComponent(typeof(XRGrabInteractable))]
-public class CustomGrabbableCubeInteractableManager : FocusableInteractableManager, IActuation
+public class CustomGrabbableInteractableManager : FocusableInteractableManager, IActuation
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
@@ -32,8 +32,7 @@ public class CustomGrabbableCubeInteractableManager : FocusableInteractableManag
 
         if (triggerValue >= 0.1f)
         {
-            var instance = SpawnPrefab(triggerValue);
-            Destroy(instance, 5f);
+            SpawnPrefab(triggerValue);
         }
     }
 
@@ -45,14 +44,33 @@ public class CustomGrabbableCubeInteractableManager : FocusableInteractableManag
 
         if (actuation.HasFlag(HandController.Actuation.Button_AX))
         {
-            SpawnPrefab();
+            var name = $"Temp_{gameObject.GetInstanceID()}";
+            var instanceHierarchy = GameObject.Find(name);
+
+            if (instanceHierarchy != null)
+            {
+                // for (int itr = 0; itr < instanceHierarchy.transform.childCount; itr++)
+                // {
+                //     Destroy(instanceHierarchy.transform.GetChild(itr).gameObject);
+                // }
+
+                Destroy(instanceHierarchy);
+            }
         }
     }
 
     private GameObject SpawnPrefab(float scale = 1f)
     {
+        var name = $"Temp_{gameObject.GetInstanceID()}";
+        var instanceHierarchy = GameObject.Find(name);
+
+        if (instanceHierarchy == null)
+        {
+            instanceHierarchy = new GameObject(name);
+        }
+
         var instance = GameObject.Instantiate(spawnPrefab, transform.position, transform.rotation) as GameObject;
-        instance.gameObject.transform.SetParent(objects);
+        instance.gameObject.transform.SetParent(instanceHierarchy.transform);
         instance.gameObject.transform.localScale *= scale;
 
         return instance;
