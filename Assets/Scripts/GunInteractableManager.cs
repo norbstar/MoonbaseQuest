@@ -41,6 +41,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
     [SerializeField] float overLoadThreshold;
 
     [Header("Sockets")]
+    [SerializeField] SocketCompatibilityLayerManager socketCompatibilityLayerManager;
     [SerializeField] SocketInteractorManager socketInteractorManager;
 
     [Header("Audio")]
@@ -80,8 +81,6 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         ResolveDependencies();
         CacheGunState();
 
-        socketInteractorManager.EventReceived += OnSocketEvent;
-
         mixedLayerMask = LayerMask.GetMask("Default") | LayerMask.GetMask("Asteroid Layer");
         overheatCanvasManager.SetMaxValue(overLoadThreshold);
         heatValues = curveCreator.Values;
@@ -94,6 +93,18 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         curveCreator = GetComponent<CurveCreator>() as CurveCreator;
         cameraManager = camera.GetComponent<MainCameraManager>() as MainCameraManager;
         hipDocksManager = cameraManager.HipDocksManager;
+    }
+
+    void OnEnable()
+    {
+        socketCompatibilityLayerManager.EventReceived += OnSocketCompatiblityLayerEvent;
+        socketInteractorManager.EventReceived += OnSocketEvent;
+    }
+
+    void OnDisable()
+    {
+        socketCompatibilityLayerManager.EventReceived -= OnSocketCompatiblityLayerEvent;
+        socketInteractorManager.EventReceived -= OnSocketEvent;
     }
 
     void FixedUpdate()
@@ -215,7 +226,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
         Log($"{Time.time} {gameObject.name} {className} 9");
 
-        socketInteractorManager.EnableCollider(true);
+        // socketInteractorManager.EnableCollider(true);
     }
 
     public void OnActivated(ActivateEventArgs args)
@@ -340,8 +351,8 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         Log($"{Time.time} {gameObject.name} {className} OnSelectExited");
 
         hudCanvasManager.gameObject.SetActive(false);
-        socketInteractorManager.Reveal(false);
-        socketInteractorManager.EnableCollider(false);
+        socketInteractorManager.EnablePreview(false);
+        // socketInteractorManager.EnableCollider(false);
 
         if (enableAutoDock && (controller != null))
         {
@@ -458,34 +469,42 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         SetIntent(altIntent);
     }
 
+    public void OnSocketCompatiblityLayerEvent(SocketCompatibilityLayerManager manager, SocketCompatibilityLayerManager.EventType eventType, GameObject gameObject)
+    {
+        Log($"{Time.time} {this.gameObject.name}.OnSocketCompatiblityLayer:GameObject : {gameObject.name} Type : {eventType}");
+
+        switch (eventType)
+        {
+            case SocketCompatibilityLayerManager.EventType.OnTriggerEnter:
+                OnSocketCompatibilityLayerEntryEvent(gameObject);
+                break;
+            
+            case SocketCompatibilityLayerManager.EventType.OnTriggerExit:
+                OnSocketCompatibilityLayerExitEvent(gameObject);
+                break;
+        }
+    }
+
     public void OnSocketEvent(SocketInteractorManager manager, SocketInteractorManager.EventType eventType, GameObject gameObject)
     {
         Log($"{Time.time} {this.gameObject.name}.OnSocketEvent:GameObject : {gameObject.name} Type : {eventType}");
 
         switch (eventType)
         {
-            case SocketInteractorManager.EventType.OnEntry:
-                OnSocketEntry(gameObject);
+            case SocketInteractorManager.EventType.OnHoverEntered:
+                OnSocketHoverEntryEvent(gameObject);
                 break;
 
-            // case SocketInteractorManager.EventType.OnHovering:
-            //     OnHovering(gameObject);
-            //     break;
+            case SocketInteractorManager.EventType.OnSelectEntered:
+                OnSocketSelectEntryEvent(gameObject);
+                break;
 
-            // case SocketInteractorManager.EventType.OnDocked:
-            //     OnDocked(gameObject);
-            //     break;
+            case SocketInteractorManager.EventType.OnSelectExited:
+                OnSocketSelectExitEvent(gameObject);
+                break;
 
-            // case SocketInteractorManager.EventType.OnUndocked:
-            //     OnUndocked(gameObject);
-            //     break;
-
-            // case SocketInteractorManager.EventType.OnExitHovering:
-            //     OnFree(gameObject);
-            //     break;
-
-            case SocketInteractorManager.EventType.OnExit:
-                OnSocketExit(gameObject);
+            case SocketInteractorManager.EventType.OnHoverExited:
+                OnSocketHoverExitEvent(gameObject);
                 break;
         }
     }
@@ -515,7 +534,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
         if ((!socketInteractorManager.IsOccupied) && (gameObject.CompareTag("Flashlight")))
         {
-            socketInteractorManager.Reveal(isTrue);
+            socketInteractorManager.EnablePreview(isTrue);
             
             // if (gameObject.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
             // {
@@ -544,19 +563,14 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
     //     }
     // }
 
-    private void OnSocketEntry(GameObject gameObject)
+    private void OnSocketCompatibilityLayerEntryEvent(GameObject gameObject)
     {
         if (TryGet.TryGetRootResolver(gameObject, out GameObject rootGameObject))
         {
             gameObject = rootGameObject;
         }
         
-        Log($"{Time.time} {this.gameObject.name}.OnSocketEntry:GameObject : {gameObject.name}");
-
-        // if (gameObject.CompareTag("Flashlight"))
-        // {
-        //     socketInteractorManager.Reveal(true);
-        // }
+        Log($"{Time.time} {this.gameObject.name}.OnSocketCompatibilityLayerEntryEvent:GameObject : {gameObject.name}");
 
         if ((!socketInteractorManager.IsOccupied) && (gameObject.CompareTag("Flashlight")))
         {
@@ -566,7 +580,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
                 {
                     if ((opposingController.IsHolding) && (GameObject.ReferenceEquals(opposingController.Interactable.GetGameObject(), gameObject)))
                     {
-                        socketInteractorManager.Reveal(true);
+                        socketInteractorManager.EnablePreview(true);
 
                         if (gameObject.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
                         {
@@ -576,67 +590,16 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
                 }
             }
         }
-
-#if false
-        if ((!socketInteractorManager.IsOccupied) && (gameObject.CompareTag("Flashlight")))
-        {
-            Log($"1");
-            if (TryGet.TryIdentifyController(interactor, out HandController controller))
-            {
-                Log($"2");
-                if (TryGet.TryGetOpposingController(controller, out HandController opposingController))
-                {
-                    Log($"3");
-                    if ((opposingController.IsHolding) && (GameObject.ReferenceEquals(opposingController.Interactable.GetGameObject(), gameObject)))
-                    {
-                        Log($"4");
-                        if (gameObject.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
-                        {
-                            Log($"5");
-                            interactable.interactionLayers = InteractionLayerMask.GetMask(new string[] { "Default", "Gun Compatible Flashlight" });
-                        }
-                    }
-                }
-            }
-        }
-#endif
-
-#if false
-        Log($"1");
-        if (TryGetController<HandController>(gameObject, out HandController controller))
-        {
-            Log($"2");
-            if ((!socketInteractorManager.IsOccupied) && (cameraManager.TryGetOpposingHandController(controller, out HandController opposingController)))
-            {
-                Log($"3");
-                if (opposingController.IsHolding)
-                {
-                    Log($"4");
-                    var opposingInteractable = opposingController.Interactable;
-                    
-                    if (opposingInteractable.GetGameObject().CompareTag("Flashlight"))
-                    {
-                        Log($"5");
-                        if (gameObject.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
-                        {
-                            Log($"6");
-                            interactable.interactionLayers = InteractionLayerMask.GetMask(new string[] { "Default", "Gun Compatible Flashlight" });
-                        }
-                    }
-                }
-            }
-        }
-#endif
     }
 
-    private void OnHovering(GameObject gameObject)
+    private void OnSocketHoverEntryEvent(GameObject gameObject)
     {
-        Log($"{Time.time} {this.gameObject.name}.OnHovering:GameObject : {gameObject.name}");
+        Log($"{Time.time} {this.gameObject.name}.OnSocketHoverEntryEvent:GameObject : {gameObject.name}");
     }
 
-    private void OnDocked(GameObject gameObject)
+    private void OnSocketSelectEntryEvent(GameObject gameObject)
     {
-        Log($"{Time.time} {this.gameObject.name}.OnDocked:GameObject : {gameObject.name}");
+        Log($"{Time.time} {this.gameObject.name}.OnSocketSelectEntryEvent:GameObject : {gameObject.name}");
 
         if (gameObject.TryGetComponent<FlashlightInteractableManager>(out var flashlightManager))
         {
@@ -664,9 +627,9 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         docked = gameObject;
     }
 
-    private void OnUndocked(GameObject gameObject)
+    private void OnSocketSelectExitEvent(GameObject gameObject)
     {
-        Log($"{Time.time} {this.gameObject.name}.OnUndocked:GameObject : {gameObject.name}");
+        Log($"{Time.time} {this.gameObject.name}.OnSocketSelectExitEvent:GameObject : {gameObject.name}");
 
         /*
         Optional implementation that notifies the child docked flashlight of
@@ -687,34 +650,19 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         docked = null;
     }
 
-    private void OnFree(GameObject gameObject)
+    private void OnSocketHoverExitEvent(GameObject gameObject)
     {
-        Log($"{Time.time} {this.gameObject.name}.OnFree:GameObject : {gameObject.name}");
-
-        if ((!socketInteractorManager.IsOccupied) && (gameObject.CompareTag("Flashlight")))
-        {
-            socketInteractorManager.Reveal(false);
-        }
-
-        // if (gameObject.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
-        // {
-        //     interactable.interactionLayers = InteractionLayerMask.GetMask(new string[] { "Default", "Flashlight" });
-        // }
+        Log($"{Time.time} {this.gameObject.name}.OnSocketHoverExitEvent:GameObject : {gameObject.name}");
     }
 
-    private void OnSocketExit(GameObject gameObject)
+    private void OnSocketCompatibilityLayerExitEvent(GameObject gameObject)
     {
         if (TryGet.TryGetRootResolver(gameObject, out GameObject rootGameObject))
         {
             gameObject = rootGameObject;
         }
 
-        Log($"{Time.time} {this.gameObject.name}.OnSocketExit:GameObject : {gameObject.name}");
-
-        // if (gameObject.CompareTag("Flashlight"))
-        // {
-        //     socketInteractorManager.Reveal(false);
-        // }
+        Log($"{Time.time} {this.gameObject.name}.OnSocketCompatibilityLayerExitEvent:GameObject : {gameObject.name}");
 
         if (gameObject.CompareTag("Flashlight"))
         {
@@ -724,7 +672,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
                 {
                     if ((opposingController.IsHolding) && (GameObject.ReferenceEquals(opposingController.Interactable.GetGameObject(), gameObject)))
                     {
-                        socketInteractorManager.Reveal(false);
+                        socketInteractorManager.EnablePreview(false);
 
                         if (gameObject.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
                         {

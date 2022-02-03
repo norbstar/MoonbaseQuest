@@ -35,12 +35,12 @@ public class MainCameraManager : GizmoManager
 
     private GameObject hitPrefabInstance;
     private GameObject lastObjectHit;
-    private int defaultLayerMask;
+    private int interactableLayerMask;
     private List<IInteractable> trackedInteractables;
     
     void Awake()
     {
-        defaultLayerMask = LayerMask.GetMask("Default");
+        interactableLayerMask = LayerMask.GetMask("Interactable Layer");
         trackedInteractables = new List<IInteractable>();
 
         // HandController.ThumbstickRawEventReceived += OnThumbstickRawEvent;
@@ -52,7 +52,7 @@ public class MainCameraManager : GizmoManager
         TrackInteractablesInRange(transform.position, scanRadius);
 #endif
 
-        bool hitDetected = Physics.SphereCast(transform.TransformPoint(Vector3.zero), focalRadius, transform.forward, out RaycastHit hitInfo, Mathf.Infinity, defaultLayerMask);
+        bool hitDetected = Physics.SphereCast(transform.TransformPoint(Vector3.zero), focalRadius, transform.forward, out RaycastHit hitInfo, Mathf.Infinity, interactableLayerMask);
         GameObject objectHit = null;
         Vector3 point = default(Vector3);
         bool isValid = false;
