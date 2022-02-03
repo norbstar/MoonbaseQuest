@@ -18,11 +18,12 @@ public class SocketInteractorManager : BaseManager
 
     public enum EventType
     {
-        OnTriggered,
+        OnEntry,
         OnHovering,
         OnDocked,
         OnUndocked,
-        OnFree
+        OnExitHovering,
+        OnExit
     }
 
     [SerializeField] MeshRenderer visualElement;
@@ -78,14 +79,15 @@ public class SocketInteractorManager : BaseManager
     public void OnTriggerEnter(Collider collider)
     {
         var trigger = collider.gameObject;
-        
+        Log($"{Time.time} {gameObject.name} {className} OnTriggerEnter:GameObject : {trigger.name}");
+
         if (EventReceived != null)
         {
-            EventReceived(this, EventType.OnTriggered, trigger);
+            EventReceived(this, EventType.OnEntry, trigger);
         }
     }
 
-     public void OnHoverEntered(HoverEnterEventArgs args)
+    public void OnHoverEntered(HoverEnterEventArgs args)
     {
         Log($"{Time.time} {gameObject.name} {className} OnHoverEntered");
         var interactableGameObject = args.interactableObject.transform.gameObject;
@@ -95,19 +97,6 @@ public class SocketInteractorManager : BaseManager
         if (EventReceived != null)
         {
             EventReceived(this, EventType.OnHovering, interactableGameObject);
-        }
-    }
-
-    public void OnHoverExited(HoverExitEventArgs args)
-    {
-        Log($"{Time.time} {gameObject.name} {className} OnHoverExited");
-        var interactableGameObject = args.interactableObject.transform.gameObject;
-
-        visualElement.gameObject.SetActive(true);
-
-        if (EventReceived != null)
-        {
-            EventReceived(this, EventType.OnFree, interactableGameObject);
         }
     }
 
@@ -163,6 +152,30 @@ public class SocketInteractorManager : BaseManager
         if (EventReceived != null)
         {
             EventReceived(this, EventType.OnUndocked, interactableGameObject);
+        }
+    }
+
+    public void OnHoverExited(HoverExitEventArgs args)
+    {
+        Log($"{Time.time} {gameObject.name} {className} OnHoverExited");
+        var interactableGameObject = args.interactableObject.transform.gameObject;
+
+        visualElement.gameObject.SetActive(true);
+
+        if (EventReceived != null)
+        {
+            EventReceived(this, EventType.OnExit, interactableGameObject);
+        }
+    }
+
+    public void OnTriggerExit(Collider collider)
+    {
+        var trigger = collider.gameObject;
+        Log($"{Time.time} {gameObject.name} {className} OnTriggerExit:GameObject : {trigger.name}");
+
+        if (EventReceived != null)
+        {
+            EventReceived(this, EventType.OnExit, trigger);
         }
     }
 }

@@ -370,7 +370,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         Log($"{Time.time} {gameObject.name} {className} OnActuation:Actuation : {actuation} Value : {value}");
 
         if (!IsHeld) return;
-        
+
         if (actuation.HasFlag(HandController.Actuation.Button_AX))
         {
             AlternateMode();
@@ -464,24 +464,28 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
         switch (eventType)
         {
-            case SocketInteractorManager.EventType.OnTriggered:
-                OnTriggered(gameObject);
+            case SocketInteractorManager.EventType.OnEntry:
+                OnSocketEntry(gameObject);
                 break;
 
-            case SocketInteractorManager.EventType.OnHovering:
-                OnHovering(gameObject);
-                break;
+            // case SocketInteractorManager.EventType.OnHovering:
+            //     OnHovering(gameObject);
+            //     break;
 
-            case SocketInteractorManager.EventType.OnDocked:
-                OnDocked(gameObject);
-                break;
+            // case SocketInteractorManager.EventType.OnDocked:
+            //     OnDocked(gameObject);
+            //     break;
 
-            case SocketInteractorManager.EventType.OnUndocked:
-                OnUndocked(gameObject);
-                break;
+            // case SocketInteractorManager.EventType.OnUndocked:
+            //     OnUndocked(gameObject);
+            //     break;
 
-            case SocketInteractorManager.EventType.OnFree:
-                OnFree(gameObject);
+            // case SocketInteractorManager.EventType.OnExitHovering:
+            //     OnFree(gameObject);
+            //     break;
+
+            case SocketInteractorManager.EventType.OnExit:
+                OnSocketExit(gameObject);
                 break;
         }
     }
@@ -492,15 +496,15 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
         if (!IsHeld) return;
 
-        switch (state)
-        {
-            case HandController.State.Hovering:
-                break;
+        // switch (state)
+        // {
+        //     case HandController.State.Hovering:
+        //         break;
 
-            case HandController.State.Holding:
-                HandleHoldingState(isTrue, obj);
-                break;
-        }
+        //     case HandController.State.Holding:
+        //         HandleHoldingState(isTrue, obj);
+        //         break;
+        // }
     }
 
     private void HandleHoldingState(bool isTrue, IInteractable obj)
@@ -540,10 +544,40 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
     //     }
     // }
 
-    private void OnTriggered(GameObject gameObject)
+    private void OnSocketEntry(GameObject gameObject)
     {
-        Log($"{Time.time} {this.gameObject.name}.OnTriggered:GameObject : {gameObject.name}");
+        if (TryGet.TryGetRootResolver(gameObject, out GameObject rootGameObject))
+        {
+            gameObject = rootGameObject;
+        }
         
+        Log($"{Time.time} {this.gameObject.name}.OnSocketEntry:GameObject : {gameObject.name}");
+
+        // if (gameObject.CompareTag("Flashlight"))
+        // {
+        //     socketInteractorManager.Reveal(true);
+        // }
+
+        if ((!socketInteractorManager.IsOccupied) && (gameObject.CompareTag("Flashlight")))
+        {
+            if (TryGet.TryIdentifyController(interactor, out HandController controller))
+            {
+                if (TryGet.TryGetOpposingController(controller, out HandController opposingController))
+                {
+                    if ((opposingController.IsHolding) && (GameObject.ReferenceEquals(opposingController.Interactable.GetGameObject(), gameObject)))
+                    {
+                        socketInteractorManager.Reveal(true);
+
+                        if (gameObject.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
+                        {
+                            interactable.interactionLayers = InteractionLayerMask.GetMask(new string[] { "Default", "Gun Compatible Flashlight" });
+                        }
+                    }
+                }
+            }
+        }
+
+#if false
         if ((!socketInteractorManager.IsOccupied) && (gameObject.CompareTag("Flashlight")))
         {
             Log($"1");
@@ -565,6 +599,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
                 }
             }
         }
+#endif
 
 #if false
         Log($"1");
@@ -656,9 +691,48 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
     {
         Log($"{Time.time} {this.gameObject.name}.OnFree:GameObject : {gameObject.name}");
 
-        if (gameObject.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
+        if ((!socketInteractorManager.IsOccupied) && (gameObject.CompareTag("Flashlight")))
         {
-            interactable.interactionLayers = InteractionLayerMask.GetMask(new string[] { "Default", "Flashlight" });
+            socketInteractorManager.Reveal(false);
+        }
+
+        // if (gameObject.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
+        // {
+        //     interactable.interactionLayers = InteractionLayerMask.GetMask(new string[] { "Default", "Flashlight" });
+        // }
+    }
+
+    private void OnSocketExit(GameObject gameObject)
+    {
+        if (TryGet.TryGetRootResolver(gameObject, out GameObject rootGameObject))
+        {
+            gameObject = rootGameObject;
+        }
+
+        Log($"{Time.time} {this.gameObject.name}.OnSocketExit:GameObject : {gameObject.name}");
+
+        // if (gameObject.CompareTag("Flashlight"))
+        // {
+        //     socketInteractorManager.Reveal(false);
+        // }
+
+        if (gameObject.CompareTag("Flashlight"))
+        {
+            if (TryGet.TryIdentifyController(interactor, out HandController controller))
+            {
+                if (TryGet.TryGetOpposingController(controller, out HandController opposingController))
+                {
+                    if ((opposingController.IsHolding) && (GameObject.ReferenceEquals(opposingController.Interactable.GetGameObject(), gameObject)))
+                    {
+                        socketInteractorManager.Reveal(false);
+
+                        if (gameObject.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
+                        {
+                            interactable.interactionLayers = InteractionLayerMask.GetMask(new string[] { "Default", "Flashlight" });
+                        }
+                    }
+                }
+            }
         }
     }
 

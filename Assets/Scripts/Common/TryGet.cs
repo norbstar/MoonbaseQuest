@@ -87,4 +87,16 @@ public class TryGet
     
         return (opposingController != null);
     }
+
+    public static bool TryGetRootResolver(GameObject gameObject, out GameObject rootGameObject)
+    {
+        if (gameObject.TryGetComponent<RootResolver>(out RootResolver rootResolver))
+        {
+            rootGameObject = rootResolver.Root;
+            return true;
+        }
+
+        rootGameObject = default(GameObject);
+        return false;
+    }
 }
