@@ -9,6 +9,7 @@ public class MilitaryTargetManager : BaseManager, IInteractableEvent
 
     [Header("Impact")]
     [SerializeField] SurfaceImpactManager surfaceImpactPrefab;
+    [SerializeField] float destroyAfter = 1f;
 
     [Header("Scoring")]
     [SerializeField] ScoreCanvasManager scoreCanvasManager;
@@ -46,6 +47,6 @@ public class MilitaryTargetManager : BaseManager, IInteractableEvent
             scoreCanvasManager?.AddToScore(points);
         }
 
-        Destroy(instance, 1.0f);
+        Destroy(instance, destroyAfter);
     }
 }

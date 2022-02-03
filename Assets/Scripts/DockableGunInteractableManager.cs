@@ -371,23 +371,23 @@ public class DockableGunInteractableManager : DockableFocusableInteractableManag
 
     public void OnActuation(HandController.Actuation actuation, object value = null)
     {
-        switch (actuation)
+        if (!IsHeld) return;
+
+        if (actuation.HasFlag(HandController.Actuation.Thumbstick_Left))
         {
-            case HandController.Actuation.Thumbstick_Left:
-                SetMode(Mode.Manual);
-                break;
-            
-            case HandController.Actuation.Thumbstick_Right:
-                SetMode(Mode.Auto);
-                break;
-
-            case HandController.Actuation.Thumbstick_Up:
-                SetIntent(Intent.Engaged);
-                break;
-
-            case HandController.Actuation.Thumbstick_Down:
-                SetIntent(Intent.Disengaged);
-                break;
+            SetMode(Mode.Manual);
+        }
+        else if (actuation.HasFlag(HandController.Actuation.Thumbstick_Right))
+        {
+            SetMode(Mode.Auto);
+        }
+        else if (actuation.HasFlag(HandController.Actuation.Thumbstick_Up))
+        {
+            SetIntent(Intent.Engaged);
+        }
+        else if (actuation.HasFlag(HandController.Actuation.Thumbstick_Down))
+        {
+            SetIntent(Intent.Disengaged);
         }
     }
 

@@ -369,6 +369,8 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
     {
         Log($"{Time.time} {gameObject.name} {className} OnActuation:Actuation : {actuation} Value : {value}");
 
+        if (!IsHeld) return;
+        
         if (actuation.HasFlag(HandController.Actuation.Button_AX))
         {
             AlternateMode();

@@ -49,6 +49,8 @@ public class FlashlightInteractableManager : FocusableInteractableManager, IActu
     {
         Log($"{Time.time} {gameObject.name} {className} OnActuation:Actuation : {actuation} Value : {value}");
 
+        if (!IsHeld) return;
+
         if (actuation.HasFlag(HandController.Actuation.Button_AX))
         {
             AlternateLight();
