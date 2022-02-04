@@ -195,7 +195,7 @@ MonoBehaviour:
   m_ShowInteractableHoverMeshes: 1
   m_InteractableHoverMeshMaterial: {fileID: 2100000, guid: 0cd50a95ac28be24491bc94fc6d8d4fd, type: 2}
   m_InteractableCantHoverMeshMaterial: {fileID: 2100000, guid: f1b4177be8a954449826336e98466f6a, type: 2}
-  m_SocketActive: 1
+  m_SocketActive: 0
   m_InteractableHoverScale: 1
   m_RecycleDelayTime: 1
 --- !u!114 &5087343904690862815
@@ -210,10 +210,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03eff24df7322c24ea02cda42c4644d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enableLogging: 1
   visualElement: {fileID: 2403369859537062253}
   dockClip: {fileID: 8300000, guid: 5ff56fa5a0e803341841e39ab1694b36, type: 3}
   undockClip: {fileID: 8300000, guid: 5ff56fa5a0e803341841e39ab1694b36, type: 3}
-  enableLogging: 1
+  occupied:
+    occupied: 0
+    gameObject: {fileID: 0}
+  startEnabled: 1
 --- !u!1 &2403369859537062290
 GameObject:
   m_ObjectHideFlags: 0
@@ -261,7 +265,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2403369859537062290}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -305,7 +309,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2403369859682423966}
   m_Layer: 0
-  m_Name: Hand Grip Transform
+  m_Name: Attach Transform
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -319,7 +323,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2403369859682423967}
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 0, y: 0.01, z: -0.0184}
+  m_LocalPosition: {x: 0, y: 0.007, z: -0.013}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2403369859521615959}

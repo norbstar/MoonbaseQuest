@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 
 using UnityEngine;
-using UnityEngine.XR;
+// using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 
 using static GunInteractableEnums;
@@ -21,7 +21,8 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
     [SerializeField] GameObject spawnPoint;
 
     [Header("Prefabs")]
-    [SerializeField] GameObject laserPrefab, laserFXPrefab;
+    [SerializeField] GameObject laserPrefab;
+    [SerializeField] GameObject laserFXPrefab;
 
     [Header("UI")]
     [SerializeField] GunHUDCanvasManager hudCanvasManager;
@@ -535,33 +536,8 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         if ((!socketInteractorManager.IsOccupied) && (gameObject.CompareTag("Flashlight")))
         {
             socketInteractorManager.EnablePreview(isTrue);
-            
-            // if (gameObject.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
-            // {
-            //     if (isTrue)
-            //     {                  
-            //         interactable.interactionLayers = InteractionLayerMask.GetMask(new string[] { "Default", "Gun Compatible Flashlight" });
-            //         Log($"{Time.time} {gameObject.name} {className}.InteractionLayers:{interactable.interactionLayers.value}");
-            //     }
-            //     else
-            //     {
-            //         StartCoroutine(ConditionallyRevertInteractionLayers(interactable));
-            //     }
-            // }
         }
     }
-
-    // private IEnumerator ConditionallyRevertInteractionLayers(XRGrabInteractable interactable)
-    // {
-    //     Log($"{Time.time} {gameObject.name} {className}.ConditionallyRevertInteractionLayers");
-
-    //     yield return new WaitForSeconds(1);
-
-    //     if (!socketInteractorManager.IsOccupied || !Object.ReferenceEquals(interactable.gameObject, socketInteractorManager.Data.gameObject))
-    //     {
-    //         interactable.interactionLayers = InteractionLayerMask.GetMask(new string[] { "Default", "Flashlight" });
-    //     }
-    // }
 
     private void OnSocketCompatibilityLayerEntryEvent(GameObject gameObject)
     {
@@ -585,6 +561,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
                         if (gameObject.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
                         {
                             interactable.interactionLayers = InteractionLayerMask.GetMask(new string[] { "Default", "Gun Compatible Flashlight" });
+                            socketInteractorManager.EnableSocket(true);
                         }
                     }
                 }
@@ -676,6 +653,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
                         if (gameObject.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
                         {
+                            socketInteractorManager.EnableSocket(false);
                             interactable.interactionLayers = InteractionLayerMask.GetMask(new string[] { "Default", "Flashlight" });
                         }
                     }

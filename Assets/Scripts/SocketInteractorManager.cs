@@ -59,11 +59,9 @@ public class SocketInteractorManager : BaseManager
         socketInteractor = GetComponent<XRSocketInteractor>() as XRSocketInteractor;
     }
 
-    public void EnablePreview(bool enable)
-    {
-        Log($"{Time.time} {gameObject.name} {className} EnablePreview:{enable}");
-        visualElement.enabled = enable;
-    }
+    public void EnablePreview(bool enable) => visualElement.enabled = enable;
+
+    public void EnableSocket(bool enable) => socketInteractor.socketActive = enable;
 
     public void OnHoverEntered(HoverEnterEventArgs args)
     {
