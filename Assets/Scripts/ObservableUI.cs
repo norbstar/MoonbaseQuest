@@ -17,23 +17,23 @@ public class ObservableUI : MonoBehaviour
     protected float distance;
     protected bool isDisabled, inRange;
     
-    private Vector3 originalScale, baseScale;
+    private Vector3 originalScale;
 
     public virtual void Awake()
     {
         ResolveDependencies();
 
         originalScale = transform.localScale;
-        var referenceScale = baseController.Origin.transform.localScale;
+        var referenceScale = baseController.Origin.transform.lossyScale;
 
-        baseScale = new Vector3
+        var normalizedScale = new Vector3
         {
             x = 1f / (referenceScale.x / 0.1f),
             y = 1f / (referenceScale.y / 0.1f),
             z = 1f / (referenceScale.z / 0.1f)
         };
 
-        transform.localScale = baseScale;
+        transform.localScale = normalizedScale;
     }
 
     private void ResolveDependencies()
