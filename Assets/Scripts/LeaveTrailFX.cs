@@ -7,15 +7,24 @@ public class LeaveTrailFX : MonoBehaviour
     [Header("Spawning")]
     [SerializeField] GameObject trailPrefab;
     [SerializeField] Vector3 scale = Vector3.one;
+    [SerializeField] float interSpawnDelay = 0.1f;
 
     [Header("Decay")]
     [SerializeField] float duration = 1f;
 
     private string tempHierarchyName;
+    private WaitForSeconds delay;
 
     protected void Awake()
     {
         tempHierarchyName = $"Temp_{gameObject.GetInstanceID()}";
+        delay = new WaitForSeconds(interSpawnDelay);
+    }
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        StartCoroutine(SpawnTrailCoroutine());
     }
 
     void OnDisable()
@@ -53,10 +62,13 @@ public class LeaveTrailFX : MonoBehaviour
         Destroy(gameObject);
     }
 
-    // Update is called once per frame
-    void Update()
+    private IEnumerator SpawnTrailCoroutine()
     {
-        Decay(SpawnPoint(), duration);
+        while (isActiveAndEnabled)
+        {
+            Decay(SpawnPoint(), duration);
+            yield return new WaitForSeconds(interSpawnDelay);
+        }
     }
 
     private GameObject SpawnPoint()
@@ -72,8 +84,9 @@ public class LeaveTrailFX : MonoBehaviour
                 instanceHierarchy = new GameObject(tempHierarchyName);
             }
 
-            instance = GameObject.Instantiate(trailPrefab, transform.position, transform.rotation) as GameObject;
+            instance = GameObject.Instantiate(trailPrefab, transform.position, Quaternion.identity) as GameObject;
             instance.transform.SetParent(instanceHierarchy.transform);
+            instance.transform.LookAt(transform);
             instance.transform.localScale = scale;
         }
 
