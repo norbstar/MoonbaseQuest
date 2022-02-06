@@ -14,6 +14,14 @@ public class CustomGrabbableInteractableManager : FocusableInteractableManager, 
 
     private GameObject brush;
     private Vector3 originalScale, minScale, maxScale, unitScale;
+    private string tempHierarchyName;
+
+    protected override void Awake()
+    {
+        base.Awake();
+
+        tempHierarchyName = $"Temp_{gameObject.GetInstanceID()}";
+    }
 
     void OnEnable()
     {
@@ -39,6 +47,17 @@ public class CustomGrabbableInteractableManager : FocusableInteractableManager, 
     void OnDisable()
     {
         HandController.RawDataEventReceived -= OnRawData;
+        RemoveHierarchy();
+    }
+
+    private void RemoveHierarchy()
+    {
+        var instanceHierarchy = GameObject.Find(tempHierarchyName);
+
+        if (instanceHierarchy != null)
+        {
+            Destroy(instanceHierarchy);
+        }
     }
 
     private void OnRawData(HandController.RawData rawData, InputDeviceCharacteristics characteristics)
@@ -75,18 +94,7 @@ public class CustomGrabbableInteractableManager : FocusableInteractableManager, 
 
         if (actuation.HasFlag(HandController.Actuation.Button_AX))
         {
-            var name = $"Temp_{gameObject.GetInstanceID()}";
-            var instanceHierarchy = GameObject.Find(name);
-
-            if (instanceHierarchy != null)
-            {
-                // for (int itr = 0; itr < instanceHierarchy.transform.childCount; itr++)
-                // {
-                //     Destroy(instanceHierarchy.transform.GetChild(itr).gameObject);
-                // }
-
-                Destroy(instanceHierarchy);
-            }
+            RemoveHierarchy();
         }
     }
 
@@ -109,12 +117,11 @@ public class CustomGrabbableInteractableManager : FocusableInteractableManager, 
 
         if (spawnPrefab != null)
         {
-            var name = $"Temp_{gameObject.GetInstanceID()}";
-            var instanceHierarchy = GameObject.Find(name);
+            var instanceHierarchy = GameObject.Find(tempHierarchyName);
 
             if (instanceHierarchy == null)
             {
-                instanceHierarchy = new GameObject(name);
+                instanceHierarchy = new GameObject(tempHierarchyName);
             }
 
             instance = GameObject.Instantiate(spawnPrefab, transform.position, transform.rotation) as GameObject;

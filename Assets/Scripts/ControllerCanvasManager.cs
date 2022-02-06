@@ -133,9 +133,9 @@ public abstract class ControllerCanvasManager : MonoBehaviour
         handGestureCanvasManager.SetState(state);
     }
 
-    protected void Log(string message)
+    protected void Log(string message, Object context = null)
     {
         if (!enableLogging) return;
-        Debug.Log(message);
+        Debug.Log(message, context);
     }
 }
