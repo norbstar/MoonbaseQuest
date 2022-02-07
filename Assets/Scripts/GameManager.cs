@@ -1,11 +1,17 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 public class GameManager : MonoBehaviour/*CachedObject<GameManager>*/
-{   
+{
+    public UnityEvent onStartActivated;
+    public UnityEvent onGameOver;
+    public UnityEvent onGameReset;
+
     public enum State
     {
         NotInPlay,
         InPlay,
+        GameOver
     }
 
     public enum EventType
@@ -13,14 +19,31 @@ public class GameManager : MonoBehaviour/*CachedObject<GameManager>*/
         Score
     }
 
+    [SerializeField] private int score = 0;
+
     public delegate void Event(EventType type, object obj);
 
     public event Event EventReceived;
 
-    public State GameState { get { return gameState; } set { gameState = value; } }
+    public State GameState
+    {
+        get
+        {
+            return gameState;
+        }
+        
+        set
+        {
+            gameState = value;
+
+            if (gameState == State.GameOver)
+            {
+                onGameOver.Invoke();
+            }
+        }
+    }
 
     private State gameState;
-    private int score = 0;
 
     public static GameManager GetInstance()
     {
@@ -31,6 +54,7 @@ public class GameManager : MonoBehaviour/*CachedObject<GameManager>*/
     public void StartLevel()
     {
         gameState = State.InPlay;
+        onStartActivated.Invoke();
     }
 
     public void ModifyScoreBy(int score)
@@ -48,5 +72,6 @@ public class GameManager : MonoBehaviour/*CachedObject<GameManager>*/
         UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
         ResetGameState();
         ResetScore();
+        onGameReset.Invoke();
     }
 }

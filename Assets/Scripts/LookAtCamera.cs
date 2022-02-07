@@ -4,6 +4,7 @@ public class LookAtCamera : MonoBehaviour
 {
     [SerializeField] new Camera camera;
     [SerializeField] GameObject origin;
+    [SerializeField] Vector3 upwards = Vector3.up;
     [SerializeField] bool enableRefresh = false;
     
     protected virtual void Awake()
@@ -21,7 +22,7 @@ public class LookAtCamera : MonoBehaviour
     private void FaceToCamera()
     {
         Vector3 relativePosition = camera.transform.position - origin.transform.position;
-        Quaternion rotation = Quaternion.LookRotation(relativePosition, Vector3.up);
+        Quaternion rotation = Quaternion.LookRotation(relativePosition, upwards);
         transform.rotation = rotation;
     }
 }

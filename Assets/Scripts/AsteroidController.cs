@@ -16,10 +16,13 @@ public class AsteroidController : MonoBehaviour, IInteractableEvent, IDamage
     
     private GameManager gameManager;
     private GameObject child;
+    private new Camera camera;
 
     void Awake()
     {
         ResolveDependencies();
+
+        camera = Camera.main;
     }
 
     private void ResolveDependencies()
@@ -65,6 +68,8 @@ public class AsteroidController : MonoBehaviour, IInteractableEvent, IDamage
         // Debug.Log($"{gameObject.name}.ModifyScoreBy:{score.ToString()}");
 
         var obj = GameObject.Find("Game Manager");
-        obj.GetComponent<GameManager>().ModifyScoreBy(score);
+        var distance = Vector3.Distance(camera.transform.position, transform.position);
+        int distanceAdjustedScore = score * Mathf.RoundToInt(distance);
+        obj.GetComponent<GameManager>().ModifyScoreBy(distanceAdjustedScore);
     }
 }

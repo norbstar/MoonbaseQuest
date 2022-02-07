@@ -53,6 +53,7 @@ public class TerminalCanvas : MonoBehaviour
 
             if (timerUI.fillAmount <= 0f)
             {
+                gameManager.GameState = GameManager.State.GameOver;
                 Reset();
             }
         }
