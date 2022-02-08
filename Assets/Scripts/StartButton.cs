@@ -16,7 +16,6 @@ public class StartButton : FocusableManager, IInteractableEvent
 
     private FX.ScaleFX scaleFX;
     private Coroutine coroutine;
-    // private bool triggered;
 
     // Start is called before the first frame update
     void Start()
@@ -28,26 +27,6 @@ public class StartButton : FocusableManager, IInteractableEvent
     {
         scaleFX = GetComponent<FX.ScaleFX>() as FX.ScaleFX;
     }
-
-    // public void OnTriggerEnter(Collider collider) => HandleOnTrigger(collider.gameObject);
-
-    // public void OnTriggerStay(Collider collider) => HandleOnTrigger(collider.gameObject);
-
-    // private void HandleOnTrigger(GameObject trigger)
-    // {
-    //     // if (triggered) return;
-
-    //     Console.Log($"{gameObject.name}.HandleOnTrigger:{trigger.name}");
-
-    //     if (trigger.gameObject.CompareTag("Laser"))
-    //     {
-    //         // Debug.Log($"{gameObject.name}.{trigger.name} OnTriggerEnter");
-    //         audioSource.Play();
-    //         // Invoke("PostTriggerEvent", 1f);
-    //     }
-
-    //     // triggered = true;
-    // }
 
     protected override void OnFocusGained()
     {
@@ -81,7 +60,7 @@ public class StartButton : FocusableManager, IInteractableEvent
         }));
     }
 
-    public void OnActivate(XRGrabInteractable interactable, Vector3 hitPoint)
+    public void OnActivate(XRGrabInteractable interactable, Vector3 origin, Vector3 hitPoint)
     {
         // Debug.Log($"{gameObject.name}.OnActivate:{interactable.name} {hitPoint}");
 

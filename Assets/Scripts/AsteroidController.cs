@@ -3,6 +3,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 
 public class AsteroidController : MonoBehaviour, IInteractableEvent, IDamage
 {
+    [SerializeField] GameObject scorePrefab;
     [SerializeField] GameObject destructionPrefab;
 
     [Header("The maximum speed with which the asteroid moves")]
@@ -46,7 +47,7 @@ public class AsteroidController : MonoBehaviour, IInteractableEvent, IDamage
         child.transform.Rotate(Vector3.up * Time.deltaTime * Random.Range(maxRotationSpeed / 4, maxRotationSpeed), Space.Self);
     }
 
-    public void OnActivate(XRGrabInteractable interactable, Vector3 hitPoint)
+    public void OnActivate(XRGrabInteractable interactable, Vector3 origin, Vector3 hitPoint)
     {
         // Debug.Log($"{gameObject.name}.OnActivate:{interactable.name} {hitPoint}");
 
@@ -60,16 +61,31 @@ public class AsteroidController : MonoBehaviour, IInteractableEvent, IDamage
     {
         Destroy(gameObject);
 
-        var instance = GameObject.Instantiate(destructionPrefab, transform.position, transform.rotation) as GameObject;       
+        var instance = GameObject.Instantiate(destructionPrefab, transform.position, transform.rotation) as GameObject;
         var scale = transform.localScale.x;
         instance.transform.localScale = new Vector3(scale, scale, scale);
-        instance.GetComponent<AudioSource>().volume = scale;
+
+        if (instance.TryGetComponent<AudioSource>(out var audioSource))
+        {
+            audioSource.volume = scale;
+        }
+            
+        Destroy(instance, 5f);
+
+        var distance = Vector3.Distance(camera.transform.position, transform.position);
+        int distanceAdjustedScore = score * Mathf.RoundToInt(distance);
+
+        instance = GameObject.Instantiate(scorePrefab, transform.position, transform.rotation) as GameObject;
+
+        if (instance.TryGetComponent<ScoreCanvasManager>(out var manager))
+        {
+            manager.Score = distanceAdjustedScore;
+        }
+
+        Destroy(instance, 1f);
 
         // Debug.Log($"{gameObject.name}.ModifyScoreBy:{score.ToString()}");
 
-        var obj = GameObject.Find("Game Manager");
-        var distance = Vector3.Distance(camera.transform.position, transform.position);
-        int distanceAdjustedScore = score * Mathf.RoundToInt(distance);
-        obj.GetComponent<GameManager>().ModifyScoreBy(distanceAdjustedScore);
+        gameManager.ModifyScoreBy(distanceAdjustedScore);
     }
 }

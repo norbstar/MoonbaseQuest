@@ -9,19 +9,26 @@ public class ScoreCanvasManager : MonoBehaviour
 
     private int score;
 
+    public int Score {
+        get
+        {
+            return score;
+        }
+        
+        set
+        {
+            this.score = value;
+            scoreUI.text = this.score.ToString();
+        }
+    }
+
     public void AddToScore(int points)
     {
-        SetScore(score + points);
+        Score = score + points;
     }
 
     public void ResetScore()
     {
-        SetScore(0);
-    }
-
-    private void SetScore(int score)
-    {
-        this.score = score;
-        scoreUI.text = score.ToString();
+        Score = 0;
     }
 }

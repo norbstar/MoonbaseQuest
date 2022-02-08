@@ -22,8 +22,9 @@ public class GameManager : MonoBehaviour/*CachedObject<GameManager>*/
     [SerializeField] private int score = 0;
 
     public delegate void Event(EventType type, object obj);
-
     public event Event EventReceived;
+
+    public int Score { get { return score; } set { score = value; } }
 
     public State GameState
     {

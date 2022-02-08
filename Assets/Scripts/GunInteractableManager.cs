@@ -288,7 +288,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
         if ((lastObjectHit != null) && (lastObjectHit.TryGetComponent<IInteractableEvent>(out IInteractableEvent interactableEvent)))
         {
-            interactableEvent.OnActivate(interactable, lastObjectHitPoint);
+            interactableEvent.OnActivate(interactable, transform.position, lastObjectHitPoint);
         }
 
         hudCanvasManager.DecrementAmmoCount();
