@@ -29,7 +29,7 @@ public class MilitaryTargetManager : BaseManager, IInteractableEvent
         pointMap = GetComponent<MilitaryTargetPointMap>() as MilitaryTargetPointMap;
     }
 
-    public void OnActivate(XRGrabInteractable interactable, Vector3 origin, Vector3 hitPoint)
+    public void OnActivate(XRGrabInteractable interactable, Transform origin, Vector3 hitPoint)
     {
         Log($"{gameObject.name}.OnActivate:{interactable.name} {hitPoint}");
 
