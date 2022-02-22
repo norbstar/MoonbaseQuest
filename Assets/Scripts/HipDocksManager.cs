@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class HipDocksManager : BaseManager
 {
-        public enum DockID
+    public enum DockID
     {
         Left,
         Right

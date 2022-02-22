@@ -3,6 +3,8 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
+using static Enum.ControllerEnums;
+
 [RequireComponent(typeof(XRGrabInteractable))]
 public class FlashlightInteractableManager : FocusableInteractableManager, IActuation
 {
@@ -45,13 +47,13 @@ public class FlashlightInteractableManager : FocusableInteractableManager, IActu
         spotlight.SetActive(state == ActiveState.On);
     }
 
-    public void OnActuation(HandController.Actuation actuation, object value = null)
+    public void OnActuation(Actuation actuation, object value = null)
     {
         Log($"{Time.time} {gameObject.name} {className} OnActuation:Actuation : {actuation} Value : {value}");
 
         if (!IsHeld) return;
 
-        if (actuation.HasFlag(HandController.Actuation.Button_AX))
+        if (actuation.HasFlag(Actuation.Button_AX))
         {
             AlternateLight();
         }

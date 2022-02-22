@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
+using Enum;
+
 [RequireComponent(typeof(XRGrabInteractable))]
 public class InteractableManager : GizmoManager, IInteractable
 {
@@ -71,7 +73,7 @@ public class InteractableManager : GizmoManager, IInteractable
         return gameObject;
     }
 
-    public virtual void OnOpposingEvent(HandController.State state, bool isTrue, IInteractable obj) { }
+    public virtual void OnOpposingEvent(Enum.ControllerEnums.State state, bool isTrue, IInteractable obj) { }
 
     public void OnHoverEntered(HoverEnterEventArgs args)
     {

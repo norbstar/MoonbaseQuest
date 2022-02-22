@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 
+using static Enum.ControllerEnums;
+
 [RequireComponent(typeof(XRGrabInteractable))]
 public class CustomGrabbableInteractableManager : FocusableInteractableManager, IActuation
 {
@@ -86,13 +88,13 @@ public class CustomGrabbableInteractableManager : FocusableInteractableManager, 
         }
     }
 
-    public void OnActuation(HandController.Actuation actuation, object value = null)
+    public void OnActuation(Actuation actuation, object value = null)
     {
         Log($"{Time.time} {gameObject.name} {className} OnActuation:Actuation : {actuation} Value : {value}");
 
         if (!IsHeld) return;
 
-        if (actuation.HasFlag(HandController.Actuation.Button_AX))
+        if (actuation.HasFlag(Actuation.Button_AX))
         {
             RemoveHierarchy();
         }

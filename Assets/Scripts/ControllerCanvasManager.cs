@@ -3,6 +3,9 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.XR;
 
+using static Enum.ControllerEnums;
+using static Enum.HandEnums;
+
 public abstract class ControllerCanvasManager : MonoBehaviour
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
@@ -23,7 +26,7 @@ public abstract class ControllerCanvasManager : MonoBehaviour
     [Header("Debug")]
     [SerializeField] bool enableLogging = false;
 
-    private HandController.Actuation lastGesture;
+    private Actuation lastGesture;
 
     void OnEnable()
     {
@@ -39,61 +42,61 @@ public abstract class ControllerCanvasManager : MonoBehaviour
         HandController.StateEventReceived -= OnState;
     }
 
-    private void SetTriggerState(HandController.Actuation actuation)
+    private void SetTriggerState(Actuation actuation)
     {
-        if (actuation.HasFlag(HandController.Actuation.Trigger) && !trigger.activeSelf)
+        if (actuation.HasFlag(Actuation.Trigger) && !trigger.activeSelf)
         {
             trigger.SetActive(true);
         }
 
-        if (!actuation.HasFlag(HandController.Actuation.Trigger) && trigger.activeSelf)
+        if (!actuation.HasFlag(Actuation.Trigger) && trigger.activeSelf)
         {
             trigger.SetActive(false);
         }
     }
 
-    private void SetGripState(HandController.Actuation actuation)
+    private void SetGripState(Actuation actuation)
     {
-        if (actuation.HasFlag(HandController.Actuation.Grip) && !grip.activeSelf)
+        if (actuation.HasFlag(Actuation.Grip) && !grip.activeSelf)
         {
             grip.SetActive(true);
         }
 
-        if (!actuation.HasFlag(HandController.Actuation.Grip) && grip.activeSelf)
+        if (!actuation.HasFlag(Actuation.Grip) && grip.activeSelf)
         {
             grip.SetActive(false);
         }
     }
 
-    private void SetThumbstickState(HandController.Actuation actuation)
+    private void SetThumbstickState(Actuation actuation)
     {
-        if (actuation.HasFlag(HandController.Actuation.Thumbstick_Up) || actuation.HasFlag(HandController.Actuation.Thumbstick_Left) || actuation.HasFlag(HandController.Actuation.Thumbstick_Right) || actuation.HasFlag(HandController.Actuation.Thumbstick_Down) && !thumbstick.activeSelf)
+        if (actuation.HasFlag(Actuation.Thumbstick_Up) || actuation.HasFlag(Actuation.Thumbstick_Left) || actuation.HasFlag(Actuation.Thumbstick_Right) || actuation.HasFlag(Actuation.Thumbstick_Down) && !thumbstick.activeSelf)
         {
             thumbstick.SetActive(true);
         }
 
-        if (!(actuation.HasFlag(HandController.Actuation.Thumbstick_Up) || actuation.HasFlag(HandController.Actuation.Thumbstick_Left) || actuation.HasFlag(HandController.Actuation.Thumbstick_Right) || actuation.HasFlag(HandController.Actuation.Thumbstick_Down)) && thumbstick.activeSelf)
+        if (!(actuation.HasFlag(Actuation.Thumbstick_Up) || actuation.HasFlag(Actuation.Thumbstick_Left) || actuation.HasFlag(Actuation.Thumbstick_Right) || actuation.HasFlag(Actuation.Thumbstick_Down)) && thumbstick.activeSelf)
         {
             thumbstick.SetActive(false);
         }
     }
 
-    private void SetThumbstickClickState(HandController.Actuation actuation)
+    private void SetThumbstickClickState(Actuation actuation)
     {
-        if (actuation.HasFlag(HandController.Actuation.Thumbstick_Click) && !thumbstickClick.activeSelf)
+        if (actuation.HasFlag(Actuation.Thumbstick_Click) && !thumbstickClick.activeSelf)
         {
             thumbstickClick.SetActive(true);
         }
 
-        if (!(actuation.HasFlag(HandController.Actuation.Thumbstick_Click) && thumbstickClick.activeSelf))
+        if (!(actuation.HasFlag(Actuation.Thumbstick_Click) && thumbstickClick.activeSelf))
         {
             thumbstickClick.SetActive(false);
         }
     }
 
-    public abstract void OnActuation(HandController.Actuation actuation, InputDeviceCharacteristics characteristics);
+    public abstract void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics);
 
-    public virtual void SetActuation(HandController.Actuation actuation)
+    public virtual void SetActuation(Actuation actuation)
     {
         Log($"{Time.time} {gameObject.name} {className} SetActuation:Actuation : {actuation}");
 
@@ -124,9 +127,9 @@ public abstract class ControllerCanvasManager : MonoBehaviour
         thumbstickCursor.transform.GetChild(0).localPosition = new Vector3(x, y, 0f);
     }
 
-    public abstract void OnState(HandStateCanvasManager.State state, InputDeviceCharacteristics characteristics);
+    public abstract void OnState(Enum.HandEnums.State state, InputDeviceCharacteristics characteristics);
 
-    public void SetState(HandStateCanvasManager.State state)
+    public void SetState(Enum.HandEnums.State state)
     {
         Log($"{Time.time} {gameObject.name} {className} SetState:State : {state}");
 

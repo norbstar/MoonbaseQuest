@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Reflection;
 
 using UnityEngine;
-// using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 
-using static GunInteractableEnums;
+using static Enum.GunInteractableEnums;
+using static Enum.ControllerEnums;
 
 [RequireComponent(typeof(XRGrabInteractable))]
 [RequireComponent(typeof(CurveCreator))]
@@ -64,9 +64,9 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
     private IFocus lastFocus;
     private GameObject hitPrefabInstance;
     private int mixedLayerMask;
-    private GunInteractableEnums.Mode mode;
-    private GunInteractableEnums.Intent intent;
-    private GunInteractableEnums.State state;
+    private Mode mode;
+    private Intent intent;
+    private Enum.GunInteractableEnums.State state;
     private Coroutine fireRepeatCoroutine;
     private float heat;
     private IList<float> heatValues;
@@ -234,7 +234,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
     {
         Log($"{Time.time} {gameObject.name} {className} OnActivated");
 
-        if (mode == GunInteractableEnums.Mode.Manual)
+        if (mode == Enum.GunInteractableEnums.Mode.Manual)
         {
             FireOnce();
         }
@@ -260,7 +260,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
     private void Fire()
     {
-        if (state == State.Inactive)
+        if (state == Enum.GunInteractableEnums.State.Inactive)
         {
             AudioSource.PlayClipAtPoint(overloadedClip, transform.position, 1.0f);
             return;
@@ -307,7 +307,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         }
         else
         {
-            state = State.Inactive;
+            state = Enum.GunInteractableEnums.State.Inactive;
         }
     }
 
@@ -324,7 +324,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
         if (heatIndex < heatValues.Count)
         {
-            state = State.Active;
+            state = Enum.GunInteractableEnums.State.Active;
         }
     }
 
@@ -377,37 +377,37 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         }
     }
 
-    public void OnActuation(HandController.Actuation actuation, object value = null)
+    public void OnActuation(Actuation actuation, object value = null)
     {
         Log($"{Time.time} {gameObject.name} {className} OnActuation:Actuation : {actuation} Value : {value}");
 
         if (!IsHeld) return;
 
-        if (actuation.HasFlag(HandController.Actuation.Button_AX))
+        if (actuation.HasFlag(Actuation.Button_AX))
         {
             AlternateMode();
         }
-        else if (actuation.HasFlag(HandController.Actuation.Button_BY))
+        else if (actuation.HasFlag(Actuation.Button_BY))
         {
             AlternateIntent();
         }
     }
 
-    private void SetMode(Mode mode)
+    private void SetMode(Enum.GunInteractableEnums.Mode mode)
     {
         Log($"{Time.time} {gameObject.name} {className} SetMode: {mode}");
 
         switch (mode)
         {
-            case Mode.Manual:
-                if (this.mode != Mode.Manual)
+            case Enum.GunInteractableEnums.Mode.Manual:
+                if (this.mode != Enum.GunInteractableEnums.Mode.Manual)
                 {
                     AudioSource.PlayClipAtPoint(manualClip, transform.position, 1.0f);
                 }
                 break;
 
-            case Mode.Auto:
-                if (this.mode != Mode.Auto)
+            case Enum.GunInteractableEnums.Mode.Auto:
+                if (this.mode != Enum.GunInteractableEnums.Mode.Auto)
                 {
                     AudioSource.PlayClipAtPoint(autoClip, transform.position, 1.0f);
                 }
@@ -422,11 +422,11 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
     {
         Log($"{Time.time} {gameObject.name} {className} AlternateMode");
 
-        Mode altMode = (mode == Mode.Manual) ? Mode.Auto : Mode.Manual;
+        var altMode = (mode == Enum.GunInteractableEnums.Mode.Manual) ? Enum.GunInteractableEnums.Mode.Auto : Enum.GunInteractableEnums.Mode.Manual;
         SetMode(altMode);
     }
 
-    private void SetIntent(Intent intent)
+    private void SetIntent(Enum.GunInteractableEnums.Intent intent)
     {
         Log($"{Time.time} {gameObject.name} {className} Intent: {intent}");
         
@@ -438,16 +438,16 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         {
             switch (intent)
             {
-                case Intent.Engaged:
-                    if (this.intent != Intent.Engaged)
+                case Enum.GunInteractableEnums.Intent.Engaged:
+                    if (this.intent != Enum.GunInteractableEnums.Intent.Engaged)
                     {
                         manager.State = FlashlightInteractableManager.ActiveState.On;
                         AudioSource.PlayClipAtPoint(engagedClip, transform.position, 1.0f);
                     }
                     break;
 
-                case Intent.Disengaged:
-                    if (this.intent != Intent.Disengaged)
+                case Enum.GunInteractableEnums.Intent.Disengaged:
+                    if (this.intent != Enum.GunInteractableEnums.Intent.Disengaged)
                     {
                         manager.State = FlashlightInteractableManager.ActiveState.Off;
                         AudioSource.PlayClipAtPoint(disengagedClip, transform.position, 1.0f);            
@@ -466,7 +466,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
         if (!socketInteractorManager.IsOccupied) return;
         
-        Intent altIntent = (intent == Intent.Engaged) ? Intent.Disengaged : Intent.Engaged;
+        var altIntent = (intent == Enum.GunInteractableEnums.Intent.Engaged) ? Enum.GunInteractableEnums.Intent.Disengaged : Enum.GunInteractableEnums.Intent.Engaged;
         SetIntent(altIntent);
     }
 
@@ -510,7 +510,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         }
     }
 
-    public override void OnOpposingEvent(HandController.State state, bool isTrue, IInteractable obj)
+    public override void OnOpposingEvent(Enum.ControllerEnums.State state, bool isTrue, IInteractable obj)
     {
         Log($"{Time.time} {this.gameObject.name} {className}.OnOpposingEvent:State : {state} Is True: {isTrue} GameObject : {obj.GetGameObject().name}");
 
@@ -590,13 +590,13 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 #endif
             if (flashlightManager.State == FlashlightInteractableManager.ActiveState.On)
             {
-                hudCanvasManager.SetIntent(Intent.Engaged);
-                this.intent = Intent.Engaged;
+                hudCanvasManager.SetIntent(Enum.GunInteractableEnums.Intent.Engaged);
+                this.intent = Enum.GunInteractableEnums.Intent.Engaged;
             }
             else
             {
-                hudCanvasManager.SetIntent(Intent.Disengaged);
-                this.intent = Intent.Disengaged;
+                hudCanvasManager.SetIntent(Enum.GunInteractableEnums.Intent.Disengaged);
+                this.intent = Enum.GunInteractableEnums.Intent.Disengaged;
             }
         }
 
@@ -620,8 +620,8 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         }
 #endif
 
-        hudCanvasManager.SetIntent(Intent.Disengaged);
-        this.intent = Intent.Disengaged;
+        hudCanvasManager.SetIntent(Enum.GunInteractableEnums.Intent.Disengaged);
+        this.intent = Enum.GunInteractableEnums.Intent.Disengaged;
         
         dockedOccupied = false;
         docked = null;

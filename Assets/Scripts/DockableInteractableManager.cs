@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
+using static Enum.ControllerEnums;
+
 [RequireComponent(typeof(XRGrabInteractable))]
 public class DockableInteractableManager : BaseManager, IInteractable
 {
@@ -75,19 +77,17 @@ public class DockableInteractableManager : BaseManager, IInteractable
         return gameObject;
     }
 
-    public void OnOpposingEvent(HandController.State state, bool isTrue, IInteractable obj)
+    public void OnOpposingEvent(State state, bool isTrue, IInteractable obj)
     {
         var name = (obj != null) ? obj.GetGameObject().name : "none";
         Log($"{gameObject.name} {className}.OnOpposingEvent:State : {state} GameObject : {name}");
         
         switch (state)
         {
-            case HandController.State.Hovering:
-                // TODO
+            case State.Hovering:
                 break;
 
-            case HandController.State.Holding:
-                // TODO
+            case State.Holding:
                 break;
         }
     }

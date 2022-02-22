@@ -1,23 +1,13 @@
-using System;
 using System.Reflection;
 
 using UnityEngine;
 using UnityEngine.UI;
 
+using static Enum.HandEnums;
+
 public class HandStateCanvasManager : BaseManager
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
-
-    [Flags]
-    public enum State
-    {
-        None = 0,
-        Grip = 1,
-        Pinch = 2,
-        Point = 4,
-        Claw = 8,
-        Hover = 16
-    }
 
      [Header("Components")]
      [SerializeField] Image grip;

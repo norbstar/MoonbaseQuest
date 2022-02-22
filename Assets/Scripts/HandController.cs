@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
@@ -6,6 +5,9 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
+
+using static Enum.ControllerEnums;
+using static Enum.HandEnums;
 
 [RequireComponent(typeof(XRController))]
 public class HandController : BaseManager
@@ -28,30 +30,8 @@ public class HandController : BaseManager
     public delegate void RawDataEvent(RawData rawData, InputDeviceCharacteristics characteristics);
     public static event RawDataEvent RawDataEventReceived;
 
-    public delegate void StateEvent(HandStateCanvasManager.State state, InputDeviceCharacteristics characteristics);
+    public delegate void StateEvent(Enum.HandEnums.State state, InputDeviceCharacteristics characteristics);
     public static event StateEvent StateEventReceived;
-
-    [Flags]
-    public enum Actuation
-    {
-        None = 0,
-        Trigger = 1,
-        Grip = 2,
-        Button_AX = 4,
-        Button_BY = 8,
-        Thumbstick_Left = 16,
-        Thumbstick_Right = 32,
-        Thumbstick_Up = 64,
-        Thumbstick_Down = 128,
-        Thumbstick_Click = 256,
-        Menu_Oculus = 512
-    }
-
-    public enum State
-    {
-        Hovering,
-        Holding
-    }
 
     [Header("Mapping")]
     [SerializeField] InputDeviceCharacteristics characteristics;
@@ -96,20 +76,37 @@ public class HandController : BaseManager
         debugCanvas = obj?.GetComponent<DebugCanvas>() as DebugCanvas;
     }
 
+    private List<InputFeatureUsage> ResolveFeatures(InputDevice device)
+    {
+        var inputFeatures = new List<InputFeatureUsage>();
+        
+        if (device.TryGetFeatureUsages(inputFeatures))
+        {
+            foreach (var feature in inputFeatures)
+            {
+                Debug.Log($"Discovered feature : {feature.name}");
+                Log($"{Time.time} {gameObject.name} {className} ResolveFeature:{controller.name}-{feature.name}.Detected");
+            }
+        }
+
+        return inputFeatures;
+    }
+
     private void ResolveController()
     {
-        List<InputDevice> controllers = new List<InputDevice>();
-        InputDevices.GetDevicesWithCharacteristics(characteristics, controllers);
+        List<InputDevice> devices = new List<InputDevice>();
+        InputDevices.GetDevicesWithCharacteristics(characteristics, devices);
 
-        if (controllers.Count > 0)
+        if (devices.Count > 0)
         {
-            controller = controllers[0];
+            controller = devices[0];
         }
 
         if (controller.isValid)
         {
             Log($"{Time.time} {gameObject.name} {className} ResolveController:{controller.name}.Detected");
 
+            // List<InputFeatureUsage> features = ResolveFeatures(controller);
             SetActuation(Actuation.None);
         }
     }
@@ -179,6 +176,23 @@ public class HandController : BaseManager
         return actuation;
     }
 
+    private Actuation HandleAXTouch(bool value, Actuation actuation)
+    {
+        if (value)
+        {
+            if (!actuation.HasFlag(Actuation.Touch_AX))
+            {
+                actuation |= Actuation.Touch_AX;
+            }
+        }
+        else
+        {
+            actuation &= ~Actuation.Touch_AX;
+        }
+
+        return actuation;
+    }
+
     private Actuation HandleBYButton(bool value, Actuation actuation)
     {
         if (value)
@@ -191,6 +205,23 @@ public class HandController : BaseManager
         else
         {
             actuation &= ~Actuation.Button_BY;
+        }
+
+        return actuation;
+    }
+
+        private Actuation HandleBYTouch(bool value, Actuation actuation)
+    {
+        if (value)
+        {
+            if (!actuation.HasFlag(Actuation.Touch_BY))
+            {
+                actuation |= Actuation.Touch_BY;
+            }
+        }
+        else
+        {
+            actuation &= ~Actuation.Touch_BY;
         }
 
         return actuation;
@@ -297,7 +328,7 @@ public class HandController : BaseManager
         var gameObject = interactable?.GetGameObject();
         
         float triggerValue, gripValue;
-        bool buttonAXValue, buttonBYValue, thumbstickClickValue, menuButtonValue;
+        bool buttonAXValue, touchAXValue, buttonBYValue, touchBYValue, thumbstickClickValue, menuButtonValue;
         Vector2 thumbstickValue;
 
         if (controller.TryGetFeatureValue(CommonUsages.trigger, out triggerValue))
@@ -315,9 +346,19 @@ public class HandController : BaseManager
             actuation = HandleAXButton(buttonAXValue, actuation);
         }
 
+        if (controller.TryGetFeatureValue(CommonUsages.primaryTouch, out touchAXValue))
+        {
+            actuation = HandleAXTouch(touchAXValue, actuation);
+        }
+
         if (controller.TryGetFeatureValue(CommonUsages.secondaryButton, out buttonBYValue))
         {
             actuation = HandleBYButton(buttonBYValue, actuation);
+        }
+
+        if (controller.TryGetFeatureValue(CommonUsages.secondaryTouch, out touchBYValue))
+        {
+            actuation = HandleBYTouch(touchBYValue, actuation);
         }
 
         if (controller.TryGetFeatureValue(CommonUsages.primary2DAxis, out thumbstickValue))
@@ -364,24 +405,24 @@ public class HandController : BaseManager
 
     private void UpdateState()
     {
-        HandStateCanvasManager.State state = HandStateCanvasManager.State.None;
+        var state = Enum.HandEnums.State.None;
 
         if (isHovering)
         {
-            state |= HandStateCanvasManager.State.Hover;
+            state |= Enum.HandEnums.State.Hover;
         }
         else
         {
-            state &= ~HandStateCanvasManager.State.Hover;
+            state &= ~Enum.HandEnums.State.Hover;
         }
 
         if (isHolding)
         {
-            state |= HandStateCanvasManager.State.Grip;
+            state |= Enum.HandEnums.State.Grip;
         }
         else
         {
-            state &= ~HandStateCanvasManager.State.Grip;
+            state &= ~Enum.HandEnums.State.Grip;
         }
 
         if (StateEventReceived != null)
@@ -400,7 +441,7 @@ public class HandController : BaseManager
         Log($"{Time.time} {gameObject.name} {className}.SetHovering:Game Object : {interactable.GetGameObject().name} Is Hovering : {isHovering}");
 
         this.isHovering = isHovering;
-        NotifyOpposingController(State.Hovering, isHovering, interactable);
+        NotifyOpposingController(Enum.ControllerEnums.State.Hovering, isHovering, interactable);
     }
 
     public void SetHolding(IInteractable interactable, bool isHolding)
@@ -409,17 +450,17 @@ public class HandController : BaseManager
  
         this.isHolding = isHolding;
         this.interactable = interactable;
-        NotifyOpposingController(State.Holding, isHolding, interactable);
+        NotifyOpposingController(Enum.ControllerEnums.State.Holding, isHolding, interactable);
     }
 
-    public void OnOpposingEvent(State state, bool isTrue, IInteractable obj)
+    public void OnOpposingEvent(Enum.ControllerEnums.State state, bool isTrue, IInteractable obj)
     {
         Log($"{Time.time} {gameObject.name} {className}.OnOpposingEvent:State : {state} GameObject : {obj.GetGameObject().name}");
 
         interactable?.OnOpposingEvent(state, isTrue, obj);
     }
 
-    private void NotifyOpposingController(State state, bool isTrue, IInteractable obj)
+    private void NotifyOpposingController(Enum.ControllerEnums.State state, bool isTrue, IInteractable obj)
     {
         Log($"{Time.time} {gameObject.name} {className}.NotifyOpposingConroller:State : {state} IsTrue : {isTrue} GameObject : {obj.GetGameObject().name}");
 

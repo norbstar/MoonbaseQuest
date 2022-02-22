@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Reflection;
 
 using UnityEngine;
-using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 
-using static GunInteractableEnums;
+using static Enum.ControllerEnums;
+using static Enum.GunInteractableEnums;
 
 [RequireComponent(typeof(XRGrabInteractable))]
 [RequireComponent(typeof(CurveCreator))]
@@ -59,7 +59,7 @@ public class DockableGunInteractableManager : DockableFocusableInteractableManag
     private int mixedLayerMask;
     private Mode mode;
     private Intent intent;
-    private State state;
+    private Enum.GunInteractableEnums.State state;
     private Coroutine fireRepeatCoroutine;
     private float heat;
     private IList<float> heatValues;
@@ -244,7 +244,7 @@ public class DockableGunInteractableManager : DockableFocusableInteractableManag
 
     private void Fire()
     {
-        if (state == State.Inactive)
+        if (state == Enum.GunInteractableEnums.State.Inactive)
         {
             AudioSource.PlayClipAtPoint(overloadedClip, transform.position, 1.0f);
             return;
@@ -291,7 +291,7 @@ public class DockableGunInteractableManager : DockableFocusableInteractableManag
         }
         else
         {
-            state = State.Inactive;
+            state = Enum.GunInteractableEnums.State.Inactive;
         }
     }
 
@@ -308,7 +308,7 @@ public class DockableGunInteractableManager : DockableFocusableInteractableManag
 
         if (heatIndex < heatValues.Count)
         {
-            state = State.Active;
+            state = Enum.GunInteractableEnums.State.Active;
         }
     }
 
@@ -369,23 +369,23 @@ public class DockableGunInteractableManager : DockableFocusableInteractableManag
         }
     }
 
-    public void OnActuation(HandController.Actuation actuation, object value = null)
+    public void OnActuation(Actuation actuation, object value = null)
     {
         if (!IsHeld) return;
 
-        if (actuation.HasFlag(HandController.Actuation.Thumbstick_Left))
+        if (actuation.HasFlag(Actuation.Thumbstick_Left))
         {
             SetMode(Mode.Manual);
         }
-        else if (actuation.HasFlag(HandController.Actuation.Thumbstick_Right))
+        else if (actuation.HasFlag(Actuation.Thumbstick_Right))
         {
             SetMode(Mode.Auto);
         }
-        else if (actuation.HasFlag(HandController.Actuation.Thumbstick_Up))
+        else if (actuation.HasFlag(Actuation.Thumbstick_Up))
         {
             SetIntent(Intent.Engaged);
         }
-        else if (actuation.HasFlag(HandController.Actuation.Thumbstick_Down))
+        else if (actuation.HasFlag(Actuation.Thumbstick_Down))
         {
             SetIntent(Intent.Disengaged);
         }

@@ -54,24 +54,24 @@ public class GunHUDCanvasManager : BaseManager
         AmmoCount = ammoCount;
     }
 
-    public void SetMode(GunInteractableEnums.Mode mode)
+    public void SetMode(Enum.GunInteractableEnums.Mode mode)
     {
         switch (mode)
         {
-            case GunInteractableEnums.Mode.Manual:
+            case Enum.GunInteractableEnums.Mode.Manual:
                 modeUI.sprite = singleShot;
                 break;
 
-            case GunInteractableEnums.Mode.Auto:
+            case Enum.GunInteractableEnums.Mode.Auto:
                 modeUI.sprite = multiShot;
                 break;
         }
     }
 
-    public void SetIntent(GunInteractableEnums.Intent intent)
+    public void SetIntent(Enum.GunInteractableEnums.Intent intent)
     {
         Log($"{this.gameObject.name}.SetIntent:Intent : {intent}");
 
-        intentUI.enabled = (intent == GunInteractableEnums.Intent.Engaged);
+        intentUI.enabled = (intent == Enum.GunInteractableEnums.Intent.Engaged);
     }
 }

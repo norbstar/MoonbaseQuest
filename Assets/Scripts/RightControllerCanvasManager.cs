@@ -3,6 +3,9 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.XR;
 
+using static Enum.ControllerEnums;
+using static Enum.HandEnums;
+
 public class RightControllerCanvasManager : ControllerCanvasManager
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
@@ -12,46 +15,46 @@ public class RightControllerCanvasManager : ControllerCanvasManager
     [SerializeField] GameObject aButton;
     [SerializeField] GameObject bButton;
 
-    private void SetOculusButtonState(HandController.Actuation actuation)
+    private void SetOculusButtonState(Actuation actuation)
     {
-        if (actuation.HasFlag(HandController.Actuation.Menu_Oculus) && !oculusButton.activeSelf)
+        if (actuation.HasFlag(Actuation.Menu_Oculus) && !oculusButton.activeSelf)
         {
             oculusButton.SetActive(true);
         }
 
-        if (!actuation.HasFlag(HandController.Actuation.Menu_Oculus) && oculusButton.activeSelf)
+        if (!actuation.HasFlag(Actuation.Menu_Oculus) && oculusButton.activeSelf)
         {
             oculusButton.SetActive(false);
         }
     }
 
-    private void SetAButtonState(HandController.Actuation actuation)
+    private void SetAButtonState(Actuation actuation)
     {
-        if (actuation.HasFlag(HandController.Actuation.Button_AX) && !aButton.activeSelf)
+        if (actuation.HasFlag(Actuation.Button_AX) && !aButton.activeSelf)
         {
             aButton.SetActive(true);
         }
 
-        if (!actuation.HasFlag(HandController.Actuation.Button_AX) && aButton.activeSelf)
+        if (!actuation.HasFlag(Actuation.Button_AX) && aButton.activeSelf)
         {
             aButton.SetActive(false);
         }
     }
     
-    private void SetBButtonState(HandController.Actuation actuation)
+    private void SetBButtonState(Actuation actuation)
     {
-        if (actuation.HasFlag(HandController.Actuation.Button_BY) && !bButton.activeSelf)
+        if (actuation.HasFlag(Actuation.Button_BY) && !bButton.activeSelf)
         {
             bButton.SetActive(true);
         }
 
-        if (!actuation.HasFlag(HandController.Actuation.Button_BY) && bButton.activeSelf)
+        if (!actuation.HasFlag(Actuation.Button_BY) && bButton.activeSelf)
         {
             bButton.SetActive(false);
         }
     }
 
-    public override void OnActuation(HandController.Actuation actuation, InputDeviceCharacteristics characteristics)
+    public override void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics)
     {
         if ((int) characteristics == (int) HandController.RightHand)
         {
@@ -60,7 +63,7 @@ public class RightControllerCanvasManager : ControllerCanvasManager
         }
     }
 
-    public override void SetActuation(HandController.Actuation actuation)
+    public override void SetActuation(Actuation actuation)
     {
         base.SetActuation(actuation);
 
@@ -78,12 +81,12 @@ public class RightControllerCanvasManager : ControllerCanvasManager
         }
     }
 
-    public override void OnState(HandStateCanvasManager.State handGesture, InputDeviceCharacteristics characteristics)
+    public override void OnState(Enum.HandEnums.State state, InputDeviceCharacteristics characteristics)
     {
         if ((int) characteristics == (int) HandController.RightHand)
         {
-            Log($"{Time.time} {gameObject.name} {className} OnHandGesture:HandGesture : {handGesture}");
-            SetState(handGesture);
+            Log($"{Time.time} {gameObject.name} {className} OnState:State : {state}");
+            SetState(state);
         }
     }
 }

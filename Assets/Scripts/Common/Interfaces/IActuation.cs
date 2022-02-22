@@ -1,4 +1,6 @@
+using static Enum.ControllerEnums;
+
 public interface IActuation
 {
-    void OnActuation(HandController.Actuation actuation, object value = null);
+    void OnActuation(Actuation actuation, object value = null);
 }
