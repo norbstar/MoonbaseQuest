@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Collections.Generic;
 
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
@@ -56,6 +57,38 @@ public class FlashlightInteractableManager : FocusableInteractableManager, IActu
         if (actuation.HasFlag(Actuation.Button_AX))
         {
             AlternateLight();
+        }
+    }
+
+    protected override void OnSelectExited(SelectExitEventArgs args, HandController controller)
+    {
+        Log($"{Time.time} {gameObject.name} {className} OnSelectExited:Controller : {controller.name}");
+        RaycastHit[] hits = Physics.SphereCastAll(transform.position, 0.5f, transform.forward, 0f);
+
+        bool isHovering = false;
+
+        foreach (RaycastHit hit in hits)
+        {
+            GameObject gameObject = hit.collider.gameObject;
+            
+            if (gameObject.TryGetComponent<XRSocketInteractor>(out XRSocketInteractor interactor))
+            {
+                List<IXRHoverInteractable> interactables = interactor.interactablesHovered;
+
+                foreach (IXRHoverInteractable interactable in interactables)
+                {
+                    if (GameObject.ReferenceEquals(interactable.transform.gameObject, this.interactable.gameObject))
+                    {
+                        isHovering = true;
+                    }
+                }
+            }
+        }
+
+        if (!isHovering)
+        {
+            Log($"{Time.time} {gameObject.name} {className} OnSelectExited:Revert Interaction Mask");
+            this.interactable.interactionLayers = InteractionLayerMask.GetMask(new string[] { "Default", "Flashlight" });
         }
     }
 

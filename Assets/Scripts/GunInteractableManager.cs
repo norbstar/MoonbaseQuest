@@ -71,7 +71,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
     private float heat;
     private IList<float> heatValues;
     private int heatIndex;
-    private bool dockedOccupied;
+    private bool socketOccupied;
     private GameObject docked;
 
     protected override void Awake()
@@ -516,15 +516,15 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
         if (!IsHeld) return;
 
-        // switch (state)
-        // {
-        //     case HandController.State.Hovering:
-        //         break;
+        switch (state)
+        {
+            case Enum.ControllerEnums.State.Hovering:
+                break;
 
-        //     case HandController.State.Holding:
-        //         HandleHoldingState(isTrue, obj);
-        //         break;
-        // }
+            case Enum.ControllerEnums.State.Holding:
+                HandleHoldingState(isTrue, obj);
+                break;
+        }
     }
 
     private void HandleHoldingState(bool isTrue, IInteractable obj)
@@ -600,7 +600,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
             }
         }
 
-        dockedOccupied = true;
+        socketOccupied = true;
         docked = gameObject;
     }
 
@@ -623,7 +623,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         hudCanvasManager.SetIntent(Enum.GunInteractableEnums.Intent.Disengaged);
         this.intent = Enum.GunInteractableEnums.Intent.Disengaged;
         
-        dockedOccupied = false;
+        socketOccupied = false;
         docked = null;
     }
 
