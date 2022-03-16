@@ -114,7 +114,7 @@ public class StickyDockManager : DockManager
 
     private void MarkTrackedObject(DockableInteractableManager interactable)
     {
-        if (trackedInteractable == null)
+        if (trackedInteractable != null)
         {
             trackedInteractable = interactable;
             trackedInteractable.ShowTrackingVolume();
