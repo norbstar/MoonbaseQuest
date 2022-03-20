@@ -7,7 +7,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 using static Enum.ControllerEnums;
 
 [RequireComponent(typeof(XRGrabInteractable))]
-public class FlashlightInteractableManager : FocusableInteractableManager, IActuation
+public class LaserSightInteractableManager : FocusableInteractableManager, IActuation
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
@@ -18,7 +18,7 @@ public class FlashlightInteractableManager : FocusableInteractableManager, IActu
     }
 
     [Header("Components")]
-    [SerializeField] GameObject spotlight;
+    [SerializeField] GameObject laser;
 
     [Header("Audio")]
     [SerializeField] AudioClip buttonClip;
@@ -26,7 +26,15 @@ public class FlashlightInteractableManager : FocusableInteractableManager, IActu
     [Header("Config")]
     [SerializeField] ActiveState startState;
 
+    [Header("References")]
+    [SerializeField] GameObject spawnPoint;
+
+    [Header("Prefabs")]
+
+    [SerializeField] GameObject pointPrefab;
+
     private ActiveState state;
+    private GameObject pointPrefabInstance;
 
     public ActiveState State {
         get
@@ -37,7 +45,7 @@ public class FlashlightInteractableManager : FocusableInteractableManager, IActu
         set
         {
             state = value;
-            spotlight.SetActive(state == ActiveState.On);
+            laser.SetActive(state == ActiveState.On);
         }
     }
 
@@ -45,7 +53,35 @@ public class FlashlightInteractableManager : FocusableInteractableManager, IActu
     void Start()
     {
         State = startState;
-        spotlight.SetActive(state == ActiveState.On);
+        laser.SetActive(state == ActiveState.On);
+    }
+
+    void FixedUpdate()
+    {
+        if (laser.activeSelf)
+        {
+            var ray = new Ray(spawnPoint.transform.position, spawnPoint.transform.up);
+
+            if (Physics.Raycast(ray.origin, ray.direction, out RaycastHit hit, Mathf.Infinity))
+            {
+                var objectHit = hit.transform.gameObject;
+                var point = hit.point;
+
+                if (pointPrefabInstance == null)
+                {
+                    pointPrefabInstance = Instantiate(pointPrefab, point, Quaternion.identity);
+                }
+                else
+                {
+                    pointPrefabInstance.transform.position = point;
+                    pointPrefabInstance.SetActive(true);
+                }
+            }
+        }
+        else
+        {
+            pointPrefabInstance.SetActive(false);
+        }
     }
 
     public void OnActuation(Actuation actuation, object value = null)
@@ -88,7 +124,7 @@ public class FlashlightInteractableManager : FocusableInteractableManager, IActu
         if (!isHovering)
         {
             Log($"{Time.time} {gameObject.name} {className} OnSelectExited:Revert Interaction Mask");
-            this.interactable.interactionLayers = InteractionLayerMask.GetMask(new string[] { "Default", "Flashlight" });
+            this.interactable.interactionLayers = InteractionLayerMask.GetMask(new string[] { "Default", "Laser Sight" });
         }
     }
 

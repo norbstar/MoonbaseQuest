@@ -43,7 +43,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
     [Header("Sockets")]
     [SerializeField] SocketCompatibilityLayerManager socketCompatibilityLayerManager;
-    [SerializeField] SocketInteractorManager socketInteractorManager;
+    // [SerializeField] List<SocketCompatibilityLayerManager> socketCompatibilityLayerManagers;
 
     [Header("Audio")]
     [SerializeField] AudioClip hitClip;
@@ -96,16 +96,54 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         hipDocksManager = cameraManager.HipDocksManager;
     }
 
+    private bool TryGetSocketInteractorManager(SocketCompatibilityLayerManager manager, out SocketInteractorManager socketInteractorManager)
+    {
+        socketInteractorManager = manager.GetComponentInChildren<SocketInteractorManager>() as SocketInteractorManager;
+        return (socketInteractorManager != null);
+    }
+
     void OnEnable()
     {
         socketCompatibilityLayerManager.EventReceived += OnSocketCompatiblityLayerEvent;
-        socketInteractorManager.EventReceived += OnSocketEvent;
+
+        if (TryGetSocketInteractorManager(socketCompatibilityLayerManager, out SocketInteractorManager socketInteractorManager))
+        {
+            socketInteractorManager.EventReceived += OnSocketEvent;
+        }
+
+        // foreach(SocketCompatibilityLayerManager manager in socketCompatibilityLayerManagers)
+        // {
+        //     manager.EventReceived += OnSocketCompatiblityLayerEvent;
+
+        //     var socketInteractorManager = manager.GetComponentInChildren<SocketInteractorManager>() as SocketInteractorManager;
+            
+        //     if (socketInteractorManager != null)
+        //     {
+        //         socketInteractorManager.EventReceived += OnSocketEvent;
+        //     }
+        // }
     }
 
     void OnDisable()
     {
         socketCompatibilityLayerManager.EventReceived -= OnSocketCompatiblityLayerEvent;
-        socketInteractorManager.EventReceived -= OnSocketEvent;
+
+        if (TryGetSocketInteractorManager(socketCompatibilityLayerManager, out SocketInteractorManager socketInteractorManager))
+        {
+            socketInteractorManager.EventReceived -= OnSocketEvent;
+        }
+
+        // foreach(SocketCompatibilityLayerManager manager in socketCompatibilityLayerManagers)
+        // {
+        //     manager.EventReceived -= OnSocketCompatiblityLayerEvent;
+
+        //     var socketInteractorManager = manager.GetComponentInChildren<SocketInteractorManager>() as SocketInteractorManager;
+            
+        //     if (socketInteractorManager != null)
+        //     {
+        //         socketInteractorManager.EventReceived -= OnSocketEvent;
+        //     }
+        // }
     }
 
     void FixedUpdate()
@@ -181,53 +219,29 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
     protected override void OnSelectEntered(SelectEnterEventArgs args, HandController controller)
     {
         Log($"{Time.time} {gameObject.name} {className} OnSelectEntered");
-        Log($"{Time.time} {gameObject.name} {className} 3");
 
         gameObject.transform.parent = objects;
 
         if (controller != null)
         {
-            Log($"{Time.time} {gameObject.name} {className} 4");
             var device = controller.InputDevice;
 
             if ((int) device.characteristics == (int) HandController.LeftHand)
             {
-                Log($"{Time.time} {gameObject.name} {className} 5");
                 hudCanvasManager.transform.localPosition = new Vector3(-Mathf.Abs(hudCanvasManager.transform.localPosition.x), 0.06f, 0f);
             }
             else if ((int) device.characteristics == (int) HandController.RightHand)
             {
-                Log($"{Time.time} {gameObject.name} {className} 6");
                 hudCanvasManager.transform.localPosition = new Vector3(Mathf.Abs(hudCanvasManager.transform.localPosition.x), 0.06f, 0f);
             }
 
             if (hipDocksManager.TryIsDocked(gameObject, out HipDocksManager.DockID dockID))
             {
-                Log($"{Time.time} {gameObject.name} {className} 7");
                 hipDocksManager.UndockWeapon(gameObject);
             }
 
             hudCanvasManager.gameObject.SetActive(true);
-
-            // if (cameraManager.TryGetOpposingHandController(controller, out HandController opposingController))
-            // {
-            //     if (opposingController.IsHolding)
-            //     {
-            //         var interactable = opposingController.Interactable;
-                    
-            //         if (interactable.GetGameObject().CompareTag("Flashlight"))
-            //         {
-            //             HandleHoldingState(true, interactable);
-            //         }
-            //     }
-            // }
-
-            Log($"{Time.time} {gameObject.name} {className} 8");
         }
-
-        Log($"{Time.time} {gameObject.name} {className} 9");
-
-        // socketInteractorManager.EnableCollider(true);
     }
 
     public void OnActivated(ActivateEventArgs args)
@@ -352,8 +366,17 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         Log($"{Time.time} {gameObject.name} {className} OnSelectExited");
 
         hudCanvasManager.gameObject.SetActive(false);
-        socketInteractorManager.EnablePreview(false);
-        // socketInteractorManager.EnableCollider(false);
+
+        // foreach(SocketCompatibilityLayerManager manager in socketCompatibilityLayerManagers)
+        // {
+        //     var socketInteractorManager = manager.GetComponentInChildren<SocketInteractorManager>() as SocketInteractorManager;
+        //     socketInteractorManager?.EnablePreview(false);
+        // }
+
+        if (TryGetSocketInteractorManager(socketCompatibilityLayerManager, out SocketInteractorManager socketInteractorManager))
+        {
+            socketInteractorManager?.EnablePreview(false);
+        }
 
         if (enableAutoDock && (controller != null))
         {
@@ -383,10 +406,12 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
         if (!IsHeld) return;
 
+        // Primary intent
         if (actuation.HasFlag(Actuation.Button_AX))
         {
             AlternateMode();
         }
+        // Secondary indent
         else if (actuation.HasFlag(Actuation.Button_BY))
         {
             AlternateIntent();
@@ -430,33 +455,36 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
     {
         Log($"{Time.time} {gameObject.name} {className} Intent: {intent}");
         
-        if (!socketInteractorManager.IsOccupied) return;
-
-        var dockedObject = socketInteractorManager.Data.gameObject;
-
-        if (dockedObject.TryGetComponent<FlashlightInteractableManager>(out var manager))
+        if (TryGetSocketInteractorManager(socketCompatibilityLayerManager, out SocketInteractorManager socketInteractorManager))
         {
-            switch (intent)
+            if (!socketInteractorManager.IsOccupied) return;
+
+            var dockedObject = socketInteractorManager.Data.gameObject;
+
+            if (dockedObject.TryGetComponent<FlashlightInteractableManager>(out var manager))
             {
-                case Enum.GunInteractableEnums.Intent.Engaged:
-                    if (this.intent != Enum.GunInteractableEnums.Intent.Engaged)
-                    {
-                        manager.State = FlashlightInteractableManager.ActiveState.On;
-                        AudioSource.PlayClipAtPoint(engagedClip, transform.position, 1.0f);
-                    }
-                    break;
+                switch (intent)
+                {
+                    case Enum.GunInteractableEnums.Intent.Engaged:
+                        if (this.intent != Enum.GunInteractableEnums.Intent.Engaged)
+                        {
+                            manager.State = FlashlightInteractableManager.ActiveState.On;
+                            AudioSource.PlayClipAtPoint(engagedClip, transform.position, 1.0f);
+                        }
+                        break;
 
-                case Enum.GunInteractableEnums.Intent.Disengaged:
-                    if (this.intent != Enum.GunInteractableEnums.Intent.Disengaged)
-                    {
-                        manager.State = FlashlightInteractableManager.ActiveState.Off;
-                        AudioSource.PlayClipAtPoint(disengagedClip, transform.position, 1.0f);            
-                    }
-                    break;
+                    case Enum.GunInteractableEnums.Intent.Disengaged:
+                        if (this.intent != Enum.GunInteractableEnums.Intent.Disengaged)
+                        {
+                            manager.State = FlashlightInteractableManager.ActiveState.Off;
+                            AudioSource.PlayClipAtPoint(disengagedClip, transform.position, 1.0f);            
+                        }
+                        break;
+                }
+
+                hudCanvasManager.SetIntent(intent);
+                this.intent = intent;
             }
-
-            hudCanvasManager.SetIntent(intent);
-            this.intent = intent;
         }
     }
 
@@ -464,7 +492,10 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
     {
         Log($"{Time.time} {gameObject.name} {className} AlternateIntent");
 
-        if (!socketInteractorManager.IsOccupied) return;
+        if (TryGetSocketInteractorManager(socketCompatibilityLayerManager, out SocketInteractorManager socketInteractorManager))
+        {
+            if (!socketInteractorManager.IsOccupied) return;
+        }
         
         var altIntent = (intent == Enum.GunInteractableEnums.Intent.Engaged) ? Enum.GunInteractableEnums.Intent.Disengaged : Enum.GunInteractableEnums.Intent.Engaged;
         SetIntent(altIntent);
@@ -533,9 +564,12 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         
         var gameObject = obj.GetGameObject();
 
-        if ((!socketInteractorManager.IsOccupied) && (gameObject.CompareTag("Flashlight")))
+        if (TryGetSocketInteractorManager(socketCompatibilityLayerManager, out SocketInteractorManager socketInteractorManager))
         {
-            socketInteractorManager.EnablePreview(isTrue);
+            if ((!socketInteractorManager.IsOccupied) && (gameObject.CompareTag("Compact Flashlight")))
+            {
+                socketInteractorManager.EnablePreview(isTrue);
+            }
         }
     }
 
@@ -548,20 +582,23 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         
         Log($"{Time.time} {this.gameObject.name}.OnSocketCompatibilityLayerEntryEvent:GameObject : {gameObject.name}");
 
-        if ((!socketInteractorManager.IsOccupied) && (gameObject.CompareTag("Flashlight")))
+        if (TryGetSocketInteractorManager(socketCompatibilityLayerManager, out SocketInteractorManager socketInteractorManager))
         {
-            if (TryGet.TryIdentifyController(interactor, out HandController controller))
+            if ((!socketInteractorManager.IsOccupied) && (gameObject.CompareTag("Compact Flashlight")))
             {
-                if (TryGet.TryGetOpposingController(controller, out HandController opposingController))
+                if (TryGet.TryIdentifyController(interactor, out HandController controller))
                 {
-                    if ((opposingController.IsHolding) && (GameObject.ReferenceEquals(opposingController.Interactable.GetGameObject(), gameObject)))
+                    if (TryGet.TryGetOpposingController(controller, out HandController opposingController))
                     {
-                        socketInteractorManager.EnablePreview(true);
-
-                        if (gameObject.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
+                        if ((opposingController.IsHolding) && (GameObject.ReferenceEquals(opposingController.Interactable.GetGameObject(), gameObject)))
                         {
-                            interactable.interactionLayers = InteractionLayerMask.GetMask(new string[] { "Default", "Gun Compatible Flashlight" });
-                            socketInteractorManager.EnableSocket(true);
+                            socketInteractorManager.EnablePreview(true);
+
+                            if (gameObject.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
+                            {
+                                interactable.interactionLayers = InteractionLayerMask.GetMask(new string[] { "Default", "Gun Compatible Flashlight" });
+                                socketInteractorManager.EnableSocket(true);
+                            }
                         }
                     }
                 }
@@ -641,7 +678,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
         Log($"{Time.time} {this.gameObject.name}.OnSocketCompatibilityLayerExitEvent:GameObject : {gameObject.name}");
 
-        if (gameObject.CompareTag("Flashlight"))
+        if (gameObject.CompareTag("Compact Flashlight"))
         {
             if (TryGet.TryIdentifyController(interactor, out HandController controller))
             {
@@ -649,12 +686,15 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
                 {
                     if ((opposingController.IsHolding) && (GameObject.ReferenceEquals(opposingController.Interactable.GetGameObject(), gameObject)))
                     {
-                        socketInteractorManager.EnablePreview(false);
-
-                        if (gameObject.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
+                        if (TryGetSocketInteractorManager(socketCompatibilityLayerManager, out SocketInteractorManager socketInteractorManager))
                         {
-                            socketInteractorManager.EnableSocket(false);
-                            interactable.interactionLayers = InteractionLayerMask.GetMask(new string[] { "Default", "Flashlight" });
+                            socketInteractorManager.EnablePreview(false);
+
+                            if (gameObject.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
+                            {
+                                socketInteractorManager.EnableSocket(false);
+                                interactable.interactionLayers = InteractionLayerMask.GetMask(new string[] { "Default", "Flashlight" });
+                            }
                         }
                     }
                 }
