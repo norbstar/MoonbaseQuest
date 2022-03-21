@@ -5,12 +5,10 @@ using UnityEngine.UI;
 
 using TMPro;
 
-using static Enum.ControllerEnums;
-
 namespace Interactables.Gun
 {
     [RequireComponent(typeof(Canvas))]
-    public class FlashlightHUDCanvasManager : HUDCanvasManager
+    public class FlashlightHUDCanvasManager : BaseManager
     {
         private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
@@ -26,12 +24,7 @@ namespace Interactables.Gun
 
         private Enum.GunInteractableEnums.State state;
 
-        public override void OnActuation(Actuation actuation, object value = null)
-        {
-            // TODO
-        }
-
-        public override void SetState(Enum.GunInteractableEnums.State state)
+        public void SetState(Enum.GunInteractableEnums.State state)
         {
             Log($"{this.gameObject.name}.SetState:State : {state}");
 

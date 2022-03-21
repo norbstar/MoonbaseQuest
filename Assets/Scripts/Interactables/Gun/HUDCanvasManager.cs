@@ -2,11 +2,9 @@ using System.Reflection;
 
 using UnityEngine;
 
-using static Enum.ControllerEnums;
-
 namespace Interactables.Gun
 {
-    public abstract class HUDCanvasManager : BaseManager, IActuation
+    public abstract class HUDCanvasManager : BaseManager
     {
         public enum Identity
         {
@@ -22,7 +20,5 @@ namespace Interactables.Gun
         private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
         public virtual void SetState(Enum.GunInteractableEnums.State state) { }
-
-        public abstract void OnActuation(Actuation actuation, object value = null);
     }
 }
