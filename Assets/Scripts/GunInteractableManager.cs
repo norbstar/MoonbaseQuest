@@ -15,13 +15,6 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
-    private enum Hub
-    {
-        Primary,
-        Flashlight,
-        LaserSight
-    }
-
     private class ActiveHUBManager
     {
         private List<int> activeHUBs;
@@ -36,19 +29,13 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
         public bool AddHUB(int idx)
         {
-            Debug.Log($"{Time.time} {className} AddHUB 1 Index : {idx}");
-
             var matches = activeHUBs.Where(i => i == idx);
             
             if (matches.Count() == 0)
             {
-                Debug.Log($"{Time.time} {className} AddHUB 2");
-
                 activeHUBs.Add(idx);
                 return true;
             }
-
-            Debug.Log($"{Time.time} {className} AddHUB 3");
 
             return false;
         }
@@ -193,7 +180,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         heatValues = curveCreator.Values;
 
         activeHUBManager = new ActiveHUBManager();
-        activeHUBManager.AddHUB((int) Hub.Primary);
+        activeHUBManager.AddHUB((int) Interactables.Gun.HUDCanvasManager.Identity.Primary);
 
         StartCoroutine(ManageHeatCoroutine());
     }
@@ -522,6 +509,8 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
             HandleUINagivation(actuation);
         }
 
+        
+
         if (actuation.HasFlag(Actuation.Button_AX))
         {
             AlternateMode();
@@ -562,7 +551,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
     private void ShowDefaultHUBCanvas()
     {
-        ShowHUBCanvas((int) Hub.Primary);
+        ShowHUBCanvas((int) Interactables.Gun.HUDCanvasManager.Identity.Primary);
     }
 
     private void ShowHUBCanvas(int idx)
@@ -797,14 +786,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
             }
         }
 
-        if (activeHUBManager.AddHUB((int) Hub.Flashlight))
-        {
-            Log($"{Time.time} {this.gameObject.name}.OnSocketSelectEntryEvent:Flashlight hub was added");
-        }
-        else
-        {
-            Log($"{Time.time} {this.gameObject.name}.OnSocketSelectEntryEvent:Flashlight hub was NOT added");
-        }
+        activeHUBManager.AddHUB((int) Interactables.Gun.HUDCanvasManager.Identity.Flashlight);
 
         socketOccupied = true;
         docked = gameObject;
@@ -829,14 +811,9 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         hudCanvasManager.SetIntent(Enum.GunInteractableEnums.Intent.Disengaged);
         this.intent = Enum.GunInteractableEnums.Intent.Disengaged;
         
-        if (activeHUBManager.RemoveHUB((int) Hub.Flashlight))
+        if (activeHUBManager.RemoveHUB((int) Interactables.Gun.HUDCanvasManager.Identity.Flashlight))
         {
-            Log($"{Time.time} {this.gameObject.name}.OnSocketSelectEntryEvent:Flashlight hub was removed");
             ShowDefaultHUBCanvas();
-        }
-        else
-        {
-            Log($"{Time.time} {this.gameObject.name}.OnSocketSelectEntryEvent:Flashlight hub was NOT removed");
         }
 
         socketOccupied = false;

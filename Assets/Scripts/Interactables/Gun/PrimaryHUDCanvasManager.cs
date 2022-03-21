@@ -6,6 +6,8 @@ using UnityEngine.UI;
 
 using TMPro;
 
+using static Enum.ControllerEnums;
+
 namespace Interactables.Gun
 {
     [RequireComponent(typeof(Canvas))]
@@ -54,6 +56,11 @@ namespace Interactables.Gun
         {
             ammoCount -= 1;
             AmmoCount = ammoCount;
+        }
+
+        public override void OnActuation(Actuation actuation, object value = null)
+        {
+            // TODO
         }
 
         public void SetMode(Enum.GunInteractableEnums.Mode mode)

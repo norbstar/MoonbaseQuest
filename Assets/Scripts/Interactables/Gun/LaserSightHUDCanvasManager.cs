@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 using TMPro;
 
+using static Enum.ControllerEnums;
+
 namespace Interactables.Gun
 {
     [RequireComponent(typeof(Canvas))]
@@ -23,6 +25,11 @@ namespace Interactables.Gun
         [SerializeField] Sprite off;
 
         private Enum.GunInteractableEnums.State state;
+
+        public override void OnActuation(Actuation actuation, object value = null)
+        {
+            // TODO
+        }
 
         public override void SetState(Enum.GunInteractableEnums.State state)
         {
