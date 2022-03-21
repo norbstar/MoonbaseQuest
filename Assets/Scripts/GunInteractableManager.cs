@@ -134,6 +134,8 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
     [Header("Sockets")]
     [SerializeField] SocketCompatibilityLayerManager socketCompatibilityLayerManager;
+    public SocketCompatibilityLayerManager SocketCompatibilityLayerManager { get { return socketCompatibilityLayerManager; } }
+
     // [SerializeField] List<SocketCompatibilityLayerManager> socketCompatibilityLayerManagers;
 
     [Header("Audio")]
@@ -150,7 +152,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
     public AudioClip OverloadedClip { get { return overloadedClip;} }
 
     [SerializeField] AudioClip engagedClip;
-    public AudioClip EnagagedClip { get { return engagedClip;} }
+    public AudioClip EngagedClip { get { return engagedClip;} }
 
     [SerializeField] AudioClip disengagedClip;
     public AudioClip DisengagedClip { get { return disengagedClip;} }
@@ -159,7 +161,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
     public AudioClip NavigationClip { get { return navigationClip;} }
 
     public Mode Mode { get { return mode; } set { mode = value; } }
-    
+
     private new Camera camera;
     private CurveCreator curveCreator;
     private MainCameraManager cameraManager;
@@ -207,7 +209,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         hipDocksManager = cameraManager.HipDocksManager;
     }
 
-    private bool TryGetSocketInteractorManager(SocketCompatibilityLayerManager manager, out SocketInteractorManager socketInteractorManager)
+    public bool TryGetSocketInteractorManager(SocketCompatibilityLayerManager manager, out SocketInteractorManager socketInteractorManager)
     {
         socketInteractorManager = manager.GetComponentInChildren<SocketInteractorManager>() as SocketInteractorManager;
         return (socketInteractorManager != null);

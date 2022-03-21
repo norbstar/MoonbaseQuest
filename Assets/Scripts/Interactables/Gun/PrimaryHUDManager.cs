@@ -2,7 +2,6 @@ using System.Reflection;
 
 using UnityEngine;
 
-using static Enum.GunInteractableEnums;
 using static Enum.ControllerEnums;
 
 namespace Interactables.Gun
