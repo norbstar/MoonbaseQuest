@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Linq;
 
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
@@ -14,6 +15,108 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
+    private enum Hub
+    {
+        Primary,
+        Flashlight,
+        LaserSight
+    }
+
+    private class ActiveHUBManager
+    {
+        private List<int> activeHUBs;
+        private int activeIdx;
+
+        public ActiveHUBManager()
+        {
+            activeHUBs = new List<int>();
+        }
+
+        public List<int> ActiveHUBs { get { return activeHUBs; } }
+
+        public bool AddHUB(int idx)
+        {
+            Debug.Log($"{Time.time} {className} AddHUB 1 Index : {idx}");
+
+            var matches = activeHUBs.Where(i => i == idx);
+            
+            if (matches.Count() == 0)
+            {
+                Debug.Log($"{Time.time} {className} AddHUB 2");
+
+                activeHUBs.Add(idx);
+                return true;
+            }
+
+            Debug.Log($"{Time.time} {className} AddHUB 3");
+
+            return false;
+        }
+
+        public bool RemoveHUB(int idx)
+        {
+            var matches = activeHUBs.Where(i => i == idx);
+            
+            if (matches.Count() == 1)
+            {
+                activeHUBs.Remove(idx);
+                return true;
+            }
+
+            return false;
+        }
+
+        public int ActiveIdx { get { return activeIdx; } set { activeIdx = value; } }
+
+        public bool TryGetPreviousIndex(out int idx)
+        {
+            int tempIdx = activeIdx;
+            bool resolvedIdx = false;
+
+            do
+            {
+                --tempIdx;
+
+                if (tempIdx < 0)
+                {
+                    tempIdx = activeHUBs.Count - 1;
+                }
+
+                if (tempIdx != activeIdx)
+                {
+                    resolvedIdx = true;
+                }
+            } while (!resolvedIdx && tempIdx != activeIdx);
+
+            idx = tempIdx;
+            return resolvedIdx;
+        }
+
+        public bool TryGetNextIndex(out int idx)
+        {
+            int tempIdx = activeIdx;
+            bool resolvedIdx = false;
+
+            do
+            {
+                ++tempIdx;
+
+                if (tempIdx > activeHUBs.Count - 1)
+                {
+                    tempIdx = 0;
+                }
+
+                if (tempIdx != activeIdx)
+                {
+                    resolvedIdx = true;
+                }
+            } while (!resolvedIdx && tempIdx != activeIdx);
+
+            idx = tempIdx;
+            return resolvedIdx;
+        }
+    }
+
     [Header("Animations")]
     [SerializeField] Animator animator;
 
@@ -26,6 +129,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
     [Header("UI")]
     [SerializeField] GunHUDCanvasManager hudCanvasManager;
+    [SerializeField] List<Interactables.Gun.HUDCanvasManager> hudCanvasManagers;
     [SerializeField] GunOverheatCanvasManager overheatCanvasManager;
 
     [Header("Docking")]
@@ -52,6 +156,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
     [SerializeField] AudioClip overloadedClip;
     [SerializeField] AudioClip engagedClip;
     [SerializeField] AudioClip disengagedClip;
+    [SerializeField] AudioClip navigationClip;
 
     private new Camera camera;
     private CurveCreator curveCreator;
@@ -73,6 +178,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
     private int heatIndex;
     private bool socketOccupied;
     private GameObject docked;
+    private ActiveHUBManager activeHUBManager;
 
     protected override void Awake()
     {
@@ -85,6 +191,9 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         mixedLayerMask = LayerMask.GetMask("Default") | LayerMask.GetMask("Asteroid Layer");
         overheatCanvasManager.SetMaxValue(overLoadThreshold);
         heatValues = curveCreator.Values;
+
+        activeHUBManager = new ActiveHUBManager();
+        activeHUBManager.AddHUB((int) Hub.Primary);
 
         StartCoroutine(ManageHeatCoroutine());
     }
@@ -111,7 +220,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
             socketInteractorManager.EventReceived += OnSocketEvent;
         }
 
-        // foreach(SocketCompatibilityLayerManager manager in socketCompatibilityLayerManagers)
+        // foreach (SocketCompatibilityLayerManager manager in socketCompatibilityLayerManagers)
         // {
         //     manager.EventReceived += OnSocketCompatiblityLayerEvent;
 
@@ -234,6 +343,8 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
             {
                 hudCanvasManager.transform.localPosition = new Vector3(Mathf.Abs(hudCanvasManager.transform.localPosition.x), 0.06f, 0f);
             }
+
+            ShowDefaultHUBCanvas();
 
             if (hipDocksManager.TryIsDocked(gameObject, out HipDocksManager.DockID dockID))
             {
@@ -406,16 +517,65 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
         if (!IsHeld) return;
 
-        // Primary intent
+        if (actuation.HasFlag(Actuation.Thumbstick_Left) || actuation.HasFlag(Actuation.Thumbstick_Right))
+        {
+            HandleUINagivation(actuation);
+        }
+
         if (actuation.HasFlag(Actuation.Button_AX))
         {
             AlternateMode();
         }
-        // Secondary indent
-        else if (actuation.HasFlag(Actuation.Button_BY))
+        
+        if (actuation.HasFlag(Actuation.Button_BY))
         {
             AlternateIntent();
         }
+    }
+
+    private void HandleUINagivation(Actuation actuation)
+    {
+        bool success = false;
+        int idx = 0;
+
+        if (actuation.HasFlag(Actuation.Thumbstick_Left))
+        {
+            if (activeHUBManager.TryGetPreviousIndex(out idx))
+            {
+                success = true;
+            }
+        }
+        else if (actuation.HasFlag(Actuation.Thumbstick_Right))
+        {
+            if (activeHUBManager.TryGetNextIndex(out idx))
+            {
+                success = true;
+            }
+        }
+
+        if (success)
+        {
+            AudioSource.PlayClipAtPoint(navigationClip, transform.position, 1.0f);
+            ShowHUBCanvas(idx);
+        }
+    }
+
+    private void ShowDefaultHUBCanvas()
+    {
+        ShowHUBCanvas((int) Hub.Primary);
+    }
+
+    private void ShowHUBCanvas(int idx)
+    {
+        Interactables.Gun.HUDCanvasManager hubCanvasManager;
+
+        hubCanvasManager = hudCanvasManagers[activeHUBManager.ActiveIdx];
+        hubCanvasManager.gameObject.SetActive(false);
+
+        hubCanvasManager = hudCanvasManagers[idx];
+        hubCanvasManager.gameObject.SetActive(true);
+
+        activeHUBManager.ActiveIdx = idx;
     }
 
     private void SetMode(Enum.GunInteractableEnums.Mode mode)
@@ -637,6 +797,15 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
             }
         }
 
+        if (activeHUBManager.AddHUB((int) Hub.Flashlight))
+        {
+            Log($"{Time.time} {this.gameObject.name}.OnSocketSelectEntryEvent:Flashlight hub was added");
+        }
+        else
+        {
+            Log($"{Time.time} {this.gameObject.name}.OnSocketSelectEntryEvent:Flashlight hub was NOT added");
+        }
+
         socketOccupied = true;
         docked = gameObject;
     }
@@ -660,6 +829,16 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         hudCanvasManager.SetIntent(Enum.GunInteractableEnums.Intent.Disengaged);
         this.intent = Enum.GunInteractableEnums.Intent.Disengaged;
         
+        if (activeHUBManager.RemoveHUB((int) Hub.Flashlight))
+        {
+            Log($"{Time.time} {this.gameObject.name}.OnSocketSelectEntryEvent:Flashlight hub was removed");
+            ShowDefaultHUBCanvas();
+        }
+        else
+        {
+            Log($"{Time.time} {this.gameObject.name}.OnSocketSelectEntryEvent:Flashlight hub was NOT removed");
+        }
+
         socketOccupied = false;
         docked = null;
     }
