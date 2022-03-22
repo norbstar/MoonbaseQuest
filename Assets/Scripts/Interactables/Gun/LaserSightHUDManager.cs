@@ -12,6 +12,11 @@ namespace Interactables.Gun
 
         [SerializeField] LaserSightHUDCanvasManager canvasManager;
         
+        public override HUDCanvasManager GetCanvas()
+        {
+            return canvasManager;
+        }
+        
         public override void ShowHUD()
         {
             canvasManager.gameObject.SetActive(false);

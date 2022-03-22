@@ -1,3 +1,4 @@
+using System;
 using System.Reflection;
 
 using UnityEngine;
@@ -11,6 +12,46 @@ namespace Interactables.Gun
         private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
         [SerializeField] PrimaryHUDCanvasManager canvasManager;
+        [SerializeField] int defaultLoadout = 16;
+
+        public int AmmoCount {
+            get
+            {
+                return ammoCount;
+            }
+            
+            set
+            {
+                canvasManager.AmmoTextUI.text = String.Format("{0:00}", value);
+                canvasManager.AmmoTextUI.color = (value > 0) ? Color.white : Color.red;
+            }
+        }
+
+        private int ammoCount;
+
+        // Start is called before the first frame update
+        void Start()
+        {
+            ammoCount = defaultLoadout;
+            AmmoCount = ammoCount;
+        }
+
+        public void RestoreAmmoCount()
+        {
+            ammoCount = defaultLoadout;
+            AmmoCount = ammoCount;
+        }
+
+        public void DecrementAmmoCount()
+        {
+            ammoCount -= 1;
+            AmmoCount = ammoCount;
+        }
+
+        public override HUDCanvasManager GetCanvas()
+        {
+            return canvasManager;
+        }
 
         public override void ShowHUD()
         {

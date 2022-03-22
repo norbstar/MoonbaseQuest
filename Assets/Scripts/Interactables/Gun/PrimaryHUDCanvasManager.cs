@@ -1,4 +1,4 @@
-using System;
+// using System;
 using System.Reflection;
 
 using UnityEngine;
@@ -9,52 +9,54 @@ using TMPro;
 namespace Interactables.Gun
 {
     [RequireComponent(typeof(Canvas))]
-    public class PrimaryHUDCanvasManager : BaseManager
+    public class PrimaryHUDCanvasManager : HUDCanvasManager
     {
         private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
-        [SerializeField] int defaultLoadout = 16;
+        // [SerializeField] int defaultLoadout = 16;
         [SerializeField] TextMeshProUGUI ammoTextUI;
+        public TextMeshProUGUI AmmoTextUI { get { return ammoTextUI; } }
+        
         [SerializeField] Image modeUI;
 
         [Header("Sprites")]
         [SerializeField] Sprite singleShot;
         [SerializeField] Sprite multiShot;
         
-        public int AmmoCount {
-        get
-            {
-                return ammoCount;
-            }
+        // public int AmmoCount {
+        //     get
+        //     {
+        //         return ammoCount;
+        //     }
             
-            set
-            {
-                ammoTextUI.text = String.Format("{0:00}", value);
-                ammoTextUI.color = (value > 0) ? Color.white : Color.red;
-            }
-        }
+        //     set
+        //     {
+        //         ammoTextUI.text = String.Format("{0:00}", value);
+        //         ammoTextUI.color = (value > 0) ? Color.white : Color.red;
+        //     }
+        // }
 
         private Enum.GunInteractableEnums.Mode mode;
-        private int ammoCount;
+        // private int ammoCount;
 
         // Start is called before the first frame update
-        void Start()
-        {
-            ammoCount = defaultLoadout;
-            AmmoCount = ammoCount;
-        }
+        // void Start()
+        // {
+        //     ammoCount = defaultLoadout;
+        //     AmmoCount = ammoCount;
+        // }
 
-        public void RestoreAmmoCount()
-        {
-            ammoCount = defaultLoadout;
-            AmmoCount = ammoCount;
-        }
+        // public void RestoreAmmoCount()
+        // {
+        //     ammoCount = defaultLoadout;
+        //     AmmoCount = ammoCount;
+        // }
 
-        public void DecrementAmmoCount()
-        {
-            ammoCount -= 1;
-            AmmoCount = ammoCount;
-        }
+        // public void DecrementAmmoCount()
+        // {
+        //     ammoCount -= 1;
+        //     AmmoCount = ammoCount;
+        // }
 
         public void SetMode(Enum.GunInteractableEnums.Mode mode)
         {

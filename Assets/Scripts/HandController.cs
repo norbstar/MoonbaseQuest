@@ -46,7 +46,7 @@ public class HandController : BaseManager
     [Header("Balancing")]
     [SerializeField] float triggerThreshold = 0.1f;
     [SerializeField] float gripThreshold = 0.5f;
-    [SerializeField] Vector2 thumbstickThreshold = new Vector2(0.1f, 0.1f);
+    [SerializeField] Vector2 thumbstickThreshold = new Vector2(0.8f, 0.8f);
 
     public InputDeviceCharacteristics Characteristics { get { return characteristics; } }
     public InputDevice InputDevice { get { return GetComponent<XRController>().inputDevice; } }

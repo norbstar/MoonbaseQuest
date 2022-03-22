@@ -1329,9 +1329,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enableLogging: 1
-  gunInteractableManager: {fileID: 9076767786785327033}
   id: 0
+  gunInteractableManager: {fileID: 9076767786785327033}
   canvasManager: {fileID: 6414939680374260431}
+  defaultLoadout: 16
 --- !u!1 &2787516319550239873
 GameObject:
   m_ObjectHideFlags: 0
@@ -1562,7 +1563,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &231304755077557152
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1695,7 +1696,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enableLogging: 0
-  defaultLoadout: 16
   ammoTextUI: {fileID: 9004342246406579668}
   modeUI: {fileID: 6198998284538870018}
   singleShot: {fileID: 21300000, guid: 1893e1200d7614b4bb8ca5c86a73568e, type: 3}
@@ -1954,8 +1954,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enableLogging: 1
-  gunInteractableManager: {fileID: 9076767786785327033}
   id: 2
+  gunInteractableManager: {fileID: 9076767786785327033}
   canvasManager: {fileID: 8152221110850400916}
 --- !u!1 &3756726577288613678
 GameObject:
@@ -2537,7 +2537,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &23204092079568932
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3101,8 +3101,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enableLogging: 1
-  gunInteractableManager: {fileID: 9076767786785327033}
   id: 1
+  gunInteractableManager: {fileID: 9076767786785327033}
   canvasManager: {fileID: 6522428418949888644}
 --- !u!114 &5651353454128775918
 MonoBehaviour:
@@ -3636,7 +3636,6 @@ MonoBehaviour:
   spawnPoint: {fileID: 7223026732702330760}
   laserPrefab: {fileID: 1486858733783808492, guid: b152f303818ca674ea1dfee3a06859c4, type: 3}
   laserFXPrefab: {fileID: 6914236330477267817, guid: a8a1fb22e2ff8a346bb349e62837d61f, type: 3}
-  hudCanvasManager: {fileID: 2855640392165080893}
   overheatCanvasManager: {fileID: 4726893903120137152}
   hudManagers:
   - {fileID: 1565320480369368890}
@@ -4282,7 +4281,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enableLogging: 0
-  defaultLoadout: 16
   ammoTextUI: {fileID: 5335685884815035455}
   modeUI: {fileID: 5481750742613723652}
   singleShot: {fileID: 21300000, guid: 1893e1200d7614b4bb8ca5c86a73568e, type: 3}
@@ -4919,6 +4917,10 @@ PrefabInstance:
       propertyPath: startEnabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5087343904690862815, guid: 5687dea7e11bc4e4dbb29bce8a7ef3c6, type: 3}
+      propertyPath: enableLogging
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5687dea7e11bc4e4dbb29bce8a7ef3c6, type: 3}
 --- !u!4 &5479387862148183630 stripped
@@ -5033,6 +5035,10 @@ PrefabInstance:
       objectReference: {fileID: 6865224690916183441}
     - target: {fileID: 5087343904690862815, guid: 5687dea7e11bc4e4dbb29bce8a7ef3c6, type: 3}
       propertyPath: startEnabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5087343904690862815, guid: 5687dea7e11bc4e4dbb29bce8a7ef3c6, type: 3}
+      propertyPath: enableLogging
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

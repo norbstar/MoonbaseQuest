@@ -14,6 +14,11 @@ namespace Interactables.Gun
         
         private Enum.GunInteractableEnums.State state;
 
+        public override HUDCanvasManager GetCanvas()
+        {
+            return canvasManager;
+        }
+
         public override void ShowHUD()
         {
             canvasManager.gameObject.SetActive(true);
@@ -47,7 +52,7 @@ namespace Interactables.Gun
             SetState(altState);
         }
 
-        private void SetState(Enum.GunInteractableEnums.State state)
+        public void SetState(Enum.GunInteractableEnums.State state)
         {
             Log($"{Time.time} {gameObject.name} {className} SetState: {state}");
             

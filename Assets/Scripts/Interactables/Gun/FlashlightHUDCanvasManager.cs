@@ -8,7 +8,7 @@ using TMPro;
 namespace Interactables.Gun
 {
     [RequireComponent(typeof(Canvas))]
-    public class FlashlightHUDCanvasManager : BaseManager
+    public class FlashlightHUDCanvasManager : HUDCanvasManager
     {
         private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 

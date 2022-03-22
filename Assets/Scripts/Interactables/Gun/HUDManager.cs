@@ -31,10 +31,12 @@ namespace Interactables.Gun
 
         public Identity Id { get { return id; } }
 
+        public abstract HUDCanvasManager GetCanvas();
+        
         public abstract void ShowHUD();
 
         public abstract void HideHUD();
-
+        
         public abstract void OnActuation(Actuation actuation, object value = null);
     }
 }
