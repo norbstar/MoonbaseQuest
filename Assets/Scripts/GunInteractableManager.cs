@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Linq;
 
 using UnityEngine;
+using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 
 using static Enum.GunInteractableEnums;
@@ -527,30 +528,27 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         }
     }
 
-    public void OnActuation(Actuation actuation, object value = null)
+    public void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics, object value = null)
     {
-        Log($"{Time.time} {gameObject.name} {className} OnActuation:Actuation : {actuation} Value : {value}");
+        // Log($"{Time.time} {gameObject.name} {className} OnActuation:Actuation : {actuation} Value : {value}");
 
         if (!IsHeld) return;
+        
+        if ((int) characteristics == (int) HandController.LeftHand)
+        {
+            Log($"{Time.time} {gameObject.name} {className} OnActuation:Left Hand Actuation : {actuation}");
+        }
+        else if ((int) characteristics == (int) HandController.RightHand)
+        {
+            Log($"{Time.time} {gameObject.name} {className} OnActuation:Right Hand Actuation : {actuation}");
+        }
 
         if (actuation.HasFlag(Actuation.Thumbstick_Left) || actuation.HasFlag(Actuation.Thumbstick_Right))
         {
             HandleUINagivation(actuation);
         }
 
-        // switch (HUDManager.Id)
-        // {
-        //     case Interactables.Gun.HUDManager.Identity.Primary:
-        //         break;
-            
-        //     case Interactables.Gun.HUDManager.Identity.Flashlight:
-        //         break;
-
-        //     case Interactables.Gun.HUDManager.Identity.LaserSight:
-        //         break;
-        // }
-
-        HUDManager.OnActuation(actuation);
+        HUDManager.OnActuation(actuation, characteristics);
     }
 
     private void HandleUINagivation(Actuation actuation)

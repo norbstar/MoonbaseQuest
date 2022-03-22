@@ -1,6 +1,7 @@
 using System.Reflection;
 
 using UnityEngine;
+using UnityEngine.XR;
 
 using static Enum.ControllerEnums;
 
@@ -27,8 +28,10 @@ namespace Interactables.Gun
             canvasManager.gameObject.SetActive(true);
         }
 
-        public override void OnActuation(Actuation actuation, object value = null)
+        public override void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics, object value = null)
         {
+            Log($"{Time.time} {gameObject.name} {className} OnActuation:Actuation : {actuation}");
+            
             // TODO
         }
     }

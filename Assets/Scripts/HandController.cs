@@ -7,7 +7,6 @@ using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 
 using static Enum.ControllerEnums;
-using static Enum.HandEnums;
 
 [RequireComponent(typeof(XRController))]
 public class HandController : BaseManager
@@ -105,8 +104,6 @@ public class HandController : BaseManager
         if (controller.isValid)
         {
             Log($"{Time.time} {gameObject.name} {className} ResolveController:{controller.name}.Detected");
-
-            // List<InputFeatureUsage> features = ResolveFeatures(controller);
             SetActuation(Actuation.None);
         }
     }
@@ -325,8 +322,10 @@ public class HandController : BaseManager
 
         lastActuation = actuation;
 
+        Log($"{this.gameObject.name} {className}.Update:Interactable : {interactable != null}");
+
         var gameObject = interactable?.GetGameObject();
-        
+
         float triggerValue, gripValue;
         bool buttonAXValue, touchAXValue, buttonBYValue, touchBYValue, thumbstickClickValue, menuButtonValue;
         Vector2 thumbstickValue;
@@ -378,7 +377,7 @@ public class HandController : BaseManager
 
         if (actuation != lastActuation)
         {
-            gameObject?.GetComponent<IActuation>()?.OnActuation(actuation);
+            gameObject?.GetComponent<IActuation>()?.OnActuation(actuation, characteristics);
 
             if (ActuationEventReceived != null)
             {
@@ -449,7 +448,7 @@ public class HandController : BaseManager
         Log($"{Time.time} {gameObject.name} {className}.SetHolding:Game Object : {interactable.GetGameObject().name} Is Holding : {isHolding}");
  
         this.isHolding = isHolding;
-        this.interactable = interactable;
+        this.interactable = (isHolding) ? interactable : null;
         NotifyOpposingController(Enum.ControllerEnums.State.Holding, isHolding, interactable);
     }
 

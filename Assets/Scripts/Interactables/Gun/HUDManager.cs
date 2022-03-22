@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.XR;
 
 using static Enum.ControllerEnums;
 
@@ -37,6 +38,6 @@ namespace Interactables.Gun
 
         public abstract void HideHUD();
         
-        public abstract void OnActuation(Actuation actuation, object value = null);
+        public abstract void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics, object value = null);
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 
 using UnityEngine;
+using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 
 using static Enum.ControllerEnums;
@@ -369,7 +370,7 @@ public class DockableGunInteractableManager : DockableFocusableInteractableManag
         }
     }
 
-    public void OnActuation(Actuation actuation, object value = null)
+    public void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics, object value = null)
     {
         if (!IsHeld) return;
 

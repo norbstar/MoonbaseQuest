@@ -88,7 +88,7 @@ public class CustomGrabbableInteractableManager : FocusableInteractableManager, 
         }
     }
 
-    public void OnActuation(Actuation actuation, object value = null)
+    public void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics, object value = null)
     {
         Log($"{Time.time} {gameObject.name} {className} OnActuation:Actuation : {actuation} Value : {value}");
 
