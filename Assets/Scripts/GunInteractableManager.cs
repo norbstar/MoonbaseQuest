@@ -132,10 +132,11 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
     [SerializeField] float overLoadThreshold;
 
     [Header("Sockets")]
-    [SerializeField] SocketCompatibilityLayerManager socketCompatibilityLayerManager;
-    public SocketCompatibilityLayerManager SocketCompatibilityLayerManager { get { return socketCompatibilityLayerManager; } }
+    // [SerializeField] SocketCompatibilityLayerManager socketCompatibilityLayerManager;
+    // public SocketCompatibilityLayerManager SocketCompatibilityLayerManager { get { return socketCompatibilityLayerManager; } }
 
-    // [SerializeField] List<SocketCompatibilityLayerManager> socketCompatibilityLayerManagers;
+    [SerializeField] List<SocketCompatibilityLayerManager> socketCompatibilityLayerManagers;
+    public List<SocketCompatibilityLayerManager> SocketCompatibilityLayerManagers { get { return socketCompatibilityLayerManagers; } }
 
     [Header("Audio")]
     [SerializeField] AudioClip hitClip;
@@ -222,44 +223,42 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
     void OnEnable()
     {
-        socketCompatibilityLayerManager.EventReceived += OnSocketCompatiblityLayerEvent;
+        // socketCompatibilityLayerManager.EventReceived += OnSocketCompatiblityLayerEvent;
 
-        if (TryGetSocketInteractorManager(socketCompatibilityLayerManager, out SocketInteractorManager socketInteractorManager))
-        {
-            socketInteractorManager.EventReceived += OnSocketEvent;
-        }
-
-        // foreach (SocketCompatibilityLayerManager manager in socketCompatibilityLayerManagers)
+        // if (TryGetSocketInteractorManager(socketCompatibilityLayerManager, out SocketInteractorManager socketInteractorManager))
         // {
-        //     manager.EventReceived += OnSocketCompatiblityLayerEvent;
-
-        //     var socketInteractorManager = manager.GetComponentInChildren<SocketInteractorManager>() as SocketInteractorManager;
-            
-        //     if (socketInteractorManager != null)
-        //     {
-        //         socketInteractorManager.EventReceived += OnSocketEvent;
-        //     }
+        //     socketInteractorManager.EventReceived += OnSocketEvent;
         // }
+
+        foreach (SocketCompatibilityLayerManager manager in socketCompatibilityLayerManagers)
+        {
+            manager.EventReceived += OnSocketCompatiblityLayerEvent;
+
+            if (TryGetSocketInteractorManager(manager, out SocketInteractorManager socketInteractorManager))
+            {
+                socketInteractorManager.EventReceived += OnSocketEvent;
+            }
+        }
     }
 
     void OnDisable()
     {
-        socketCompatibilityLayerManager.EventReceived -= OnSocketCompatiblityLayerEvent;
+        // socketCompatibilityLayerManager.EventReceived -= OnSocketCompatiblityLayerEvent;
 
-        if (TryGetSocketInteractorManager(socketCompatibilityLayerManager, out SocketInteractorManager socketInteractorManager))
-        {
-            socketInteractorManager.EventReceived -= OnSocketEvent;
-        }
-
-        // foreach(SocketCompatibilityLayerManager manager in socketCompatibilityLayerManagers)
+        // if (TryGetSocketInteractorManager(socketCompatibilityLayerManager, out SocketInteractorManager socketInteractorManager))
         // {
-        //     manager.EventReceived -= OnSocketCompatiblityLayerEvent;
-
-        //     if (TryGetSocketInteractorManager(socketCompatibilityLayerManager, out SocketInteractorManager socketInteractorManager))
-        //     {
-        //         socketInteractorManager.EventReceived -= OnSocketEvent;
-        //     }
+        //     socketInteractorManager.EventReceived -= OnSocketEvent;
         // }
+
+        foreach(SocketCompatibilityLayerManager manager in socketCompatibilityLayerManagers)
+        {
+            manager.EventReceived -= OnSocketCompatiblityLayerEvent;
+
+            if (TryGetSocketInteractorManager(manager, out SocketInteractorManager socketInteractorManager))
+            {
+                socketInteractorManager.EventReceived -= OnSocketEvent;
+            }
+        }
     }
 
     void FixedUpdate()
@@ -493,15 +492,17 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
         HUDManager.HideHUD();
 
-        // foreach(SocketCompatibilityLayerManager manager in socketCompatibilityLayerManagers)
+        // if (TryGetSocketInteractorManager(socketCompatibilityLayerManager, out SocketInteractorManager socketInteractorManager))
         // {
-        //     var socketInteractorManager = manager.GetComponentInChildren<SocketInteractorManager>() as SocketInteractorManager;
-        //     socketInteractorManager?.EnablePreview(false);
+        //     socketInteractorManager.EnablePreview(false);
         // }
 
-        if (TryGetSocketInteractorManager(socketCompatibilityLayerManager, out SocketInteractorManager socketInteractorManager))
+        foreach(SocketCompatibilityLayerManager manager in socketCompatibilityLayerManagers)
         {
-            socketInteractorManager?.EnablePreview(false);
+            if (TryGetSocketInteractorManager(manager, out SocketInteractorManager socketInteractorManager))
+            {
+                socketInteractorManager.EnablePreview(false);
+            }
         }
 
         if (enableAutoDock && (controller != null))
@@ -604,11 +605,11 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         switch (eventType)
         {
             case SocketCompatibilityLayerManager.EventType.OnTriggerEnter:
-                OnSocketCompatibilityLayerEntryEvent(gameObject);
+                OnSocketCompatibilityLayerEntryEvent(manager, gameObject);
                 break;
             
             case SocketCompatibilityLayerManager.EventType.OnTriggerExit:
-                OnSocketCompatibilityLayerExitEvent(gameObject);
+                OnSocketCompatibilityLayerExitEvent(manager, gameObject);
                 break;
         }
     }
@@ -645,13 +646,27 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
         switch (state)
         {
-            case Enum.ControllerEnums.State.Hovering:
-                break;
-
             case Enum.ControllerEnums.State.Holding:
                 HandleHoldingState(isTrue, obj);
                 break;
         }
+    }
+
+    public bool TryGetCompatibleLayer(GameObject gameObject, out SocketCompatibilityLayerManager socketCompatibilityLayerManager)
+    {
+        SocketCompatibilityLayerManager manager = null;
+
+        if (gameObject.CompareTag("Compact Flashlight"))
+        {
+            manager = socketCompatibilityLayerManagers.Where(s => s.CompareTag("Flashlight Socket")).FirstOrDefault();
+        }
+        else if (gameObject.CompareTag("Laser Sight"))
+        {
+            manager = socketCompatibilityLayerManagers.Where(s => s.CompareTag("Laser Sight Socket")).FirstOrDefault();
+        }
+
+        socketCompatibilityLayerManager = manager;
+        return (manager != null);
     }
 
     private void HandleHoldingState(bool isTrue, IInteractable obj)
@@ -660,16 +675,19 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         
         var gameObject = obj.GetGameObject();
 
-        if (TryGetSocketInteractorManager(socketCompatibilityLayerManager, out SocketInteractorManager socketInteractorManager))
+        if (TryGetCompatibleLayer(gameObject, out SocketCompatibilityLayerManager socketCompatibilityLayerManager))
         {
-            if ((!socketInteractorManager.IsOccupied) && (gameObject.CompareTag("Compact Flashlight")))
+            if (TryGetSocketInteractorManager(socketCompatibilityLayerManager, out SocketInteractorManager socketInteractorManager))
             {
-                socketInteractorManager.EnablePreview(isTrue);
+                if (!socketInteractorManager.IsOccupied)
+                {
+                    socketInteractorManager.EnablePreview(isTrue);
+                }
             }
         }
     }
 
-    private void OnSocketCompatibilityLayerEntryEvent(GameObject gameObject)
+    private void OnSocketCompatibilityLayerEntryEvent(SocketCompatibilityLayerManager manager, GameObject gameObject)
     {
         if (TryGet.TryGetRootResolver(gameObject, out GameObject rootGameObject))
         {
@@ -678,7 +696,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         
         Log($"{Time.time} {this.gameObject.name}.OnSocketCompatibilityLayerEntryEvent:GameObject : {gameObject.name}");
 
-        if (TryGetSocketInteractorManager(socketCompatibilityLayerManager, out SocketInteractorManager socketInteractorManager))
+        if (TryGetSocketInteractorManager(manager, out SocketInteractorManager socketInteractorManager))
         {
             if ((!socketInteractorManager.IsOccupied) && (gameObject.CompareTag("Compact Flashlight")))
             {
@@ -698,6 +716,11 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
                         }
                     }
                 }
+            }
+
+            if ((!socketInteractorManager.IsOccupied) && (gameObject.CompareTag("Laser Sight")))
+            {
+                // TODO
             }
         }
     }
@@ -782,6 +805,11 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
                 EnableDefaultHUD();
             }
         }
+
+        if (gameObject.TryGetComponent<LaserSightInteractableManager>(out var laserSightManager))
+        {
+            // TODO
+        }
     }
 
     private void OnSocketHoverExitEvent(GameObject gameObject)
@@ -789,7 +817,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         Log($"{Time.time} {this.gameObject.name}.OnSocketHoverExitEvent:GameObject : {gameObject.name}");
     }
 
-    private void OnSocketCompatibilityLayerExitEvent(GameObject gameObject)
+    private void OnSocketCompatibilityLayerExitEvent(SocketCompatibilityLayerManager manager, GameObject gameObject)
     {
         if (TryGet.TryGetRootResolver(gameObject, out GameObject rootGameObject))
         {
@@ -806,7 +834,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
                 {
                     if ((opposingController.IsHolding) && (GameObject.ReferenceEquals(opposingController.Interactable.GetGameObject(), gameObject)))
                     {
-                        if (TryGetSocketInteractorManager(socketCompatibilityLayerManager, out SocketInteractorManager socketInteractorManager))
+                        if (TryGetSocketInteractorManager(manager, out SocketInteractorManager socketInteractorManager))
                         {
                             socketInteractorManager.EnablePreview(false);
 
@@ -819,6 +847,11 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
                     }
                 }
             }
+        }
+
+        if (gameObject.CompareTag("Laser Sight"))
+        {
+            // TODO
         }
     }
 
