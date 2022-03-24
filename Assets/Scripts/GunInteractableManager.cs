@@ -112,9 +112,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         overheatCanvasManager.SetMaxValue(overLoadThreshold);
         heatValues = curveCreator.Values;
 
-        hudsManager = new Interactables.Gun.HUDsManager();
-        hudsManager.AddHUD((int) Interactables.Gun.HUDManager.Identity.Primary);
-
+        hudsManager = new Interactables.Gun.HUDsManager(hudManagers);
         StartCoroutine(ManageHeatCoroutine());
     }
 
@@ -704,14 +702,14 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
     {
         Log($"{Time.time} {this.gameObject.name}.OnSocketSelectEntryEvent:GameObject : {gameObject.name}");
 
-        if (gameObject.CompareTag("Flashlight"))
+        if (gameObject.CompareTag("Compact Flashlight"))
         {
             if (gameObject.TryGetComponent<FlashlightInteractableManager>(out var flashlightManager))
             {
                 var id = Interactables.Gun.HUDManager.Identity.Flashlight;
 
-                hudsManager.AddHUD((int) id);
-                
+                hudsManager.SetActive((int) id);
+
                 if (TryGetHUDManagerById(id, out Interactables.Gun.HUDManager hudManager))
                 {
                     if (flashlightManager.State == FlashlightInteractableManager.ActiveState.On)
@@ -731,13 +729,8 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
             {
                 var id = Interactables.Gun.HUDManager.Identity.LaserSight;
 
-                hudsManager.AddHUD((int) id);
+                hudsManager.SetActive((int) id);
                 
-                // foreach (int idx in hudsManager.ActiveHUDs)
-                // {
-                //     Log($"{Time.time} {this.gameObject.name}.OnSocketSelectEntryEvent:HUDManager Idx : {idx}");
-                // }
-
                 if (TryGetHUDManagerById(id, out Interactables.Gun.HUDManager hudManager))
                 {
                     if (laserSightManager.State == LaserSightInteractableManager.ActiveState.On)
@@ -765,11 +758,9 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
             {
                 ((Interactables.Gun.FlashlightHUDManager) hudManager).SetState(Enum.GunInteractableEnums.State.Inactive);
             }
-            
-            if (hudsManager.RemoveHUD((int) id))
-            {
-                ShowPrimaryHUD();
-            }
+
+            hudsManager.SetInactive((int) id);
+            ShowPrimaryHUD();
         }
         else if (gameObject.TryGetComponent<LaserSightInteractableManager>(out var laserSightManager))
         {
@@ -779,11 +770,9 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
             {
                 ((Interactables.Gun.LaserSightHUDManager) hudManager).SetState(Enum.GunInteractableEnums.State.Inactive);
             }
-            
-            if (hudsManager.RemoveHUD((int) id))
-            {
-                ShowPrimaryHUD();
-            }
+
+            hudsManager.SetInactive((int) id);
+            ShowPrimaryHUD();
         }
     }
 
