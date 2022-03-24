@@ -100,7 +100,7 @@ public class DockableInteractableManager : BaseManager, IInteractable
 
         Log($"{Time.time} {gameObject.name} {className} OnHoverEntered:{interactor.name}");
 
-        if (TryGet.TryIdentifyController(interactor, out HandController controller))
+        if (TryGet.TryGetIdentifyController(interactor, out HandController controller))
         {
             controller.SetHovering(this, true);
             OnHoverEntered(args, controller);
@@ -115,7 +115,7 @@ public class DockableInteractableManager : BaseManager, IInteractable
 
         var interactor = args.interactorObject.transform.gameObject;
         
-        if (TryGet.TryIdentifyController(interactor, out HandController controller))
+        if (TryGet.TryGetIdentifyController(interactor, out HandController controller))
         {
             Log($"{Time.time} {gameObject.name} {className} OnHoverExited:{interactor.name}");
 
@@ -132,7 +132,7 @@ public class DockableInteractableManager : BaseManager, IInteractable
 
         interactor = args.interactorObject.transform.gameObject;
 
-        if (TryGet.TryIdentifyController(interactor, out HandController controller))
+        if (TryGet.TryGetIdentifyController(interactor, out HandController controller))
         {
             controller.SetHolding(this, true);
             isHeld = true;
@@ -160,7 +160,7 @@ public class DockableInteractableManager : BaseManager, IInteractable
             rigidBody.useGravity = cache.useGravity;
         }
 
-        if (TryGet.TryIdentifyController(interactor, out HandController controller))
+        if (TryGet.TryGetIdentifyController(interactor, out HandController controller))
         {
             controller.SetHolding(this, false);
             isHeld = false;

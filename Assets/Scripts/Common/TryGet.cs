@@ -32,7 +32,7 @@ public class TryGet
         return (controllers.Count > 0);
     }
 
-    public static bool TryIdentifyController(GameObject interactor, out HandController controller)
+    public static bool TryGetIdentifyController(GameObject interactor, out HandController controller)
     {
         if (interactor != null && interactor.CompareTag("Hand"))
         {
@@ -98,5 +98,11 @@ public class TryGet
 
         rootGameObject = default(GameObject);
         return false;
+    }
+
+    public static bool TryGetSocketInteractorManager(SocketCompatibilityLayerManager manager, out SocketInteractorManager socketInteractorManager)
+    {
+        socketInteractorManager = manager.GetComponentInChildren<SocketInteractorManager>() as SocketInteractorManager;
+        return (socketInteractorManager != null);
     }
 }

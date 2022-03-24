@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
-using Enum;
-
 [RequireComponent(typeof(XRGrabInteractable))]
 public class InteractableManager : GizmoManager, IInteractable
 {
@@ -78,9 +76,9 @@ public class InteractableManager : GizmoManager, IInteractable
     public void OnHoverEntered(HoverEnterEventArgs args)
     {
         var interactor = args.interactorObject.transform.gameObject;
-        // Log($"{Time.time} {gameObject.name} {className} OnHoverEntered:{interactor.name}");
+        Log($"{Time.time} {gameObject.name} {className} OnHoverEntered:{interactor.name}");
 
-        if (TryGet.TryIdentifyController(interactor, out HandController controller))
+        if (TryGet.TryGetIdentifyController(interactor, out HandController controller))
         {
             controller.SetHovering(this, true);
             OnHoverEntered(args, controller);
@@ -92,9 +90,9 @@ public class InteractableManager : GizmoManager, IInteractable
     public void OnHoverExited(HoverExitEventArgs args)
     {
         var interactor = args.interactorObject.transform.gameObject;
-        // Log($"{Time.time} {gameObject.name} {className} OnHoverExited:{interactor.name}");
+        Log($"{Time.time} {gameObject.name} {className} OnHoverExited:{interactor.name}");
         
-        if (TryGet.TryIdentifyController(interactor, out HandController controller))
+        if (TryGet.TryGetIdentifyController(interactor, out HandController controller))
         {
             controller.SetHovering(this, false);
             OnHoverExited(args, controller);
@@ -106,9 +104,9 @@ public class InteractableManager : GizmoManager, IInteractable
     public void OnSelectEntered(SelectEnterEventArgs args)
     {
         interactor = args.interactorObject.transform.gameObject;
-        // Log($"{Time.time} {gameObject.name} {className} OnSelectEntered:{interactor.name}");
+        Log($"{Time.time} {gameObject.name} {className} OnSelectEntered:{interactor.name}");
 
-        if (TryGet.TryIdentifyController(interactor, out HandController controller))
+        if (TryGet.TryGetIdentifyController(interactor, out HandController controller))
         {
             controller.SetHolding(this, true);
             isHeld = true;
@@ -136,7 +134,7 @@ public class InteractableManager : GizmoManager, IInteractable
     public void OnSelectExited(SelectExitEventArgs args)
     {
         interactor = args.interactorObject.transform.gameObject;
-        // Log($"{Time.time} {gameObject.name} {className} OnSelectExited:{interactor.name}");
+        Log($"{Time.time} {gameObject.name} {className} OnSelectExited:{interactor.name}");
 
         if (gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidBody))
         {
@@ -144,7 +142,7 @@ public class InteractableManager : GizmoManager, IInteractable
             rigidBody.useGravity = cache.useGravity;
         }
 
-        if (TryGet.TryIdentifyController(interactor, out HandController controller))
+        if (TryGet.TryGetIdentifyController(interactor, out HandController controller))
         {
             controller.SetHolding(this, false);
             isHeld = false;
@@ -164,7 +162,7 @@ public class InteractableManager : GizmoManager, IInteractable
 
     public void OnDockStatusChange(bool isDocked)
     {
-        // Log($"{Time.time} {gameObject.name} {className} OnDockStatusChange:Is Docked : {isDocked}");
+        Log($"{Time.time} {gameObject.name} {className} OnDockStatusChange:Is Docked : {isDocked}");
 
         this.isDocked = isDocked;
         focusableUI.SetActive(!isDocked);

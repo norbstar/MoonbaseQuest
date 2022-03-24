@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text;
 using System.Linq;
 
 using UnityEngine;
@@ -15,95 +16,6 @@ using static Enum.ControllerEnums;
 public class GunInteractableManager : FocusableInteractableManager, IActuation
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
-
-    private class ActiveHUDManager
-    {
-        private List<int> activeHUDs;
-        private int activeIdx;
-
-        public ActiveHUDManager()
-        {
-            activeHUDs = new List<int>();
-        }
-
-        public List<int> ActiveHUDs { get { return activeHUDs; } }
-
-        public bool AddHUD(int idx)
-        {
-            var matches = activeHUDs.Where(i => i == idx);
-            
-            if (matches.Count() == 0)
-            {
-                activeHUDs.Add(idx);
-                return true;
-            }
-
-            return false;
-        }
-
-        public bool RemoveHUD(int idx)
-        {
-            var matches = activeHUDs.Where(i => i == idx);
-            
-            if (matches.Count() == 1)
-            {
-                activeHUDs.Remove(idx);
-                return true;
-            }
-
-            return false;
-        }
-
-        public int ActiveIdx { get { return activeIdx; } set { activeIdx = value; } }
-
-        public bool TryGetPreviousIndex(out int idx)
-        {
-            int tempIdx = activeIdx;
-            bool resolvedIdx = false;
-
-            do
-            {
-                --tempIdx;
-
-                if (tempIdx < 0)
-                {
-                    tempIdx = activeHUDs.Count - 1;
-                }
-
-                if (tempIdx != activeIdx)
-                {
-                    resolvedIdx = true;
-                }
-            } while (!resolvedIdx && tempIdx != activeIdx);
-
-            idx = tempIdx;
-            return resolvedIdx;
-        }
-
-        public bool TryGetNextIndex(out int idx)
-        {
-            int tempIdx = activeIdx;
-            bool resolvedIdx = false;
-
-            do
-            {
-                ++tempIdx;
-
-                if (tempIdx > activeHUDs.Count - 1)
-                {
-                    tempIdx = 0;
-                }
-
-                if (tempIdx != activeIdx)
-                {
-                    resolvedIdx = true;
-                }
-            } while (!resolvedIdx && tempIdx != activeIdx);
-
-            idx = tempIdx;
-            return resolvedIdx;
-        }
-    }
 
     [Header("Animations")]
     [SerializeField] Animator animator;
@@ -133,9 +45,6 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
     [SerializeField] float overLoadThreshold;
 
     [Header("Sockets")]
-    // [SerializeField] SocketCompatibilityLayerManager socketCompatibilityLayerManager;
-    // public SocketCompatibilityLayerManager SocketCompatibilityLayerManager { get { return socketCompatibilityLayerManager; } }
-
     [SerializeField] List<SocketCompatibilityLayerManager> socketCompatibilityLayerManagers;
     public List<SocketCompatibilityLayerManager> SocketCompatibilityLayerManagers { get { return socketCompatibilityLayerManagers; } }
 
@@ -167,7 +76,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
     {
         get
         {
-            var activeIdx = activeHUDManager.ActiveIdx;
+            var activeIdx = hudsManager.ActiveIdx;
             return hudManagers[activeIdx];
         }
     }
@@ -189,7 +98,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
     private float heat;
     private IList<float> heatValues;
     private int heatIndex;
-    private ActiveHUDManager activeHUDManager;
+    private Interactables.Gun.HUDsManager hudsManager;
 
     protected override void Awake()
     {
@@ -203,8 +112,8 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         overheatCanvasManager.SetMaxValue(overLoadThreshold);
         heatValues = curveCreator.Values;
 
-        activeHUDManager = new ActiveHUDManager();
-        activeHUDManager.AddHUD((int) Interactables.Gun.HUDManager.Identity.Primary);
+        hudsManager = new Interactables.Gun.HUDsManager();
+        hudsManager.AddHUD((int) Interactables.Gun.HUDManager.Identity.Primary);
 
         StartCoroutine(ManageHeatCoroutine());
     }
@@ -216,26 +125,13 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         hipDocksManager = cameraManager.HipDocksManager;
     }
 
-    public bool TryGetSocketInteractorManager(SocketCompatibilityLayerManager manager, out SocketInteractorManager socketInteractorManager)
-    {
-        socketInteractorManager = manager.GetComponentInChildren<SocketInteractorManager>() as SocketInteractorManager;
-        return (socketInteractorManager != null);
-    }
-
     void OnEnable()
     {
-        // socketCompatibilityLayerManager.EventReceived += OnSocketCompatiblityLayerEvent;
-
-        // if (TryGetSocketInteractorManager(socketCompatibilityLayerManager, out SocketInteractorManager socketInteractorManager))
-        // {
-        //     socketInteractorManager.EventReceived += OnSocketEvent;
-        // }
-
         foreach (SocketCompatibilityLayerManager manager in socketCompatibilityLayerManagers)
         {
             manager.EventReceived += OnSocketCompatiblityLayerEvent;
 
-            if (TryGetSocketInteractorManager(manager, out SocketInteractorManager socketInteractorManager))
+            if (TryGet.TryGetSocketInteractorManager(manager, out SocketInteractorManager socketInteractorManager))
             {
                 socketInteractorManager.EventReceived += OnSocketEvent;
             }
@@ -244,18 +140,11 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
     void OnDisable()
     {
-        // socketCompatibilityLayerManager.EventReceived -= OnSocketCompatiblityLayerEvent;
-
-        // if (TryGetSocketInteractorManager(socketCompatibilityLayerManager, out SocketInteractorManager socketInteractorManager))
-        // {
-        //     socketInteractorManager.EventReceived -= OnSocketEvent;
-        // }
-
         foreach(SocketCompatibilityLayerManager manager in socketCompatibilityLayerManagers)
         {
             manager.EventReceived -= OnSocketCompatiblityLayerEvent;
 
-            if (TryGetSocketInteractorManager(manager, out SocketInteractorManager socketInteractorManager))
+            if (TryGet.TryGetSocketInteractorManager(manager, out SocketInteractorManager socketInteractorManager))
             {
                 socketInteractorManager.EventReceived -= OnSocketEvent;
             }
@@ -283,7 +172,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
                     hitPrefabInstance.SetActive(true);
                 }
 
-                if (TryGet.TryIdentifyController(interactor, out HandController controller))
+                if (TryGet.TryGetIdentifyController(interactor, out HandController controller))
                 {
                     var renderer = hitPrefabInstance.GetComponent<Renderer>() as Renderer;
                     var device = controller.InputDevice;
@@ -359,14 +248,12 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
                 }
             }
 
-            EnableDefaultHUD();
-
             if (hipDocksManager.TryIsDocked(gameObject, out HipDocksManager.DockID dockID))
             {
                 hipDocksManager.UndockWeapon(gameObject);
             }
 
-            HUDManager.ShowHUD();
+            ShowPrimaryHUD();
         }
     }
 
@@ -411,7 +298,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         animator.SetTrigger("Fire");
         AudioSource.PlayClipAtPoint(hitClip, transform.position, 1.0f);
 
-        if (TryGet.TryIdentifyController(interactor, out HandController controller))
+        if (TryGet.TryGetIdentifyController(interactor, out HandController controller))
         {
             controller.SetImpulse();
         }
@@ -493,14 +380,9 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
         HUDManager.HideHUD();
 
-        // if (TryGetSocketInteractorManager(socketCompatibilityLayerManager, out SocketInteractorManager socketInteractorManager))
-        // {
-        //     socketInteractorManager.EnablePreview(false);
-        // }
-
         foreach(SocketCompatibilityLayerManager manager in socketCompatibilityLayerManagers)
         {
-            if (TryGetSocketInteractorManager(manager, out SocketInteractorManager socketInteractorManager))
+            if (TryGet.TryGetSocketInteractorManager(manager, out SocketInteractorManager socketInteractorManager))
             {
                 socketInteractorManager.EnablePreview(false);
             }
@@ -530,18 +412,18 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
     public void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics, object value = null)
     {
-        // Log($"{Time.time} {gameObject.name} {className} OnActuation:Actuation : {actuation} Value : {value}");
+        Log($"{Time.time} {gameObject.name} {className} OnActuation:Actuation : {actuation} Value : {value}");
 
         if (!IsHeld) return;
         
-        if ((int) characteristics == (int) HandController.LeftHand)
-        {
-            Log($"{Time.time} {gameObject.name} {className} OnActuation:Left Hand Actuation : {actuation}");
-        }
-        else if ((int) characteristics == (int) HandController.RightHand)
-        {
-            Log($"{Time.time} {gameObject.name} {className} OnActuation:Right Hand Actuation : {actuation}");
-        }
+        // if ((int) characteristics == (int) HandController.LeftHand)
+        // {
+        //     Log($"{Time.time} {gameObject.name} {className} OnActuation:Left Hand Actuation : {actuation}");
+        // }
+        // else if ((int) characteristics == (int) HandController.RightHand)
+        // {
+        //     Log($"{Time.time} {gameObject.name} {className} OnActuation:Right Hand Actuation : {actuation}");
+        // }
 
         if (actuation.HasFlag(Actuation.Thumbstick_Left) || actuation.HasFlag(Actuation.Thumbstick_Right))
         {
@@ -553,19 +435,21 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
     private void HandleUINagivation(Actuation actuation)
     {
+        Log($"{Time.time} {gameObject.name} {className} HandleUINagivation:Actuation : {actuation}");
+
         bool success = false;
-        int idx = 0;
+        int idx = default(int);
 
         if (actuation.HasFlag(Actuation.Thumbstick_Left))
         {
-            if (activeHUDManager.TryGetPreviousIndex(out idx))
+            if (hudsManager.TryGetPreviousIndex(out idx))
             {
                 success = true;
             }
         }
         else if (actuation.HasFlag(Actuation.Thumbstick_Right))
         {
-            if (activeHUDManager.TryGetNextIndex(out idx))
+            if (hudsManager.TryGetNextIndex(out idx))
             {
                 success = true;
             }
@@ -574,31 +458,35 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         if (success)
         {
             AudioSource.PlayClipAtPoint(navigationClip, transform.position, 1.0f);
-            EnableHUD(idx);
+            ShowHUD(idx);
         }
     }
 
-    private void EnableDefaultHUD()
+    private void ShowPrimaryHUD()
     {
-        EnableHUD((int) Interactables.Gun.HUDManager.Identity.Primary);
+        Log($"{Time.time} {this.gameObject.name}.ShowPrimaryHUD");
+
+        ShowHUD((int) Interactables.Gun.HUDManager.Identity.Primary);
     }
 
-    private void EnableHUD(int idx)
+    private void ShowHUD(int idx)
     {
+        Log($"{Time.time} {this.gameObject.name}.ShowHUD:Idx : {idx}");
+
         Interactables.Gun.HUDManager hudManager;
 
-        hudManager = hudManagers[activeHUDManager.ActiveIdx];
+        hudManager = hudManagers[hudsManager.ActiveIdx];
         hudManager.HideHUD();
 
         hudManager = hudManagers[idx];
         hudManager.ShowHUD();
 
-        activeHUDManager.ActiveIdx = idx;
+        hudsManager.ActiveIdx = idx;
     }
 
     public void OnSocketCompatiblityLayerEvent(SocketCompatibilityLayerManager manager, SocketCompatibilityLayerManager.EventType eventType, GameObject gameObject)
     {
-        Log($"{Time.time} {this.gameObject.name}.OnSocketCompatiblityLayer:GameObject : {gameObject.name} Type : {eventType}");
+        Log($"{Time.time} {this.gameObject.name}.OnSocketCompatiblityLayer:Manager : {manager.name} GameObject : {gameObject.name} Type : {eventType}");
 
         switch (eventType)
         {
@@ -650,15 +538,17 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         }
     }
 
-    public bool TryGetCompatibleLayer(GameObject gameObject, out SocketCompatibilityLayerManager socketCompatibilityLayerManager)
+    public bool TryGetCompatibleLayer(string tag, out SocketCompatibilityLayerManager socketCompatibilityLayerManager)
     {
+        Log($"{Time.time} {gameObject.name} {className} TryGetCompatibleLayer:Tag : {tag}");
+
         SocketCompatibilityLayerManager manager = null;
 
-        if (gameObject.CompareTag("Compact Flashlight"))
+        if (tag.Equals("Compact Flashlight"))
         {
             manager = socketCompatibilityLayerManagers.Where(s => s.CompareTag("Flashlight Socket")).FirstOrDefault();
         }
-        else if (gameObject.CompareTag("Laser Sight"))
+        else if (tag.Equals("Laser Sight"))
         {
             manager = socketCompatibilityLayerManagers.Where(s => s.CompareTag("Laser Sight Socket")).FirstOrDefault();
         }
@@ -669,13 +559,13 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
     private void HandleHoldingState(bool isTrue, IInteractable obj)
     {
-        Log($"{Time.time} {this.gameObject.name} {className}.HandleHoldingState:Is True: {isTrue} GameObject : {obj.GetGameObject().name}");
+        Log($"{Time.time} {this.gameObject.name} {className}.HandleHoldingState:IsTrue: {isTrue} GameObject : {obj.GetGameObject().name}");
         
         var gameObject = obj.GetGameObject();
 
-        if (TryGetCompatibleLayer(gameObject, out SocketCompatibilityLayerManager socketCompatibilityLayerManager))
+        if (TryGetCompatibleLayer(gameObject.tag, out SocketCompatibilityLayerManager socketCompatibilityLayerManager))
         {
-            if (TryGetSocketInteractorManager(socketCompatibilityLayerManager, out SocketInteractorManager socketInteractorManager))
+            if (TryGet.TryGetSocketInteractorManager(socketCompatibilityLayerManager, out SocketInteractorManager socketInteractorManager))
             {
                 if (!socketInteractorManager.IsOccupied)
                 {
@@ -687,39 +577,106 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
     private void OnSocketCompatibilityLayerEntryEvent(SocketCompatibilityLayerManager manager, GameObject gameObject)
     {
-        if (TryGet.TryGetRootResolver(gameObject, out GameObject rootGameObject))
-        {
-            gameObject = rootGameObject;
-        }
-        
-        Log($"{Time.time} {this.gameObject.name}.OnSocketCompatibilityLayerEntryEvent:GameObject : {gameObject.name}");
+        Log($"{Time.time} {this.gameObject.name}.OnSocketCompatibilityLayerEntryEvent:Manager : {manager.name} GameObject : {gameObject.name}");
 
-        if (TryGetSocketInteractorManager(manager, out SocketInteractorManager socketInteractorManager))
+        if (TryGet.TryGetSocketInteractorManager(manager, out SocketInteractorManager socketInteractorManager))
         {
-            if ((!socketInteractorManager.IsOccupied) && (gameObject.CompareTag("Compact Flashlight")))
+            if (socketInteractorManager.IsOccupied) return;
+
+            if (gameObject.CompareTag("Compact Flashlight"))
             {
-                if (TryGet.TryIdentifyController(interactor, out HandController controller))
-                {
-                    if (TryGet.TryGetOpposingController(controller, out HandController opposingController))
-                    {
-                        if ((opposingController.IsHolding) && (GameObject.ReferenceEquals(opposingController.Interactable.GetGameObject(), gameObject)))
-                        {
-                            socketInteractorManager.EnablePreview(true);
+                EnableSocketCheck(socketInteractorManager, gameObject, new string[] { "Default", "Gun Compatible Flashlight" });
+            }
+            else if (gameObject.CompareTag("Laser Sight"))
+            {
+                EnableSocketCheck(socketInteractorManager, gameObject, new string[] { "Default", "Gun Compatible Laser Sight" });
+            }
+        }
+    }
 
-                            if (gameObject.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
-                            {
-                                interactable.interactionLayers = InteractionLayerMask.GetMask(new string[] { "Default", "Gun Compatible Flashlight" });
-                                socketInteractorManager.EnableSocket(true);
-                            }
-                        }
-                    }
+    private void EnableSocketCheck(SocketInteractorManager manager, GameObject gameObject, string[] layerNames)
+    {
+        var layers = new StringBuilder();
+
+        foreach (string value in layerNames)
+        {
+            layers.Append(((layers.Length == 0) ? $"[{value}]" : $" [{value}]"));
+        }
+
+        Log($"{Time.time} {this.gameObject.name}.EnableSocketCheck:Manager : {manager.gameObject.name} GameObject : {gameObject.name} LayerNames : {layers.ToString()}");
+
+        if (TryGet.TryGetIdentifyController(interactor, out HandController controller))
+        {
+            if (TryGet.TryGetOpposingController(controller, out HandController opposingController))
+            {
+                if ((opposingController.IsHolding) && (GameObject.ReferenceEquals(opposingController.Interactable.GetGameObject(), gameObject)))
+                {
+                    EnableSocket(manager, gameObject, layerNames);
                 }
             }
+        }
+    }
 
-            if ((!socketInteractorManager.IsOccupied) && (gameObject.CompareTag("Laser Sight")))
+    private void EnableSocket(SocketInteractorManager manager, GameObject gameObject, string[] layerNames)
+    {
+        var layers = new StringBuilder();
+
+        foreach (string value in layerNames)
+        {
+            layers.Append(((layers.Length == 0) ? $"[{value}]" : $" [{value}]"));
+        }
+
+        Log($"{Time.time} {this.gameObject.name}.EnableSocket:Manager : {manager.gameObject.name} GameObject : {gameObject.name} LayerNames : {layers.ToString()}");
+        
+        manager.EnablePreview(true);
+
+        if (gameObject.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
+        {
+            interactable.interactionLayers = InteractionLayerMask.GetMask(layerNames);
+            manager.EnableSocket(true);
+        }
+    }
+
+    private void DisableSocketCheck(SocketInteractorManager manager, GameObject gameObject, string[] layerNames)
+    {
+        var layers = new StringBuilder();
+
+        foreach (string value in layerNames)
+        {
+            layers.Append(((layers.Length == 0) ? $"[{value}]" : $" [{value}]"));
+        }
+
+        Log($"{Time.time} {this.gameObject.name}.DisableSocketCheck:Manager : {manager.gameObject.name} GameObject : {gameObject.name} LayerNames : {layers.ToString()}");
+
+        if (TryGet.TryGetIdentifyController(interactor, out HandController controller))
+        {
+            if (TryGet.TryGetOpposingController(controller, out HandController opposingController))
             {
-                // TODO
+                if ((opposingController.IsHolding) && (GameObject.ReferenceEquals(opposingController.Interactable.GetGameObject(), gameObject)))
+                {
+                    DisableSocket(manager, gameObject, layerNames);
+                }
             }
+        }
+    }
+
+    private void DisableSocket(SocketInteractorManager manager, GameObject gameObject, string[] layerNames)
+    {
+        var layers = new StringBuilder();
+
+        foreach (string value in layerNames)
+        {
+            layers.Append(((layers.Length == 0) ? $"[{value}]" : $" [{value}]"));
+        }
+
+        Log($"{Time.time} {this.gameObject.name}.DisableSocket:Manager : {manager.gameObject.name} GameObject : {gameObject.name} LayerNames : {layers.ToString()}");
+        
+        manager.EnablePreview(false);
+
+        if (gameObject.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
+        {
+            manager.EnableSocket(false);
+            interactable.interactionLayers = InteractionLayerMask.GetMask(layerNames);
         }
     }
 
@@ -747,30 +704,50 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
     {
         Log($"{Time.time} {this.gameObject.name}.OnSocketSelectEntryEvent:GameObject : {gameObject.name}");
 
-        if (gameObject.TryGetComponent<FlashlightInteractableManager>(out var flashlightManager))
+        if (gameObject.CompareTag("Flashlight"))
         {
-            /*
-            Optional implementation that notifies the child docked flashlight of
-            the stage change. This is however not required as the socket interactor manager
-            notifies the flashlight instance directly via OnDockStatusChange.
-            */
-#if false
-            flashlightManager.OnDockStatusChange(true);
-#endif
-
-            var id = Interactables.Gun.HUDManager.Identity.Flashlight;
-
-            activeHUDManager.AddHUD((int) id);
-            
-            if (TryGetHUDManagerById(id, out Interactables.Gun.HUDManager hudManager))
+            if (gameObject.TryGetComponent<FlashlightInteractableManager>(out var flashlightManager))
             {
-                if (flashlightManager.State == FlashlightInteractableManager.ActiveState.On)
+                var id = Interactables.Gun.HUDManager.Identity.Flashlight;
+
+                hudsManager.AddHUD((int) id);
+                
+                if (TryGetHUDManagerById(id, out Interactables.Gun.HUDManager hudManager))
                 {
-                    ((Interactables.Gun.FlashlightHUDManager) hudManager).SetState(Enum.GunInteractableEnums.State.Active);
+                    if (flashlightManager.State == FlashlightInteractableManager.ActiveState.On)
+                    {
+                        ((Interactables.Gun.FlashlightHUDManager) hudManager).SetState(Enum.GunInteractableEnums.State.Active);
+                    }
+                    else
+                    {
+                        ((Interactables.Gun.FlashlightHUDManager) hudManager).SetState(Enum.GunInteractableEnums.State.Inactive);
+                    }
                 }
-                else
+            }
+        }
+        else if (gameObject.CompareTag("Laser Sight"))
+        {
+            if (gameObject.TryGetComponent<LaserSightInteractableManager>(out var laserSightManager))
+            {
+                var id = Interactables.Gun.HUDManager.Identity.LaserSight;
+
+                hudsManager.AddHUD((int) id);
+                
+                // foreach (int idx in hudsManager.ActiveHUDs)
+                // {
+                //     Log($"{Time.time} {this.gameObject.name}.OnSocketSelectEntryEvent:HUDManager Idx : {idx}");
+                // }
+
+                if (TryGetHUDManagerById(id, out Interactables.Gun.HUDManager hudManager))
                 {
-                    ((Interactables.Gun.FlashlightHUDManager) hudManager).SetState(Enum.GunInteractableEnums.State.Inactive);
+                    if (laserSightManager.State == LaserSightInteractableManager.ActiveState.On)
+                    {
+                        ((Interactables.Gun.LaserSightHUDManager) hudManager).SetState(Enum.GunInteractableEnums.State.Active);
+                    }
+                    else
+                    {
+                        ((Interactables.Gun.LaserSightHUDManager) hudManager).SetState(Enum.GunInteractableEnums.State.Inactive);
+                    }
                 }
             }
         }
@@ -782,15 +759,6 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
         if (gameObject.TryGetComponent<FlashlightInteractableManager>(out var flashlightManager))
         {
-            /*
-            Optional implementation that notifies the child docked flashlight of
-            the stage change. This is however not required as the socket interactor manager
-            notifies the flashlight instance directly via OnDockStatusChange.
-            */
-    #if false
-        flashlightManager.OnDockStatusChange(false);
-    #endif
-
             var id = Interactables.Gun.HUDManager.Identity.Flashlight;
 
             if (TryGetHUDManagerById(id, out Interactables.Gun.HUDManager hudManager))
@@ -798,15 +766,24 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
                 ((Interactables.Gun.FlashlightHUDManager) hudManager).SetState(Enum.GunInteractableEnums.State.Inactive);
             }
             
-            if (activeHUDManager.RemoveHUD((int) id))
+            if (hudsManager.RemoveHUD((int) id))
             {
-                EnableDefaultHUD();
+                ShowPrimaryHUD();
             }
         }
-
-        if (gameObject.TryGetComponent<LaserSightInteractableManager>(out var laserSightManager))
+        else if (gameObject.TryGetComponent<LaserSightInteractableManager>(out var laserSightManager))
         {
-            // TODO
+            var id = Interactables.Gun.HUDManager.Identity.LaserSight;
+
+            if (TryGetHUDManagerById(id, out Interactables.Gun.HUDManager hudManager))
+            {
+                ((Interactables.Gun.LaserSightHUDManager) hudManager).SetState(Enum.GunInteractableEnums.State.Inactive);
+            }
+            
+            if (hudsManager.RemoveHUD((int) id))
+            {
+                ShowPrimaryHUD();
+            }
         }
     }
 
@@ -817,39 +794,18 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
     private void OnSocketCompatibilityLayerExitEvent(SocketCompatibilityLayerManager manager, GameObject gameObject)
     {
-        if (TryGet.TryGetRootResolver(gameObject, out GameObject rootGameObject))
-        {
-            gameObject = rootGameObject;
-        }
+        Log($"{Time.time} {this.gameObject.name}.OnSocketCompatibilityLayerExitEvent:Manager : {manager.name} GameObject : {gameObject.name}");
 
-        Log($"{Time.time} {this.gameObject.name}.OnSocketCompatibilityLayerExitEvent:GameObject : {gameObject.name}");
-
-        if (gameObject.CompareTag("Compact Flashlight"))
+        if (TryGet.TryGetSocketInteractorManager(manager, out SocketInteractorManager socketInteractorManager))
         {
-            if (TryGet.TryIdentifyController(interactor, out HandController controller))
+            if (gameObject.CompareTag("Compact Flashlight"))
             {
-                if (TryGet.TryGetOpposingController(controller, out HandController opposingController))
-                {
-                    if ((opposingController.IsHolding) && (GameObject.ReferenceEquals(opposingController.Interactable.GetGameObject(), gameObject)))
-                    {
-                        if (TryGetSocketInteractorManager(manager, out SocketInteractorManager socketInteractorManager))
-                        {
-                            socketInteractorManager.EnablePreview(false);
-
-                            if (gameObject.TryGetComponent<XRGrabInteractable>(out XRGrabInteractable interactable))
-                            {
-                                socketInteractorManager.EnableSocket(false);
-                                interactable.interactionLayers = InteractionLayerMask.GetMask(new string[] { "Default", "Flashlight" });
-                            }
-                        }
-                    }
-                }
+                DisableSocketCheck(socketInteractorManager, gameObject, new string[] { "Default", "Flashlight" });
             }
-        }
-
-        if (gameObject.CompareTag("Laser Sight"))
-        {
-            // TODO
+            else if (gameObject.CompareTag("Laser Sight"))
+            {
+                DisableSocketCheck(socketInteractorManager, gameObject, new string[] { "Default", "Laser Sight" });
+            }
         }
     }
 

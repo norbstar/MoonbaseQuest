@@ -114,7 +114,7 @@ public class DockableGunInteractableManager : DockableFocusableInteractableManag
                     hitPrefabInstance.SetActive(true);
                 }
 
-                if (TryGet.TryIdentifyController(interactor, out HandController controller))
+                if (TryGet.TryGetIdentifyController(interactor, out HandController controller))
                 {
                     var renderer = hitPrefabInstance.GetComponent<Renderer>() as Renderer;
                     var device = controller.InputDevice;
@@ -256,7 +256,7 @@ public class DockableGunInteractableManager : DockableFocusableInteractableManag
         animator.SetTrigger("Fire");
         AudioSource.PlayClipAtPoint(hitClip, transform.position, 1.0f);
 
-        if (TryGet.TryIdentifyController(interactor, out HandController controller))
+        if (TryGet.TryGetIdentifyController(interactor, out HandController controller))
         {
             controller.SetImpulse();
         }

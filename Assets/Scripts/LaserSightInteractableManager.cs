@@ -59,30 +59,29 @@ public class LaserSightInteractableManager : FocusableInteractableManager, IActu
 
     void FixedUpdate()
     {
-        if (laser.activeSelf)
+        if (!laser.activeSelf)
         {
-            var ray = new Ray(spawnPoint.transform.position, spawnPoint.transform.up);
+            pointPrefabInstance?.SetActive(false);
+            return;
+        }
 
-            if (Physics.Raycast(ray.origin, ray.direction, out RaycastHit hit, Mathf.Infinity))
+        var ray = new Ray(spawnPoint.transform.position, spawnPoint.transform.up);
+
+        if (Physics.Raycast(ray.origin, ray.direction, out RaycastHit hit, Mathf.Infinity))
+        {
+            var objectHit = hit.transform.gameObject;
+            var point = hit.point;
+
+            if (pointPrefabInstance == null)
             {
-                var objectHit = hit.transform.gameObject;
-                var point = hit.point;
-
-                if (pointPrefabInstance == null)
-                {
-                    pointPrefabInstance = Instantiate(pointPrefab, point, Quaternion.identity);
-                }
-                else
-                {
-                    pointPrefabInstance.transform.position = point;
-                    pointPrefabInstance.SetActive(true);
-                }
+                pointPrefabInstance = Instantiate(pointPrefab, point, Quaternion.identity);
             }
-        }
-        else
-        {
-            pointPrefabInstance.SetActive(false);
-        }
+            else
+            {
+                pointPrefabInstance.transform.position = point;
+                pointPrefabInstance.SetActive(true);
+            }
+        }  
     }
 
     public void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics, object value = null)

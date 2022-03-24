@@ -13,6 +13,9 @@ public class SocketCompatibilityLayerManager : BaseManager
         OnTriggerExit
     }
 
+    [Header("Config")]
+    [SerializeField] string tagName;
+
     public delegate void Event(SocketCompatibilityLayerManager manager, EventType type, GameObject gameObject);
     public event Event EventReceived;
 
@@ -32,22 +35,34 @@ public class SocketCompatibilityLayerManager : BaseManager
     public void OnTriggerEnter(Collider collider)
     {
         var trigger = collider.gameObject;
-        Log($"{Time.time} {gameObject.name} {className} OnTriggerEnter:GameObject : {trigger.name}");
 
-        if (EventReceived != null)
+        if (TryGet.TryGetRootResolver(trigger, out GameObject rootGameObject))
         {
-            EventReceived(this, EventType.OnTriggerEnter, trigger);
+            Log($"{Time.time} {gameObject.name} {className} OnTriggerEnter:Root GameObject : {rootGameObject.name} Tag : {rootGameObject.tag}");
+
+            if (!rootGameObject.tag.Equals(tagName)) return;
+        
+            if (EventReceived != null)
+            {
+                EventReceived(this, EventType.OnTriggerEnter, rootGameObject);
+            }
         }
     }
 
     public void OnTriggerExit(Collider collider)
     {
         var trigger = collider.gameObject;
-        Log($"{Time.time} {gameObject.name} {className} OnTriggerExit:GameObject : {trigger.name}");
 
-        if (EventReceived != null)
+        if (TryGet.TryGetRootResolver(trigger, out GameObject rootGameObject))
         {
-            EventReceived(this, EventType.OnTriggerExit, trigger);
+            if (!rootGameObject.tag.Equals(tagName)) return;
+
+            Log($"{Time.time} {gameObject.name} {className} OnTriggerExit:GameObject : {rootGameObject.name}");
+
+            if (EventReceived != null)
+            {
+                EventReceived(this, EventType.OnTriggerExit, rootGameObject);
+            }
         }
     }
 }

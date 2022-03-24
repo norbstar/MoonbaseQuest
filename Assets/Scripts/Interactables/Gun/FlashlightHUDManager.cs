@@ -44,19 +44,6 @@ namespace Interactables.Gun
         {
             Log($"{Time.time} {gameObject.name} {className} AlternateIntent");
 
-            if (GunInteractableManager.TryGetCompatibleLayer(gameObject, out SocketCompatibilityLayerManager socketCompatibilityLayerManager))
-            {
-                if (GunInteractableManager.TryGetSocketInteractorManager(socketCompatibilityLayerManager, out SocketInteractorManager socketInteractorManager))
-                {
-                    if (!socketInteractorManager.IsOccupied) return;
-                }
-            }
-
-            // if (GunInteractableManager.TryGetSocketInteractorManager(GunInteractableManager.SocketCompatibilityLayerManager, out SocketInteractorManager socketInteractorManager))
-            // {
-            //     if (!socketInteractorManager.IsOccupied) return;
-            // }
-            
             var altState = (state == Enum.GunInteractableEnums.State.Active) ? Enum.GunInteractableEnums.State.Inactive : Enum.GunInteractableEnums.State.Active;
             SetState(altState);
         }
@@ -65,9 +52,9 @@ namespace Interactables.Gun
         {
             Log($"{Time.time} {gameObject.name} {className} SetState: {state}");
             
-            if (GunInteractableManager.TryGetCompatibleLayer(gameObject, out SocketCompatibilityLayerManager socketCompatibilityLayerManager))
+            if (GunInteractableManager.TryGetCompatibleLayer("Compact Flashlight", out SocketCompatibilityLayerManager socketCompatibilityLayerManager))
             {
-                if (GunInteractableManager.TryGetSocketInteractorManager(socketCompatibilityLayerManager, out SocketInteractorManager socketInteractorManager))
+                if (TryGet.TryGetSocketInteractorManager(socketCompatibilityLayerManager, out SocketInteractorManager socketInteractorManager))
                 {
                     if (!socketInteractorManager.IsOccupied) return;
 
@@ -99,38 +86,6 @@ namespace Interactables.Gun
                     }
                 }
             }
-
-            // if (GunInteractableManager.TryGetSocketInteractorManager(GunInteractableManager.SocketCompatibilityLayerManager, out SocketInteractorManager socketInteractorManager))
-            // {
-            //     if (!socketInteractorManager.IsOccupied) return;
-
-            //     var dockedObject = socketInteractorManager.Data.gameObject;
-
-            //     if (dockedObject.TryGetComponent<FlashlightInteractableManager>(out var manager))
-            //     {
-            //         switch (state)
-            //         {
-            //             case Enum.GunInteractableEnums.State.Active:
-            //                 if (this.state != Enum.GunInteractableEnums.State.Active)
-            //                 {
-            //                     manager.State = FlashlightInteractableManager.ActiveState.On;
-            //                     AudioSource.PlayClipAtPoint(GunInteractableManager.EngagedClip, transform.position, 1.0f);
-            //                 }
-            //                 break;
-
-            //             case Enum.GunInteractableEnums.State.Inactive:
-            //                 if (this.state != Enum.GunInteractableEnums.State.Inactive)
-            //                 {
-            //                     manager.State = FlashlightInteractableManager.ActiveState.Off;
-            //                     AudioSource.PlayClipAtPoint(GunInteractableManager.DisengagedClip, transform.position, 1.0f);            
-            //                 }
-            //                 break;
-            //         }
-
-            //         canvasManager.SetState(state);
-            //         this.state = state;
-            //     }
-            // }
         }
     }
 }
