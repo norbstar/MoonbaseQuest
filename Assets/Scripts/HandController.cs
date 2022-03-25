@@ -250,7 +250,7 @@ public class HandController : BaseManager
             actuation &= ~Actuation.Thumbstick_Right;
         }
 
-        if (value.y <= -thumbstickThreshold.y)
+        if (value.y > thumbstickThreshold.y)
         {
             if (!actuation.HasFlag(Actuation.Thumbstick_Up))
             {
@@ -262,7 +262,7 @@ public class HandController : BaseManager
             actuation &= ~Actuation.Thumbstick_Up;
         }
         
-        if (value.y > thumbstickThreshold.y)
+        if (value.y <= -thumbstickThreshold.y)
         {
             if (!actuation.HasFlag(Actuation.Thumbstick_Down))
             {

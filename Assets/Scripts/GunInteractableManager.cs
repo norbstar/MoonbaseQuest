@@ -71,8 +71,9 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
     public AudioClip NavigationClip { get { return navigationClip;} }
 
     [Header("Config")]
-    [SerializeField] bool enableHomeButton = true;
+    [SerializeField] bool enableQuickHome = true;
     [SerializeField] bool switchHUDOnDock = true;
+    [SerializeField] float actuationDelay = 0.5f;
 
     public Mode Mode { get { return mode; } set { mode = value; } }
 
@@ -95,6 +96,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
     private int heatIndex;
     private Interactables.Gun.HUDsManager hudsManager;
     private Interactables.Gun.HomeHUDManager homeHUD;
+    private float lastActuation;
 
     protected override void Awake()
     {
@@ -423,14 +425,21 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         //     Log($"{Time.time} {gameObject.name} {className} OnActuation:Right Hand Actuation : {actuation}");
         // }
 
-        if (actuation.HasFlag(Actuation.Thumbstick_Left) || actuation.HasFlag(Actuation.Thumbstick_Right))
-        {
-            HandleUINagivation(actuation);
-        }
+        bool actuate = (Time.unscaledTime > lastActuation + actuationDelay);
 
-        if (enableHomeButton && actuation.HasFlag(Actuation.Button_BY) && !IsHUDShown((int) Interactables.Gun.HUDManager.Identity.Home))
+        if (actuate)
         {
-            ShowHUD((int) Interactables.Gun.HUDManager.Identity.Home);
+            if (actuation.HasFlag(Actuation.Thumbstick_Left) || actuation.HasFlag(Actuation.Thumbstick_Right))
+            {
+                HandleUINagivation(actuation);
+            }
+
+            if (enableQuickHome && actuation.HasFlag(Actuation.Thumbstick_Down) && !IsHUDShown((int) Interactables.Gun.HUDManager.Identity.Home))
+            {
+                ShowHUD((int) Interactables.Gun.HUDManager.Identity.Home);
+            }
+
+            lastActuation = Time.unscaledTime;
         }
 
         hudContainerManager.HUDManager.OnActuation(actuation, characteristics);
