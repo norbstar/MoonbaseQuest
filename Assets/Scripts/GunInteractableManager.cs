@@ -668,11 +668,11 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
                 {
                     if (flashlightManager.State == FlashlightInteractableManager.ActiveState.On)
                     {
-                        ((Interactables.Gun.FlashlightHUDManager) hudManager).SetState(Enum.GunInteractableEnums.State.Active);
+                        ((Interactables.Gun.FlashlightHUDManager) hudManager).SetStateNoAudio(Enum.GunInteractableEnums.State.Active);
                     }
                     else
                     {
-                        ((Interactables.Gun.FlashlightHUDManager) hudManager).SetState(Enum.GunInteractableEnums.State.Inactive);
+                        ((Interactables.Gun.FlashlightHUDManager) hudManager).SetStateNoAudio(Enum.GunInteractableEnums.State.Inactive);
                     }
                 }
             }
@@ -690,11 +690,11 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
                 {
                     if (laserSightManager.State == LaserSightInteractableManager.ActiveState.On)
                     {
-                        ((Interactables.Gun.LaserSightHUDManager) hudManager).SetState(Enum.GunInteractableEnums.State.Active);
+                        ((Interactables.Gun.LaserSightHUDManager) hudManager).SetStateNoAudio(Enum.GunInteractableEnums.State.Active);
                     }
                     else
                     {
-                        ((Interactables.Gun.LaserSightHUDManager) hudManager).SetState(Enum.GunInteractableEnums.State.Inactive);
+                        ((Interactables.Gun.LaserSightHUDManager) hudManager).SetStateNoAudio(Enum.GunInteractableEnums.State.Inactive);
                     }
                 }
             }

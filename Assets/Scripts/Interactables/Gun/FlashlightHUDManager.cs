@@ -48,7 +48,12 @@ namespace Interactables.Gun
             SetState(altState);
         }
 
-        public void SetState(Enum.GunInteractableEnums.State state)
+        public void SetStateNoAudio(Enum.GunInteractableEnums.State state)
+        {
+            SetState(state, false);
+        }
+
+        public void SetState(Enum.GunInteractableEnums.State state, bool audible = true)
         {
             Log($"{Time.time} {gameObject.name} {className} SetState: {state}");
             
@@ -68,7 +73,11 @@ namespace Interactables.Gun
                                 if (this.state != Enum.GunInteractableEnums.State.Active)
                                 {
                                     manager.State = FlashlightInteractableManager.ActiveState.On;
-                                    AudioSource.PlayClipAtPoint(GunInteractableManager.EngagedClip, transform.position, 1.0f);
+
+                                    if (audible)
+                                    {
+                                        AudioSource.PlayClipAtPoint(GunInteractableManager.EngagedClip, transform.position, 1.0f);
+                                    }
                                 }
                                 break;
 
@@ -76,7 +85,11 @@ namespace Interactables.Gun
                                 if (this.state != Enum.GunInteractableEnums.State.Inactive)
                                 {
                                     manager.State = FlashlightInteractableManager.ActiveState.Off;
-                                    AudioSource.PlayClipAtPoint(GunInteractableManager.DisengagedClip, transform.position, 1.0f);            
+
+                                    if (audible)
+                                    {
+                                        AudioSource.PlayClipAtPoint(GunInteractableManager.DisengagedClip, transform.position, 1.0f);
+                                    }
                                 }
                                 break;
                         }
