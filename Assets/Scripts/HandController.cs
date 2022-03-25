@@ -379,6 +379,11 @@ public class HandController : BaseManager
         {
             gameObject?.GetComponent<IActuation>()?.OnActuation(actuation, characteristics);
 
+            // if (gameObject?.TryGetComponent<IActuation>(out IActuation callback))
+            // {
+            //     callback.OnActuation(actuation, characteristics);
+            // }
+
             if (ActuationEventReceived != null)
             {
                 ActuationEventReceived.Invoke(actuation, characteristics);
@@ -387,7 +392,7 @@ public class HandController : BaseManager
         
         if (RawDataEventReceived != null)
         {
-            RawDataEventReceived.Invoke(new RawData
+            var rawData = new RawData
             {
                 triggerValue = triggerValue,
                 gripValue = gripValue,
@@ -396,7 +401,16 @@ public class HandController : BaseManager
                 thumbstickClickValue = thumbstickClickValue,
                 menuButtonValue = menuButtonValue,
                 thumbstickValue = thumbstickValue
-            }, characteristics);
+            };
+
+            gameObject?.GetComponent<IRawData>()?.OnRawData(rawData);
+            
+            // if (gameObject?.TryGetComponent<IRawData>(out IRawData callback))
+            // {
+            //     callback.OnRawData(rawData);
+            // }
+
+            RawDataEventReceived.Invoke(rawData, characteristics);
         }
         
         UpdateState();

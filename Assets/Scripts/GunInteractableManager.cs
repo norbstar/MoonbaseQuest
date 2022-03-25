@@ -13,7 +13,7 @@ using static Enum.ControllerEnums;
 
 [RequireComponent(typeof(XRGrabInteractable))]
 [RequireComponent(typeof(CurveCreator))]
-public class GunInteractableManager : FocusableInteractableManager, IActuation
+public class GunInteractableManager : FocusableInteractableManager, IActuation, IRawData
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
@@ -443,6 +443,15 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         }
 
         hudContainerManager.HUDManager.OnActuation(actuation, characteristics);
+    }
+
+    public void OnRawData(HandController.RawData rawData)
+    {
+        Log($"{Time.time} {gameObject.name} {className} OnRawData:RawData : {rawData}");
+
+        if (!IsHeld) return;
+
+        // TODO
     }
 
     private void HandleUINagivation(Actuation actuation)
