@@ -9,7 +9,7 @@ namespace Interactables.Gun
     {
         public enum Identity
         {
-            Primary,
+            Home,
             Flashlight,
             LaserSight
         }
@@ -19,16 +19,6 @@ namespace Interactables.Gun
         [SerializeField] GunInteractableManager gunInteractableManager;
 
         protected GunInteractableManager GunInteractableManager { get { return gunInteractableManager; } }
-
-        void OnEnable()
-        {
-            ResolveDependencies();
-        }
-
-        private void ResolveDependencies()
-        {
-            gunInteractableManager = gameObject.transform.parent.parent.gameObject.GetComponent<GunInteractableManager>() as GunInteractableManager;
-        }
 
         public Identity Id { get { return id; } }
 

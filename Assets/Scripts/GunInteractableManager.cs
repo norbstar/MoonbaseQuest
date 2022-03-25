@@ -29,7 +29,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
     [Header("UI")]
     [SerializeField] GunOverheatCanvasManager overheatCanvasManager;
-    [SerializeField] List<Interactables.Gun.HUDManager> hudManagers;
+    [SerializeField] Interactables.Gun.HUDContainerManager hudContainerManager;
 
     [Header("Docking")]
     [SerializeField] bool enableAutoDock = true;
@@ -70,16 +70,11 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
     [SerializeField] AudioClip navigationClip;
     public AudioClip NavigationClip { get { return navigationClip;} }
 
-    public Mode Mode { get { return mode; } set { mode = value; } }
+    [Header("Config")]
+    [SerializeField] bool enableHomeButton = true;
+    [SerializeField] bool switchHUDOnDock = true;
 
-    private Interactables.Gun.HUDManager HUDManager
-    {
-        get
-        {
-            var activeIdx = hudsManager.ActiveIdx;
-            return hudManagers[activeIdx];
-        }
-    }
+    public Mode Mode { get { return mode; } set { mode = value; } }
 
     private new Camera camera;
     private CurveCreator curveCreator;
@@ -99,6 +94,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
     private IList<float> heatValues;
     private int heatIndex;
     private Interactables.Gun.HUDsManager hudsManager;
+    private Interactables.Gun.HomeHUDManager homeHUD;
 
     protected override void Awake()
     {
@@ -112,7 +108,6 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         overheatCanvasManager.SetMaxValue(overLoadThreshold);
         heatValues = curveCreator.Values;
 
-        hudsManager = new Interactables.Gun.HUDsManager(hudManagers);
         StartCoroutine(ManageHeatCoroutine());
     }
 
@@ -121,6 +116,18 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         curveCreator = GetComponent<CurveCreator>() as CurveCreator;
         cameraManager = camera.GetComponent<MainCameraManager>() as MainCameraManager;
         hipDocksManager = cameraManager.HipDocksManager;
+        hudsManager = hudContainerManager.HUDsManager;
+    }
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        var id = Interactables.Gun.HUDManager.Identity.Home;
+
+        if (hudContainerManager.TryGetHUDManagerById(id, out Interactables.Gun.HUDManager hudManager))
+        {
+            homeHUD = (Interactables.Gun.HomeHUDManager) hudManager;
+        }
     }
 
     void OnEnable()
@@ -228,22 +235,15 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         if (controller != null)
         {
             var device = controller.InputDevice;
+            var hudContainer = hudContainerManager.gameObject;
 
             if ((int) device.characteristics == (int) HandController.LeftHand)
             {
-                foreach (Interactables.Gun.HUDManager hudManager in hudManagers)
-                {
-                    var gameObject = hudManager.GetCanvas().gameObject;
-                    gameObject.transform.localPosition = new Vector3(-Mathf.Abs(gameObject.transform.localPosition.x), 0.06f, 0f);
-                }
+                hudContainer.transform.localPosition = new Vector3(-Mathf.Abs(hudContainer.transform.localPosition.x), 0.06f, 0f);
             }
             else if ((int) device.characteristics == (int) HandController.RightHand)
             {
-                foreach (Interactables.Gun.HUDManager hudManager in hudManagers)
-                {
-                    var gameObject = hudManager.GetCanvas().gameObject;
-                    gameObject.transform.localPosition = new Vector3(Mathf.Abs(gameObject.transform.localPosition.x), 0.06f, 0f);
-                }
+                hudContainer.transform.localPosition = new Vector3(Mathf.Abs(hudContainer.transform.localPosition.x), 0.06f, 0f);
             }
 
             if (hipDocksManager.TryIsDocked(gameObject, out HipDocksManager.DockID dockID))
@@ -251,7 +251,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
                 hipDocksManager.UndockWeapon(gameObject);
             }
 
-            ShowPrimaryHUD();
+            ShowHomeHUD(false);
         }
     }
 
@@ -276,7 +276,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
 
     private IEnumerator FireRepeat()
     {
-        while (((Interactables.Gun.PrimaryHUDManager) HUDManager).AmmoCount > 0)
+        while (homeHUD.AmmoCount > 0)
         {
             Fire();
             yield return new WaitForSeconds(0.1f);
@@ -291,7 +291,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
             return;
         }
 
-        if (((Interactables.Gun.PrimaryHUDManager) HUDManager).AmmoCount == 0) return;
+        if (!homeHUD.HasAmmo) return;
 
         animator.SetTrigger("Fire");
         AudioSource.PlayClipAtPoint(hitClip, transform.position, 1.0f);
@@ -316,7 +316,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
             interactableEvent.OnActivate(interactable, transform, lastObjectHitPoint);
         }
 
-        ((Interactables.Gun.PrimaryHUDManager) HUDManager).DecrementAmmoCount();
+        homeHUD.DecrementAmmoCount();
         IncreaseHeat();
     }
 
@@ -376,7 +376,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
     {
         Log($"{Time.time} {gameObject.name} {className} OnSelectExited");
 
-        HUDManager.HideHUD();
+        hudContainerManager.HUDManager.HideHUD();
 
         foreach(SocketCompatibilityLayerManager manager in socketCompatibilityLayerManagers)
         {
@@ -428,58 +428,24 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
             HandleUINagivation(actuation);
         }
 
-        HUDManager.OnActuation(actuation, characteristics);
+        if (enableHomeButton && actuation.HasFlag(Actuation.Button_BY) && !IsHUDShown((int) Interactables.Gun.HUDManager.Identity.Home))
+        {
+            ShowHUD((int) Interactables.Gun.HUDManager.Identity.Home);
+        }
+
+        hudContainerManager.HUDManager.OnActuation(actuation, characteristics);
     }
 
     private void HandleUINagivation(Actuation actuation)
     {
         Log($"{Time.time} {gameObject.name} {className} HandleUINagivation:Actuation : {actuation}");
 
-        bool success = false;
         int idx = default(int);
 
-        if (actuation.HasFlag(Actuation.Thumbstick_Left))
+        if ((actuation.HasFlag(Actuation.Thumbstick_Left) && (hudsManager.TryGetPreviousIndex(out idx))) || (actuation.HasFlag(Actuation.Thumbstick_Right) && (hudsManager.TryGetNextIndex(out idx))))
         {
-            if (hudsManager.TryGetPreviousIndex(out idx))
-            {
-                success = true;
-            }
-        }
-        else if (actuation.HasFlag(Actuation.Thumbstick_Right))
-        {
-            if (hudsManager.TryGetNextIndex(out idx))
-            {
-                success = true;
-            }
-        }
-
-        if (success)
-        {
-            AudioSource.PlayClipAtPoint(navigationClip, transform.position, 1.0f);
             ShowHUD(idx);
         }
-    }
-
-    private void ShowPrimaryHUD()
-    {
-        Log($"{Time.time} {this.gameObject.name}.ShowPrimaryHUD");
-
-        ShowHUD((int) Interactables.Gun.HUDManager.Identity.Primary);
-    }
-
-    private void ShowHUD(int idx)
-    {
-        Log($"{Time.time} {this.gameObject.name}.ShowHUD:Idx : {idx}");
-
-        Interactables.Gun.HUDManager hudManager;
-
-        hudManager = hudManagers[hudsManager.ActiveIdx];
-        hudManager.HideHUD();
-
-        hudManager = hudManagers[idx];
-        hudManager.ShowHUD();
-
-        hudsManager.ActiveIdx = idx;
     }
 
     public void OnSocketCompatiblityLayerEvent(SocketCompatibilityLayerManager manager, SocketCompatibilityLayerManager.EventType eventType, GameObject gameObject)
@@ -678,21 +644,6 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         }
     }
 
-    private bool TryGetHUDManagerById(Interactables.Gun.HUDManager.Identity id, out Interactables.Gun.HUDManager hudManager)
-    {
-        foreach (var thisHUDManager in hudManagers)
-        {
-            if (thisHUDManager.Id == id)
-            {
-                hudManager = thisHUDManager;
-                return true;
-            }
-        }
-
-        hudManager = null;
-        return false;
-    }
-
     private void OnSocketHoverEntryEvent(GameObject gameObject)
     {
         Log($"{Time.time} {this.gameObject.name}.OnSocketHoverEntryEvent:GameObject : {gameObject.name}");
@@ -702,15 +653,18 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
     {
         Log($"{Time.time} {this.gameObject.name}.OnSocketSelectEntryEvent:GameObject : {gameObject.name}");
 
+        int? id = null;
+
         if (gameObject.CompareTag("Compact Flashlight"))
         {
             if (gameObject.TryGetComponent<FlashlightInteractableManager>(out var flashlightManager))
             {
-                var id = Interactables.Gun.HUDManager.Identity.Flashlight;
+                var hudID = Interactables.Gun.HUDManager.Identity.Flashlight;
+                id = (int) hudID;
 
                 hudsManager.SetActive((int) id);
 
-                if (TryGetHUDManagerById(id, out Interactables.Gun.HUDManager hudManager))
+                if (hudContainerManager.TryGetHUDManagerById(hudID, out Interactables.Gun.HUDManager hudManager))
                 {
                     if (flashlightManager.State == FlashlightInteractableManager.ActiveState.On)
                     {
@@ -727,11 +681,12 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         {
             if (gameObject.TryGetComponent<LaserSightInteractableManager>(out var laserSightManager))
             {
-                var id = Interactables.Gun.HUDManager.Identity.LaserSight;
+                var hudID = Interactables.Gun.HUDManager.Identity.LaserSight;
+                id = (int) hudID;
 
                 hudsManager.SetActive((int) id);
                 
-                if (TryGetHUDManagerById(id, out Interactables.Gun.HUDManager hudManager))
+                if (hudContainerManager.TryGetHUDManagerById(hudID, out Interactables.Gun.HUDManager hudManager))
                 {
                     if (laserSightManager.State == LaserSightInteractableManager.ActiveState.On)
                     {
@@ -744,36 +699,72 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
                 }
             }
         }
+
+        if (switchHUDOnDock && id.HasValue)
+        {
+            AudioSource.PlayClipAtPoint(navigationClip, transform.position, 1.0f);
+            ShowHUD((int) id.Value);
+        }
     }
 
     private void OnSocketSelectExitEvent(GameObject gameObject)
     {
         Log($"{Time.time} {this.gameObject.name}.OnSocketSelectExitEvent:GameObject : {gameObject.name}");
 
+        int? id = null;
+
         if (gameObject.TryGetComponent<FlashlightInteractableManager>(out var flashlightManager))
         {
-            var id = Interactables.Gun.HUDManager.Identity.Flashlight;
+            var hudID = Interactables.Gun.HUDManager.Identity.Flashlight;
+            id = (int) hudID;
 
-            if (TryGetHUDManagerById(id, out Interactables.Gun.HUDManager hudManager))
+            if (hudContainerManager.TryGetHUDManagerById(hudID, out Interactables.Gun.HUDManager hudManager))
             {
                 ((Interactables.Gun.FlashlightHUDManager) hudManager).SetState(Enum.GunInteractableEnums.State.Inactive);
             }
-
-            hudsManager.SetInactive((int) id);
-            ShowPrimaryHUD();
         }
         else if (gameObject.TryGetComponent<LaserSightInteractableManager>(out var laserSightManager))
         {
-            var id = Interactables.Gun.HUDManager.Identity.LaserSight;
+            var hudID = Interactables.Gun.HUDManager.Identity.LaserSight;
+            id = (int) hudID;
 
-            if (TryGetHUDManagerById(id, out Interactables.Gun.HUDManager hudManager))
+            if (hudContainerManager.TryGetHUDManagerById(hudID, out Interactables.Gun.HUDManager hudManager))
             {
                 ((Interactables.Gun.LaserSightHUDManager) hudManager).SetState(Enum.GunInteractableEnums.State.Inactive);
             }
-
-            hudsManager.SetInactive((int) id);
-            ShowPrimaryHUD();
         }
+
+        if (id.HasValue)
+        {
+            hudsManager.SetInactive((int) id.Value);
+        }
+
+        ShowHomeHUD(false);
+    }
+
+    private bool IsHUDShown(int id)
+    {
+        return hudContainerManager.IsHUDShown(id);
+    }
+
+    private void ShowHomeHUD(bool audible = true)
+    {
+        if (audible)
+        {
+            AudioSource.PlayClipAtPoint(navigationClip, transform.position, 1.0f);
+        }
+
+        hudContainerManager.ShowHomeHUD();
+    }
+
+    private void ShowHUD(int id, bool audible = true)
+    {
+        if (audible)
+        {
+            AudioSource.PlayClipAtPoint(navigationClip, transform.position, 1.0f);
+        }
+
+        hudContainerManager.ShowHUD((int) id);
     }
 
     private void OnSocketHoverExitEvent(GameObject gameObject)
@@ -810,5 +801,5 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation
         defaultRotation = transform.rotation;
     }
 
-    public void RestoreAmmoCount() => ((Interactables.Gun.PrimaryHUDManager) HUDManager).RestoreAmmoCount();
+    public void RestoreAmmoCount() => homeHUD.RestoreAmmoCount();
 }

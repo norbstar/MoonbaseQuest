@@ -13,8 +13,8 @@ namespace Interactables.Gun
 
             foreach (Interactables.Gun.HUDManager manager in hudManagers)
             {
-                bool isPrimaryHUD = manager.GetType().IsAssignableFrom(typeof(Interactables.Gun.PrimaryHUDManager));
-                hudTrackers.Add(isPrimaryHUD);
+                bool isHomeHUD = manager.GetType().IsAssignableFrom(typeof(Interactables.Gun.HomeHUDManager));
+                hudTrackers.Add(isHomeHUD);
             }
         }
 

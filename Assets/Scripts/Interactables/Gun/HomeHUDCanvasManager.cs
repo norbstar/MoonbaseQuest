@@ -9,7 +9,7 @@ using TMPro;
 namespace Interactables.Gun
 {
     [RequireComponent(typeof(Canvas))]
-    public class PrimaryHUDCanvasManager : HUDCanvasManager
+    public class HomeHUDCanvasManager : HUDCanvasManager
     {
         private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 

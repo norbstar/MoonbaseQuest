@@ -8,11 +8,11 @@ using static Enum.ControllerEnums;
 
 namespace Interactables.Gun
 {
-    public class PrimaryHUDManager : HUDManager
+    public class HomeHUDManager : HUDManager
     {
         private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
-        [SerializeField] PrimaryHUDCanvasManager canvasManager;
+        [SerializeField] HomeHUDCanvasManager canvasManager;
         [SerializeField] int defaultLoadout = 16;
 
         public int AmmoCount {
@@ -27,6 +27,8 @@ namespace Interactables.Gun
                 canvasManager.AmmoTextUI.color = (value > 0) ? Color.white : Color.red;
             }
         }
+
+        public bool HasAmmo { get { return ammoCount > 0; } }
 
         private int ammoCount;
 

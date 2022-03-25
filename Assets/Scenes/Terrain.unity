@@ -33793,7 +33793,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   autoEnable: 0
-  duration: 0.5
+  duration: 1
 --- !u!54 &1957717035
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -42440,7 +42440,7 @@ MonoBehaviour:
   laserPrefab: {fileID: 1486858733783808492, guid: b152f303818ca674ea1dfee3a06859c4, type: 3}
   laserFXPrefab: {fileID: 6914236330477267817, guid: a8a1fb22e2ff8a346bb349e62837d61f, type: 3}
   overheatCanvasManager: {fileID: 4726893902155903821}
-  hudManagers: []
+  hudContainerManager: {fileID: 0}
   enableAutoDock: 0
   showHits: 1
   hitPrefab: {fileID: 6110918014904403394, guid: 5d95586bfd9e933439d256446fab489c, type: 3}
@@ -42454,6 +42454,8 @@ MonoBehaviour:
   engagedClip: {fileID: 8300000, guid: 960c743370a8e6144b9b79d15038a2b4, type: 3}
   disengagedClip: {fileID: 8300000, guid: 0e6777c696cf505499fb255570b9ca23, type: 3}
   navigationClip: {fileID: 0}
+  enableHomeButton: 1
+  switchHUDOnDock: 1
 --- !u!1 &9081868424286081592
 GameObject:
   m_ObjectHideFlags: 0
