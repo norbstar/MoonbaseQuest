@@ -119,6 +119,8 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
         cameraManager = camera.GetComponent<MainCameraManager>() as MainCameraManager;
         hipDocksManager = cameraManager.HipDocksManager;
         hudsManager = hudContainerManager.HUDsManager;
+
+        Log($"{Time.time} {this.gameObject.name} {className}.ResolveDependencies:HUDsManager : {hudsManager != null}");
     }
 
     // Start is called before the first frame update

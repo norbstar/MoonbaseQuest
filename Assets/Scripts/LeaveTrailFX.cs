@@ -13,6 +13,7 @@ public class LeaveTrailFX : MonoBehaviour
     [SerializeField] float duration = 1f;
 
     private string tempHierarchyName;
+    private GameObject instanceHierarchy;
     private WaitForSeconds delay;
 
     protected void Awake()
@@ -34,8 +35,6 @@ public class LeaveTrailFX : MonoBehaviour
 
     private void RemoveHierarchy()
     {
-        var instanceHierarchy = GameObject.Find(tempHierarchyName);
-
         if (instanceHierarchy != null)
         {
             Destroy(instanceHierarchy);
@@ -77,7 +76,7 @@ public class LeaveTrailFX : MonoBehaviour
 
         if (trailPrefab != null)
         {
-            var instanceHierarchy = GameObject.Find(tempHierarchyName);
+            instanceHierarchy = GameObject.Find(tempHierarchyName);
 
             if (instanceHierarchy == null)
             {

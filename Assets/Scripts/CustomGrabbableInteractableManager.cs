@@ -16,6 +16,7 @@ public class CustomGrabbableInteractableManager : FocusableInteractableManager, 
 
     private GameObject brush;
     private Vector3 originalScale, minScale, maxScale, unitScale;
+    private GameObject instanceHierarchy;
     private string tempHierarchyName;
 
     protected override void Awake()
@@ -50,16 +51,6 @@ public class CustomGrabbableInteractableManager : FocusableInteractableManager, 
     {
         HandController.RawDataEventReceived -= OnRawData;
         RemoveHierarchy();
-    }
-
-    private void RemoveHierarchy()
-    {
-        var instanceHierarchy = GameObject.Find(tempHierarchyName);
-
-        if (instanceHierarchy != null)
-        {
-            Destroy(instanceHierarchy);
-        }
     }
 
     private void OnRawData(HandController.RawData rawData, InputDeviceCharacteristics characteristics)
@@ -119,7 +110,7 @@ public class CustomGrabbableInteractableManager : FocusableInteractableManager, 
 
         if (spawnPrefab != null)
         {
-            var instanceHierarchy = GameObject.Find(tempHierarchyName);
+            instanceHierarchy = GameObject.Find(tempHierarchyName);
 
             if (instanceHierarchy == null)
             {
@@ -132,5 +123,13 @@ public class CustomGrabbableInteractableManager : FocusableInteractableManager, 
         }
 
         return instance;
+    }
+
+    private void RemoveHierarchy()
+    {
+        if (instanceHierarchy != null)
+        {
+            Destroy(instanceHierarchy);
+        }
     }
 }

@@ -7,7 +7,9 @@ public class BaseManager : MonoBehaviour
 
     protected void Log(string message, Object context = null)
     {
-        if (!enableLogging) return;
-        Debug.Log(message, context);
+        #if UNITY_EDITOR
+            if (!enableLogging) return;
+            Debug.Log(message, context);
+        #endif
     }
 }
