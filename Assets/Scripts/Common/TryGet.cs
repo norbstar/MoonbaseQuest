@@ -3,6 +3,7 @@ using System.Linq;
 
 using UnityEngine;
 using UnityEngine.XR;
+using UnityEngine.XR.Interaction.Toolkit;
 
 public class TryGet
 {
@@ -104,5 +105,11 @@ public class TryGet
     {
         socketInteractorManager = manager.GetComponentInChildren<SocketInteractorManager>() as SocketInteractorManager;
         return (socketInteractorManager != null);
+    }
+
+    public static bool TryGetXRController(GameObject gameObject, out XRController xrController)
+    {
+        xrController = gameObject.GetComponent<XRController>() as XRController;
+        return (xrController != null);
     }
 }
