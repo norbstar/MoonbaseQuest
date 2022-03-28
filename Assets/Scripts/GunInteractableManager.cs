@@ -74,6 +74,8 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
     [SerializeField] bool enableQuickHome = true;
     [SerializeField] bool switchHUDOnDock = true;
     [SerializeField] float actuationDelay = 0.5f;
+    [SerializeField] float actuationDPS = 50f;
+    [SerializeField] float actuationForce = 250f;
 
     public Mode Mode { get { return mode; } set { mode = value; } }
 
@@ -169,33 +171,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
             var objectHit = hit.transform.gameObject;
             var point = hit.point;
 
-            if (showHits)
-            {
-                if (hitPrefabInstance == null)
-                {
-                    hitPrefabInstance = Instantiate(hitPrefab, point, Quaternion.identity);
-                }
-                else
-                {
-                    hitPrefabInstance.transform.position = point;
-                    hitPrefabInstance.SetActive(true);
-                }
-
-                if (TryGet.TryGetIdentifyController(interactor, out HandController controller))
-                {
-                    var renderer = hitPrefabInstance.GetComponent<Renderer>() as Renderer;
-                    var device = controller.InputDevice;
-
-                    if ((int) device.characteristics == (int) HandController.LeftHand)
-                    {
-                        renderer.material.color = Color.red;
-                    }
-                    else if ((int) device.characteristics == (int) HandController.RightHand)
-                    {
-                        renderer.material.color = Color.blue;
-                    }
-                }
-            }
+            if (showHits) ShowHit(point);
 
             if (!GameObject.ReferenceEquals(objectHit, lastObjectHit))
             {
@@ -227,6 +203,34 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
             hitPrefabInstance?.SetActive(false);
             lastObjectHit = null;
             lastObjectHitPoint = default(Vector3);
+        }
+    }
+
+    private void ShowHit(Vector3 point)
+    {
+        if (hitPrefabInstance == null)
+        {
+            hitPrefabInstance = Instantiate(hitPrefab, point, Quaternion.identity);
+        }
+        else
+        {
+            hitPrefabInstance.transform.position = point;
+            hitPrefabInstance.SetActive(true);
+        }
+
+        if (TryGet.TryGetIdentifyController(interactor, out HandController controller))
+        {
+            var renderer = hitPrefabInstance.GetComponent<Renderer>() as Renderer;
+            var device = controller.InputDevice;
+
+            if ((int) device.characteristics == (int) HandController.LeftHand)
+            {
+                renderer.material.color = Color.red;
+            }
+            else if ((int) device.characteristics == (int) HandController.RightHand)
+            {
+                renderer.material.color = Color.blue;
+            }
         }
     }
 
@@ -287,6 +291,38 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
         }
     }
 
+    private void CalculateImpactDamage()
+    {
+        Log($"{Time.time} {gameObject.name} {className} CalculateImpactDamage:1");
+
+        var ray = new Ray(spawnPoint.transform.position, spawnPoint.transform.forward);
+
+        if (Physics.Raycast(ray.origin, ray.direction, out RaycastHit hit, Mathf.Infinity, mixedLayerMask))
+        {
+            Log($"{Time.time} {gameObject.name} {className} CalculateImpactDamage:2");
+            var objectHit = hit.transform.gameObject;
+            var point = hit.point;
+
+            Vector3 direction = point - spawnPoint.transform.position;
+            float distance = Vector3.Distance(spawnPoint.transform.position, point);
+            float duration = distance / actuationDPS;
+
+            StartCoroutine(CalculateImpactDamageCoroutine(objectHit, point, direction, duration));
+        }
+    }
+
+    private IEnumerator CalculateImpactDamageCoroutine(GameObject gameObject, Vector3 point, Vector3 direction, float duration)
+    {
+        Log($"{Time.time} {gameObject.name} {className} CalculateImpactDamageCoroutine:1 GameObject : {gameObject.name} Point : {point} Direction : {direction} Duration : {duration}");
+        yield return new WaitForSeconds(duration);
+
+        if (gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidbody))
+        {
+            Log($"{Time.time} {gameObject.name} {className} CalculateImpactDamageCoroutine:2 GameObject : {gameObject.name} Point : {point} Direction Normalised : {direction.normalized} Duration : {duration}");
+            rigidbody.AddForceAtPosition(direction.normalized * actuationForce, point);
+        }
+    }
+
     private void Fire()
     {
         if (state == Enum.GunInteractableEnums.State.Inactive)
@@ -321,7 +357,9 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
         }
 
         homeHUD.DecrementAmmoCount();
+
         IncreaseHeat();
+        CalculateImpactDamage();
     }
 
     private void IncreaseHeat()
