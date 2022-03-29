@@ -296,11 +296,14 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
         homeHUD.DecrementAmmoCount();
         IncreaseHeat();
 
+        var objectHit = lastObjectHit;
+        var objectHitPoint = lastObjectHitPoint;
+
         yield return StartCoroutine(ApplyImpactForceCoroutine());
-        
-        if ((lastObjectHit != null) && (lastObjectHit.TryGetComponent<IInteractableEvent>(out IInteractableEvent interactableEvent)))
+
+        if ((objectHit != null) && (objectHit.TryGetComponent<IInteractableEvent>(out IInteractableEvent interactableEvent)))
         {
-            interactableEvent.OnActivate(interactable, transform, lastObjectHitPoint);
+            interactableEvent.OnActivate(interactable, transform, objectHitPoint);
         }
     }
 
@@ -319,8 +322,9 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
 
             yield return new WaitForSeconds(duration);
 
-            if (gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidbody))
+            if (objectHit.TryGetComponent<Rigidbody>(out Rigidbody rigidbody))
             {
+                // Log($"{Time.time} {gameObject.name} {className} ApplyImpactForceCoroutine 3 Point : {point} Direction : {direction} Normalized Direction : {direction.normalized} Force : {direction.normalized * actuationForce}");
                 rigidbody.AddForceAtPosition(direction.normalized * actuationForce, point);
             }
         }
