@@ -291,15 +291,25 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
         }
     }
 
-    private void CalculateImpactDamage()
+    private IEnumerator PostFireCoroutine()
     {
-        Log($"{Time.time} {gameObject.name} {className} CalculateImpactDamage:1");
+        homeHUD.DecrementAmmoCount();
+        IncreaseHeat();
 
+        yield return StartCoroutine(ApplyImpactForceCoroutine());
+        
+        if ((lastObjectHit != null) && (lastObjectHit.TryGetComponent<IInteractableEvent>(out IInteractableEvent interactableEvent)))
+        {
+            interactableEvent.OnActivate(interactable, transform, lastObjectHitPoint);
+        }
+    }
+
+    private IEnumerator ApplyImpactForceCoroutine()
+    {
         var ray = new Ray(spawnPoint.transform.position, spawnPoint.transform.forward);
 
         if (Physics.Raycast(ray.origin, ray.direction, out RaycastHit hit, Mathf.Infinity, mixedLayerMask))
         {
-            Log($"{Time.time} {gameObject.name} {className} CalculateImpactDamage:2");
             var objectHit = hit.transform.gameObject;
             var point = hit.point;
 
@@ -307,19 +317,12 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
             float distance = Vector3.Distance(spawnPoint.transform.position, point);
             float duration = distance / actuationDPS;
 
-            StartCoroutine(CalculateImpactDamageCoroutine(objectHit, point, direction, duration));
-        }
-    }
+            yield return new WaitForSeconds(duration);
 
-    private IEnumerator CalculateImpactDamageCoroutine(GameObject gameObject, Vector3 point, Vector3 direction, float duration)
-    {
-        Log($"{Time.time} {gameObject.name} {className} CalculateImpactDamageCoroutine:1 GameObject : {gameObject.name} Point : {point} Direction : {direction} Duration : {duration}");
-        yield return new WaitForSeconds(duration);
-
-        if (gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidbody))
-        {
-            Log($"{Time.time} {gameObject.name} {className} CalculateImpactDamageCoroutine:2 GameObject : {gameObject.name} Point : {point} Direction Normalised : {direction.normalized} Duration : {duration}");
-            rigidbody.AddForceAtPosition(direction.normalized * actuationForce, point);
+            if (gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidbody))
+            {
+                rigidbody.AddForceAtPosition(direction.normalized * actuationForce, point);
+            }
         }
     }
 
@@ -351,15 +354,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
             laserInstance.transform.parent = gameObject.transform;
         }
 
-        if ((lastObjectHit != null) && (lastObjectHit.TryGetComponent<IInteractableEvent>(out IInteractableEvent interactableEvent)))
-        {
-            interactableEvent.OnActivate(interactable, transform, lastObjectHitPoint);
-        }
-
-        homeHUD.DecrementAmmoCount();
-
-        IncreaseHeat();
-        CalculateImpactDamage();
+        StartCoroutine(PostFireCoroutine());
     }
 
     private void IncreaseHeat()
