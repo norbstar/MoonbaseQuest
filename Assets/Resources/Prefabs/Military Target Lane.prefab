@@ -1,5 +1,35 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &6769627084624719816
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3579675178193063230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a41689373407fda47b8695101d8eb1c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speed: 0.5
+--- !u!114 &6769627084624719817
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3579675178193063230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57f0453c6f8fdf64c9fd861b29574ac0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  movable: {fileID: 6769627084624719816}
+  waypoints:
+  - position: {x: 2, y: 0, z: 2}
+  - position: {x: -2, y: 0, z: 2}
+  - position: {x: 0, y: 0, z: 2}
 --- !u!1 &6769627083267879472
 GameObject:
   m_ObjectHideFlags: 0
@@ -113,36 +143,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &6769627084624719817
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3579675178193063230}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57f0453c6f8fdf64c9fd861b29574ac0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  movable: {fileID: 6769627084624719816}
-  waypoints:
-  - position: {x: 2, y: 0, z: 2}
-  - position: {x: -2, y: 0, z: 2}
-  - position: {x: 0, y: 0, z: 2}
---- !u!114 &6769627084624719816
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3579675178193063230}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a41689373407fda47b8695101d8eb1c3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 0.5
 --- !u!1001 &6769627083129335133
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -150,6 +150,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 6769627083267879475}
     m_Modifications:
+    - target: {fileID: 1316665716826951669, guid: cf5d04f8595b98d4096e2e49b9afe1cb, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 5e07835c94545d14589d4970d859306e, type: 2}
     - target: {fileID: 7808965143256183373, guid: cf5d04f8595b98d4096e2e49b9afe1cb, type: 3}
       propertyPath: scoreCanvasManager
       value: 
