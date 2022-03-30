@@ -70,6 +70,9 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
     [SerializeField] AudioClip navigationClip;
     public AudioClip NavigationClip { get { return navigationClip;} }
 
+    [Header("Events")]
+    [SerializeField] AnimationCompleteEvent animationCompleteEvent;
+
     [Header("Config")]
     [SerializeField] bool enableQuickHome = true;
     [SerializeField] bool switchHUDOnDock = true;
@@ -99,6 +102,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
     private Interactables.Gun.HUDsManager hudsManager;
     private Interactables.Gun.HomeHUDManager homeHUD;
     private float lastActuation;
+    private bool canFire;
 
     protected override void Awake()
     {
@@ -111,6 +115,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
         mixedLayerMask = LayerMask.GetMask("Default") | LayerMask.GetMask("Asteroid Layer");
         overheatCanvasManager.SetMaxValue(overLoadThreshold);
         heatValues = curveCreator.Values;
+        canFire = true;
 
         StartCoroutine(ManageHeatCoroutine());
     }
@@ -147,6 +152,8 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
                 socketInteractorManager.EventReceived += OnSocketEvent;
             }
         }
+
+        animationCompleteEvent.OnComplete += OnFireComplete;
     }
 
     void OnDisable()
@@ -160,6 +167,8 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
                 socketInteractorManager.EventReceived -= OnSocketEvent;
             }
         }
+
+        animationCompleteEvent.OnComplete -= OnFireComplete;
     }
 
     void FixedUpdate()
@@ -287,7 +296,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
         while (homeHUD.AmmoCount > 0)
         {
             Fire();
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(0.05f);
         }
     }
 
@@ -324,7 +333,6 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
 
             if (objectHit.TryGetComponent<Rigidbody>(out Rigidbody rigidbody))
             {
-                // Log($"{Time.time} {gameObject.name} {className} ApplyImpactForceCoroutine 3 Point : {point} Direction : {direction} Normalized Direction : {direction.normalized} Force : {direction.normalized * actuationForce}");
                 rigidbody.AddForceAtPosition(direction.normalized * actuationForce, point);
             }
         }
@@ -338,8 +346,9 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
             return;
         }
 
-        if (!homeHUD.HasAmmo) return;
+        if ((!homeHUD.HasAmmo) || (!canFire)) return;
 
+        canFire = false;
         animator.SetTrigger("Fire");
         AudioSource.PlayClipAtPoint(hitClip, transform.position, 1.0f);
 
@@ -360,6 +369,8 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
 
         StartCoroutine(PostFireCoroutine());
     }
+
+    public void OnFireComplete() => canFire = true;
 
     private void IncreaseHeat()
     {

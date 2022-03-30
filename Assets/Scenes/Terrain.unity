@@ -20684,6 +20684,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1790753592}
     m_Modifications:
+    - target: {fileID: 8984268878449175852, guid: cd8c07123d0a11a4290a0a49b2aaa139, type: 3}
+      propertyPath: autoDestroy
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8984268878449175852, guid: cd8c07123d0a11a4290a0a49b2aaa139, type: 3}
+      propertyPath: scoreCanvasManager
+      value: 
+      objectReference: {fileID: 467244793}
     - target: {fileID: 8984268878732108624, guid: cd8c07123d0a11a4290a0a49b2aaa139, type: 3}
       propertyPath: m_Name
       value: Bottom Hinged Target (1)
@@ -24584,6 +24592,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1790753592}
     m_Modifications:
+    - target: {fileID: 8984268878449175852, guid: cd8c07123d0a11a4290a0a49b2aaa139, type: 3}
+      propertyPath: autoDestroy
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8984268878449175852, guid: cd8c07123d0a11a4290a0a49b2aaa139, type: 3}
+      propertyPath: scoreCanvasManager
+      value: 
+      objectReference: {fileID: 467244793}
     - target: {fileID: 8984268878732108624, guid: cd8c07123d0a11a4290a0a49b2aaa139, type: 3}
       propertyPath: m_Name
       value: Bottom Hinged Target (2)
@@ -39299,8 +39315,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enableLogging: 0
   hitClip: {fileID: 8300000, guid: b7432c1f088507f41a1da1be2c9b2b02, type: 3}
+  autoDestroy: 1
   surfaceImpactPrefab: {fileID: 1040040228443029992, guid: d34092b4be62dea48bce7e1ec8d02de0, type: 3}
   destroyAfter: 1
+  impactLimit: 10
   scoreCanvasManager: {fileID: 467244793}
   points: 10
 --- !u!4 &1773788518656056317
@@ -43672,6 +43690,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1790753592}
     m_Modifications:
+    - target: {fileID: 8984268878449175852, guid: cd8c07123d0a11a4290a0a49b2aaa139, type: 3}
+      propertyPath: autoDestroy
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8984268878449175852, guid: cd8c07123d0a11a4290a0a49b2aaa139, type: 3}
+      propertyPath: scoreCanvasManager
+      value: 
+      objectReference: {fileID: 467244793}
     - target: {fileID: 8984268878732108624, guid: cd8c07123d0a11a4290a0a49b2aaa139, type: 3}
       propertyPath: m_Name
       value: Bottom Hinged Target

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
@@ -8,12 +10,16 @@ public class MilitaryTargetManager : BaseManager, IInteractableEvent
     [SerializeField] AudioClip hitClip;
 
     [Header("Impact")]
+    [SerializeField] bool autoDestroy = true;
     [SerializeField] SurfaceImpactManager surfaceImpactPrefab;
     [SerializeField] float destroyAfter = 1f;
+    [SerializeField] int impactLimit = 10;
 
     [Header("Scoring")]
     [SerializeField] ScoreCanvasManager scoreCanvasManager;
     [SerializeField] int points = 10;
+
+    private static List<GameObject> impacts;
 
     private Rigidbody rigidBody;
     private MilitaryTargetPointMap pointMap;
@@ -47,6 +53,30 @@ public class MilitaryTargetManager : BaseManager, IInteractableEvent
             scoreCanvasManager?.AddToScore(points);
         }
 
-        Destroy(instance, destroyAfter);
+        if (autoDestroy)
+        {
+            Destroy(instance, destroyAfter);
+        }
+        else
+        {
+            AddToImpacts(instance);
+        }
+    }
+
+    private void AddToImpacts(GameObject gameObject)
+    {
+        if (impacts == null)
+        {
+            impacts = new List<GameObject>();
+        }
+
+        impacts.Add(gameObject);
+
+        if (impacts.Count > impactLimit)
+        {
+            gameObject = impacts[0];
+            impacts.RemoveAt(0);
+            Destroy(gameObject);
+        }
     }
 }

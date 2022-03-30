@@ -767,7 +767,6 @@ GameObject:
   - component: {fileID: 6637438312936263184}
   - component: {fileID: 1089980587766821609}
   - component: {fileID: 5750515650073844060}
-  - component: {fileID: 1146740534222080743}
   m_Layer: 0
   m_Name: Moonbase_Gun
   m_TagString: Untagged
@@ -860,18 +859,6 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &1146740534222080743
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1665405649820550709}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 336ed81182fe6c54cb3425a541b8f2f9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1789241543080129887
 GameObject:
   m_ObjectHideFlags: 0
@@ -2609,8 +2596,9 @@ GameObject:
   - component: {fileID: 1504988525903472947}
   - component: {fileID: 4985145001194394212}
   - component: {fileID: 9076767786785327033}
+  - component: {fileID: 1516760142521103055}
   m_Layer: 0
-  m_Name: Gun
+  m_Name: Gun With Kickback
   m_TagString: Gun
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2896,12 +2884,30 @@ MonoBehaviour:
   engagedClip: {fileID: 8300000, guid: 960c743370a8e6144b9b79d15038a2b4, type: 3}
   disengagedClip: {fileID: 8300000, guid: 0e6777c696cf505499fb255570b9ca23, type: 3}
   navigationClip: {fileID: 8300000, guid: e3a2367673d647f47a73054785e0c4da, type: 3}
-  animationCompleteEvent: {fileID: 1146740534222080743}
   enableQuickHome: 1
   switchHUDOnDock: 1
   actuationDelay: 0.1
   actuationDPS: 50
   actuationForce: 200
+--- !u!95 &1516760142521103055
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7223026733434265587}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: b27b44759e4fb6c47bf7ce8e1ed3b731, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &7223026733450675996
 GameObject:
   m_ObjectHideFlags: 0
@@ -3639,11 +3645,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4edf252482595c546844c3bb879b2331, type: 3}
---- !u!4 &6549774771387836719 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 409594021185509318, guid: 4edf252482595c546844c3bb879b2331, type: 3}
-  m_PrefabInstance: {fileID: 6866391722587455209}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &6428546107086856060 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 467418316669985173, guid: 4edf252482595c546844c3bb879b2331, type: 3}
@@ -3655,6 +3656,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 342d34eef1134344d991f0e9e6cd0980, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!4 &6549774771387836719 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 409594021185509318, guid: 4edf252482595c546844c3bb879b2331, type: 3}
+  m_PrefabInstance: {fileID: 6866391722587455209}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &7877022374657748505
 PrefabInstance:
   m_ObjectHideFlags: 0
