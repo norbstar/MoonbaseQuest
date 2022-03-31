@@ -1,11 +1,11 @@
 using System.Collections;
-
 using UnityEngine;
+
 using UnityEngine.XR.Interaction.Toolkit;
 
 [RequireComponent(typeof(XRGrabInteractable))]
 [RequireComponent(typeof(Animator))]
-public class SmokeGrenadeInteractableManager : FocusableInteractableManager
+public class IncendiaryGrenadeInteractableManager : FocusableInteractableManager
 {
     public enum State
     {
@@ -17,15 +17,14 @@ public class SmokeGrenadeInteractableManager : FocusableInteractableManager
     [Header("Timings")]
     [SerializeField] float delay = 3f;
 
-    [Header("Signals")]
-    [SerializeField] RendererColorSequencer band;
-
     [Header("Audio")]
     [SerializeField] AudioClip releaseClip;
     [SerializeField] AudioClip detinationClip;
 
-    [Header("Particles")]
-    [SerializeField] new ParticleSystem particleSystem;
+    [Header("Config")]
+    [SerializeField] float actuationRadius = 1.5f;
+    [SerializeField] float actuationUPS = 50f;
+    [SerializeField] float actuationForce = 250f;
 
     private Animator animator;
     private State state;
@@ -35,7 +34,6 @@ public class SmokeGrenadeInteractableManager : FocusableInteractableManager
         base.Awake();
 
         ResolveDependencies();
-        particleSystem.Stop();
     }
 
     private void ResolveDependencies()
@@ -49,7 +47,6 @@ public class SmokeGrenadeInteractableManager : FocusableInteractableManager
         
         animator.SetTrigger("release");
         AudioSource.PlayClipAtPoint(releaseClip, transform.position, 1.0f);
-        band.StartSequence();
         state = State.Activated;
     }
 
@@ -65,11 +62,32 @@ public class SmokeGrenadeInteractableManager : FocusableInteractableManager
     {
         yield return new WaitForSeconds(delay);
 
-        band.gameObject.SetActive(false);
         AudioSource.PlayClipAtPoint(detinationClip, transform.position, 1.0f);
-        particleSystem.transform.parent = null;
-        particleSystem.Play();
+
+        Collider[] hits = Physics.OverlapSphere(transform.position, actuationRadius);
+
+        foreach (var hit in hits)
+        {
+            StartCoroutine(ApplyImpactForceCoroutine(hit));
+        }
 
         state = State.Deployed;
+    }
+
+    private IEnumerator ApplyImpactForceCoroutine(Collider hit)
+    {
+        var objectHit = hit.transform.gameObject;
+        var point = hit.transform.position;
+
+        Vector3 direction = point - transform.position;
+        float distance = Vector3.Distance(transform.position, point);
+        float duration = distance / actuationUPS;
+
+        yield return new WaitForSeconds(duration);
+
+        if (objectHit.TryGetComponent<Rigidbody>(out Rigidbody rigidbody))
+        {
+            rigidbody.AddForceAtPosition(direction.normalized * actuationForce, point);
+        }
     }
 }

@@ -24,7 +24,7 @@ public class CustomSmokeGrenadeInteractableManager : FocusableInteractableManage
     }
 
     [Header("Timings")]
-    [SerializeField] float smokeDelay = 3f;
+    [SerializeField] float delay = 3f;
 
     [Header("Audio")]
     [SerializeField] AudioClip releaseClip;
@@ -150,7 +150,7 @@ public class CustomSmokeGrenadeInteractableManager : FocusableInteractableManage
 
     private IEnumerator ActuateCoroutine()
     {
-        yield return new WaitForSeconds(smokeDelay);
+        yield return new WaitForSeconds(delay);
 
         AudioSource.PlayClipAtPoint(detinationClip, transform.position, 1.0f);
         particleSystem.transform.parent = null;

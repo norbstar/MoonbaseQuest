@@ -77,7 +77,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
     [SerializeField] bool enableQuickHome = true;
     [SerializeField] bool switchHUDOnDock = true;
     [SerializeField] float actuationDelay = 0.5f;
-    [SerializeField] float actuationDPS = 50f;
+    [SerializeField] float actuationUPS = 50f;
     [SerializeField] float actuationForce = 250f;
 
     public Mode Mode { get { return mode; } set { mode = value; } }
@@ -327,7 +327,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
 
             Vector3 direction = point - spawnPoint.transform.position;
             float distance = Vector3.Distance(spawnPoint.transform.position, point);
-            float duration = distance / actuationDPS;
+            float duration = distance / actuationUPS;
 
             yield return new WaitForSeconds(duration);
 
