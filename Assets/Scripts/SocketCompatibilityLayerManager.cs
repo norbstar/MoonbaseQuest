@@ -40,7 +40,7 @@ public class SocketCompatibilityLayerManager : BaseManager
         {
             Log($"{Time.time} {gameObject.name} {className} OnTriggerEnter:Root GameObject : {rootGameObject.name} Tag : {rootGameObject.tag}");
 
-            if (!rootGameObject.tag.Equals(tagName)) return;
+            if (!rootGameObject.CompareTag(tagName)) return;
         
             if (EventReceived != null)
             {
@@ -55,7 +55,7 @@ public class SocketCompatibilityLayerManager : BaseManager
 
         if (TryGet.TryGetRootResolver(trigger, out GameObject rootGameObject))
         {
-            if (!rootGameObject.tag.Equals(tagName)) return;
+            if (!rootGameObject.CompareTag(tagName)) return;
 
             Log($"{Time.time} {gameObject.name} {className} OnTriggerExit:GameObject : {rootGameObject.name}");
 

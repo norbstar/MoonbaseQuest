@@ -68,15 +68,29 @@ public class IncendiaryGrenadeInteractableManager : FocusableInteractableManager
 
         foreach (var hit in hits)
         {
-            StartCoroutine(ApplyImpactForceCoroutine(hit));
+            // Force force = new Force();
+            // StartCoroutine(ApplyImpactForceCoroutine(hit, force));
+
+            StartCoroutine(ProcessImpactCoroutine(hit));
         }
 
         state = State.Deployed;
     }
 
-    private IEnumerator ApplyImpactForceCoroutine(Collider hit)
+    private IEnumerator ProcessImpactCoroutine(Collider hit)
     {
-        var objectHit = hit.transform.gameObject;
+        CollisionData collisionData = new CollisionData();
+        yield return StartCoroutine(ApplyImpactForceCoroutine(hit, collisionData));
+
+        if ((collisionData.GameObject != null) && (collisionData.GameObject.TryGetComponent<IInteractableEvent>(out IInteractableEvent interactableEvent)))
+        {
+            interactableEvent.OnActivate(interactable, transform, collisionData.Point, collisionData.Force);
+        }
+    }
+
+    private IEnumerator ApplyImpactForceCoroutine(Collider hit, CollisionData collisionData)
+    {
+        var objectHit = hit.gameObject;
         var point = hit.transform.position;
 
         Vector3 direction = point - transform.position;
@@ -87,7 +101,13 @@ public class IncendiaryGrenadeInteractableManager : FocusableInteractableManager
 
         if (objectHit.TryGetComponent<Rigidbody>(out Rigidbody rigidbody))
         {
-            rigidbody.AddForceAtPosition(direction.normalized * actuationForce, point);
+            float normForce = actuationForce - (distance / actuationRadius * actuationForce);
+            Vector3 force = direction.normalized * normForce;
+            rigidbody.AddForceAtPosition(force, point);
+
+            collisionData.GameObject = objectHit;
+            collisionData.Force = force;
+            collisionData.Point = point;
         }
     }
 }

@@ -35,9 +35,9 @@ public class MilitaryTargetManager : BaseManager, IInteractableEvent
         pointMap = GetComponent<MilitaryTargetPointMap>() as MilitaryTargetPointMap;
     }
 
-    public void OnActivate(XRGrabInteractable interactable, Transform origin, Vector3 hitPoint)
+    public void OnActivate(XRGrabInteractable interactable, Transform origin, Vector3 hitPoint, Vector3 force)
     {
-        Log($"{gameObject.name}.OnActivate:{interactable.name} {hitPoint}");
+        Log($"{gameObject.name}.OnActivate:{interactable.name} Hit Point : {hitPoint} Force : {force}");
 
         AudioSource.PlayClipAtPoint(hitClip, hitPoint, 1.0f);
         var instance = Instantiate(surfaceImpactPrefab.gameObject, hitPoint, Quaternion.identity);

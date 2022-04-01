@@ -308,15 +308,16 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
         var objectHit = lastObjectHit;
         var objectHitPoint = lastObjectHitPoint;
 
-        yield return StartCoroutine(ApplyImpactForceCoroutine());
+        CollisionData collisionData = new CollisionData();
+        yield return StartCoroutine(ApplyImpactForceCoroutine(collisionData));
 
         if ((objectHit != null) && (objectHit.TryGetComponent<IInteractableEvent>(out IInteractableEvent interactableEvent)))
         {
-            interactableEvent.OnActivate(interactable, transform, objectHitPoint);
+            interactableEvent.OnActivate(interactable, transform, objectHitPoint, collisionData.Force);
         }
     }
 
-    private IEnumerator ApplyImpactForceCoroutine()
+    private IEnumerator ApplyImpactForceCoroutine(CollisionData collisionData)
     {
         var ray = new Ray(spawnPoint.transform.position, spawnPoint.transform.forward);
 
@@ -333,7 +334,12 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
 
             if (objectHit.TryGetComponent<Rigidbody>(out Rigidbody rigidbody))
             {
-                rigidbody.AddForceAtPosition(direction.normalized * actuationForce, point);
+                Vector3 force = direction.normalized * actuationForce;
+                rigidbody.AddForceAtPosition(force, point);
+                
+                collisionData.GameObject = objectHit;
+                collisionData.Force = force;
+                collisionData.Point = point;
             }
         }
     }

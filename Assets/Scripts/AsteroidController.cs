@@ -50,7 +50,7 @@ public class AsteroidController : MonoBehaviour, IInteractableEvent, IDamage
         child.transform.Rotate(Vector3.up * Time.deltaTime * Random.Range(maxRotationSpeed / 4, maxRotationSpeed), Space.Self);
     }
 
-    public void OnActivate(XRGrabInteractable interactable, Transform origin, Vector3 hitPoint)
+    public void OnActivate(XRGrabInteractable interactable, Transform origin, Vector3 hitPoint, Vector3 force)
     {
         // Debug.Log($"{gameObject.name}.OnActivate:{interactable.name} {hitPoint}");
 

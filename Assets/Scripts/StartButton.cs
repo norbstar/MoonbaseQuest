@@ -60,7 +60,7 @@ public class StartButton : FocusableManager, IInteractableEvent
         }));
     }
 
-    public void OnActivate(XRGrabInteractable interactable, Transform origin, Vector3 hitPoint)
+    public void OnActivate(XRGrabInteractable interactable, Transform origin, Vector3 hitPoint, Vector3 force)
     {
         // Debug.Log($"{gameObject.name}.OnActivate:{interactable.name} {hitPoint}");
 

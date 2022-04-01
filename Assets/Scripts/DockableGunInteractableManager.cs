@@ -273,7 +273,7 @@ public class DockableGunInteractableManager : DockableFocusableInteractableManag
 
         if ((lastObjectHit != null) && (lastObjectHit.TryGetComponent<IInteractableEvent>(out IInteractableEvent interactableEvent)))
         {
-            interactableEvent.OnActivate(interactable, transform, lastObjectHitPoint);
+            interactableEvent.OnActivate(interactable, transform, lastObjectHitPoint, Vector3.zero);
         }
 
         hudCanvasManager.DecrementAmmoCount();
