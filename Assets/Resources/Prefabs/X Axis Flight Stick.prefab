@@ -59,7 +59,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 818cb5b2cdc2fc848886f55cd940365b, type: 2}
+  - {fileID: 2100000, guid: bd2d742ee2ce7a740ae0cf992a38be74, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -329,10 +329,12 @@ MonoBehaviour:
   focusableUI: {fileID: 0}
   enableGravityOnGrab: 0
   retainTransformParent: 1
+  body: {fileID: 7542031306585401111}
+  defaultMaterial: {fileID: 2100000, guid: bd2d742ee2ce7a740ae0cf992a38be74, type: 2}
+  interactedMaterial: {fileID: 2100000, guid: f15b1cc767edb204688bb14fba2aeb12, type: 2}
   platformManager: {fileID: 0}
   hand: {fileID: 4408753083965250371}
   rotationForce: 2.5
-  statsCanvas: {fileID: 0}
 --- !u!1 &7542031306802752685
 GameObject:
   m_ObjectHideFlags: 0

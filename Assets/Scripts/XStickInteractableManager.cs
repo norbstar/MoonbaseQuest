@@ -11,23 +11,8 @@ public class XStickInteractableManager : StickInteractableManager
 
     [SerializeField] float rotationForce = 10f;
 
-    [SerializeField] TextMeshProCanvasManager statsCanvas;
-
-    // void Start()
-    // {
-    //     float value = -25;
-    //     var normalized = NormalizeAxis(value);
-    //     Log($"Value : {value} Normalized Value : {normalized}");
-    //     value = 0;
-    //     normalized = NormalizeAxis(value);
-    //     Log($"Value : {value} Normalized Value : {normalized}");
-    //     value = 25;
-    //     normalized = NormalizeAxis(value);
-    //     Log($"Value : {value} Normalized Value : {normalized}");
-    //     value = transform.rotation.z;
-    //     normalized = NormalizeAxis(value);
-    //     Log($"Value : {value} Normalized Value : {normalized}");
-    // }
+    public delegate void MessageEvent(string message);
+    public static event MessageEvent MessageEventReceived;
 
     void FixedUpdate()
     {
@@ -47,7 +32,7 @@ public class XStickInteractableManager : StickInteractableManager
             float normalizedZ = (absZ - 0) / (25 - 0);
             // Log($"{gameObject.name}.FixedUpdate:Normalized Z : {absZ}");
 
-            statsCanvas.Text = $"{absZ} : {normalizedZ}";
+            MessageEventReceived?.Invoke($"{absZ} : {normalizedZ}");
 
             var rotation = (z < 0) ? (normalizedZ * -1) : normalizedZ;
             FlightPlatformManager.Rotate(rotation * rotationForce, normalizedZ);

@@ -20,4 +20,6 @@ public class TextMeshProCanvasManager : MonoBehaviour
             textUI.text = value;
         }
     }
+
+    public void Reset() => textUI.text = "0 0";
 }

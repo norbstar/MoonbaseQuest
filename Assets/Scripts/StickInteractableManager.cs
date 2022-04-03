@@ -11,6 +11,13 @@ public abstract class StickInteractableManager : FocusableInteractableManager, I
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
     
+    [Header("Components")]
+    [SerializeField] GameObject body;
+
+    [Header("Materials")]
+    [SerializeField] Material defaultMaterial;
+    [SerializeField] Material interactedMaterial;
+
     [Header("Config")]
     [SerializeField] FlightPlatformManager platformManager;
     protected FlightPlatformManager FlightPlatformManager { get { return platformManager; } }
@@ -22,7 +29,19 @@ public abstract class StickInteractableManager : FocusableInteractableManager, I
     public static event StickEvent StickEventReceived;
 
     private GameObject xrOrigin;
-    
+    private new Renderer renderer;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        
+        ResolveDependencies();
+    }
+
+    private void ResolveDependencies()
+    {
+        renderer = body.GetComponent<Renderer>() as Renderer;
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -33,12 +52,16 @@ public abstract class StickInteractableManager : FocusableInteractableManager, I
     protected override void OnSelectEntered(SelectEnterEventArgs args, HandController controller)
     {
         Log($"{Time.time} {gameObject.name} {className} OnSelectEntered:GameObject : {interactor.name}");
+
+        renderer.material = interactedMaterial;
         StickEventReceived?.Invoke(/*controllerId, */EventType.OnSelectEntered);
     }
 
     protected override void OnSelectExited(SelectExitEventArgs args, HandController controller)
     {
         Log($"{Time.time} {gameObject.name} {className} OnSelectExited:GameObject : {interactor.name}");
+
+        renderer.material = defaultMaterial;
         StickEventReceived?.Invoke(/*controllerId, */EventType.OnSelectExited);
     }
 
