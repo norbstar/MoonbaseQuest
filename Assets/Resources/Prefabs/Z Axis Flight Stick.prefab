@@ -377,6 +377,7 @@ GameObject:
   - component: {fileID: 6629444280370610541}
   - component: {fileID: 6629444280370610540}
   - component: {fileID: 6629444280370610543}
+  - component: {fileID: 6936961883773873146}
   m_Layer: 0
   m_Name: Stick
   m_TagString: Untagged
@@ -460,10 +461,34 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 6936961883773873146}
+        m_TargetAssemblyTypeName: InteractableManager, Assembly-CSharp
+        m_MethodName: OnSelectEntered
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 6936961883773873146}
+        m_TargetAssemblyTypeName: InteractableManager, Assembly-CSharp
+        m_MethodName: OnSelectExited
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_Activated:
     m_PersistentCalls:
       m_Calls: []
@@ -570,6 +595,26 @@ HingeJoint:
   m_EnablePreprocessing: 1
   m_MassScale: 1
   m_ConnectedMassScale: 1
+--- !u!114 &6936961883773873146
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6629444280370610542}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8db18f663a05d144bbefd5b7ed4d864a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enableLogging: 0
+  color: {r: 1, g: 1, b: 1, a: 1}
+  size: {x: 0.05, y: 0.05, z: 0.05}
+  focusableUI: {fileID: 0}
+  enableGravityOnGrab: 0
+  retainTransformParent: 1
+  platformManager: {fileID: 0}
+  hand: {fileID: 6014485291874371902}
 --- !u!1 &6629444280641719146
 GameObject:
   m_ObjectHideFlags: 0
@@ -749,14 +794,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64ac078707280324e909b613aff9761d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enableLogging: 1
-  color: {r: 1, g: 1, b: 1, a: 1}
-  size: {x: 0.05, y: 0.05, z: 0.05}
-  focusableUI: {fileID: 0}
-  enableGravityOnGrab: 1
-  locomotionProvider: {fileID: 0}
-  stick: {fileID: 6629444280370610542}
-  hand: {fileID: 6014485291874371902}
+  enableLogging: 0
+  stick: {fileID: 6936961883773873146}
 --- !u!1001 &6629444280866998328
 PrefabInstance:
   m_ObjectHideFlags: 0

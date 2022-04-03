@@ -245,9 +245,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
 
     protected override void OnSelectEntered(SelectEnterEventArgs args, HandController controller)
     {
-        Log($"{Time.time} {gameObject.name} {className} OnSelectEntered");
-
-        gameObject.transform.parent = objects;
+        Log($"{Time.time} {gameObject.name} {className} OnSelectEntered:GameObject : {interactor.name}");
 
         if (controller != null)
         {
@@ -263,7 +261,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
                 hudContainer.transform.localPosition = new Vector3(Mathf.Abs(hudContainer.transform.localPosition.x), 0.06f, 0f);
             }
 
-            if (hipDocksManager.TryIsDocked(gameObject, out HipDocksManager.DockID dockID))
+            if (hipDocksManager.TryIsDocked(gameObject, out NavId dockID))
             {
                 hipDocksManager.UndockWeapon(gameObject);
             }
@@ -432,7 +430,7 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
 
     protected override void OnSelectExited(SelectExitEventArgs args, HandController controller)
     {
-        Log($"{Time.time} {gameObject.name} {className} OnSelectExited");
+        Log($"{Time.time} {gameObject.name} {className} OnSelectExited:GameObject : {interactor.name}");
 
         hudContainerManager.HUDManager.HideHUD();
 
@@ -458,11 +456,11 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
 
         if ((int) device.characteristics == (int) HandController.LeftHand)
         {
-            hipDocksManager.DockWeapon(gameObject, HipDocksManager.DockID.Left, Quaternion.Euler(90f, 0f, 0f));
+            hipDocksManager.DockWeapon(gameObject, NavId.Left, Quaternion.Euler(90f, 0f, 0f));
         }
         else if ((int) device.characteristics == (int) HandController.RightHand)
         {
-            hipDocksManager.DockWeapon(gameObject, HipDocksManager.DockID.Right, Quaternion.Euler(90f, 0f, 0f));
+            hipDocksManager.DockWeapon(gameObject, NavId.Right, Quaternion.Euler(90f, 0f, 0f));
         }
     }
 

@@ -1,35 +1,11 @@
-using UnityEngine;
-using UnityEngine.XR.Interaction.Toolkit;
+using System.Reflection;
 
-public class FlightStickManager : FocusableInteractableManager
+using UnityEngine;
+
+public class FlightStickManager : BaseManager
 {
-    [Header("Device")]
-    [SerializeField] private LocomotionProvider locomotionProvider;
+    private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
     [Header("Config")]
-    [SerializeField] GameObject stick;
-    [SerializeField] HandAnimationController hand;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        ResolveDependencies();
-
-        hand?.SetFloat("Grip", 1f);
-    }
-
-    private void ResolveDependencies()
-    {
-        GameObject xrOrigin = GameObject.Find("XR Origin");
-
-        if (xrOrigin == null) return;
-
-        var driver = xrOrigin.GetComponent<CharacterControllerDriver>() as CharacterControllerDriver;
-        locomotionProvider = driver?.locomotionProvider;
-    }
-
-    void FixedUpdate()
-    {
-        Log($"{gameObject.name}.FixedUpdate:Rotation : {transform.rotation.eulerAngles}");
-    }
+    [SerializeField] StickInteractableManager stick;
 }

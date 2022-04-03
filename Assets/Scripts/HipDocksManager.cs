@@ -2,12 +2,6 @@ using UnityEngine;
 
 public class HipDocksManager : BaseManager
 {
-    public enum DockID
-    {
-        Left,
-        Right
-    }
-    
     [Header("Docks")]
     [SerializeField] DockManager leftDock;
     [SerializeField] DockManager rightDock;
@@ -16,25 +10,25 @@ public class HipDocksManager : BaseManager
     [SerializeField] AudioClip dockClip;
     [SerializeField] AudioClip undockClip;
 
-    public bool DockWeapon(GameObject gameObject, DockID dockID, Quaternion localRotation, bool allowNegotiation = true)
+    public bool DockWeapon(GameObject gameObject, NavId dockID, Quaternion localRotation, bool allowNegotiation = true)
     {
         Transform parent = null;
         bool docked = false;
 
         if (!(docked = TryDockObject(gameObject, dockID, localRotation, out parent)) && allowNegotiation)
         {
-            dockID = (dockID == DockID.Left) ? DockID.Right : DockID.Left;
+            dockID = (dockID == NavId.Left) ? NavId.Right : NavId.Left;
             docked = TryDockObject(gameObject, dockID, localRotation, out parent);
         }
 
         return docked;
     }
 
-    private bool TryDockObject(GameObject gameObject, DockID dockID, Quaternion localRotation, out Transform parent)
+    private bool TryDockObject(GameObject gameObject, NavId dockID, Quaternion localRotation, out Transform parent)
     {
         switch (dockID)
         {
-            case DockID.Left:
+            case NavId.Left:
                 if (!leftDock.Data.occupied)
                 {
                     parent = leftDock.transform;
@@ -43,7 +37,7 @@ public class HipDocksManager : BaseManager
                 }
                 break;
 
-            case DockID.Right:
+            case NavId.Right:
                 if (!rightDock.Data.occupied)
                 {
                     parent = rightDock.transform;
@@ -57,41 +51,41 @@ public class HipDocksManager : BaseManager
         return false;
     }
 
-    public bool TryIsDocked(GameObject gameObject, out DockID dockID)
+    public bool TryIsDocked(GameObject gameObject, out NavId dockID)
     {
         if (leftDock.Data.occupied && Object.ReferenceEquals(gameObject, leftDock.Data.gameObject))
         {
-            dockID = DockID.Left;
+            dockID = NavId.Left;
             return true;
         }
         else if (rightDock.Data.occupied && Object.ReferenceEquals(gameObject, rightDock.Data.gameObject))
         {
-            dockID = DockID.Right;
+            dockID = NavId.Right;
             return true;
         }
 
-        dockID = default(DockID);
+        dockID = default(NavId);
         return false;
     }
 
     public void UndockWeapon(GameObject gameObject)
     {
-        if (TryIsDocked(gameObject, out DockID dockID))
+        if (TryIsDocked(gameObject, out NavId dockID))
         {
-            if (dockID == DockID.Left)
+            if (dockID == NavId.Left)
             {
                 AudioSource.PlayClipAtPoint(undockClip, transform.position, 1.0f);
-                FreeDock(DockID.Left);
+                FreeDock(NavId.Left);
             }
-            else if (dockID == DockID.Right)
+            else if (dockID == NavId.Right)
             {
                 AudioSource.PlayClipAtPoint(undockClip, transform.position, 1.0f);
-                FreeDock(DockID.Right);
+                FreeDock(NavId.Right);
             }
         }
     }
 
-    private void OccupyDock(DockID dockID, GameObject gameObject, Transform parent, Quaternion localRotation)
+    private void OccupyDock(NavId dockID, GameObject gameObject, Transform parent, Quaternion localRotation)
     {
         if (gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidBody))
         {
@@ -113,11 +107,11 @@ public class HipDocksManager : BaseManager
 
         switch (dockID)
         {
-            case DockID.Left:
+            case NavId.Left:
                 leftDock.Data = data;
                 break;
 
-            case DockID.Right:
+            case NavId.Right:
                 rightDock.Data = data;
                 break;
         }
@@ -125,5 +119,5 @@ public class HipDocksManager : BaseManager
         AudioSource.PlayClipAtPoint(dockClip, transform.position, 1.0f);
     }
 
-    private void FreeDock(DockID dockID) => ((dockID == DockID.Left) ? leftDock : rightDock).Free();
+    private void FreeDock(NavId dockID) => ((dockID == NavId.Left) ? leftDock : rightDock).Free();
 }

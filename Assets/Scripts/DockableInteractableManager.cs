@@ -128,7 +128,7 @@ public class DockableInteractableManager : BaseManager, IInteractable
 
     public void OnSelectEntered(SelectEnterEventArgs args)
     {
-        Log($"{Time.time} {gameObject.name} {className} OnSelectEntered");
+        Log($"{Time.time} {gameObject.name} {className} OnSelectEntered:GameObject : {interactor.name}");
 
         interactor = args.interactorObject.transform.gameObject;
 
@@ -152,7 +152,7 @@ public class DockableInteractableManager : BaseManager, IInteractable
 
     public void OnSelectExited(SelectExitEventArgs args)
     {
-        Log($"{Time.time} {gameObject.name} {className} OnSelectExited");
+        Log($"{Time.time} {gameObject.name} {className} OnSelectExited:GameObject : {interactor.name}");
 
         if (gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidBody))
         {

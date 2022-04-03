@@ -180,7 +180,7 @@ public class DockableGunInteractableManager : DockableFocusableInteractableManag
                 hudCanvasManager.transform.localPosition = new Vector3(Mathf.Abs(hudCanvasManager.transform.localPosition.x), 0.06f, 0f);
             }
 
-            if (hipDocksManager.TryIsDocked(gameObject, out HipDocksManager.DockID dockID))
+            if (hipDocksManager.TryIsDocked(gameObject, out NavId dockID))
             {
                 hipDocksManager.UndockWeapon(gameObject);
             }
@@ -362,11 +362,11 @@ public class DockableGunInteractableManager : DockableFocusableInteractableManag
 
         if ((int) device.characteristics == (int) HandController.LeftHand)
         {
-            hipDocksManager.DockWeapon(gameObject, HipDocksManager.DockID.Left, Quaternion.Euler(90f, 0f, 0f));
+            hipDocksManager.DockWeapon(gameObject, NavId.Left, Quaternion.Euler(90f, 0f, 0f));
         }
         else if ((int) device.characteristics == (int) HandController.RightHand)
         {
-            hipDocksManager.DockWeapon(gameObject, HipDocksManager.DockID.Right, Quaternion.Euler(90f, 0f, 0f));
+            hipDocksManager.DockWeapon(gameObject, NavId.Right, Quaternion.Euler(90f, 0f, 0f));
         }
     }
 

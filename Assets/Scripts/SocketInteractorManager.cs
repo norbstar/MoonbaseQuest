@@ -78,6 +78,7 @@ public class SocketInteractorManager : BaseManager
     public void OnSelectEntered(SelectEnterEventArgs args)
     {
         Log($"{Time.time} {gameObject.name} {className} OnSelectEntered");
+
         var interactableGameObject = args.interactableObject.transform.gameObject;
         visualElement.enabled = false;
 
@@ -104,6 +105,7 @@ public class SocketInteractorManager : BaseManager
      public void OnSelectExited(SelectExitEventArgs args)
     {
         Log($"{Time.time} {gameObject.name} {className} OnSelectExited");
+
         var interactableGameObject = args.interactableObject.transform.gameObject;
         visualElement.enabled = true;
 
