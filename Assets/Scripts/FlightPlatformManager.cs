@@ -9,7 +9,8 @@ public class FlightPlatformManager  : BaseManager
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
     
     [Header("Config")]
-    [SerializeField] TextMeshProCanvasManager statsCanvas;
+    [SerializeField] TextMeshProCanvasManager zStatsCanvas;
+    [SerializeField] TextMeshProCanvasManager xStatsCanvas;
 
     private GameObject xrOrigin;
     private LocomotionProvider locomotionProvider;
@@ -51,13 +52,15 @@ public class FlightPlatformManager  : BaseManager
     void OnEnable()
     {
         StickInteractableManager.StickEventReceived += OnEvent;
-        XStickInteractableManager.MessageEventReceived += OnMessageEvent;
+        ZStickInteractableManager.MessageEventReceived += OnZMessageEvent;
+        XStickInteractableManager.MessageEventReceived += OnXMessageEvent;
     }
 
     void OnDisable()
     {
         StickInteractableManager.StickEventReceived -= OnEvent;
-        XStickInteractableManager.MessageEventReceived -= OnMessageEvent;
+        ZStickInteractableManager.MessageEventReceived -= OnZMessageEvent;
+        XStickInteractableManager.MessageEventReceived -= OnXMessageEvent;
     }
 
     private void EnablePlatform(bool enabled)
@@ -69,7 +72,8 @@ public class FlightPlatformManager  : BaseManager
             audioSource.volume = 0;
             audioSource.pitch = 1;
             audioSource.enabled = enabled;
-            statsCanvas.Reset();
+            zStatsCanvas.Reset();
+            xStatsCanvas.Reset();
         }
     }
 
@@ -99,10 +103,9 @@ public class FlightPlatformManager  : BaseManager
         }
     }
 
-    private void OnMessageEvent(string message)
-    {
-        statsCanvas.Text = message;
-    }
+    private void OnZMessageEvent(string message) => zStatsCanvas.Text = message;
+
+    private void OnXMessageEvent(string message) => xStatsCanvas.Text = message;
 
     private void OnEvent(/*NavId controllerId, */InteractableManager.EventType type)
     {

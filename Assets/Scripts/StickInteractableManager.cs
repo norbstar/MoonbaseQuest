@@ -65,5 +65,15 @@ public abstract class StickInteractableManager : FocusableInteractableManager, I
         StickEventReceived?.Invoke(/*controllerId, */EventType.OnSelectExited);
     }
 
+    protected float SignedEulerAngle(float eulerAngle)
+    {
+        if (eulerAngle >= 180)
+        {
+            eulerAngle = (360f - eulerAngle) * -1;
+        }
+
+        return eulerAngle;
+    }
+
     public abstract void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics, object value = null);
 }

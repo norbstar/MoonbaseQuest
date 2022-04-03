@@ -20,33 +20,20 @@ public class XStickInteractableManager : StickInteractableManager
 
         if (IsHeld)
         {
-            float z = SignedEulerAngle(transform.localEulerAngles.z);
-            // Log($"{gameObject.name}.FixedUpdate:Z : {z}");
+            float x = SignedEulerAngle(transform.localEulerAngles.x);
+            // Log($"{gameObject.name}.FixedUpdate:X : {x}");
 
-            float roundedZ = Mathf.Round((z * 100f) / 100f);
-            // Log($"{gameObject.name}.FixedUpdate:Rounded Z : {roundedZ}");
+            float roundedX = Mathf.Round((x * 100f) / 100f);
+            // Log($"{gameObject.name}.FixedUpdate:Rounded X : {roundedX}");
             
-            float absZ = Mathf.Abs(roundedZ);
-            // Log($"{gameObject.name}.FixedUpdate:ABS Z : {absZ}");
+            float absX = Mathf.Abs(roundedX);
+            // Log($"{gameObject.name}.FixedUpdate:ABS X : {absX}");
             
-            float normalizedZ = (absZ - 0) / (25 - 0);
-            // Log($"{gameObject.name}.FixedUpdate:Normalized Z : {absZ}");
+            float normalizedX = (absX - 0) / (25 - 0);
+            // Log($"{gameObject.name}.FixedUpdate:Normalized X : {absX}");
 
-            MessageEventReceived?.Invoke($"{absZ} : {normalizedZ}");
-
-            var rotation = (z < 0) ? (normalizedZ * -1) : normalizedZ;
-            FlightPlatformManager.Rotate(rotation * rotationForce, normalizedZ);
+            MessageEventReceived?.Invoke($"{absX} : {normalizedX}");
         }
-    }
-
-    public float SignedEulerAngle(float eulerAngle)
-    {
-        if (eulerAngle >= 180)
-        {
-            eulerAngle = (360f - eulerAngle) * -1;
-        }
-
-        return eulerAngle;
     }
 
     public override void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics, object value = null)
