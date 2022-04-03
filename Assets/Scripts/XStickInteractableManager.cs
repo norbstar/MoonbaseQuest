@@ -10,7 +10,6 @@ public class XStickInteractableManager : StickInteractableManager
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
     [SerializeField] float rotationForce = 10f;
-    [SerializeField] AudioClip fireClip;
 
     public delegate void MessageEvent(string message);
     public static event MessageEvent MessageEventReceived;
@@ -34,6 +33,9 @@ public class XStickInteractableManager : StickInteractableManager
             // Log($"{gameObject.name}.FixedUpdate:Normalized X : {absX}");
 
             MessageEventReceived?.Invoke($"{absX} : {normalizedX}");
+
+            var rotation = (x < 0) ? (normalizedX * -1) : normalizedX;
+            FlightPlatformManager.Rotate(ControllerId, rotation * rotationForce, normalizedX);
         }
     }
 
@@ -43,7 +45,7 @@ public class XStickInteractableManager : StickInteractableManager
 
         if (actuation.HasFlag(Actuation.Trigger))
         {
-            AudioSource.PlayClipAtPoint(fireClip, transform.position, 1.0f);
+            FlightPlatformManager.Fire(ControllerId);
         }
     }
 }

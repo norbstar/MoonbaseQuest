@@ -23,9 +23,10 @@ public abstract class StickInteractableManager : FocusableInteractableManager, I
     protected FlightPlatformManager FlightPlatformManager { get { return platformManager; } }
 
     [SerializeField] HandAnimationController hand;
-    // [SerializeField] NavId controllerId;
+    [SerializeField] NavId controllerId;
+    public NavId ControllerId { get  { return controllerId; } }
 
-    public delegate void StickEvent(/*NavId controllerId, */EventType eventType);
+    public delegate void StickEvent(NavId controllerId, EventType eventType);
     public static event StickEvent StickEventReceived;
 
     private GameObject xrOrigin;
@@ -54,7 +55,7 @@ public abstract class StickInteractableManager : FocusableInteractableManager, I
         Log($"{Time.time} {gameObject.name} {className} OnSelectEntered:GameObject : {interactor.name}");
 
         renderer.material = interactedMaterial;
-        StickEventReceived?.Invoke(/*controllerId, */EventType.OnSelectEntered);
+        StickEventReceived?.Invoke(controllerId, EventType.OnSelectEntered);
     }
 
     protected override void OnSelectExited(SelectExitEventArgs args, HandController controller)
@@ -62,7 +63,7 @@ public abstract class StickInteractableManager : FocusableInteractableManager, I
         Log($"{Time.time} {gameObject.name} {className} OnSelectExited:GameObject : {interactor.name}");
 
         renderer.material = defaultMaterial;
-        StickEventReceived?.Invoke(/*controllerId, */EventType.OnSelectExited);
+        StickEventReceived?.Invoke(controllerId, EventType.OnSelectExited);
     }
 
     protected float SignedEulerAngle(float eulerAngle)

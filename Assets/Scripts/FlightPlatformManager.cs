@@ -9,6 +9,7 @@ public class FlightPlatformManager  : BaseManager
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
     
     [Header("Config")]
+    [SerializeField] TurrentManager turret;
     [SerializeField] TextMeshProCanvasManager zStatsCanvas;
     [SerializeField] TextMeshProCanvasManager xStatsCanvas;
 
@@ -37,12 +38,12 @@ public class FlightPlatformManager  : BaseManager
 
             if (locomotionProvider.TryGetComponent<DeviceBasedContinuousMoveProvider>(out DeviceBasedContinuousMoveProvider moveProvider))
             {
-                continuousMoveProvider = moveProvider;    
+                continuousMoveProvider = moveProvider;
             }
 
             if (locomotionProvider.TryGetComponent<DeviceBasedContinuousTurnProvider>(out DeviceBasedContinuousTurnProvider turnProvider))
             {
-                continuousTurnProvider = turnProvider;    
+                continuousTurnProvider = turnProvider;
             }
         }
 
@@ -72,7 +73,7 @@ public class FlightPlatformManager  : BaseManager
             audioSource.volume = 0;
             audioSource.pitch = 1;
             audioSource.enabled = enabled;
-            
+
             zStatsCanvas.Reset();
             xStatsCanvas.Reset();
         }
@@ -91,16 +92,31 @@ public class FlightPlatformManager  : BaseManager
         }
     }
 
-    public void Rotate(float rotationForce, float normalized)
+    public void Rotate(NavId controllerId, float rotationForce, float normalized)
     {
-        Log($"{gameObject.name} {className} Rotate:Rotational Force : {rotationForce} Normalized : {normalized}");
+        Log($"{gameObject.name} {className} Rotate:Nav ID : {controllerId} Rotational Force : {rotationForce} Normalized : {normalized}");
         
-        transform.Rotate(0f, rotationForce, 0f);
-
-        if (audioSource != null)
+        if (controllerId == NavId.Left)
         {
-            audioSource.volume = normalized;
-            audioSource.pitch = (1 + (0.25f * normalized));
+            transform.Rotate(0f, rotationForce, 0f);
+
+            if (audioSource != null)
+            {
+                audioSource.volume = normalized;
+                audioSource.pitch = (1 + (0.25f * normalized));
+            }
+        }
+        else if (controllerId == NavId.Right)
+        {
+            turret.Rotate(rotationForce, normalized);
+        }
+    }
+
+    public void Fire(NavId controllerId)
+    {
+        if (controllerId == NavId.Right)
+        {
+            turret.Fire();
         }
     }
 
@@ -108,7 +124,7 @@ public class FlightPlatformManager  : BaseManager
 
     private void OnXMessageEvent(string message) => xStatsCanvas.Text = message;
 
-    private void OnEvent(/*NavId controllerId, */InteractableManager.EventType type)
+    private void OnEvent(NavId controllerId, InteractableManager.EventType type)
     {
         Log($"{gameObject.name} {className} OnEvent:Type : {type}");
 
@@ -121,6 +137,11 @@ public class FlightPlatformManager  : BaseManager
                     xrOrigin.transform.parent = transform;
                 }
 
+                if (controllerId == NavId.Right)
+                {
+                    turret.Activate();
+                }
+
                 ++interactorCount;
                 break;
 
@@ -131,6 +152,11 @@ public class FlightPlatformManager  : BaseManager
                 {
                     xrOrigin.transform.parent = null;
                     EnablePlatform(false);
+                }
+
+                if (controllerId == NavId.Right)
+                {
+                    turret.Deactivate();
                 }
                 break;
         }

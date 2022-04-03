@@ -36,7 +36,7 @@ public class ZStickInteractableManager : StickInteractableManager
             MessageEventReceived?.Invoke($"{absZ} : {normalizedZ}");
 
             var rotation = (z < 0) ? (normalizedZ * -1) : normalizedZ;
-            FlightPlatformManager.Rotate(rotation * rotationForce, normalizedZ);
+            FlightPlatformManager.Rotate(ControllerId, rotation * rotationForce, normalizedZ);
         }
     }
 
