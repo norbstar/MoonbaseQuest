@@ -8,7 +8,6 @@ using static Enum.ControllerEnums;
 public class ZStickInteractableManager : StickInteractableManager
 {
     [SerializeField] float rotationForce = 10f;
-    [SerializeField] AudioClip fireClip;
 
     public delegate void MessageEvent(string message);
     public static event MessageEvent MessageEventReceived;
@@ -21,6 +20,7 @@ public class ZStickInteractableManager : StickInteractableManager
 
         if (IsHeld)
         {
+            
             float z = SignedEulerAngle(transform.localEulerAngles.z);
             // Log($"{gameObject.name}.FixedUpdate:Z : {z}");
 
@@ -43,10 +43,5 @@ public class ZStickInteractableManager : StickInteractableManager
     public override void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics, object value = null)
     {
         Log($"{Time.time} {gameObject.name} {className} OnActuation:Actuation : {actuation} Value : {value}");
-
-        if (actuation.HasFlag(Actuation.Trigger))
-        {
-            AudioSource.PlayClipAtPoint(fireClip, transform.position, 1.0f);
-        }
     }
 }

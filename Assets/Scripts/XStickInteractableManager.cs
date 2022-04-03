@@ -10,6 +10,7 @@ public class XStickInteractableManager : StickInteractableManager
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
     [SerializeField] float rotationForce = 10f;
+    [SerializeField] AudioClip fireClip;
 
     public delegate void MessageEvent(string message);
     public static event MessageEvent MessageEventReceived;
@@ -39,5 +40,10 @@ public class XStickInteractableManager : StickInteractableManager
     public override void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics, object value = null)
     {
         Log($"{Time.time} {gameObject.name} {className} OnActuation:Actuation : {actuation} Value : {value}");
+
+        if (actuation.HasFlag(Actuation.Trigger))
+        {
+            AudioSource.PlayClipAtPoint(fireClip, transform.position, 1.0f);
+        }
     }
 }

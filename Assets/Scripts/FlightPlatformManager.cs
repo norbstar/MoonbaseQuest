@@ -72,6 +72,7 @@ public class FlightPlatformManager  : BaseManager
             audioSource.volume = 0;
             audioSource.pitch = 1;
             audioSource.enabled = enabled;
+            
             zStatsCanvas.Reset();
             xStatsCanvas.Reset();
         }
