@@ -58,6 +58,18 @@ public abstract class StickInteractableManager : FocusableInteractableManager, I
         StickEventReceived?.Invoke(controllerId, EventType.OnSelectEntered);
     }
 
+    public void OnActivated(ActivateEventArgs args)
+    {
+        Log($"{Time.time} {gameObject.name} {className} OnActivated");
+        StickEventReceived?.Invoke(controllerId, EventType.OnActivated);
+    }
+
+    public void OnDeactivated(DeactivateEventArgs args)
+    {
+        Log($"{Time.time} {gameObject.name} {className} OnDeactivated");
+        StickEventReceived?.Invoke(controllerId, EventType.OnDeactivated);
+    }
+
     protected override void OnSelectExited(SelectExitEventArgs args, HandController controller)
     {
         Log($"{Time.time} {gameObject.name} {className} OnSelectExited:GameObject : {interactor.name}");

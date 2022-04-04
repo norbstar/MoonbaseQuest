@@ -18,6 +18,8 @@ public class InteractableManager : GizmoManager, IInteractable
     public enum EventType
     {
         OnSelectEntered,
+        OnActivated,
+        OnDeactivated,
         OnSelectExited
     }
 
