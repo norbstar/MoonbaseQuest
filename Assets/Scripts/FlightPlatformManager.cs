@@ -112,13 +112,13 @@ public class FlightPlatformManager  : BaseManager
         }
     }
 
-    public void Fire(NavId controllerId)
-    {
-        if (controllerId == NavId.Right)
-        {
-            turret.Fire();
-        }
-    }
+    // public void OnTrigger(NavId controllerId)
+    // {
+    //     if (controllerId == NavId.Right)
+    //     {
+    //         turret.OnTrigger();
+    //     }
+    // }
 
     private void OnZMessageEvent(string message) => zStatsCanvas.Text = message;
 
@@ -143,6 +143,20 @@ public class FlightPlatformManager  : BaseManager
                 }
 
                 ++interactorCount;
+                break;
+
+            case InteractableManager.EventType.OnActivated:
+                if (controllerId == NavId.Right)
+                {
+                    turret.OnActivate();
+                }
+                break;
+
+            case InteractableManager.EventType.OnDeactivated:
+                if (controllerId == NavId.Right)
+                {
+                    turret.OnDeactivate();
+                }
                 break;
 
             case InteractableManager.EventType.OnSelectExited:

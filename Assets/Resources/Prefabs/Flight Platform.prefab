@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2308877888241190783}
   - component: {fileID: 6458106518766776190}
   - component: {fileID: 8829128630123763877}
+  - component: {fileID: 1957564344028826390}
   - component: {fileID: 1138150456}
   - component: {fileID: 1138150459}
   - component: {fileID: 1138150455}
@@ -32,7 +33,8 @@ Transform:
   m_LocalRotation: {x: -0, y: -0.7071068, z: -0, w: 0.7071068}
   m_LocalPosition: {x: -0.20000005, y: 0.012799926, z: 0.0005}
   m_LocalScale: {x: 0.10000001, y: 0.099999994, z: 0.10000001}
-  m_Children: []
+  m_Children:
+  - {fileID: 1847678293241767085}
   m_Father: {fileID: 4950093223597416067}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -95,8 +97,8 @@ Animator:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 902560128290370019}
   m_Enabled: 1
-  m_Avatar: {fileID: 9000000, guid: 995c252f2767fe840920e073859ff3a9, type: 3}
-  m_Controller: {fileID: 0}
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 05a0b182d11c7aa4eaea1e2a186b2c83, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -105,6 +107,18 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &1957564344028826390
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 902560128290370019}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 336ed81182fe6c54cb3425a541b8f2f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!54 &1138150456
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -170,9 +184,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enableLogging: 0
+  animator: {fileID: 8829128630123763877}
+  spawnPoint: {fileID: 5178619342087180991}
+  showHits: 1
+  hitPrefab: {fileID: 6110918014904403394, guid: 5d95586bfd9e933439d256446fab489c, type: 3}
   activateClip: {fileID: 8300000, guid: 45a07e1c087a3704eaded7ff7c02eb73, type: 3}
   deactivateClip: {fileID: 8300000, guid: 45a07e1c087a3704eaded7ff7c02eb73, type: 3}
-  fireClip: {fileID: 8300000, guid: f0d70ec071ab10c43b91bb211985d11d, type: 3}
+  hitClip: {fileID: 8300000, guid: f0d70ec071ab10c43b91bb211985d11d, type: 3}
+  animationCompleteEvent: {fileID: 1957564344028826390}
+  actuationUPS: 50
+  actuationForce: 1000
 --- !u!1 &976599503030788211
 GameObject:
   m_ObjectHideFlags: 0
@@ -452,6 +473,36 @@ MonoBehaviour:
   turret: {fileID: 1138150455}
   zStatsCanvas: {fileID: 0}
   xStatsCanvas: {fileID: 0}
+--- !u!1 &5178619342087180991
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1847678293241767085}
+  m_Layer: 0
+  m_Name: Spawn Point
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1847678293241767085
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5178619342087180991}
+  m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: -0.0049997023, y: -0.15299918, z: 3.5000002}
+  m_LocalScale: {x: 11, y: 11, z: 11}
+  m_Children: []
+  m_Father: {fileID: 5330228702372012333}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6366068963978717580
 GameObject:
   m_ObjectHideFlags: 0

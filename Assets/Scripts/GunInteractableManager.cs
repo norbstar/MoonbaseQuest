@@ -298,6 +298,38 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
         }
     }
 
+    private void Fire()
+    {
+        if (state == Enum.GunInteractableEnums.State.Inactive)
+        {
+            AudioSource.PlayClipAtPoint(overloadedClip, transform.position, 1.0f);
+            return;
+        }
+
+        if ((!homeHUD.HasAmmo) || (!canFire)) return;
+
+        canFire = false;
+        animator.SetTrigger("Fire");
+        AudioSource.PlayClipAtPoint(hitClip, transform.position, 1.0f);
+
+        if (TryGet.TryGetIdentifyController(interactor, out HandController controller))
+        {
+            controller.SetImpulse();
+        }
+
+        if (spawnLaser)
+        {
+            GameObject.Instantiate(laserPrefab, spawnPoint.transform.position, spawnPoint.transform.rotation);
+        }
+        else
+        {
+            var laserInstance = GameObject.Instantiate(laserFXPrefab, spawnPoint.transform.position, spawnPoint.transform.rotation);
+            laserInstance.transform.parent = gameObject.transform;
+        }
+
+        StartCoroutine(PostFireCoroutine());
+    }
+
     private IEnumerator PostFireCoroutine()
     {
         homeHUD.DecrementAmmoCount();
@@ -340,38 +372,6 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
                 collisionData.Point = point;
             }
         }
-    }
-
-    private void Fire()
-    {
-        if (state == Enum.GunInteractableEnums.State.Inactive)
-        {
-            AudioSource.PlayClipAtPoint(overloadedClip, transform.position, 1.0f);
-            return;
-        }
-
-        if ((!homeHUD.HasAmmo) || (!canFire)) return;
-
-        canFire = false;
-        animator.SetTrigger("Fire");
-        AudioSource.PlayClipAtPoint(hitClip, transform.position, 1.0f);
-
-        if (TryGet.TryGetIdentifyController(interactor, out HandController controller))
-        {
-            controller.SetImpulse();
-        }
-
-        if (spawnLaser)
-        {
-            GameObject.Instantiate(laserPrefab, spawnPoint.transform.position, spawnPoint.transform.rotation);
-        }
-        else
-        {
-            var laserInstance = GameObject.Instantiate(laserFXPrefab, spawnPoint.transform.position, spawnPoint.transform.rotation);
-            laserInstance.transform.parent = gameObject.transform;
-        }
-
-        StartCoroutine(PostFireCoroutine());
     }
 
     public void OnFireComplete() => canFire = true;

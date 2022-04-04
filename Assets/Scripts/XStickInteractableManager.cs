@@ -42,10 +42,5 @@ public class XStickInteractableManager : StickInteractableManager
     public override void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics, object value = null)
     {
         Log($"{Time.time} {gameObject.name} {className} OnActuation:Actuation : {actuation} Value : {value}");
-
-        if (actuation.HasFlag(Actuation.Trigger))
-        {
-            FlightPlatformManager.Fire(ControllerId);
-        }
     }
 }
