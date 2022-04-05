@@ -35,7 +35,11 @@ public class XStickInteractableManager : StickInteractableManager
             MessageEventReceived?.Invoke($"{absX} : {normalizedX}");
 
             var rotation = (x < 0) ? (normalizedX * -1) : normalizedX;
-            FlightPlatformManager.Rotate(ControllerId, rotation * rotationForce, normalizedX);
+
+            if (FlightPlatformManager != null)
+            {
+                FlightPlatformManager.Rotate(ControllerId, rotation * rotationForce, normalizedX);
+            }
         }
     }
 
