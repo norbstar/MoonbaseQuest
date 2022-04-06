@@ -23,6 +23,8 @@ namespace SimonSays.Simplified
         [SerializeField] AudioClip endDemoClip;
         [SerializeField] AudioClip passClip;
         [SerializeField] AudioClip failClip;
+        [SerializeField] AudioClip fizzClip;
+        [SerializeField] AudioClip buzzClip;
 
         [Header("Config")]
         [SerializeField] int startingFrequency = 1;
@@ -145,11 +147,6 @@ namespace SimonSays.Simplified
 
             AudioSource.PlayClipAtPoint(passClip, transform.position, 1.0f);
 
-            if (int.TryParse(uiManager.ScoreTextUI, out int score))
-            {
-                uiManager.ScoreTextUI = (++score).ToString();
-            }
-
             --iterationsAtFrequency;
 
             if (iterationsAtFrequency == 0)
@@ -167,6 +164,8 @@ namespace SimonSays.Simplified
 
             StartTest();
         }
+
+
 
         private void FailTest(FailReason reason)
         {
@@ -215,6 +214,8 @@ namespace SimonSays.Simplified
                 {
                     sequence.sequence.RemoveAt(0);
 
+                    AddToScore();
+
                     if (!HasElements(sequence.sequence))
                     {
                         PassTest();
@@ -223,6 +224,31 @@ namespace SimonSays.Simplified
                 else
                 {
                     FailTest(FailReason.WrongButton);
+                }
+            }
+        }
+
+        private void AddToScore()
+        {
+            if (int.TryParse(uiManager.ScoreTextUI, out int score))
+            {
+                ++score;
+
+                uiManager.ScoreTextUI = score.ToString();
+
+                bool fizz = (score % 3 == 0);
+                bool buzz = (score % 5 == 0);
+
+                if (fizz)
+                {
+                    Debug.Log("Jizz");
+                    AudioSource.PlayClipAtPoint(fizzClip, transform.position, 1.0f);
+                }
+
+                if (buzz)
+                {
+                    Debug.Log("Buzz");
+                    AudioSource.PlayClipAtPoint(buzzClip, transform.position, 1.0f);
                 }
             }
         }
