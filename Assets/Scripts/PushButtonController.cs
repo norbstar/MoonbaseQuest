@@ -26,6 +26,7 @@ public class PushButtonController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Debug.Log($"PushButtonController OnStart");
         startPosition = transform.localPosition;
     }
 

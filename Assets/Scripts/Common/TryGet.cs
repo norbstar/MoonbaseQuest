@@ -97,8 +97,8 @@ public class TryGet
             return true;
         }
 
-        rootGameObject = default(GameObject);
-        return false;
+        rootGameObject = gameObject;
+        return true;
     }
 
     public static bool TryGetSocketInteractorManager(SocketCompatibilityLayerManager manager, out SocketInteractorManager socketInteractorManager)
