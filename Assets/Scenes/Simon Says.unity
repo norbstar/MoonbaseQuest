@@ -340,6 +340,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   startButton: {fileID: 428186674}
+  playArea: {fileID: 0}
   buttons:
   - {fileID: 973273044}
   - {fileID: 2031420297}
@@ -353,9 +354,10 @@ MonoBehaviour:
   startDemoClip: {fileID: 8300000, guid: b0873c92b4e6f1744aed1a7681b0a6c9, type: 3}
   endDemoClip: {fileID: 8300000, guid: b0873c92b4e6f1744aed1a7681b0a6c9, type: 3}
   passClip: {fileID: 8300000, guid: 74026c852556a6c4ab176c7cc0c1ce6d, type: 3}
-  failClip: {fileID: 8300000, guid: bcfbe74b2aab6dc448d8e88d84b28c7d, type: 3}
-  fizzClip: {fileID: 8300000, guid: 6f6f9c6d9b25ce84ab3d75977dc25ac2, type: 3}
-  buzzClip: {fileID: 8300000, guid: ae6d57e075a579a4980838f974aec806, type: 3}
+  failClip: {fileID: 8300000, guid: c3fdaae8ff5fd3545a3dc82cb94ea2ae, type: 3}
+  fxAClip: {fileID: 8300000, guid: 6f6f9c6d9b25ce84ab3d75977dc25ac2, type: 3}
+  fxBClip: {fileID: 8300000, guid: ae6d57e075a579a4980838f974aec806, type: 3}
+  gameOverClip: {fileID: 8300000, guid: 91cea2b82a7fc1e4ba67cd804057404e, type: 3}
   startingFrequency: 1
   maxIterationsAtFrequency: 3
   waitTimeBetweenSequence: 0.5
@@ -4137,7 +4139,19 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1383892715729995467, guid: e4644054f00eafe47bb8203484c68063, type: 3}
+      propertyPath: m_Radius
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1383892715729995467, guid: e4644054f00eafe47bb8203484c68063, type: 3}
       propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1383892715729995467, guid: e4644054f00eafe47bb8203484c68063, type: 3}
+      propertyPath: m_SkinWidth
+      value: 0.08
+      objectReference: {fileID: 0}
+    - target: {fileID: 1383892715729995467, guid: e4644054f00eafe47bb8203484c68063, type: 3}
+      propertyPath: m_MinMoveDistance
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9196269910901901676, guid: e4644054f00eafe47bb8203484c68063, type: 3}
@@ -4150,7 +4164,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9196269910901901676, guid: e4644054f00eafe47bb8203484c68063, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.59
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9196269910901901676, guid: e4644054f00eafe47bb8203484c68063, type: 3}
       propertyPath: m_LocalPosition.z
@@ -4158,23 +4172,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9196269910901901676, guid: e4644054f00eafe47bb8203484c68063, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.70315766
+      value: 0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: 9196269910901901676, guid: e4644054f00eafe47bb8203484c68063, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.074627936
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9196269910901901676, guid: e4644054f00eafe47bb8203484c68063, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.70315766
+      value: -0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: 9196269910901901676, guid: e4644054f00eafe47bb8203484c68063, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0.07462795
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9196269910901901676, guid: e4644054f00eafe47bb8203484c68063, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 12.117
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9196269910901901676, guid: e4644054f00eafe47bb8203484c68063, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y

@@ -10,6 +10,7 @@ namespace SimonSays.Simplified
     {
         [Header("Components")]
         [SerializeField] SimonSaysStartButtonManager startButton;
+        [SerializeField] GameObject playArea;
         [SerializeField] List<SimonSaysButtonManager> buttons;
         [SerializeField] SimonSaysUIManager uiManager;
 
@@ -17,14 +18,14 @@ namespace SimonSays.Simplified
         [SerializeField] AudioClip readyClip;
         [SerializeField] AudioClip setClip;
         [SerializeField] AudioClip goClip;
-
         [SerializeField] AudioClip buttonPressClip;
         [SerializeField] AudioClip startDemoClip;
         [SerializeField] AudioClip endDemoClip;
         [SerializeField] AudioClip passClip;
         [SerializeField] AudioClip failClip;
-        [SerializeField] AudioClip fizzClip;
-        [SerializeField] AudioClip buzzClip;
+        [SerializeField] AudioClip fxAClip;
+        [SerializeField] AudioClip fxBClip;
+        [SerializeField] AudioClip gameOverClip;
 
         [Header("Config")]
         [SerializeField] int startingFrequency = 1;
@@ -165,28 +166,23 @@ namespace SimonSays.Simplified
             StartTest();
         }
 
-
-
         private void FailTest(FailReason reason)
         {
-            Debug.Log($"FailTest Reason : {reason}");
             StopCoroutine(testSequenceCoroutine);
 
             testComplete = true;
             testInProgress = false;
 
-            AudioSource.PlayClipAtPoint(failClip, transform.position, 1.0f);
+            int score = PenaliseScore();
 
-            switch (reason)
+            if (score > 0)
             {
-                case FailReason.WrongButton:
-                    uiManager.MainTextUI = "Wrong Button";
-                    break;
-
-                case FailReason.Timeout:
-                    uiManager.MainTextUI = "Timeout";
-                    break;
+                StartTest();
+                return;
             }
+
+            AudioSource.PlayClipAtPoint(failClip, transform.position, 1.0f);
+            uiManager.MainTextUI = "Game Over";
             
             StartCoroutine(ResetGameCoroutine());
         }
@@ -228,29 +224,46 @@ namespace SimonSays.Simplified
             }
         }
 
-        private void AddToScore()
+        private int AddToScore()
         {
-            if (int.TryParse(uiManager.ScoreTextUI, out int score))
+            int score;
+
+            if (int.TryParse(uiManager.ScoreTextUI, out score))
             {
                 ++score;
 
                 uiManager.ScoreTextUI = score.ToString();
 
-                bool fizz = (score % 3 == 0);
-                bool buzz = (score % 5 == 0);
+                bool fxA = (score % 3 == 0);
+                bool fxB = (score % 5 == 0);
 
-                if (fizz)
+                if (fxA)
                 {
-                    Debug.Log("Jizz");
-                    AudioSource.PlayClipAtPoint(fizzClip, transform.position, 1.0f);
+                    AudioSource.PlayClipAtPoint(fxAClip, transform.position, 1.0f);
                 }
 
-                if (buzz)
+                if (fxB)
                 {
-                    Debug.Log("Buzz");
-                    AudioSource.PlayClipAtPoint(buzzClip, transform.position, 1.0f);
+                    AudioSource.PlayClipAtPoint(fxBClip, transform.position, 1.0f);
                 }
             }
+            
+            return score;
+        }
+
+        private int PenaliseScore()
+        {
+            AudioSource.PlayClipAtPoint(gameOverClip, transform.position, 1.0f);
+
+            int score;
+
+            if (int.TryParse(uiManager.ScoreTextUI, out score))
+            {
+                --score;
+                uiManager.ScoreTextUI = score.ToString();
+            }
+
+            return score;
         }
 
         private void OnStartButtonEvent(EventType eventType)
