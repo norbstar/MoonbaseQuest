@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.Linq;
+
 using UnityEngine;
 
 using Chess.Pieces;
@@ -10,6 +13,10 @@ namespace Chess
         [Header("Components")]
         [SerializeField] ChessBoardSetManager set;
         [SerializeField] ButtonEventManager resetButton;
+
+        [Header("Pieces")]
+        [SerializeField] float rotationSpeed = 25f;
+        [SerializeField] float movementSpeed = 25f;
 
         private Cell[,] matrix;
         private int onHomeEventsPending;
@@ -49,14 +56,23 @@ namespace Chess
             }
         }
 
-        private void ResetBoard()
+        private List<Piece> ActivePieces()
         {
             var allPieces = set.AllPieces();
-            onHomeEventsPending = allPieces.Count;
+            return allPieces.Where(p => p.isActiveAndEnabled).ToList();
+        }
 
-            foreach (Piece piece in allPieces)
+        private void ResetBoard()
+        {
+            var activePieces = ActivePieces();
+            onHomeEventsPending = activePieces.Count;
+
+            foreach (Piece piece in activePieces)
             {
-                piece.GoHome();
+                if (piece.isActiveAndEnabled)
+                {
+                    piece.GoHome(rotationSpeed, movementSpeed);
+                }
             }
         }
 
@@ -66,9 +82,12 @@ namespace Chess
 
             if (onHomeEventsPending == 0)
             {
-                foreach (Piece piece in set.AllPieces())
+                var activePieces = ActivePieces();
+                onHomeEventsPending = activePieces.Count;
+
+                foreach (Piece piece in activePieces)
                 {
-                    piece.ResetPhysics();
+                    piece.ReinstatePhysics();
                 }
             }
         }
@@ -131,12 +150,15 @@ namespace Chess
 #region Pieces
         private void MapPieces()
         {
-            foreach (Piece piece in set.AllPieces())
+            var activePieces = ActivePieces();
+
+            foreach (Piece piece in activePieces)
             {
-                if (TryGetPieceToCell(piece, out Cell cell))
+                if ((piece.isActiveAndEnabled) && (TryGetPieceToCell(piece, out Cell cell)))
                 {
-                    piece.Home = cell;
+                    piece.HomeCell = cell;
                     piece.HomeEventReceived += OnHomeEvent;
+
                     matrix[cell.coord.x, cell.coord.y].piece = piece;
                 }
             }

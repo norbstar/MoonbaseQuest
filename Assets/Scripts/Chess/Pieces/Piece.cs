@@ -1,3 +1,5 @@
+using System.Collections;
+
 using UnityEngine;
 
 namespace Chess.Pieces
@@ -7,21 +9,23 @@ namespace Chess.Pieces
         [SerializeField] PieceType type;
         public PieceType Type { get { return type; } }
         
-        public Cell Home { get { return homeCell; } set { homeCell = value; } }
+        public Cell HomeCell { get { return homeCell; } set { activeCell = homeCell = value; } }
+        public Cell ActiveCell { get { return activeCell; } set { activeCell = value; } }
 
         public delegate void HomeEvent();
         public event HomeEvent HomeEventReceived;
         
         private new Rigidbody rigidbody;
         private new Collider collider;
-        private Quaternion localRotation;
+        private Quaternion originalRotation;
         private Cell homeCell;
+        private Cell activeCell;
         
         void Awake()
         {
             ResolveDependencies();
 
-            localRotation = transform.localRotation;
+            originalRotation = transform.localRotation;
         }
 
         private void ResolveDependencies()
@@ -33,7 +37,7 @@ namespace Chess.Pieces
         // Start is called before the first frame update
         void Start()
         {
-            
+            // TODO
         }
 
         // Update is called once per frame
@@ -42,21 +46,36 @@ namespace Chess.Pieces
             
         }
 
-        public void ResetPhysics()
+        public void ReinstatePhysics() => EnablePhysics(true);
+
+        private void EnablePhysics(bool enabled)
         {
-            rigidbody.isKinematic = false;
-            collider.enabled = true;
+            rigidbody.isKinematic = !enabled;
+            collider.enabled = enabled;
         }
 
-        public void GoHome()
+        public void SnapToActiveCell()
         {
-            rigidbody.isKinematic = true;
-            collider.enabled = false;
+            EnablePhysics(false);
 
-            transform.localRotation = localRotation;
-            transform.localPosition = homeCell.localPosition;
+            transform.localRotation = originalRotation;
+            transform.localPosition = activeCell.localPosition;
 
-            // TODO animation sequence
+            EnablePhysics(true);
+        }
+
+        public void GoHome(float rotationSpeed, float movementSpeed) => StartCoroutine(GoHomeCoroutine(rotationSpeed, movementSpeed));
+
+        private IEnumerator GoHomeCoroutine(float rotationSpeed, float movementSpeed)
+        {
+            EnablePhysics(false);
+
+            while ((transform.localRotation != originalRotation) || (transform.localPosition != homeCell.localPosition))
+            {
+                transform.localRotation = Quaternion.RotateTowards(transform.localRotation, originalRotation, rotationSpeed * Time.deltaTime);
+                transform.localPosition = Vector3.MoveTowards(transform.localPosition, homeCell.localPosition, movementSpeed * Time.deltaTime);
+                yield return null;
+            }
 
             HomeEventReceived?.Invoke();
         }
