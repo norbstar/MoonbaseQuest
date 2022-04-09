@@ -37,7 +37,11 @@ public class HandController : BaseManager
 
     [Header("Camera")]
     [SerializeField] new Camera camera;
-    
+
+    [Header("Colliders")]
+    [SerializeField] SphereCollider sphereCollider;
+    [SerializeField] BoxCollider boxCollider;
+
     [Header("Teleport")]
     [SerializeField] bool enableTeleport = true;
     [SerializeField] float teleportSpeed = 5f;
@@ -384,6 +388,10 @@ public class HandController : BaseManager
             //     callback.OnActuation(actuation, characteristics);
             // }
 
+            bool gripping = (ActuationContains(Actuation.Grip));
+            boxCollider.enabled = !gripping;
+            sphereCollider.enabled = gripping;
+
             if (ActuationEventReceived != null)
             {
                 ActuationEventReceived.Invoke(actuation, characteristics);
@@ -414,6 +422,11 @@ public class HandController : BaseManager
         }
         
         UpdateState();
+    }
+
+    private bool ActuationContains(Actuation thisActuation)
+    {
+        return (actuation & thisActuation) == thisActuation;
     }
 
     private void UpdateState()

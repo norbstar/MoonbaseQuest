@@ -5,10 +5,10 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.XR.Interaction.Toolkit;
 
-namespace SimonSays
+namespace Chess.Button
 {
     [RequireComponent(typeof(MeshRenderer))]
-    public class SimpleHandButtonManager : MonoBehaviour
+    public class ButtonManager : MonoBehaviour
     {
         [Header("Materials")]
         [SerializeField] Material onMaterial;
@@ -61,7 +61,7 @@ namespace SimonSays
             if (match == null) return;
 
             OnPressed();
-            onPressed?.Invoke();
+            onPressed.Invoke();
         }
 
         public void OnSimulateOnPressed() => OnPressed();
@@ -80,7 +80,7 @@ namespace SimonSays
             if (match == null) return;
 
             OnReleased();
-            onReleased?.Invoke();
+            onReleased.Invoke();
         }
 
         public void OnSimulateOnReleased() => OnReleased();
