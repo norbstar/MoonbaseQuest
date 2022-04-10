@@ -11,11 +11,11 @@ GameObject:
   - component: {fileID: 3253904474963272060}
   - component: {fileID: 3260943553647500484}
   - component: {fileID: 3273540570721214650}
-  - component: {fileID: -2118311475913940215}
+  - component: {fileID: 993663850777758550}
   - component: {fileID: -4378067296115512290}
   - component: {fileID: 4771021901655428374}
   - component: {fileID: 4556343197373502421}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Knight
   m_TagString: Chess Piece
   m_Icon: {fileID: 0}
@@ -86,8 +86,8 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &-2118311475913940215
-BoxCollider:
+--- !u!64 &993663850777758550
+MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -96,9 +96,10 @@ BoxCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.895717, y: 1.25607, z: 0.83156425}
-  m_Center: {x: 0, y: 0.628035, z: 0.027925223}
+  serializedVersion: 4
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 4300000, guid: 3d375d4a1907b3f4098bb64446492fed, type: 3}
 --- !u!54 &-4378067296115512290
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -142,7 +143,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_InteractionManager: {fileID: 0}
   m_Colliders:
-  - {fileID: -2118311475913940215}
+  - {fileID: 0}
   m_InteractionLayerMask:
     serializedVersion: 2
     m_Bits: 4294967295

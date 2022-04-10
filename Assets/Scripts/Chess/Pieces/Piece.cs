@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Chess.Pieces
 {
-    public abstract class Piece : MonoBehaviour
+    public abstract class Piece : MonoBehaviour, IFocus
     {
         [SerializeField] PieceType type;
         public PieceType Type { get { return type; } }
@@ -15,8 +15,10 @@ namespace Chess.Pieces
         public delegate void HomeEvent();
         public event HomeEvent HomeEventReceived;
         
+        private new MeshRenderer renderer;
         private new Rigidbody rigidbody;
         private new Collider collider;
+        private Color defaultMaterialColor;
         private Quaternion originalRotation;
         private Cell homeCell;
         private Cell activeCell;
@@ -26,10 +28,12 @@ namespace Chess.Pieces
             ResolveDependencies();
 
             originalRotation = transform.localRotation;
+            defaultMaterialColor = renderer.material.color;
         }
 
         private void ResolveDependencies()
         {
+            renderer = GetComponent<MeshRenderer>() as MeshRenderer;
             rigidbody = GetComponent<Rigidbody>() as Rigidbody;
             collider = GetComponent<Collider>() as Collider;
         }
@@ -44,6 +48,16 @@ namespace Chess.Pieces
         void Update()
         {
             
+        }
+
+        public void GainedFocus(GameObject gameObject)
+        {
+            renderer.material.color = Color.yellow;
+        }
+
+        public void LostFocus(GameObject gameObject)
+        {
+            renderer.material.color = defaultMaterialColor;
         }
 
         public void ReinstatePhysics() => EnablePhysics(true);

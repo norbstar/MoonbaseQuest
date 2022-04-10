@@ -39,8 +39,7 @@ public class HandController : BaseManager
     [SerializeField] new Camera camera;
 
     [Header("Colliders")]
-    [SerializeField] SphereCollider sphereCollider;
-    [SerializeField] BoxCollider boxCollider;
+    [SerializeField] protected SphereCollider sphereCollider;
 
     [Header("Teleport")]
     [SerializeField] bool enableTeleport = true;
@@ -56,7 +55,7 @@ public class HandController : BaseManager
     public bool IsHolding { get { return isHolding; } }
     public IInteractable Interactable { get { return interactable; } }
 
-    private MainCameraManager cameraManager;
+    private TrackingMainCameraManager cameraManager;
     private InputDevice controller;
     private XRController xrController;
     private bool isHovering = false;
@@ -73,7 +72,7 @@ public class HandController : BaseManager
     private void ResolveDependencies()
     {
         xrController = GetComponent<XRController>() as XRController;
-        cameraManager = camera.GetComponent<MainCameraManager>() as MainCameraManager;
+        cameraManager = camera.GetComponent<TrackingMainCameraManager>() as TrackingMainCameraManager;
 
         var obj = FindObjectOfType<DebugCanvas>();
         debugCanvas = obj?.GetComponent<DebugCanvas>() as DebugCanvas;
@@ -389,8 +388,7 @@ public class HandController : BaseManager
             // }
 
             bool gripping = (ActuationContains(Actuation.Grip));
-            boxCollider.enabled = !gripping;
-            sphereCollider.enabled = gripping;
+            IsGripping(gripping);
 
             if (ActuationEventReceived != null)
             {
@@ -423,6 +421,8 @@ public class HandController : BaseManager
         
         UpdateState();
     }
+
+    protected virtual void IsGripping(bool gripping) { }
 
     private bool ActuationContains(Actuation thisActuation)
     {
