@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -12,6 +13,7 @@ namespace Chess
     {
         [Header("Components")]
         [SerializeField] ChessBoardSetManager set;
+        [SerializeField] CoordReferenceCanvas coordReferenceCanvas;
         [SerializeField] ButtonEventManager resetButton;
 
         [Header("Pieces")]
@@ -31,6 +33,7 @@ namespace Chess
         {
             MapMatrix();
             MapPieces();
+            // ReportMatrix();
         }
 
         void OnEnable()
@@ -76,7 +79,7 @@ namespace Chess
             }
         }
 
-        private void OnHomeEvent()
+        private void OnHomeEvent(Piece piece)
         {
             --onHomeEventsPending;
 
@@ -85,10 +88,27 @@ namespace Chess
                 var activePieces = ActivePieces();
                 onHomeEventsPending = activePieces.Count;
 
-                foreach (Piece piece in activePieces)
+                foreach (Piece thisPiece in activePieces)
                 {
-                    piece.ReinstatePhysics();
+                    thisPiece.ReinstatePhysics();
                 }
+            }
+        }
+
+        private void OnEvent(Piece piece, FocusType focusType)
+        {
+            switch (focusType)
+            {
+                case FocusType.OnFocusGained:
+                    if (TryGetCoordReference(piece.ActiveCell.coord, out string reference))
+                    {
+                        coordReferenceCanvas.TextUI = reference;
+                    }
+                    break;
+
+                case FocusType.OnFocusLost:
+                        coordReferenceCanvas.TextUI = string.Empty;
+                    break;
             }
         }
 
@@ -158,6 +178,7 @@ namespace Chess
                 {
                     piece.HomeCell = cell;
                     piece.HomeEventReceived += OnHomeEvent;
+                    piece.EventReceived += OnEvent;
 
                     matrix[cell.coord.x, cell.coord.y].piece = piece;
                 }
@@ -217,6 +238,20 @@ namespace Chess
             }
 
             localPosition = default(Vector3);
+            return false;
+        }
+
+        private bool TryGetCoordReference(Coord coord, out string reference)
+        {
+            if ((coord.x >= 0 && coord.x <= 7) && (coord.y >= 0 && coord.y <= 7))
+            {
+                char letter = Convert.ToChar((int) 'a' + coord.x);
+                char digit = Convert.ToChar((int) '1' + coord.y);
+                reference = $"{letter} : {digit}";
+                return true;
+            }
+
+            reference = default(string);
             return false;
         }
 #endregion

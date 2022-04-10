@@ -12,8 +12,11 @@ namespace Chess.Pieces
         public Cell HomeCell { get { return homeCell; } set { activeCell = homeCell = value; } }
         public Cell ActiveCell { get { return activeCell; } set { activeCell = value; } }
 
-        public delegate void HomeEvent();
+        public delegate void HomeEvent(Piece piece);
         public event HomeEvent HomeEventReceived;
+
+        public delegate void Event(Piece piece, FocusType focusType);
+        public event Event EventReceived;
         
         private new MeshRenderer renderer;
         private new Rigidbody rigidbody;
@@ -53,11 +56,13 @@ namespace Chess.Pieces
         public void GainedFocus(GameObject gameObject)
         {
             renderer.material.color = Color.yellow;
+            EventReceived?.Invoke(this, FocusType.OnFocusGained);
         }
 
         public void LostFocus(GameObject gameObject)
         {
             renderer.material.color = defaultMaterialColor;
+            EventReceived?.Invoke(this, FocusType.OnFocusLost);
         }
 
         public void ReinstatePhysics() => EnablePhysics(true);
@@ -91,7 +96,7 @@ namespace Chess.Pieces
                 yield return null;
             }
 
-            HomeEventReceived?.Invoke();
+            HomeEventReceived?.Invoke(this);
         }
     }
 }
