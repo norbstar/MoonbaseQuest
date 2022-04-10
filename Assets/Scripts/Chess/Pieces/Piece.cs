@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 
 using UnityEngine;
 
@@ -8,7 +9,10 @@ namespace Chess.Pieces
     {
         [SerializeField] PieceType type;
         public PieceType Type { get { return type; } }
-        
+
+        [SerializeField] Set set;
+        public Set Set { get { return set; } }
+
         public Cell HomeCell { get { return homeCell; } set { activeCell = homeCell = value; } }
         public Cell ActiveCell { get { return activeCell; } set { activeCell = value; } }
 
@@ -55,15 +59,23 @@ namespace Chess.Pieces
 
         public void GainedFocus(GameObject gameObject)
         {
-            renderer.material.color = Color.yellow;
             EventReceived?.Invoke(this, FocusType.OnFocusGained);
         }
 
         public void LostFocus(GameObject gameObject)
         {
-            renderer.material.color = defaultMaterialColor;
             EventReceived?.Invoke(this, FocusType.OnFocusLost);
         }
+
+        public void ApplyHighlight() => renderer.material.color = Color.yellow;
+
+        public void ApplyDefault() => renderer.material.color = defaultMaterialColor;
+
+        public void MarkAvailable() => renderer.material.color = Color.green;
+
+        public void MarkUnavailable() => renderer.material.color = Color.red;
+
+        public abstract List<Cell> CalculateMoves();
 
         public void ReinstatePhysics() => EnablePhysics(true);
 

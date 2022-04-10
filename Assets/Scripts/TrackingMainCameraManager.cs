@@ -26,14 +26,30 @@ public class TrackingMainCameraManager : GizmoManager
     private GameObject hitPrefabInstance;
     private GameObject lastObjectHit;
     private int interactableLayerMask;
-    
+    private bool enableTracking;
+
     public virtual void Awake()
     {
         interactableLayerMask = LayerMask.GetMask("Interactable Layer");
     }
 
+    public bool EnableTracking
+    {
+        get
+        {
+            return enableTracking;
+        }
+
+        set
+        {
+            enableTracking = value;
+        }
+    }
+
     void FixedUpdate()
     {
+        if (!enableTracking) return;
+
 #if true
         var ray = new Ray(transform.position, transform.forward);
         bool hitDetected = Physics.Raycast(ray.origin, ray.direction, out RaycastHit hit, farDistance, interactableLayerMask);

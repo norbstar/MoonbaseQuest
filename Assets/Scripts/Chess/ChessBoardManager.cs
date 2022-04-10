@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 
 using UnityEngine;
+using UnityEngine.XR;
+
+using static Enum.ControllerEnums;
 
 using Chess.Pieces;
 using Chess.Button;
@@ -11,6 +14,9 @@ namespace Chess
 {
     public class ChessBoardManager : MonoBehaviour
     {
+        [Header("Camera")]
+        [SerializeField] new Camera camera;
+
         [Header("Components")]
         [SerializeField] ChessBoardSetManager set;
         [SerializeField] CoordReferenceCanvas coordReferenceCanvas;
@@ -20,12 +26,30 @@ namespace Chess
         [SerializeField] float rotationSpeed = 25f;
         [SerializeField] float movementSpeed = 25f;
 
+        private enum Stage
+        {
+            Uncommited,
+            Selected,
+            Confirmed
+        }
+
+        private TrackingMainCameraManager cameraManager;
         private Cell[,] matrix;
         private int onHomeEventsPending;
+        private Set activeSet;
+        private Piece inFocusPiece;
+        private bool checkMate;
+        private Stage stage;
 
         void Awake()
         {
+            ResolveDependencies();
             matrix = new Cell[8, 8];
+        }
+
+        private void ResolveDependencies()
+        {
+            cameraManager = camera.GetComponent<TrackingMainCameraManager>() as TrackingMainCameraManager;
         }
 
         // Start is called before the first frame update
@@ -33,16 +57,18 @@ namespace Chess
         {
             MapMatrix();
             MapPieces();
-            // ReportMatrix();
+            InitiateGame();
         }
 
         void OnEnable()
         {
+            HandController.ActuationEventReceived += OnActuation;
             ButtonEventManager.EventReceived += OnButtonEvent;
         }
 
         void OnDisable()
         {
+            HandController.ActuationEventReceived -= OnActuation;
             ButtonEventManager.EventReceived -= OnButtonEvent;
         }
 
@@ -64,6 +90,100 @@ namespace Chess
             var allPieces = set.AllPieces();
             return allPieces.Where(p => p.isActiveAndEnabled).ToList();
         }
+
+        private void InitiateGame()
+        {
+            InitiateUI();
+            checkMate = false;
+            activeSet = Set.Light;
+            ManageTurn();
+        }
+
+        private void InitiateUI() => coordReferenceCanvas.TextUI = String.Empty;
+
+        private void ManageTurn()
+        {
+            stage = Stage.Uncommited;
+            cameraManager.EnableTracking = true;
+            inFocusPiece = null;
+
+            // TODO
+        }
+
+        private void CompleteTurn()
+        {
+            if (checkMate)
+            {
+                OnGameOver();
+            }
+            else
+            {
+                activeSet = (activeSet == Set.Light) ? Set.Dark : Set.Light;
+                ManageTurn();
+            }
+        }
+
+        public void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics)
+        {
+            // if ((int) characteristics == (int) HandController.LeftHand)
+            // {
+            //     Debug.Log($"OnActuation Left Hand: {actuation}");
+            // }
+            // else if ((int) characteristics == (int) HandController.RightHand)
+            // {
+            //     Debug.Log($"OnActuation Right Hand : {actuation}");
+            // }
+
+            if (inFocusPiece == null) return;
+
+            if (actuation.HasFlag(Actuation.Button_AX))
+            {
+                ProcessIntent();
+            }
+            else if (actuation.HasFlag(Actuation.Button_BY))
+            {
+                CancelIntent();
+            }
+        }
+
+        private void ProcessIntent()
+        {
+            if (stage == Stage.Uncommited)
+            {
+                cameraManager.EnableTracking = false;
+                
+                List<Cell> moves = inFocusPiece.CalculateMoves();
+
+                if (moves != null)
+                {
+                    inFocusPiece.MarkAvailable();
+
+                    foreach (Cell move in moves)
+                    {
+                        // TODO
+                    }
+                }
+                else
+                {
+                    inFocusPiece.MarkUnavailable();
+                }
+
+                stage = Stage.Selected;
+            }
+            else if (stage == Stage.Selected)
+            {
+                // TODO
+            }
+        }
+
+        private void CancelIntent()
+        {
+            stage = Stage.Uncommited;
+            inFocusPiece.ApplyDefault();
+            cameraManager.EnableTracking = true;
+        }
+
+        private void OnGameOver() { }
 
         private void ResetBoard()
         {
@@ -92,6 +212,8 @@ namespace Chess
                 {
                     thisPiece.ReinstatePhysics();
                 }
+
+                InitiateGame();
             }
         }
 
@@ -100,14 +222,24 @@ namespace Chess
             switch (focusType)
             {
                 case FocusType.OnFocusGained:
+                    if (piece.Set != activeSet) return;
+
+                    piece.ApplyHighlight();
+
                     if (TryGetCoordReference(piece.ActiveCell.coord, out string reference))
                     {
                         coordReferenceCanvas.TextUI = reference;
                     }
+
+                    inFocusPiece = piece;
                     break;
 
                 case FocusType.OnFocusLost:
-                        coordReferenceCanvas.TextUI = string.Empty;
+                    if (piece.Set != activeSet) return;
+                    
+                    piece.ApplyDefault();
+
+                    coordReferenceCanvas.TextUI = string.Empty;
                     break;
             }
         }

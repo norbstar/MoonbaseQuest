@@ -1,4 +1,4 @@
-using UnityEngine;
+using System.Collections.Generic;
 
 namespace Chess.Pieces
 {
@@ -14,6 +14,11 @@ namespace Chess.Pieces
         void Update()
         {
             
+        }
+
+        public override List<Cell> CalculateMoves()
+        {
+            return null;
         }
     }
 }
