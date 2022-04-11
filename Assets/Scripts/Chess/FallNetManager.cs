@@ -12,7 +12,7 @@ namespace Chess
 
             if (trigger.CompareTag("Chess Piece"))
             {
-                if (trigger.TryGetComponent<Piece>(out Piece piece))
+                if (trigger.TryGetComponent<PieceManager>(out PieceManager piece))
                 {
                     piece.SnapToActiveCell();
                 }

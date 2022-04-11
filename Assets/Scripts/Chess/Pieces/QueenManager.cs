@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Chess.Pieces
 {
-    public class BishopPiece : Piece
+    public class QueenManager : PieceManager
     {
         public override List<Cell> CalculateMoves(Cell[,] matrix, int maxColumnIdx, int maxRowIdx, int vector)
         {

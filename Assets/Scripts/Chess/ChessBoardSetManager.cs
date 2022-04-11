@@ -8,14 +8,14 @@ namespace Chess
 {
     public class ChessBoardSetManager : MonoBehaviour
     {
-        [SerializeField] List<Piece> darkPieces;
-        [SerializeField] List<Piece> lightPieces;
+        [SerializeField] List<PieceManager> darkPieces;
+        [SerializeField] List<PieceManager> lightPieces;
         
-        public List<Piece> DarkPieces()
+        public List<PieceManager> DarkPieces()
         {
-            List<Piece> pieces = new List<Piece>();
+            List<PieceManager> pieces = new List<PieceManager>();
 
-            foreach (Piece piece in darkPieces)
+            foreach (PieceManager piece in darkPieces)
             {
                 pieces.Add(piece);
             }
@@ -23,11 +23,11 @@ namespace Chess
             return pieces;
         }
 
-        public List<Piece> LightPieces()
+        public List<PieceManager> LightPieces()
         {
-            List<Piece> pieces = new List<Piece>();
+            List<PieceManager> pieces = new List<PieceManager>();
 
-            foreach (Piece piece in lightPieces)
+            foreach (PieceManager piece in lightPieces)
             {
                 pieces.Add(piece);
             }
@@ -35,14 +35,14 @@ namespace Chess
             return pieces;
         }
 
-        public List<Piece> AllPieces()
+        public List<PieceManager> AllPieces()
         {
-            List<Piece> pieces = new List<Piece>();
+            List<PieceManager> pieces = new List<PieceManager>();
             
-            var darkPieces = DarkPieces() as List<Piece>;
+            var darkPieces = DarkPieces() as List<PieceManager>;
             pieces.AddRange(darkPieces);
             
-            var lightPieces = LightPieces() as List<Piece>;
+            var lightPieces = LightPieces() as List<PieceManager>;
             pieces.AddRange(lightPieces);
 
             return pieces;

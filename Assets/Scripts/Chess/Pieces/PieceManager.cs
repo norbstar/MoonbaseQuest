@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Chess.Pieces
 {
-    public abstract class Piece : MonoBehaviour, IFocus
+    public abstract class PieceManager : MonoBehaviour, IFocus
     {
         [Header("Config")]
         [SerializeField] PieceType type;
@@ -17,10 +17,10 @@ namespace Chess.Pieces
         public Cell HomeCell { get { return homeCell; } set { activeCell = homeCell = value; } }
         public Cell ActiveCell { get { return activeCell; } set { activeCell = value; } }
 
-        public delegate void HomeEvent(Piece piece);
-        public event HomeEvent HomeEventReceived;
+        public delegate void MoveEvent(PieceManager piece);
+        public event MoveEvent MoveEventReceived;
 
-        public delegate void Event(Piece piece, FocusType focusType);
+        public delegate void Event(PieceManager piece, FocusType focusType);
         public event Event EventReceived;
         
         private MeshFilter filter;
@@ -92,20 +92,28 @@ namespace Chess.Pieces
             EnablePhysics(true);
         }
 
-        public void GoHome(float rotationSpeed, float movementSpeed) => StartCoroutine(GoHomeCoroutine(rotationSpeed, movementSpeed));
+        public void GoHome(float rotationSpeed, float movementSpeed) => StartCoroutine(GoToCellCoroutine(homeCell, rotationSpeed, movementSpeed));
 
-        private IEnumerator GoHomeCoroutine(float rotationSpeed, float movementSpeed)
+        public void GoToCell(Cell cell, float rotationSpeed, float movementSpeed) => StartCoroutine(GoToCellCoroutine(cell, rotationSpeed, movementSpeed));
+
+        private IEnumerator GoToCellCoroutine(Cell cell, float rotationSpeed, float movementSpeed)
         {
             EnablePhysics(false);
 
-            while ((transform.localRotation != originalRotation) || (transform.localPosition != homeCell.localPosition))
+            while ((transform.localRotation != originalRotation) || (transform.localPosition != cell.localPosition))
             {
                 transform.localRotation = Quaternion.RotateTowards(transform.localRotation, originalRotation, rotationSpeed * Time.deltaTime);
-                transform.localPosition = Vector3.MoveTowards(transform.localPosition, homeCell.localPosition, movementSpeed * Time.deltaTime);
+                transform.localPosition = Vector3.MoveTowards(transform.localPosition, cell.localPosition, movementSpeed * Time.deltaTime);
                 yield return null;
             }
 
-            HomeEventReceived?.Invoke(this);
+            if (activeCell != null)
+            {
+                activeCell.piece = null;
+            }
+
+            activeCell = cell;
+            MoveEventReceived?.Invoke(this);
         }
     }
 }

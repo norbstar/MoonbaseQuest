@@ -2,12 +2,12 @@ using UnityEngine;
 
 namespace Chess.Preview
 {
-    public class PlacementPreviewManager : MonoBehaviour, IFocus
+    public class PreviewManager : MonoBehaviour, IFocus
     {
         [Header("Components")]
         [SerializeField] MeshFilter preview;
 
-        public delegate void Event(PlacementPreviewManager manager, FocusType focusType);
+        public delegate void Event(PreviewManager manager, FocusType focusType);
         public static event Event EventReceived;
 
         public Cell Cell { get { return cell; } }

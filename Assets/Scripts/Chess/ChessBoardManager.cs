@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.XR;
 
 using static Enum.ControllerEnums;
+using static Chess.StageManager;
 
 using Chess.Pieces;
 using Chess.Button;
@@ -34,21 +35,15 @@ namespace Chess
         public static int MatrixRows = 8;
         public static int MatrixColumns = 8;
 
-        private enum Stage
-        {
-            Evaluation,
-            Uncommited,
-            Selected
-        }
-
         private TrackingMainCameraManager cameraManager;
         private Cell[,] matrix;
         private int onHomeEventsPending;
         private Set activeSet;
-        private Piece inFocusPiece;
+        private PieceManager inFocusPiece;
+        private PreviewManager inFocusPreview;
         private bool checkMate;
-        private Stage stage;
-        private Dictionary<Piece, List<Cell>> availableMoves;
+        private StageManager stageManager;
+        private Dictionary<PieceManager, List<Cell>> availableMoves;
         private int maxRowIdx = MatrixRows - 1;
         private int maxColumnIdx = MatrixColumns - 1;
         private List<GameObject> previews;
@@ -59,7 +54,9 @@ namespace Chess
 
             matrix = new Cell[8, 8];
             previews = new List<GameObject>();
-            availableMoves = new Dictionary<Piece, List<Cell>>();
+            availableMoves = new Dictionary<PieceManager, List<Cell>>();
+
+            stageManager = new StageManager();
         }
 
         private void ResolveDependencies()
@@ -72,21 +69,21 @@ namespace Chess
         {
             MapMatrix();
             MapPieces();
-            InitiateGame();
+            ResetGame();
         }
 
         void OnEnable()
         {
             HandController.ActuationEventReceived += OnActuation;
             ButtonEventManager.EventReceived += OnButtonEvent;
-            PlacementPreviewManager.EventReceived += OnPlacementPreviewEvent;
+            PreviewManager.EventReceived += OnPreviewEvent;
         }
 
         void OnDisable()
         {
             HandController.ActuationEventReceived -= OnActuation;
             ButtonEventManager.EventReceived -= OnButtonEvent;
-            PlacementPreviewManager.EventReceived -= OnPlacementPreviewEvent;
+            PreviewManager.EventReceived -= OnPreviewEvent;
         }
 
         private void OnButtonEvent(ButtonEventManager.Id id, ButtonEventType eventType)
@@ -102,13 +99,13 @@ namespace Chess
             }
         }
 
-        private List<Piece> ActivePieces()
-        {
-            var allPieces = set.AllPieces();
-            return allPieces.Where(p => p.isActiveAndEnabled).ToList();
-        }
+        private List<PieceManager> ActivePieces { get { return set.AllPieces().Where(p => p.isActiveAndEnabled).ToList(); } }
 
-        private void InitiateGame()
+        private List<PieceManager> ActiveLightPieces { get { return set.LightPieces().Where(p => p.isActiveAndEnabled).ToList(); } }
+
+        private List<PieceManager> ActiveDarkPieces { get { return set.DarkPieces().Where(p => p.isActiveAndEnabled).ToList(); } }
+
+        private void ResetGame()
         {
             InitiateUI();
             checkMate = false;
@@ -122,7 +119,7 @@ namespace Chess
 
         private void ManageTurn()
         {
-            stage = Stage.Evaluation;
+            stageManager.LiveStage = Stage.Evaluating;
             cameraManager.ExcludeInteractableLayer("Chess Piece Layer");
             availableMoves.Clear();
             inFocusPiece = null;
@@ -132,9 +129,9 @@ namespace Chess
 
         private void CalculateMoves()
         {
-            List<Piece> pieces = (activeSet == Set.Light) ? set.LightPieces() : set.DarkPieces();
+            List<PieceManager> activePieces = (activeSet == Set.Light) ? ActiveLightPieces : ActiveDarkPieces;
 
-            foreach (Piece piece in pieces)
+            foreach (PieceManager piece in activePieces)
             {
                 List<Cell> moves = piece.CalculateMoves(matrix, maxColumnIdx, maxRowIdx, (activeSet == Set.Light) ? 1 : -1);
                 var hasMoves = moves.Count > 0;
@@ -151,21 +148,18 @@ namespace Chess
                 }
             }
 
-            stage = Stage.Uncommited;
+            stageManager.LiveStage = Stage.PendingSelect;
             cameraManager.IncludeInteractableLayer("Chess Piece Layer");
         }
 
         private void CompleteTurn()
         {
-            FreePreviews();
-
             if (checkMate)
             {
                 OnGameOver();
             }
             else
             {
-                ResetThemes();
                 activeSet = (activeSet == Set.Light) ? Set.Dark : Set.Light;
                 ManageTurn();
             }
@@ -173,9 +167,7 @@ namespace Chess
 
         private void ResetThemes()
         {
-            var activePieces = ActivePieces();
-            
-            foreach (Piece piece in activePieces)
+            foreach (PieceManager piece in ActivePieces)
             {
                 if (piece.isActiveAndEnabled)
                 {
@@ -186,16 +178,7 @@ namespace Chess
 
         public void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics)
         {
-            // if ((int) characteristics == (int) HandController.LeftHand)
-            // {
-            //     Debug.Log($"OnActuation Left Hand: {actuation}");
-            // }
-            // else if ((int) characteristics == (int) HandController.RightHand)
-            // {
-            //     Debug.Log($"OnActuation Right Hand : {actuation}");
-            // }
-
-            if ((stage == Stage.Evaluation) || (inFocusPiece == null)) return;
+            if ((stageManager.LiveStage == Stage.Evaluating) || (inFocusPiece == null)) return;
 
             if (actuation.HasFlag(Actuation.Button_AX))
             {
@@ -203,7 +186,7 @@ namespace Chess
             }
             else if (actuation.HasFlag(Actuation.Button_BY))
             {
-                if (stage == Stage.Selected)
+                if (stageManager.LiveStage == Stage.Selected)
                 {
                     CancelIntent();
                 }
@@ -212,37 +195,52 @@ namespace Chess
 
         private void ProcessIntent()
         {
-            if (stage == Stage.Uncommited)
+            if (stageManager.LiveStage == Stage.PendingSelect)
             {
-                stage = Stage.Selected;
+                if (inFocusPiece == null) return;
+
+                stageManager.LiveStage = Stage.Selected;
                 inFocusPiece.ApplySelectedTheme();
                 cameraManager.ExcludeInteractableLayer("Chess Piece Layer");
 
-                // TODO keep tracking enabled but prevent other pieces from being selectable as we have locked in on this piece already
-
-                if (availableMoves.TryGetValue(inFocusPiece, out List<Cell> moves))
+                if (availableMoves.TryGetValue(inFocusPiece, out List<Cell> cells))
                 {
-                    foreach (Cell move in moves)
+                    foreach (Cell cell in cells)
                     {
-                        var placementPreview = GameObject.Instantiate(placementPreviewPrefab, Vector3.zero, Quaternion.identity, set.transform);
-                        placementPreview.transform.localPosition = move.localPosition;
-                        placementPreview.transform.parent = transform;
+                        var preview = GameObject.Instantiate(placementPreviewPrefab, Vector3.zero, Quaternion.identity, set.transform);
+                        var manager = preview.GetComponent<PreviewManager>() as PreviewManager;
+                        manager.PlaceAtCell(cell);
                         
-                        previews.Add(placementPreview);
+                        preview.transform.parent = transform;
+
+                        previews.Add(preview);
                     }
                 }
             }
-            else if (stage == Stage.Selected)
+            else if (stageManager.LiveStage == Stage.Selected)
             {
-                // TODO this only applies if we have selected a legal cell to move the piece to
+                if (inFocusPreview == null) return;
 
-                CompleteTurn();
+                CommitToMove();
             }
+        }
+
+        private void CommitToMove()
+        {
+            Cell cell = inFocusPreview.Cell;
+
+            FreePreviews();
+            ResetThemes();
+
+            coordReferenceCanvas.TextUI = string.Empty;
+
+            stageManager.LiveStage = Stage.Moving;
+            inFocusPiece.GoToCell(cell, rotationSpeed, movementSpeed);
         }
 
         private void CancelIntent()
         {
-            stage = Stage.Uncommited;
+            stageManager.LiveStage = Stage.PendingSelect;
             inFocusPiece?.ApplyDefaultTheme();
             FreePreviews();
 
@@ -260,14 +258,18 @@ namespace Chess
             {
                 Destroy(preview);
             }
+            
+            inFocusPreview = null;
         }
 
         private void ResetBoard()
         {
-            var activePieces = ActivePieces();
+            var activePieces = ActivePieces;
             onHomeEventsPending = activePieces.Count;
 
-            foreach (Piece piece in activePieces)
+            stageManager.LiveStage = Stage.Resetting;
+            
+            foreach (PieceManager piece in activePieces)
             {
                 if (piece.isActiveAndEnabled)
                 {
@@ -277,25 +279,32 @@ namespace Chess
             }
         }
 
-        private void OnHomeEvent(Piece piece)
+        private void OnMoveEvent(PieceManager piece)
         {
-            --onHomeEventsPending;
-
-            if (onHomeEventsPending == 0)
+            if (stageManager.LiveStage == Stage.Resetting)
             {
-                var activePieces = ActivePieces();
-                onHomeEventsPending = activePieces.Count;
+                --onHomeEventsPending;
 
-                foreach (Piece thisPiece in activePieces)
+                if (onHomeEventsPending == 0)
                 {
-                    thisPiece.ReinstatePhysics();
-                }
+                    var activePieces = ActivePieces;
+                    onHomeEventsPending = activePieces.Count;
 
-                InitiateGame();
+                    foreach (PieceManager thisPiece in activePieces)
+                    {
+                        thisPiece.ReinstatePhysics();
+                    }
+
+                    ResetGame();
+                }
+            }
+            else if (stageManager.LiveStage == Stage.Moving)
+            {
+                CompleteTurn();
             }
         }
 
-        private void OnEvent(Piece piece, FocusType focusType)
+        private void OnEvent(PieceManager piece, FocusType focusType)
         {
             switch (focusType)
             {
@@ -315,21 +324,21 @@ namespace Chess
                 case FocusType.OnFocusLost:
                     if (piece.Set != activeSet) return;
 
-                    if (stage == Stage.Selected) return;
+                    if (stageManager.LiveStage == Stage.Selected) return;
                     
                     piece.ApplyDefaultTheme();
-
                     coordReferenceCanvas.TextUI = string.Empty;
                     break;
             }
         }
 
-        private void OnPlacementPreviewEvent(PlacementPreviewManager manager, FocusType focusType)
+        private void OnPreviewEvent(PreviewManager manager, FocusType focusType)
         {
             switch (focusType)
             {
                 case FocusType.OnFocusGained:
                     manager.SetMesh(inFocusPiece.Mesh, inFocusPiece.transform.localRotation);
+                    inFocusPreview = manager;
                     break;
 
                 case FocusType.OnFocusLost:
@@ -339,157 +348,139 @@ namespace Chess
         }
 
 #region Matrix
-        private void MapMatrix()
+    private void MapMatrix()
+    {
+        for (int y = 0 ; y <= maxRowIdx ; y++)
         {
-            for (int y = 0 ; y <= maxRowIdx ; y++)
+            for (int x = 0 ; x <= maxColumnIdx ; x++)
             {
-                for (int x = 0 ; x <= maxColumnIdx ; x++)
+                Coord coord = new Coord
                 {
-                    Coord coord = new Coord
+                    x = x,
+                    y = y
+                };
+
+                if (TryGetCoordToPosition(coord, out Vector3 localPosition))
+                {
+                    matrix[x, y] = new Cell
                     {
-                        x = x,
-                        y = y
+                        coord = coord,
+                        localPosition = localPosition
                     };
-
-                    if (TryGetCoordToPosition(coord, out Vector3 localPosition))
-                    {
-                        matrix[x, y] = new Cell
-                        {
-                            coord = coord,
-                            localPosition = localPosition
-                        };
-                    }
                 }
             }
         }
+    }
 
-        private void ReportMatrix()
+    private void ReportMatrix()
+    {
+        for (int y = 0 ; y <= maxRowIdx ; y++)
         {
-            for (int y = 0 ; y <= maxRowIdx ; y++)
+            for (int x = 0 ; x <= maxColumnIdx ; x++)
             {
-                for (int x = 0 ; x <= maxColumnIdx ; x++)
-                {
-                    Cell cell = matrix[x, y];
+                Cell cell = matrix[x, y];
 
-                    if (cell != null)
+                if (cell != null)
+                {
+                    if (cell.piece != null)
                     {
-                        if (cell.piece != null)
-                        {
-                            Debug.Log($"ReportMatrix X : {x} Y : {y} Piece : {cell.piece.name} Coord : [{cell.coord.x} {cell.coord.y}] Position : [{cell.localPosition.x} {cell.localPosition.y} {cell.localPosition.z}]");
-                        }
-                        else
-                        {
-                            Debug.Log($"ReportMatrix X : {x} Y : {y} Coord : [{cell.coord.x} {cell.coord.y}] Position : [{cell.localPosition.x} {cell.localPosition.y} {cell.localPosition.z}]");
-                        }
+                        Debug.Log($"ReportMatrix X : {x} Y : {y} Piece : {cell.piece.name} Coord : [{cell.coord.x} {cell.coord.y}] Position : [{cell.localPosition.x} {cell.localPosition.y} {cell.localPosition.z}]");
+                    }
+                    else
+                    {
+                        Debug.Log($"ReportMatrix X : {x} Y : {y} Coord : [{cell.coord.x} {cell.coord.y}] Position : [{cell.localPosition.x} {cell.localPosition.y} {cell.localPosition.z}]");
                     }
                 }
             }
         }
+    }
 #endregion
 
 #region Pieces
-        private void MapPieces()
+    private void MapPieces()
+    {
+        foreach (PieceManager piece in ActivePieces)
         {
-            var activePieces = ActivePieces();
-
-            foreach (Piece piece in activePieces)
+            if ((piece.isActiveAndEnabled) && (TryGetPieceToCell(piece, out Cell cell)))
             {
-                if ((piece.isActiveAndEnabled) && (TryGetPieceToCell(piece, out Cell cell)))
-                {
-                    piece.HomeCell = cell;
-                    piece.HomeEventReceived += OnHomeEvent;
-                    piece.EventReceived += OnEvent;
+                piece.HomeCell = cell;
+                piece.MoveEventReceived += OnMoveEvent;
+                piece.EventReceived += OnEvent;
 
-                    matrix[cell.coord.x, cell.coord.y].piece = piece;
-                }
+                matrix[cell.coord.x, cell.coord.y].piece = piece;
             }
         }
+    }
 #endregion
 
 #region TryGets
-        private bool TryGetPieceToCell(Piece piece, out Cell cell)
+    private bool TryGetPieceToCell(PieceManager piece, out Cell cell)
+    {
+        var localPosition = ChessMath.RoundPosition(piece.transform.localPosition);
+        
+        if (TryGetCoord(localPosition, out Coord coord))
         {
-            var localPosition = RoundPosition(piece.transform.localPosition);
-         
-            if (TryGetCoord(localPosition, out Coord coord))
+            cell = matrix[coord.x, coord.y];
+            return true;
+        }
+
+        cell = default(Cell);
+        return false;
+    }
+
+    private bool TryGetCoord(Vector3 localPosition, out Coord coord)
+    {
+        var normX = ChessMath.Normalize(localPosition.x, -0.35f, 0.35f);
+        int x = (int) Mathf.Round(maxColumnIdx * (float) normX);
+
+        var normZ = ChessMath.Normalize(localPosition.z, -0.35f, 0.35f);
+        int z = (int) Mathf.Round(maxRowIdx * (float) normZ);
+
+        if ((x >= 0 && x <= maxColumnIdx) && (z >= 0 && z <= maxRowIdx))
+        {
+            coord = new Coord
             {
-                cell = matrix[coord.x, coord.y];
-                return true;
-            }
+                x = x,
+                y = z
+            };
 
-            cell = default(Cell);
-            return false;
+            return true;
         }
 
-        private bool TryGetCoord(Vector3 localPosition, out Coord coord)
+        coord = default(Coord);
+        return false;
+    }
+
+    private bool TryGetCoordToPosition(Coord coord, out Vector3 localPosition)
+    {
+        Vector3 surface = set.transform.localPosition;
+
+        if ((coord.x >= 0 && coord.x <= maxColumnIdx) && (coord.y >= 0 && coord.y <= maxRowIdx))
         {
-            var normX = Normalize(localPosition.x, -0.35f, 0.35f);
-            int x = (int) Mathf.Round(maxColumnIdx * (float) normX);
+            float x = ChessMath.RoundFloat(-0.35f + (coord.x * 0.1f));
+            float y = ChessMath.RoundFloat(-0.35f + (coord.y * 0.1f));
 
-            var normZ = Normalize(localPosition.z, -0.35f, 0.35f);
-            int z = (int) Mathf.Round(maxRowIdx * (float) normZ);
-
-            if ((x >= 0 && x <= maxColumnIdx) && (z >= 0 && z <= maxRowIdx))
-            {
-                coord = new Coord
-                {
-                    x = x,
-                    y = z
-                };
-
-                return true;
-            }
-
-            coord = default(Coord);
-            return false;
+            localPosition = new Vector3(x, surface.y, y);
+            return true;
         }
 
-        private bool TryGetCoordToPosition(Coord coord, out Vector3 localPosition)
+        localPosition = default(Vector3);
+        return false;
+    }
+
+    private bool TryGetCoordReference(Coord coord, out string reference)
+    {
+        if ((coord.x >= 0 && coord.x <= maxColumnIdx) && (coord.y >= 0 && coord.y <= maxRowIdx))
         {
-            Vector3 surface = set.transform.localPosition;
-
-            if ((coord.x >= 0 && coord.x <= maxColumnIdx) && (coord.y >= 0 && coord.y <= maxRowIdx))
-            {
-                float x = RoundFloat(-0.35f + (coord.x * 0.1f));
-                float y = RoundFloat(-0.35f + (coord.y * 0.1f));
-
-                localPosition = new Vector3(x, surface.y, y);
-                return true;
-            }
-
-            localPosition = default(Vector3);
-            return false;
+            char letter = Convert.ToChar((int) 'a' + coord.x);
+            char digit = Convert.ToChar((int) '1' + coord.y);
+            reference = $"{letter} : {digit}";
+            return true;
         }
 
-        private bool TryGetCoordReference(Coord coord, out string reference)
-        {
-            if ((coord.x >= 0 && coord.x <= maxColumnIdx) && (coord.y >= 0 && coord.y <= maxRowIdx))
-            {
-                char letter = Convert.ToChar((int) 'a' + coord.x);
-                char digit = Convert.ToChar((int) '1' + coord.y);
-                reference = $"{letter} : {digit}";
-                return true;
-            }
-
-            reference = default(string);
-            return false;
-        }
-#endregion
-
-#region Math
-        private Vector3 RoundPosition(Vector3 localPosition)
-        {
-            return new Vector3(RoundFloat(localPosition.x), RoundFloat(localPosition.y), RoundFloat(localPosition.z));
-        }
-
-        private float RoundFloat(float value)
-        {
-            return Mathf.Round(value * 100f) / 100f;
-        }
-
-        private double Normalize(double value, double min, double max) {
-            return (value - min) / (max - min);
-        }
+        reference = default(string);
+        return false;
+    }
 #endregion
     }
 }

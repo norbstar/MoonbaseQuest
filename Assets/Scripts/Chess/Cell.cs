@@ -8,6 +8,6 @@
         {
             public Coord coord;
             public Vector3 localPosition;
-            public Piece piece;
+            public PieceManager piece;
         }
     }
