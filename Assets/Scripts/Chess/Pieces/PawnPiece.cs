@@ -6,26 +6,23 @@ namespace Chess.Pieces
     {
         private bool hasHistory;
 
-        // Start is called before the first frame update
-        void Start()
-        {
-            
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-            
-        }
-
-        public override List<Cell> CalculateMoves()
+        public override List<Cell> CalculateMoves(Cell[,] matrix, int maxColumnIdx, int maxRowIdx, int vector)
         {
             List<Cell> moves = new List<Cell>();
+
+            // TODO
+
+            // TEST
+            moves.Add(matrix[3, 3]);
+
+            hasHistory = true;
+
             return moves;
         }
 
         public override void Reset()
         {
+            base.Reset();
             hasHistory = false;
         }
     }

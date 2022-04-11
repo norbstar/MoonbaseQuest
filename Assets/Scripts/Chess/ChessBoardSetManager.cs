@@ -39,10 +39,10 @@ namespace Chess
         {
             List<Piece> pieces = new List<Piece>();
             
-            List<Piece> darkPieces = DarkPieces();
+            var darkPieces = DarkPieces() as List<Piece>;
             pieces.AddRange(darkPieces);
             
-            List<Piece> lightPieces = LightPieces();
+            var lightPieces = LightPieces() as List<Piece>;
             pieces.AddRange(lightPieces);
 
             return pieces;

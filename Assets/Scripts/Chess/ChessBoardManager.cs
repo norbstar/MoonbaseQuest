@@ -9,6 +9,7 @@ using static Enum.ControllerEnums;
 
 using Chess.Pieces;
 using Chess.Button;
+using Chess.Preview;
 
 namespace Chess
 {
@@ -27,6 +28,12 @@ namespace Chess
         [SerializeField] float movementSpeed = 25f;
         [SerializeField] Material outOfScopeMaterial;
 
+        [Header("Config")]
+        [SerializeField] GameObject placementPreviewPrefab;
+
+        public static int MatrixRows = 8;
+        public static int MatrixColumns = 8;
+
         private enum Stage
         {
             Evaluation,
@@ -42,12 +49,16 @@ namespace Chess
         private bool checkMate;
         private Stage stage;
         private Dictionary<Piece, List<Cell>> availableMoves;
+        private int maxRowIdx = MatrixRows - 1;
+        private int maxColumnIdx = MatrixColumns - 1;
+        private List<GameObject> previews;
 
         void Awake()
         {
             ResolveDependencies();
 
             matrix = new Cell[8, 8];
+            previews = new List<GameObject>();
             availableMoves = new Dictionary<Piece, List<Cell>>();
         }
 
@@ -68,12 +79,14 @@ namespace Chess
         {
             HandController.ActuationEventReceived += OnActuation;
             ButtonEventManager.EventReceived += OnButtonEvent;
+            PlacementPreviewManager.EventReceived += OnPlacementPreviewEvent;
         }
 
         void OnDisable()
         {
             HandController.ActuationEventReceived -= OnActuation;
             ButtonEventManager.EventReceived -= OnButtonEvent;
+            PlacementPreviewManager.EventReceived -= OnPlacementPreviewEvent;
         }
 
         private void OnButtonEvent(ButtonEventManager.Id id, ButtonEventType eventType)
@@ -123,7 +136,7 @@ namespace Chess
 
             foreach (Piece piece in pieces)
             {
-                List<Cell> moves = piece.CalculateMoves();
+                List<Cell> moves = piece.CalculateMoves(matrix, maxColumnIdx, maxRowIdx, (activeSet == Set.Light) ? 1 : -1);
                 var hasMoves = moves.Count > 0;
 
                 piece.EnablePhysics(hasMoves);
@@ -144,14 +157,30 @@ namespace Chess
 
         private void CompleteTurn()
         {
+            FreePreviews();
+
             if (checkMate)
             {
                 OnGameOver();
             }
             else
             {
+                ResetThemes();
                 activeSet = (activeSet == Set.Light) ? Set.Dark : Set.Light;
                 ManageTurn();
+            }
+        }
+
+        private void ResetThemes()
+        {
+            var activePieces = ActivePieces();
+            
+            foreach (Piece piece in activePieces)
+            {
+                if (piece.isActiveAndEnabled)
+                {
+                    piece.Reset();
+                }
             }
         }
 
@@ -185,15 +214,29 @@ namespace Chess
         {
             if (stage == Stage.Uncommited)
             {
+                stage = Stage.Selected;
                 inFocusPiece.ApplySelectedTheme();
                 cameraManager.ExcludeInteractableLayer("Chess Piece Layer");
-                stage = Stage.Selected;
 
                 // TODO keep tracking enabled but prevent other pieces from being selectable as we have locked in on this piece already
+
+                if (availableMoves.TryGetValue(inFocusPiece, out List<Cell> moves))
+                {
+                    foreach (Cell move in moves)
+                    {
+                        var placementPreview = GameObject.Instantiate(placementPreviewPrefab, Vector3.zero, Quaternion.identity, set.transform);
+                        placementPreview.transform.localPosition = move.localPosition;
+                        placementPreview.transform.parent = transform;
+                        
+                        previews.Add(placementPreview);
+                    }
+                }
             }
             else if (stage == Stage.Selected)
             {
                 // TODO this only applies if we have selected a legal cell to move the piece to
+
+                CompleteTurn();
             }
         }
 
@@ -201,10 +244,23 @@ namespace Chess
         {
             stage = Stage.Uncommited;
             inFocusPiece?.ApplyDefaultTheme();
+            FreePreviews();
+
             cameraManager.IncludeInteractableLayer("Chess Piece Layer");
         }
 
-        private void OnGameOver() { }
+        private void OnGameOver()
+        {
+            // TODO
+        }
+
+        private void FreePreviews()
+        {
+            foreach (GameObject preview in previews)
+            {
+                Destroy(preview);
+            }
+        }
 
         private void ResetBoard()
         {
@@ -215,6 +271,7 @@ namespace Chess
             {
                 if (piece.isActiveAndEnabled)
                 {
+                    piece.Reset();
                     piece.GoHome(rotationSpeed, movementSpeed);
                 }
             }
@@ -257,6 +314,8 @@ namespace Chess
 
                 case FocusType.OnFocusLost:
                     if (piece.Set != activeSet) return;
+
+                    if (stage == Stage.Selected) return;
                     
                     piece.ApplyDefaultTheme();
 
@@ -265,18 +324,26 @@ namespace Chess
             }
         }
 
-        // Update is called once per frame
-        void Update()
+        private void OnPlacementPreviewEvent(PlacementPreviewManager manager, FocusType focusType)
         {
-            // TODO
+            switch (focusType)
+            {
+                case FocusType.OnFocusGained:
+                    manager.SetMesh(inFocusPiece.Mesh, inFocusPiece.transform.localRotation);
+                    break;
+
+                case FocusType.OnFocusLost:
+                    manager.SetMesh(null, Quaternion.identity);
+                    break;
+            }
         }
 
 #region Matrix
         private void MapMatrix()
         {
-            for (int y = 0 ; y <= 7 ; y++)
+            for (int y = 0 ; y <= maxRowIdx ; y++)
             {
-                for (int x = 0 ; x <= 7 ; x++)
+                for (int x = 0 ; x <= maxColumnIdx ; x++)
                 {
                     Coord coord = new Coord
                     {
@@ -298,9 +365,9 @@ namespace Chess
 
         private void ReportMatrix()
         {
-            for (int y = 0 ; y <= 7 ; y++)
+            for (int y = 0 ; y <= maxRowIdx ; y++)
             {
-                for (int x = 0 ; x <= 7 ; x++)
+                for (int x = 0 ; x <= maxColumnIdx ; x++)
                 {
                     Cell cell = matrix[x, y];
 
@@ -357,12 +424,12 @@ namespace Chess
         private bool TryGetCoord(Vector3 localPosition, out Coord coord)
         {
             var normX = Normalize(localPosition.x, -0.35f, 0.35f);
-            int x = (int) Mathf.Round(7 * (float) normX);
+            int x = (int) Mathf.Round(maxColumnIdx * (float) normX);
 
             var normZ = Normalize(localPosition.z, -0.35f, 0.35f);
-            int z = (int) Mathf.Round(7 * (float) normZ);
+            int z = (int) Mathf.Round(maxRowIdx * (float) normZ);
 
-            if ((x >= 0 && x <= 7) && (z >= 0 && z <= 7))
+            if ((x >= 0 && x <= maxColumnIdx) && (z >= 0 && z <= maxRowIdx))
             {
                 coord = new Coord
                 {
@@ -381,7 +448,7 @@ namespace Chess
         {
             Vector3 surface = set.transform.localPosition;
 
-            if ((coord.x >= 0 && coord.x <= 7) && (coord.y >= 0 && coord.y <= 7))
+            if ((coord.x >= 0 && coord.x <= maxColumnIdx) && (coord.y >= 0 && coord.y <= maxRowIdx))
             {
                 float x = RoundFloat(-0.35f + (coord.x * 0.1f));
                 float y = RoundFloat(-0.35f + (coord.y * 0.1f));
@@ -396,7 +463,7 @@ namespace Chess
 
         private bool TryGetCoordReference(Coord coord, out string reference)
         {
-            if ((coord.x >= 0 && coord.x <= 7) && (coord.y >= 0 && coord.y <= 7))
+            if ((coord.x >= 0 && coord.x <= maxColumnIdx) && (coord.y >= 0 && coord.y <= maxRowIdx))
             {
                 char letter = Convert.ToChar((int) 'a' + coord.x);
                 char digit = Convert.ToChar((int) '1' + coord.y);

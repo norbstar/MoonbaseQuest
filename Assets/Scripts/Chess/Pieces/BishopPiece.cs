@@ -4,21 +4,12 @@ namespace Chess.Pieces
 {
     public class BishopPiece : Piece
     {
-        // Start is called before the first frame update
-        void Start()
-        {
-            
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-            
-        }
-
-        public override List<Cell> CalculateMoves()
+        public override List<Cell> CalculateMoves(Cell[,] matrix, int maxColumnIdx, int maxRowIdx, int vector)
         {
             List<Cell> moves = new List<Cell>();
+
+            // TODO
+
             return moves;
         }
     }

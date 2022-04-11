@@ -23,6 +23,7 @@ namespace Chess.Pieces
         public delegate void Event(Piece piece, FocusType focusType);
         public event Event EventReceived;
         
+        private MeshFilter filter;
         private new MeshRenderer renderer;
         private new Rigidbody rigidbody;
         private new Collider collider;
@@ -31,7 +32,6 @@ namespace Chess.Pieces
         private Quaternion originalRotation;
         private Cell homeCell;
         private Cell activeCell;
-        private Color orangeTheme;
         
         void Awake()
         {
@@ -40,29 +40,25 @@ namespace Chess.Pieces
             originalRotation = transform.localRotation;
             defaultMaterial = renderer.material;
             defaultMaterialColor = renderer.material.color;
-            ColorUtility.TryParseHtmlString("#FFA500", out orangeTheme);
         }
 
         private void ResolveDependencies()
         {
+            filter = GetComponent<MeshFilter>() as MeshFilter;
             renderer = GetComponent<MeshRenderer>() as MeshRenderer;
             rigidbody = GetComponent<Rigidbody>() as Rigidbody;
             collider = GetComponent<Collider>() as Collider;
         }
 
-        public void GainedFocus(GameObject gameObject)
-        {
-            EventReceived?.Invoke(this, FocusType.OnFocusGained);
-        }
+        public Mesh Mesh { get { return filter.mesh; } }
 
-        public void LostFocus(GameObject gameObject)
-        {
-            EventReceived?.Invoke(this, FocusType.OnFocusLost);
-        }
+        public void GainedFocus(GameObject gameObject) => EventReceived?.Invoke(this, FocusType.OnFocusGained);
+
+        public void LostFocus(GameObject gameObject) => EventReceived?.Invoke(this, FocusType.OnFocusLost);
 
         public void ApplyDefaultTheme() => renderer.material.color = defaultMaterialColor;
 
-        public void ApplyHighlightTheme() => renderer.material.color = orangeTheme;
+        public void ApplyHighlightTheme() => renderer.material.color = Color.yellow;
 
         public void ApplySelectedTheme() => renderer.material.color = Color.green;
 
@@ -70,9 +66,13 @@ namespace Chess.Pieces
 
         public void UseDefaultMaterial() => ApplyMaterial(defaultMaterial);
 
-        public abstract List<Cell> CalculateMoves();
+        public abstract List<Cell> CalculateMoves(Cell[,] matrix, int maxColumnIdx, int maxRowIdx, int vector);
 
-        public virtual void Reset() { }
+        public virtual void Reset()
+        {
+            UseDefaultMaterial();
+            ApplyDefaultTheme();
+        }
 
         public void EnablePhysics(bool enabled)
         {
