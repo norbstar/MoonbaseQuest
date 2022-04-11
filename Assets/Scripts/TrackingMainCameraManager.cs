@@ -23,14 +23,15 @@ public class TrackingMainCameraManager : GizmoManager
     [SerializeField] float farDistance;
     protected float FarDistance { get { return farDistance; } }
 
+    protected int interactableLayerMask;
     private GameObject hitPrefabInstance;
     private GameObject lastObjectHit;
-    private int interactableLayerMask;
     private bool enableTracking;
 
     public virtual void Awake()
     {
         interactableLayerMask = LayerMask.GetMask("Interactable Layer");
+        enableTracking = true;
     }
 
     public bool EnableTracking
@@ -45,6 +46,10 @@ public class TrackingMainCameraManager : GizmoManager
             enableTracking = value;
         }
     }
+
+    public void IncludeInteractableLayer(string interactableLayer) => interactableLayerMask |= LayerMask.GetMask(interactableLayer);
+
+    public void ExcludeInteractableLayer(string interactableLayer) => interactableLayerMask &= ~LayerMask.GetMask(interactableLayer);
 
     void FixedUpdate()
     {
@@ -84,37 +89,7 @@ public class TrackingMainCameraManager : GizmoManager
         }
 #endif
 
-        if (isValid)
-        {
-            if (showHits)
-            {
-                if (hitPrefabInstance == null)
-                {
-                    hitPrefabInstance = Instantiate(hitPrefab, point, objectHit.transform.rotation);
-                }
-                else
-                {
-                    hitPrefabInstance.transform.position = point;
-                    hitPrefabInstance.SetActive(true);
-                }
-            }
-
-            if (!GameObject.ReferenceEquals(objectHit, lastObjectHit))
-            {
-                if ((lastObjectHit != null) && (lastObjectHit.TryGetComponent<IFocus>(out IFocus lastFocus)))
-                {
-                    lastFocus.LostFocus(gameObject);
-                }
-
-                if (objectHit.TryGetComponent<IFocus>(out IFocus focus))
-                {
-                    focus.GainedFocus(gameObject);
-                }
-
-                lastObjectHit = objectHit;
-            }
-        }
-        else
+        if (!isValid)
         {
             if ((lastObjectHit != null) && (lastObjectHit.TryGetComponent<IFocus>(out IFocus lastFocus)))
             {
@@ -123,6 +98,35 @@ public class TrackingMainCameraManager : GizmoManager
 
             hitPrefabInstance?.SetActive(false);
             lastObjectHit = null;
+            return;
+        }
+
+        if (showHits)
+        {
+            if (hitPrefabInstance == null)
+            {
+                hitPrefabInstance = Instantiate(hitPrefab, point, objectHit.transform.rotation);
+            }
+            else
+            {
+                hitPrefabInstance.transform.position = point;
+                hitPrefabInstance.SetActive(true);
+            }
+        }
+
+        if (!GameObject.ReferenceEquals(objectHit, lastObjectHit))
+        {
+            if ((lastObjectHit != null) && (lastObjectHit.TryGetComponent<IFocus>(out IFocus lastFocus)))
+            {
+                lastFocus.LostFocus(gameObject);
+            }
+
+            if (objectHit.TryGetComponent<IFocus>(out IFocus focus))
+            {
+                focus.GainedFocus(gameObject);
+            }
+
+            lastObjectHit = objectHit;
         }
     }
 

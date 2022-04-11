@@ -25,12 +25,13 @@ namespace Chess
         [Header("Pieces")]
         [SerializeField] float rotationSpeed = 25f;
         [SerializeField] float movementSpeed = 25f;
+        [SerializeField] Material outOfScopeMaterial;
 
         private enum Stage
         {
+            Evaluation,
             Uncommited,
-            Selected,
-            Confirmed
+            Selected
         }
 
         private TrackingMainCameraManager cameraManager;
@@ -40,11 +41,14 @@ namespace Chess
         private Piece inFocusPiece;
         private bool checkMate;
         private Stage stage;
+        private Dictionary<Piece, List<Cell>> availableMoves;
 
         void Awake()
         {
             ResolveDependencies();
+
             matrix = new Cell[8, 8];
+            availableMoves = new Dictionary<Piece, List<Cell>>();
         }
 
         private void ResolveDependencies()
@@ -96,6 +100,8 @@ namespace Chess
             InitiateUI();
             checkMate = false;
             activeSet = Set.Light;
+            cameraManager.IncludeInteractableLayer("Placement Preview Layer");
+
             ManageTurn();
         }
 
@@ -103,11 +109,37 @@ namespace Chess
 
         private void ManageTurn()
         {
-            stage = Stage.Uncommited;
-            cameraManager.EnableTracking = true;
+            stage = Stage.Evaluation;
+            cameraManager.ExcludeInteractableLayer("Chess Piece Layer");
+            availableMoves.Clear();
             inFocusPiece = null;
 
-            // TODO
+            CalculateMoves();
+        }
+
+        private void CalculateMoves()
+        {
+            List<Piece> pieces = (activeSet == Set.Light) ? set.LightPieces() : set.DarkPieces();
+
+            foreach (Piece piece in pieces)
+            {
+                List<Cell> moves = piece.CalculateMoves();
+                var hasMoves = moves.Count > 0;
+
+                piece.EnablePhysics(hasMoves);
+
+                if (hasMoves)
+                {
+                    availableMoves.Add(piece, moves);
+                }
+                else
+                {
+                    piece.ApplyMaterial(outOfScopeMaterial);
+                }
+            }
+
+            stage = Stage.Uncommited;
+            cameraManager.IncludeInteractableLayer("Chess Piece Layer");
         }
 
         private void CompleteTurn()
@@ -134,7 +166,7 @@ namespace Chess
             //     Debug.Log($"OnActuation Right Hand : {actuation}");
             // }
 
-            if (inFocusPiece == null) return;
+            if ((stage == Stage.Evaluation) || (inFocusPiece == null)) return;
 
             if (actuation.HasFlag(Actuation.Button_AX))
             {
@@ -142,7 +174,10 @@ namespace Chess
             }
             else if (actuation.HasFlag(Actuation.Button_BY))
             {
-                CancelIntent();
+                if (stage == Stage.Selected)
+                {
+                    CancelIntent();
+                }
             }
         }
 
@@ -150,37 +185,23 @@ namespace Chess
         {
             if (stage == Stage.Uncommited)
             {
-                cameraManager.EnableTracking = false;
-                
-                List<Cell> moves = inFocusPiece.CalculateMoves();
-
-                if (moves != null)
-                {
-                    inFocusPiece.MarkAvailable();
-
-                    foreach (Cell move in moves)
-                    {
-                        // TODO
-                    }
-                }
-                else
-                {
-                    inFocusPiece.MarkUnavailable();
-                }
-
+                inFocusPiece.ApplySelectedTheme();
+                cameraManager.ExcludeInteractableLayer("Chess Piece Layer");
                 stage = Stage.Selected;
+
+                // TODO keep tracking enabled but prevent other pieces from being selectable as we have locked in on this piece already
             }
             else if (stage == Stage.Selected)
             {
-                // TODO
+                // TODO this only applies if we have selected a legal cell to move the piece to
             }
         }
 
         private void CancelIntent()
         {
             stage = Stage.Uncommited;
-            inFocusPiece.ApplyDefault();
-            cameraManager.EnableTracking = true;
+            inFocusPiece?.ApplyDefaultTheme();
+            cameraManager.IncludeInteractableLayer("Chess Piece Layer");
         }
 
         private void OnGameOver() { }
@@ -224,7 +245,7 @@ namespace Chess
                 case FocusType.OnFocusGained:
                     if (piece.Set != activeSet) return;
 
-                    piece.ApplyHighlight();
+                    piece.ApplyHighlightTheme();
 
                     if (TryGetCoordReference(piece.ActiveCell.coord, out string reference))
                     {
@@ -237,7 +258,7 @@ namespace Chess
                 case FocusType.OnFocusLost:
                     if (piece.Set != activeSet) return;
                     
-                    piece.ApplyDefault();
+                    piece.ApplyDefaultTheme();
 
                     coordReferenceCanvas.TextUI = string.Empty;
                     break;

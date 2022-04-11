@@ -18,7 +18,8 @@ namespace Chess.Pieces
 
         public override List<Cell> CalculateMoves()
         {
-            return null;
+            List<Cell> moves = new List<Cell>();
+            return moves;
         }
     }
 }

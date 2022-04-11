@@ -7,6 +7,7 @@ namespace Chess.Pieces
 {
     public abstract class Piece : MonoBehaviour, IFocus
     {
+        [Header("Config")]
         [SerializeField] PieceType type;
         public PieceType Type { get { return type; } }
 
@@ -25,17 +26,21 @@ namespace Chess.Pieces
         private new MeshRenderer renderer;
         private new Rigidbody rigidbody;
         private new Collider collider;
+        private Material defaultMaterial;
         private Color defaultMaterialColor;
         private Quaternion originalRotation;
         private Cell homeCell;
         private Cell activeCell;
+        private Color orangeTheme;
         
         void Awake()
         {
             ResolveDependencies();
 
             originalRotation = transform.localRotation;
+            defaultMaterial = renderer.material;
             defaultMaterialColor = renderer.material.color;
+            ColorUtility.TryParseHtmlString("#FFA500", out orangeTheme);
         }
 
         private void ResolveDependencies()
@@ -43,18 +48,6 @@ namespace Chess.Pieces
             renderer = GetComponent<MeshRenderer>() as MeshRenderer;
             rigidbody = GetComponent<Rigidbody>() as Rigidbody;
             collider = GetComponent<Collider>() as Collider;
-        }
-
-        // Start is called before the first frame update
-        void Start()
-        {
-            // TODO
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-            
         }
 
         public void GainedFocus(GameObject gameObject)
@@ -67,23 +60,27 @@ namespace Chess.Pieces
             EventReceived?.Invoke(this, FocusType.OnFocusLost);
         }
 
-        public void ApplyHighlight() => renderer.material.color = Color.yellow;
+        public void ApplyDefaultTheme() => renderer.material.color = defaultMaterialColor;
 
-        public void ApplyDefault() => renderer.material.color = defaultMaterialColor;
+        public void ApplyHighlightTheme() => renderer.material.color = orangeTheme;
 
-        public void MarkAvailable() => renderer.material.color = Color.green;
+        public void ApplySelectedTheme() => renderer.material.color = Color.green;
 
-        public void MarkUnavailable() => renderer.material.color = Color.red;
+        public void ApplyMaterial(Material material) => renderer.material = material;
+
+        public void UseDefaultMaterial() => ApplyMaterial(defaultMaterial);
 
         public abstract List<Cell> CalculateMoves();
 
-        public void ReinstatePhysics() => EnablePhysics(true);
+        public virtual void Reset() { }
 
-        private void EnablePhysics(bool enabled)
+        public void EnablePhysics(bool enabled)
         {
             rigidbody.isKinematic = !enabled;
             collider.enabled = enabled;
         }
+
+        public void ReinstatePhysics() => EnablePhysics(true);
 
         public void SnapToActiveCell()
         {
