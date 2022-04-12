@@ -8,10 +8,10 @@ namespace Chess.Pieces
     public abstract class PieceManager : MonoBehaviour, IFocus
     {
         [Header("Config")]
-        [SerializeField] PieceType type;
+        [SerializeField] protected PieceType type;
         public PieceType Type { get { return type; } }
 
-        [SerializeField] Set set;
+        [SerializeField] protected Set set;
         public Set Set { get { return set; } }
 
         public Cell HomeCell { get { return homeCell; } set { activeCell = homeCell = value; } }
@@ -66,7 +66,7 @@ namespace Chess.Pieces
 
         public void UseDefaultMaterial() => ApplyMaterial(defaultMaterial);
 
-        public abstract List<Cell> CalculateMoves(Cell[,] matrix, int maxColumnIdx, int maxRowIdx, int vector);
+        public abstract List<Cell> CalculateMoves(ChessBoardManager manager, Cell[,] matrix, int maxColumnIdx, int maxRowIdx, int vector);
 
         public virtual void Reset()
         {

@@ -20,7 +20,7 @@ namespace Chess
         [SerializeField] new Camera camera;
 
         [Header("Components")]
-        [SerializeField] ChessBoardSetManager set;
+        [SerializeField] ChessBoardSetManager setManger;
         [SerializeField] CoordReferenceCanvas coordReferenceCanvas;
         [SerializeField] ButtonEventManager resetButton;
 
@@ -99,11 +99,11 @@ namespace Chess
             }
         }
 
-        private List<PieceManager> ActivePieces { get { return set.AllPieces().Where(p => p.isActiveAndEnabled).ToList(); } }
+        private List<PieceManager> ActivePieces { get { return setManger.AllPieces().Where(p => p.isActiveAndEnabled).ToList(); } }
 
-        private List<PieceManager> ActiveLightPieces { get { return set.LightPieces().Where(p => p.isActiveAndEnabled).ToList(); } }
+        private List<PieceManager> ActiveLightPieces { get { return setManger.LightPieces().Where(p => p.isActiveAndEnabled).ToList(); } }
 
-        private List<PieceManager> ActiveDarkPieces { get { return set.DarkPieces().Where(p => p.isActiveAndEnabled).ToList(); } }
+        private List<PieceManager> ActiveDarkPieces { get { return setManger.DarkPieces().Where(p => p.isActiveAndEnabled).ToList(); } }
 
         private void ResetGame()
         {
@@ -133,7 +133,7 @@ namespace Chess
 
             foreach (PieceManager piece in activePieces)
             {
-                List<Cell> moves = piece.CalculateMoves(matrix, maxColumnIdx, maxRowIdx, (activeSet == Set.Light) ? 1 : -1);
+                List<Cell> moves = piece.CalculateMoves(this, matrix, maxColumnIdx, maxRowIdx, (activeSet == Set.Light) ? 1 : -1);
                 var hasMoves = moves.Count > 0;
 
                 piece.EnablePhysics(hasMoves);
@@ -207,7 +207,7 @@ namespace Chess
                 {
                     foreach (Cell cell in cells)
                     {
-                        var preview = GameObject.Instantiate(placementPreviewPrefab, Vector3.zero, Quaternion.identity, set.transform);
+                        var preview = GameObject.Instantiate(placementPreviewPrefab, Vector3.zero, Quaternion.identity, setManger.transform);
                         var manager = preview.GetComponent<PreviewManager>() as PreviewManager;
                         manager.PlaceAtCell(cell);
                         
@@ -414,7 +414,24 @@ namespace Chess
 #endregion
 
 #region TryGets
-    private bool TryGetPieceToCell(PieceManager piece, out Cell cell)
+    public bool TryGetSetPiecesByType(Set set, PieceType type, out List<Cell> cells)
+    {
+        List<PieceManager> activePieces = (set == Set.Light) ? ActiveLightPieces : ActiveDarkPieces;
+        List<Cell> matchingCells = activePieces.Where(p => p.Type == type).Select(p => p.ActiveCell).ToList();
+
+        cells = matchingCells;
+        return (matchingCells.Count > 0);
+    }
+
+    public bool TryGetPiecesByType(PieceType type, out List<Cell> cells)
+    {
+        List<Cell> matchingCells = ActivePieces.Where(p => p.Type == type).Select(p => p.ActiveCell).ToList();
+
+        cells = matchingCells;
+        return (matchingCells.Count > 0);
+    }
+
+    public bool TryGetPieceToCell(PieceManager piece, out Cell cell)
     {
         var localPosition = ChessMath.RoundPosition(piece.transform.localPosition);
         
@@ -428,7 +445,7 @@ namespace Chess
         return false;
     }
 
-    private bool TryGetCoord(Vector3 localPosition, out Coord coord)
+    public bool TryGetCoord(Vector3 localPosition, out Coord coord)
     {
         var normX = ChessMath.Normalize(localPosition.x, -0.35f, 0.35f);
         int x = (int) Mathf.Round(maxColumnIdx * (float) normX);
@@ -451,9 +468,9 @@ namespace Chess
         return false;
     }
 
-    private bool TryGetCoordToPosition(Coord coord, out Vector3 localPosition)
+    public bool TryGetCoordToPosition(Coord coord, out Vector3 localPosition)
     {
-        Vector3 surface = set.transform.localPosition;
+        Vector3 surface = setManger.transform.localPosition;
 
         if ((coord.x >= 0 && coord.x <= maxColumnIdx) && (coord.y >= 0 && coord.y <= maxRowIdx))
         {
@@ -468,7 +485,7 @@ namespace Chess
         return false;
     }
 
-    private bool TryGetCoordReference(Coord coord, out string reference)
+    public bool TryGetCoordReference(Coord coord, out string reference)
     {
         if ((coord.x >= 0 && coord.x <= maxColumnIdx) && (coord.y >= 0 && coord.y <= maxRowIdx))
         {
