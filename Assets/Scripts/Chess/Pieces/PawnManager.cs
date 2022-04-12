@@ -6,7 +6,7 @@ namespace Chess.Pieces
     {
         private bool hasHistory;
 
-        public override List<Cell> CalculateMoves(ChessBoardManager manager, Cell[,] matrix, int maxColumnIdx, int maxRowIdx, int vector)
+        public override List<Cell> CalculateMoves(ChessBoardManager manager, Cell[,] matrix, int vector)
         {
             List<Cell> moves = new List<Cell>();
 

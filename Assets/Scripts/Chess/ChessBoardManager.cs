@@ -133,7 +133,7 @@ namespace Chess
 
             foreach (PieceManager piece in activePieces)
             {
-                List<Cell> moves = piece.CalculateMoves(this, matrix, maxColumnIdx, maxRowIdx, (activeSet == Set.Light) ? 1 : -1);
+                List<Cell> moves = piece.CalculateMoves(this, matrix, (activeSet == Set.Light) ? 1 : -1);
                 var hasMoves = moves.Count > 0;
 
                 piece.EnablePhysics(hasMoves);

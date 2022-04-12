@@ -23,6 +23,8 @@ namespace Chess.Pieces
         public delegate void Event(PieceManager piece, FocusType focusType);
         public event Event EventReceived;
         
+        protected int maxColumnIdx, maxRowIdx;
+
         private MeshFilter filter;
         private new MeshRenderer renderer;
         private new Rigidbody rigidbody;
@@ -37,6 +39,9 @@ namespace Chess.Pieces
         {
             ResolveDependencies();
 
+            maxColumnIdx = ChessBoardManager.MatrixColumns - 1;
+            maxRowIdx = ChessBoardManager.MatrixRows - 1;
+            
             originalRotation = transform.localRotation;
             defaultMaterial = renderer.material;
             defaultMaterialColor = renderer.material.color;
@@ -66,7 +71,42 @@ namespace Chess.Pieces
 
         public void UseDefaultMaterial() => ApplyMaterial(defaultMaterial);
 
-        public abstract List<Cell> CalculateMoves(ChessBoardManager manager, Cell[,] matrix, int maxColumnIdx, int maxRowIdx, int vector);
+        protected bool TryGetPotentialCoord(Coord coord, int xOffset, int yOffset, out Coord potentialCoord)
+        {
+            int offsetX = coord.x + xOffset;
+            int offsetY = coord.y + yOffset;
+
+            if ((offsetX >= 0 && offsetX <= maxColumnIdx) && (offsetY >= 0 && offsetY <= maxRowIdx))
+            {
+                potentialCoord = new Coord
+                {
+                    x = offsetX,
+                    y = offsetY
+                };
+
+                return true;
+            }
+
+            potentialCoord = default(Coord);
+            return false;
+        }
+
+        protected bool TryGetPotentialCoords(Coord coord, List<Coord> offsets, out List<Coord> potentialCoords)
+        {
+            potentialCoords = new List<Coord>();
+
+            foreach (Coord offset in offsets)
+            {
+                if (TryGetPotentialCoord(coord, offset.x, offset.y, out Coord offsetCoord))
+                {
+                    potentialCoords.Add(offsetCoord);
+                }
+            }
+
+            return (potentialCoords.Count > 0);
+        }
+
+        public abstract List<Cell> CalculateMoves(ChessBoardManager manager, Cell[,] matrix, int vector);
 
         public virtual void Reset()
         {
