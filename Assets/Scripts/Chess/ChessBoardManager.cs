@@ -30,6 +30,12 @@ namespace Chess
         [SerializeField] Material outOfScopeMaterial;
 
         [Header("Config")]
+        [SerializeField] PlayMode playMode;
+        public PlayMode PlayMode { get { return playMode; } }
+
+        [SerializeField] InteractionMode interactionMode;
+        public InteractionMode InteractionMode { get { return interactionMode; } }
+
         [SerializeField] GameObject placementPreviewPrefab;
 
         public static int MatrixRows = 8;
@@ -374,24 +380,61 @@ namespace Chess
 
     private void ReportMatrix()
     {
-        for (int y = 0 ; y <= maxRowIdx ; y++)
-        {
-            for (int x = 0 ; x <= maxColumnIdx ; x++)
-            {
-                Cell cell = matrix[x, y];
+        List<Cell> cells = AllCells;
 
-                if (cell != null)
+        foreach (Cell cell in cells)
+        {
+            if (cell != null)
+            {
+                if (cell.piece != null)
                 {
-                    if (cell.piece != null)
-                    {
-                        Debug.Log($"ReportMatrix X : {x} Y : {y} Piece : {cell.piece.name} Coord : [{cell.coord.x} {cell.coord.y}] Position : [{cell.localPosition.x} {cell.localPosition.y} {cell.localPosition.z}]");
-                    }
-                    else
-                    {
-                        Debug.Log($"ReportMatrix X : {x} Y : {y} Coord : [{cell.coord.x} {cell.coord.y}] Position : [{cell.localPosition.x} {cell.localPosition.y} {cell.localPosition.z}]");
-                    }
+                    Debug.Log($"ReportMatrix X : {cell.coord.x} Y : {cell.coord.y} Piece : {cell.piece.name} Coord : [{cell.coord.x} {cell.coord.y}] Position : [{cell.localPosition.x} {cell.localPosition.y} {cell.localPosition.z}]");
+                }
+                else
+                {
+                    Debug.Log($"ReportMatrix X : {cell.coord.x} Y : {cell.coord.y} Coord : [{cell.coord.x} {cell.coord.y}] Position : [{cell.localPosition.x} {cell.localPosition.y} {cell.localPosition.z}]");
                 }
             }
+        }
+    }
+
+    public List<Cell> AllCells
+    {
+        get
+        {
+            List<Cell> cells = new List<Cell>();
+
+            for (int y = 0 ; y <= maxRowIdx ; y++)
+            {
+                for (int x = 0 ; x <= maxColumnIdx ; x++)
+                {
+                    cells.Add(matrix[x, y]);
+                }
+            }
+
+            return cells;
+        }
+    }
+
+    public List<Coord> AllCoords
+    {
+        get
+        {
+            List<Coord> coords = new List<Coord>();
+
+            for (int y = 0 ; y <= maxRowIdx ; y++)
+            {
+                for (int x = 0 ; x <= maxColumnIdx ; x++)
+                {
+                    coords.Add(new Coord
+                    {
+                        x = x,
+                        y = y
+                    });
+                }
+            }
+
+            return coords;
         }
     }
 #endregion

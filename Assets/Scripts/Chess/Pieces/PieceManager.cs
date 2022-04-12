@@ -71,17 +71,14 @@ namespace Chess.Pieces
 
         public void UseDefaultMaterial() => ApplyMaterial(defaultMaterial);
 
-        protected bool TryGetPotentialCoord(Coord coord, int xOffset, int yOffset, out Coord potentialCoord)
+        protected bool TryGetPotentialCoord(Coord coord, int x, int y, out Coord potentialCoord)
         {
-            int offsetX = coord.x + xOffset;
-            int offsetY = coord.y + yOffset;
-
-            if ((offsetX >= 0 && offsetX <= maxColumnIdx) && (offsetY >= 0 && offsetY <= maxRowIdx))
+            if ((x >= 0 && x <= maxColumnIdx) && (y >= 0 && y <= maxRowIdx))
             {
                 potentialCoord = new Coord
                 {
-                    x = offsetX,
-                    y = offsetY
+                    x = x,
+                    y = y
                 };
 
                 return true;
@@ -91,13 +88,67 @@ namespace Chess.Pieces
             return false;
         }
 
-        protected bool TryGetPotentialCoords(Coord coord, List<Coord> offsets, out List<Coord> potentialCoords)
+        protected Coord GetCoordByOffset(Coord coord, int xOffset, int yOffset)
+        {
+            int offsetX = coord.x + xOffset;
+            int offsetY = coord.y + yOffset;
+
+            return new Coord
+            {
+                x = offsetX,
+                y = offsetY
+            };
+        }
+
+        // protected bool TryGetPotentialCoordByOffset(Coord coord, int xOffset, int yOffset, out Coord potentialCoord)
+        // {
+        //     int offsetX = coord.x + xOffset;
+        //     int offsetY = coord.y + yOffset;
+
+        //     if ((offsetX >= 0 && offsetX <= maxColumnIdx) && (offsetY >= 0 && offsetY <= maxRowIdx))
+        //     {
+        //         potentialCoord = new Coord
+        //         {
+        //             x = offsetX,
+        //             y = offsetY
+        //         };
+
+        //         return true;
+        //     }
+
+        //     potentialCoord = default(Coord);
+        //     return false;
+        // }
+
+        protected bool TryGetPotentialCoords(Coord coord, List<Coord> coords, out List<Coord> potentialCoords)
+        {
+            potentialCoords = new List<Coord>();
+
+            foreach (Coord thisCoord in coords)
+            {
+                if (TryGetPotentialCoord(coord, thisCoord.x, thisCoord.y, out Coord offsetCoord))
+                {
+                    potentialCoords.Add(offsetCoord);
+                }
+            }
+
+            return (potentialCoords.Count > 0);
+        }
+
+        protected bool TryGetPotentialCoordsByOffset(Coord coord, List<Coord> offsets, out List<Coord> potentialCoords)
         {
             potentialCoords = new List<Coord>();
 
             foreach (Coord offset in offsets)
             {
-                if (TryGetPotentialCoord(coord, offset.x, offset.y, out Coord offsetCoord))
+                Coord trueCoord = GetCoordByOffset(coord, offset.x, offset.y);
+
+                // if (TryGetPotentialCoordByOffset(coord, offset.x, offset.y, out Coord offsetCoord))
+                // {
+                //     potentialCoords.Add(offsetCoord);
+                // }
+
+                if (TryGetPotentialCoord(coord, trueCoord.x, trueCoord.y, out Coord offsetCoord))
                 {
                     potentialCoords.Add(offsetCoord);
                 }

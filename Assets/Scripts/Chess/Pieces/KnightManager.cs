@@ -8,7 +8,7 @@ namespace Chess.Pieces
         public override List<Cell> CalculateMoves(ChessBoardManager manager, Cell[,] matrix, int vector)
         {
             List<Cell> moves = new List<Cell>();
-            List<Cell> potentialMoves = ResolvePotentialCells(matrix);
+            List<Cell> potentialMoves = ResolvePotentialCells(manager, matrix, manager.PlayMode);
 
             foreach (Cell potentialMove in potentialMoves)
             {
@@ -31,23 +31,48 @@ namespace Chess.Pieces
             return moves;
         }
 
-        private List<Cell> ResolvePotentialCells(Cell[,] matrix)
+        private List<Cell> ResolvePotentialCells(ChessBoardManager manager, Cell[,] matrix, PlayMode playMode)
+        {
+            List<Cell> cells;
+
+            if (manager.PlayMode == PlayMode.RuleBasedEnforcement)
+            {
+                cells = ResolveAllAvailableQualifyingCells(matrix);
+            }
+            else
+            {
+                cells = ResolveAllAvailableCells(manager, matrix);
+            }
+
+            return cells;
+        }
+   
+        private List<Cell> ResolveAllAvailableCells(ChessBoardManager manager, Cell[,] matrix)
+        {
+            List<Cell> cells = new List<Cell>();
+            List<Coord> coords = manager.AllCoords;
+
+            if (TryGetPotentialCoords(ActiveCell.coord, coords, out List<Coord> potentialCoords))
+            {
+                foreach (Coord coord in potentialCoords)
+                {
+                    Cell cell = matrix[coord.x, coord.y];
+
+                    if ((cell.piece == null) || (cell.piece.Set != set))
+                    {
+                        cells.Add(matrix[coord.x, coord.y]);
+                    }
+                }
+            }
+
+            return cells;
+        }
+
+        private List<Cell> ResolveAllAvailableQualifyingCells(Cell[,] matrix)
         {
             List<Cell> cells = new List<Cell>();
 
-            // Coord offsetCoord;
-
-            // if (TryGetOffsetCoord(ActiveCell.coord, -1, 3, out offsetCoord))
-            // {
-            //     cells.Add(offsetCoord);
-            // }
-
-            // if (TryGetOffsetCoord(ActiveCell.coord, 1, 3, out offsetCoord))
-            // {
-            //     cells.Add(offsetCoord);
-            // }
-
-            List<Coord> offsets = new[]
+            List<Coord> coords = new[]
             {
                 new Coord { x = -1, y = 2 },
                 new Coord { x = 1, y = 2 },
@@ -59,7 +84,7 @@ namespace Chess.Pieces
                 new Coord { x = -2, y = -1 }
             }.ToList<Coord>();
 
-            if (TryGetPotentialCoords(ActiveCell.coord, offsets, out List<Coord> potentialCoords))
+            if (TryGetPotentialCoordsByOffset(ActiveCell.coord, coords, out List<Coord> potentialCoords))
             {
                 foreach (Coord coord in potentialCoords)
                 {
