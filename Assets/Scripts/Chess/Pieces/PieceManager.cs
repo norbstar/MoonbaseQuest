@@ -100,9 +100,7 @@ namespace Chess.Pieces
             };
         }
 
-        // public abstract List<Cell> CalculateMoves(ChessBoardManager manager, Cell[,] matrix, int vector);
-
-        public List<Cell> CalculateMoves(ChessBoardManager manager, Cell[,] matrix, int vector)
+        public virtual List<Cell> CalculateMoves(ChessBoardManager manager, Cell[,] matrix, int vector)
         {
             List<Cell> moves = new List<Cell>();
             List<Cell> potentialMoves = ResolvePotentialCells(manager, matrix, manager.PlayMode);
@@ -167,26 +165,6 @@ namespace Chess.Pieces
             return cells;
         }
 
-        // protected bool TryGetPotentialCoordByOffset(Coord coord, int xOffset, int yOffset, out Coord potentialCoord)
-        // {
-        //     int offsetX = coord.x + xOffset;
-        //     int offsetY = coord.y + yOffset;
-
-        //     if ((offsetX >= 0 && offsetX <= maxColumnIdx) && (offsetY >= 0 && offsetY <= maxRowIdx))
-        //     {
-        //         potentialCoord = new Coord
-        //         {
-        //             x = offsetX,
-        //             y = offsetY
-        //         };
-
-        //         return true;
-        //     }
-
-        //     potentialCoord = default(Coord);
-        //     return false;
-        // }
-
         protected bool TryGetPotentialCoords(Coord coord, List<Coord> coords, out List<Coord> potentialCoords)
         {
             potentialCoords = new List<Coord>();
@@ -209,11 +187,6 @@ namespace Chess.Pieces
             foreach (Coord offset in offsets)
             {
                 Coord trueCoord = GetCoordByOffset(coord, offset.x, offset.y);
-
-                // if (TryGetPotentialCoordByOffset(coord, offset.x, offset.y, out Coord offsetCoord))
-                // {
-                //     potentialCoords.Add(offsetCoord);
-                // }
 
                 if (TryGetPotentialCoord(coord, trueCoord.x, trueCoord.y, out Coord offsetCoord))
                 {
