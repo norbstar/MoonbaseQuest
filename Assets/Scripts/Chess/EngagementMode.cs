@@ -1,6 +1,6 @@
 namespace Chess
 {
-    public enum InteractionMode
+    public enum EngagementMode
     {
         AssistedEngagement,
         GrabAndDrop,

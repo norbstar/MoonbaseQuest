@@ -4,13 +4,18 @@ namespace Chess.Pieces
 {
     public class QueenManager : PieceManager
     {
-        public override List<Cell> CalculateMoves(ChessBoardManager manager, Cell[,] matrix, int vector)
+        // public override List<Cell> CalculateMoves(ChessBoardManager manager, Cell[,] matrix, int vector)
+        // {
+        //     List<Cell> moves = new List<Cell>();
+
+        //     // TODO
+
+        //     return moves;
+        // }
+
+        protected override List<Cell> ResolveAllAvailableQualifyingCells(Cell[,] matrix)
         {
-            List<Cell> moves = new List<Cell>();
-
-            // TODO
-
-            return moves;
+            return new List<Cell>();
         }
     }
 }

@@ -33,8 +33,8 @@ namespace Chess
         [SerializeField] PlayMode playMode;
         public PlayMode PlayMode { get { return playMode; } }
 
-        [SerializeField] InteractionMode interactionMode;
-        public InteractionMode InteractionMode { get { return interactionMode; } }
+        [SerializeField] EngagementMode engagementMode;
+        public EngagementMode EngagementMode { get { return engagementMode; } }
 
         [SerializeField] GameObject placementPreviewPrefab;
 
@@ -135,7 +135,16 @@ namespace Chess
 
         private void CalculateMoves()
         {
-            List<PieceManager> activePieces = (activeSet == Set.Light) ? ActiveLightPieces : ActiveDarkPieces;
+            List<PieceManager> activePieces;
+
+            if (playMode == PlayMode.Freeform)
+            {
+                activePieces = ActivePieces;
+            }
+            else
+            {
+                activePieces = (activeSet == Set.Light) ? ActiveLightPieces : ActiveDarkPieces;
+            }
 
             foreach (PieceManager piece in activePieces)
             {
@@ -166,7 +175,11 @@ namespace Chess
             }
             else
             {
-                activeSet = (activeSet == Set.Light) ? Set.Dark : Set.Light;
+                if (playMode == PlayMode.RuleBased)
+                {
+                    activeSet = (activeSet == Set.Light) ? Set.Dark : Set.Light;
+                }
+
                 ManageTurn();
             }
         }
@@ -315,7 +328,7 @@ namespace Chess
             switch (focusType)
             {
                 case FocusType.OnFocusGained:
-                    if (piece.Set != activeSet) return;
+                    if ((playMode == PlayMode.RuleBased) && (piece.Set != activeSet)) return;
 
                     piece.ApplyHighlightTheme();
 
@@ -328,7 +341,7 @@ namespace Chess
                     break;
 
                 case FocusType.OnFocusLost:
-                    if (piece.Set != activeSet) return;
+                    if ((playMode == PlayMode.RuleBased) && (piece.Set != activeSet)) return;
 
                     if (stageManager.LiveStage == Stage.Selected) return;
                     
