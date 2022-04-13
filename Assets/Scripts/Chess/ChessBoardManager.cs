@@ -224,8 +224,6 @@ namespace Chess
                 inFocusPiece.ApplySelectedTheme();
                 cameraManager.ExcludeInteractableLayer("Chess Piece Layer");
 
-                Debug.Log($"ProcessIntent {inFocusPiece.name} [{inFocusPiece.ActiveCell.coord.x}, {inFocusPiece.ActiveCell.coord.y}]");
-                
                 if (availableMoves.TryGetValue(inFocusPiece, out List<Cell> cells))
                 {
                     foreach (Cell cell in cells)
