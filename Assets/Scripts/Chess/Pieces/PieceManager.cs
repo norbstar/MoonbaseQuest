@@ -245,41 +245,21 @@ namespace Chess.Pieces
             return cells;
         }
 
-        
-        // protected List<List<Coord>> TryOneTimeCoord(int stepX, int stepY, List<List<Coord>> coords)
-        // {
-        //     return TryCoord(stepX, stepY, coords, 1);
-        // }
-
-        // protected List<List<Coord>> TryCoord(int stepX, int stepY, List<List<Coord>> coords, int? iterationCap = null)
-        // {
-        //     List<Coord> vectorCoords;
-
-        //     if (TryGetVectorCoords(ActiveCell.coord, stepX, stepY, out vectorCoords, iterationCap))
-        //     {
-        //         coords.Add(vectorCoords);
-        //     }
-
-        //     return coords;
-        // }
-
-        protected List<CoordBundle> TryOneTimeCoord(int stepX, int stepY, List<CoordBundle> bundles, bool includeOccupedCells = true)
+        protected List<CoordBundle> TryOneTimeVector(int stepX, int stepY, List<CoordBundle> bundles, bool includeOccupedCells = true)
         {
-            return TryCoord(stepX, stepY, bundles, includeOccupedCells, 1);
+            return TryVector(stepX, stepY, bundles, includeOccupedCells, 1);
         }
 
-        protected List<CoordBundle> TryCoord(int stepX, int stepY, List<CoordBundle> bundles, bool includeOccupedCells = true, int? iterationCap = null)
+        protected List<CoordBundle> TryVector(int stepX, int stepY, List<CoordBundle> bundles, bool includeOccupedCells = true, int? iterationCap = null)
         {
             List<Coord> vectorCoords;
 
             if (TryGetVectorCoords(ActiveCell.coord, stepX, stepY, out vectorCoords, iterationCap))
             {
-                // coords.Add(vectorCoords);
-
                 bundles.Add(new CoordBundle
                 {
                     coords = vectorCoords,
-                    includeOccupedCells = false
+                    includeOccupedCells = includeOccupedCells
                 });
             }
 
