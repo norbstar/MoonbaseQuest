@@ -32,42 +32,42 @@ namespace Chess.Pieces
 
             Coord activeCoord = ActiveCell.coord;
             
-            if (TryGetVectorCoords(activeCoord, -1, 0, out vectorCoords))
+            if (TryGetVectorCoords(activeCoord, -1, 0, out vectorCoords, 1))
             {
                 coords.AddRange(vectorCoords);
             }
 
-            if (TryGetVectorCoords(activeCoord, -1, 1, out vectorCoords))
+            if (TryGetVectorCoords(activeCoord, -1, 1, out vectorCoords, 1))
             {
                 coords.AddRange(vectorCoords);
             }
 
-            if (TryGetVectorCoords(activeCoord, 1, 0, out vectorCoords))
+            if (TryGetVectorCoords(activeCoord, 1, 0, out vectorCoords, 1))
             {
                 coords.AddRange(vectorCoords);
             }
 
-            if (TryGetVectorCoords(activeCoord, 1, 1, out vectorCoords))
+            if (TryGetVectorCoords(activeCoord, 1, 1, out vectorCoords, 1))
             {
                 coords.AddRange(vectorCoords);
             }
 
-            if (TryGetVectorCoords(activeCoord, 0, -1, out vectorCoords))
+            if (TryGetVectorCoords(activeCoord, 0, -1, out vectorCoords, 1))
             {
                 coords.AddRange(vectorCoords);
             }
 
-            if (TryGetVectorCoords(activeCoord, -1, -1, out vectorCoords))
+            if (TryGetVectorCoords(activeCoord, -1, -1, out vectorCoords, 1))
             {
                 coords.AddRange(vectorCoords);
             }
 
-            if (TryGetVectorCoords(activeCoord, 0, 1, out vectorCoords))
+            if (TryGetVectorCoords(activeCoord, 0, 1, out vectorCoords, 1))
             {
                 coords.AddRange(vectorCoords);
             }
 
-            if (TryGetVectorCoords(activeCoord, 1, -1, out vectorCoords))
+            if (TryGetVectorCoords(activeCoord, 1, -1, out vectorCoords, 1))
             {
                 coords.AddRange(vectorCoords);
             }

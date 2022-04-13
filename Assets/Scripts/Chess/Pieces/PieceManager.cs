@@ -131,19 +131,19 @@ namespace Chess.Pieces
             };
         }
 
-        public virtual List<Cell> CalculateMoves(ChessBoardManager manager, Cell[,] matrix, int vector)
+        public List<Cell> CalculateMoves(ChessBoardManager manager, Cell[,] matrix, int vector)
         {
             List<Cell> moves = new List<Cell>();
             List<Cell> potentialMoves = ResolvePotentialCells(manager, matrix, vector, manager.PlayMode);
 
-            if (manager.TryGetSetPiecesByType(set, PieceType.King, out List<Cell> cells))
-            {
-                if (cells.Count > 0)
-                {
-                    var kingCell = cells[0];
-                    Debug.Log("$Calculate Moves King Cell Coords : [{kingCell.coords.x} {kingCell.coords.y}]");
-                }
-            }
+            // if (manager.TryGetSetPiecesByType(set, PieceType.King, out List<Cell> cells))
+            // {
+            //     if (cells.Count > 0)
+            //     {
+            //         var kingCell = cells[0];
+            //         Debug.Log($"Calculate Moves King Cell Coords : [{kingCell.coord.x} {kingCell.coord.y}]");
+            //     }
+            // }
 
             foreach (Cell potentialMove in potentialMoves)
             {
@@ -196,7 +196,7 @@ namespace Chess.Pieces
             return cells;
         }
 
-        protected bool TryGetVectorCoords(Coord origin, int stepX, int stepY, out List<Coord> coords)
+        protected bool TryGetVectorCoords(Coord origin, int stepX, int stepY, out List<Coord> coords, int? interationCap = null)
         {
             if ((stepX == 0) && (stepY == 0))
             {
@@ -211,9 +211,12 @@ namespace Chess.Pieces
             };
 
             coords = new List<Coord>();
+            int itr = 0;
 
             do
             {
+                if (interationCap.HasValue && itr == interationCap.Value) break;
+
                 coord.x += stepX;
                 coord.y += stepY;
 
@@ -229,6 +232,8 @@ namespace Chess.Pieces
                 {
                     break;
                 }
+
+                ++itr;
             } while (true);
 
             return true;
@@ -266,11 +271,13 @@ namespace Chess.Pieces
             return (potentialCoords.Count > 0);
         }
 
-        public virtual void Reset()
+        public void ResetTheme()
         {
             UseDefaultMaterial();
             ApplyDefaultTheme();
         }
+
+        public virtual void Reset() => ResetTheme();
 
         public void EnablePhysics(bool enabled)
         {
@@ -294,6 +301,8 @@ namespace Chess.Pieces
 
         public void GoToCell(Cell cell, float rotationSpeed, float movementSpeed) => StartCoroutine(GoToCellCoroutine(cell, rotationSpeed, movementSpeed));
 
+        protected virtual void OnMove(Cell fromCell, Cell toCell) { }
+
         private IEnumerator GoToCellCoroutine(Cell cell, float rotationSpeed, float movementSpeed)
         {
             EnablePhysics(false);
@@ -309,6 +318,8 @@ namespace Chess.Pieces
             {
                 ActiveCell.piece = null;
             }
+
+            OnMove(ActiveCell, cell);
 
             ActiveCell = cell;
             MoveEventReceived?.Invoke(this);

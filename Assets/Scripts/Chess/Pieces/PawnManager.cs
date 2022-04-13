@@ -6,14 +6,6 @@ namespace Chess.Pieces
     {
         private bool hasHistory;
 
-        public override List<Cell> CalculateMoves(ChessBoardManager manager, Cell[,] matrix, int vector)
-        {
-            List<Cell> moves = base.CalculateMoves(manager, matrix, vector);
-            hasHistory = true;
-
-            return moves;
-        }
-
         protected override List<Cell> ResolveAllAvailableQualifyingCells(Cell[,] matrix, int vector)
         {
             List<Cell> cells = new List<Cell>();
@@ -42,12 +34,17 @@ namespace Chess.Pieces
 
             Coord activeCoord = ActiveCell.coord;
             
-            if (TryGetVectorCoords(activeCoord, 0, vector, out vectorCoords))
+            if (TryGetVectorCoords(activeCoord, 0, vector, out vectorCoords, (!hasHistory) ? 2 : 1))
             {
                 coords.AddRange(vectorCoords);
             }
 
             return coords;
+        }
+
+        protected override void OnMove(Cell fromCell, Cell toCell)
+        {
+            hasHistory = true;
         }
 
         public override void Reset()

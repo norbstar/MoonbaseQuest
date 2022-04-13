@@ -192,7 +192,7 @@ namespace Chess
             {
                 if (piece.isActiveAndEnabled)
                 {
-                    piece.Reset();
+                    piece.ResetTheme();
                 }
             }
         }
