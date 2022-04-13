@@ -18,10 +18,22 @@ namespace Chess.Pieces
         [SerializeField] protected Set set;
         public Set Set { get { return set; } }
 
+        protected class CoordSpec
+        {
+            public bool includeOccupedCells;
+            public bool onlyIncludeOccupiedCells;
+        }
+
         protected class CoordBundle
         {
             public List<Coord> coords;
-            public bool includeOccupedCells = true;
+            public CoordSpec coordSpec;
+
+            public CoordBundle()
+            {
+                coords = new List<Coord>();
+                coordSpec = new CoordSpec();
+            }
         }
 
         public Cell HomeCell
@@ -62,6 +74,12 @@ namespace Chess.Pieces
         public event Event EventReceived;
         
         protected int maxColumnIdx, maxRowIdx;
+
+        private static CoordSpec DefaultCoordSpec = new CoordSpec
+        {
+            includeOccupedCells = true,
+            onlyIncludeOccupiedCells = false
+        };
 
         private MeshFilter filter;
         private new MeshRenderer renderer;
@@ -175,14 +193,14 @@ namespace Chess.Pieces
             {
                 if (TryGetPotentialCoords(ActiveCell.coord, bundle.coords, out List<Coord> potentialCoords))
                 {
-                    cells.AddRange(EvaluatePotentialCells(matrix, potentialCoords, bundle.includeOccupedCells));
+                    cells.AddRange(EvaluatePotentialCells(matrix, potentialCoords, bundle.coordSpec));
                 }
             }
 
             return cells;
         }
 
-        private List<Cell> EvaluatePotentialCells(Cell[,] matrix, List<Coord> potentialCoords, bool includeOccupedCells)
+        private List<Cell> EvaluatePotentialCells(Cell[,] matrix, List<Coord> potentialCoords, CoordSpec coordSpec)
         {
             List<Cell> cells = new List<Cell>();
 
@@ -192,14 +210,14 @@ namespace Chess.Pieces
 
                 if (cell.piece != null)
                 {
-                    if ((cell.piece.Set != set) && includeOccupedCells)
+                    if ((cell.piece.Set != set) && coordSpec.includeOccupedCells)
                     {
                         cells.Add(cell);
                     }
 
                     return cells;
                 }
-                else
+                else if (!coordSpec.onlyIncludeOccupiedCells)
                 {
                     cells.Add(cell);
                 }
@@ -245,21 +263,31 @@ namespace Chess.Pieces
             return cells;
         }
 
-        protected List<CoordBundle> TryOneTimeVector(int stepX, int stepY, List<CoordBundle> bundles, bool includeOccupedCells = true)
+        protected List<CoordBundle> TryOneTimeVector(int stepX, int stepY, List<CoordBundle> bundles, CoordSpec coordSpec = null)
         {
-            return TryVector(stepX, stepY, bundles, includeOccupedCells, 1);
+            if (coordSpec == null)
+            {
+                coordSpec = DefaultCoordSpec;
+            }
+
+            return TryVector(stepX, stepY, bundles, coordSpec, 1);
         }
 
-        protected List<CoordBundle> TryVector(int stepX, int stepY, List<CoordBundle> bundles, bool includeOccupedCells = true, int? iterationCap = null)
+        protected List<CoordBundle> TryVector(int stepX, int stepY, List<CoordBundle> bundles, CoordSpec coordSpec = null, int? iterationCap = null)
         {
             List<Coord> vectorCoords;
+
+            if (coordSpec == null)
+            {
+                coordSpec = DefaultCoordSpec;
+            }
 
             if (TryGetVectorCoords(ActiveCell.coord, stepX, stepY, out vectorCoords, iterationCap))
             {
                 bundles.Add(new CoordBundle
                 {
                     coords = vectorCoords,
-                    includeOccupedCells = includeOccupedCells
+                    coordSpec = coordSpec
                 });
             }
 
