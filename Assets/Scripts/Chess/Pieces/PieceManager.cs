@@ -18,6 +18,12 @@ namespace Chess.Pieces
         [SerializeField] protected Set set;
         public Set Set { get { return set; } }
 
+        protected class CoordBundle
+        {
+            public List<Coord> coords;
+            public bool includeOccupedCells = true;
+        }
+
         public Cell HomeCell
         {
             get
@@ -158,25 +164,25 @@ namespace Chess.Pieces
             return moves;
         }
 
-        protected abstract List<List<Coord>> GenerateCoords(Cell[,] matrix, int vector);
+        protected abstract List<CoordBundle> GenerateCoordBundles(Cell[,] matrix, int vector);
 
         protected virtual List<Cell> ResolveAllAvailableQualifyingCells(Cell[,] matrix, int vector)
         {
             List<Cell> cells = new List<Cell>();
-            List<List<Coord>> generatedCoords = GenerateCoords(matrix, vector);
+            List<CoordBundle> coordBundles = GenerateCoordBundles(matrix, vector);
 
-            foreach (List<Coord> coords in generatedCoords)
+            foreach (CoordBundle bundle in coordBundles)
             {
-                if (TryGetPotentialCoords(ActiveCell.coord, coords, out List<Coord> potentialCoords))
+                if (TryGetPotentialCoords(ActiveCell.coord, bundle.coords, out List<Coord> potentialCoords))
                 {
-                    cells.AddRange(EvaluatePotentialCells(matrix, potentialCoords));
+                    cells.AddRange(EvaluatePotentialCells(matrix, potentialCoords, bundle.includeOccupedCells));
                 }
             }
 
             return cells;
         }
 
-        private List<Cell> EvaluatePotentialCells(Cell[,] matrix, List<Coord> potentialCoords)
+        private List<Cell> EvaluatePotentialCells(Cell[,] matrix, List<Coord> potentialCoords, bool includeOccupedCells)
         {
             List<Cell> cells = new List<Cell>();
 
@@ -186,7 +192,7 @@ namespace Chess.Pieces
 
                 if (cell.piece != null)
                 {
-                    if (cell.piece.Set != set)
+                    if ((cell.piece.Set != set) && includeOccupedCells)
                     {
                         cells.Add(cell);
                     }
@@ -240,21 +246,44 @@ namespace Chess.Pieces
         }
 
         
-        protected List<List<Coord>> TryOneTimeCoord(int stepX, int stepY, List<List<Coord>> coords)
+        // protected List<List<Coord>> TryOneTimeCoord(int stepX, int stepY, List<List<Coord>> coords)
+        // {
+        //     return TryCoord(stepX, stepY, coords, 1);
+        // }
+
+        // protected List<List<Coord>> TryCoord(int stepX, int stepY, List<List<Coord>> coords, int? iterationCap = null)
+        // {
+        //     List<Coord> vectorCoords;
+
+        //     if (TryGetVectorCoords(ActiveCell.coord, stepX, stepY, out vectorCoords, iterationCap))
+        //     {
+        //         coords.Add(vectorCoords);
+        //     }
+
+        //     return coords;
+        // }
+
+        protected List<CoordBundle> TryOneTimeCoord(int stepX, int stepY, List<CoordBundle> bundles, bool includeOccupedCells = true)
         {
-            return TryCoord(stepX, stepY, coords, 1);
+            return TryCoord(stepX, stepY, bundles, includeOccupedCells, 1);
         }
 
-        protected List<List<Coord>> TryCoord(int stepX, int stepY, List<List<Coord>> coords, int? iterationCap = null)
+        protected List<CoordBundle> TryCoord(int stepX, int stepY, List<CoordBundle> bundles, bool includeOccupedCells = true, int? iterationCap = null)
         {
             List<Coord> vectorCoords;
 
             if (TryGetVectorCoords(ActiveCell.coord, stepX, stepY, out vectorCoords, iterationCap))
             {
-                coords.Add(vectorCoords);
+                // coords.Add(vectorCoords);
+
+                bundles.Add(new CoordBundle
+                {
+                    coords = vectorCoords,
+                    includeOccupedCells = false
+                });
             }
 
-            return coords;
+            return bundles;
         }
 
         protected bool TryGetVectorCoords(Coord origin, int stepX, int stepY, out List<Coord> coords, int? iterationCap = null)

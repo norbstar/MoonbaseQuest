@@ -4,41 +4,38 @@ namespace Chess.Pieces
 {
     public class BishopManager : PieceManager
     {
-        protected override List<List<Coord>> GenerateCoords(Cell[,] matrix, int vector)
+        // protected override List<List<Coord>> GenerateCoordBundles(Cell[,] matrix, int vector)
+        // {
+        //     List<List<Coord>> coords = new List<List<Coord>>();
+        //     Coord activeCoord = ActiveCell.coord;
+
+        //     TryCoord(-1, 1, coords);
+        //     TryCoord(1, 1, coords);
+        //     TryCoord(-1, -1, coords);
+        //     TryCoord(1, -1, coords);
+  
+        //     return coords;
+        // }
+
+        protected override List<CoordBundle> GenerateCoordBundles(Cell[,] matrix, int vector)
         {
-            List<List<Coord>> coords = new List<List<Coord>>();
-            Coord activeCoord = ActiveCell.coord;
+            List<CoordBundle> bundles = new List<CoordBundle>();
+            // List<Coord> vectorCoords;
 
-            TryCoord(-1, 1, coords);
-            TryCoord(1, 1, coords);
-            TryCoord(-1, -1, coords);
-            TryCoord(1, -1, coords);
-            
-#if false
-            List<Coord> vectorCoords;
-            
-            if (TryGetVectorCoords(activeCoord, -1, 1, out vectorCoords))
-            {
-                coords.Add(vectorCoords);
-            }
+            // if (TryGetVectorCoords(activeCoord, -1, 1, out vectorCoords))
+            // {
+            //     bundles.Add(new CoordBundle
+            //     {
+            //         coords = vectorCoords
+            //     });
+            // }
 
-            if (TryGetVectorCoords(activeCoord, 1, 1, out vectorCoords))
-            {
-                coords.Add(vectorCoords);
-            }
+            TryCoord(-1, 1, bundles);
+            TryCoord(1, 1, bundles);
+            TryCoord(-1, -1, bundles);
+            TryCoord(1, -1, bundles);
 
-            if (TryGetVectorCoords(activeCoord, -1, -1, out vectorCoords))
-            {
-                coords.Add(vectorCoords);
-            }
-
-            if (TryGetVectorCoords(activeCoord, 1, -1, out vectorCoords))
-            {
-                coords.Add(vectorCoords);
-            }
-#endif
-
-            return coords;
+            return bundles;
         }
     }
 }

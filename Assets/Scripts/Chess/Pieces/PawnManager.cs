@@ -6,20 +6,28 @@ namespace Chess.Pieces
     {
         private bool hasHistory;
 
-        protected override List<List<Coord>> GenerateCoords(Cell[,] matrix, int vector)
+        protected override List<CoordBundle> GenerateCoordBundles(Cell[,] matrix, int vector)
         {
-            List<List<Coord>> coords = new List<List<Coord>>();
-            List<Coord> vectorCoords;
+            List<CoordBundle> bundles = new List<CoordBundle>();
+            // List<Coord> vectorCoords;
 
-            Coord activeCoord = ActiveCell.coord;
+            // Coord activeCoord = ActiveCell.coord;
             int iterationCap = (!hasHistory) ? 2 : 1;
             
-            if (TryGetVectorCoords(activeCoord, 0, vector, out vectorCoords, iterationCap))
-            {
-                coords.Add(vectorCoords);
-            }
+            // if (TryGetVectorCoords(activeCoord, 0, vector, out vectorCoords, iterationCap))
+            // {
+            //     bundles.Add(new CoordBundle
+            //     {
+            //         coords = vectorCoords,
+            //         includeOccupedCells = false
+            //     });
+            // }
 
-            return coords;
+            TryCoord(0, vector, bundles, false, iterationCap);
+            // TryOneTimeCoord(-1, vector, bundles);
+            // TryOneTimeCoord(1, vector, bundles);
+
+            return bundles;
         }
 
         protected override void OnMove(Cell fromCell, Cell toCell, bool resetting)
