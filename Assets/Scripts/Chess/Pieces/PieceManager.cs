@@ -8,6 +8,7 @@ namespace Chess.Pieces
     public abstract class PieceManager : MonoBehaviour, IFocus
     {
         [Header("Components")]
+        [SerializeField] ChessBoardManager chessBoardManager;
         [SerializeField] PieceCanvasManager canvasManager;
 
         [Header("Config")]
@@ -131,10 +132,10 @@ namespace Chess.Pieces
             };
         }
 
-        public List<Cell> CalculateMoves(ChessBoardManager manager, Cell[,] matrix, int vector)
+        public List<Cell> CalculateMoves(Cell[,] matrix, int vector)
         {
             List<Cell> moves = new List<Cell>();
-            List<Cell> potentialMoves = ResolvePotentialCells(manager, matrix, vector, manager.PlayMode);
+            List<Cell> potentialMoves = ResolvePotentialCells(matrix, vector, chessBoardManager.PlayMode);
 
             // if (manager.TryGetSetPiecesByType(set, PieceType.King, out List<Cell> cells))
             // {
@@ -159,26 +160,26 @@ namespace Chess.Pieces
 
         protected abstract List<Cell> ResolveAllAvailableQualifyingCells(Cell[,] matrix, int vector);
         
-        protected List<Cell> ResolvePotentialCells(ChessBoardManager manager, Cell[,] matrix, int vector, PlayMode playMode)
+        protected List<Cell> ResolvePotentialCells(Cell[,] matrix, int vector, PlayMode playMode)
         {
             List<Cell> cells;
 
-            if (manager.PlayMode == PlayMode.RuleBased)
+            if (chessBoardManager.PlayMode == PlayMode.RuleBased)
             {
                 cells = ResolveAllAvailableQualifyingCells(matrix, vector);
             }
             else
             {
-                cells = ResolveAllAvailableCells(manager, matrix);
+                cells = ResolveAllAvailableCells(matrix);
             }
 
             return cells;
         }
 
-        private List<Cell> ResolveAllAvailableCells(ChessBoardManager manager, Cell[,] matrix)
+        private List<Cell> ResolveAllAvailableCells(Cell[,] matrix)
         {
             List<Cell> cells = new List<Cell>();
-            List<Coord> coords = manager.AllCoords;
+            List<Coord> coords = chessBoardManager.AllCoords;
 
             if (TryGetPotentialCoords(ActiveCell.coord, coords, out List<Coord> potentialCoords))
             {
@@ -305,6 +306,8 @@ namespace Chess.Pieces
 
         private IEnumerator GoToCellCoroutine(Cell cell, float rotationSpeed, float movementSpeed)
         {
+            // Debug.Log($"GoToCellCoroutine ActiveCell Coord : [{ActiveCell.coord.x} : {ActiveCell.coord.y} -> Cell Coord : [{cell.coord.x} : {cell.coord.y}]");
+            
             EnablePhysics(false);
 
             while ((transform.localRotation != originalRotation) || (transform.localPosition != cell.localPosition))
@@ -322,6 +325,8 @@ namespace Chess.Pieces
             OnMove(ActiveCell, cell);
 
             ActiveCell = cell;
+            ActiveCell.piece = this;
+
             MoveEventReceived?.Invoke(this);
         }
     }

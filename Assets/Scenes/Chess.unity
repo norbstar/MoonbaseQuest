@@ -386,6 +386,36 @@ MonoBehaviour:
     m_MaintainRotationOffset: 0
   m_SourceObjectsGUIToggle: 1
   m_SettingsGUIToggle: 1
+--- !u!1 &447878037
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 447878038}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &447878038
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 447878037}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 10
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &504764435
 GameObject:
   m_ObjectHideFlags: 0
@@ -1043,6 +1073,17 @@ Camera:
   m_CorrespondingSourceObject: {fileID: 9196269912071475717, guid: e4644054f00eafe47bb8203484c68063, type: 3}
   m_PrefabInstance: {fileID: 1352412130}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1791406842 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1813446090752762579, guid: 171924c1571199441855e30650381e00, type: 3}
+  m_PrefabInstance: {fileID: 1813446091252553207}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e65611107c07f244afc84795df11bdf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1889328442 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 9196269912378402312, guid: e4644054f00eafe47bb8203484c68063, type: 3}
@@ -1392,6 +1433,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 832107973772742206, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
     - target: {fileID: 1005564571939259359, guid: 171924c1571199441855e30650381e00, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -1400,6 +1445,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1776392448768446365, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
     - target: {fileID: 1812980723489399830, guid: 171924c1571199441855e30650381e00, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -1472,6 +1521,14 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2542233209196028093, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
+    - target: {fileID: 3042781049396063004, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
     - target: {fileID: 3645384871975669357, guid: 171924c1571199441855e30650381e00, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -1488,6 +1545,14 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4088566836742624127, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
+    - target: {fileID: 5373822133602572327, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
     - target: {fileID: 5663151732558069690, guid: 171924c1571199441855e30650381e00, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -1508,10 +1573,54 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6339628960894134881, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
+    - target: {fileID: 6565321061810369075, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
+    - target: {fileID: 6894307071830986717, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
+    - target: {fileID: 7001103930274352444, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
     - target: {fileID: 7243107295592233924, guid: 171924c1571199441855e30650381e00, type: 3}
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7356653998062850047, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
+    - target: {fileID: 7356653998201226212, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
+    - target: {fileID: 7356653998228161358, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
+    - target: {fileID: 7356653998485843047, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
+    - target: {fileID: 7356653999224137399, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
+    - target: {fileID: 7356653999608755456, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
+    - target: {fileID: 7356653999882297732, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
     - target: {fileID: 7464191410992608147, guid: 171924c1571199441855e30650381e00, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -1540,10 +1649,66 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7499922166076975975, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
+    - target: {fileID: 7591332738731366265, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
     - target: {fileID: 7609715741903042928, guid: 171924c1571199441855e30650381e00, type: 3}
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7989399329326002846, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
+    - target: {fileID: 8205183834780447354, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
+    - target: {fileID: 8440082551755806510, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
+    - target: {fileID: 8513247666416030855, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
+    - target: {fileID: 8839539614149249273, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
+    - target: {fileID: 8980061813406048309, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
+    - target: {fileID: 8980061813444511349, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
+    - target: {fileID: 8980061814268640775, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
+    - target: {fileID: 8980061814409937194, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
+    - target: {fileID: 8980061814533106430, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
+    - target: {fileID: 8980061814978709179, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
+    - target: {fileID: 8980061815056073548, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
     - target: {fileID: 9012162429001077083, guid: 171924c1571199441855e30650381e00, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -1572,6 +1737,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9043237025324183169, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: chessBoardManager
+      value: 
+      objectReference: {fileID: 1791406842}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 171924c1571199441855e30650381e00, type: 3}
 --- !u!4 &1901537889337081336

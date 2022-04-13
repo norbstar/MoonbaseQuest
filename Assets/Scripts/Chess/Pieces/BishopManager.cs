@@ -7,49 +7,73 @@ namespace Chess.Pieces
         protected override List<Cell> ResolveAllAvailableQualifyingCells(Cell[,] matrix, int vector)
         {
             List<Cell> cells = new List<Cell>();
-            List<Coord> coords = GenerateCoords(matrix);
+            List<List<Coord>> generatedCoords = GenerateCoords(matrix);
 
-            if (TryGetPotentialCoords(ActiveCell.coord, coords, out List<Coord> potentialCoords))
+            foreach (List<Coord> coords in generatedCoords)
             {
-                foreach (Coord coord in potentialCoords)
+                if (TryGetPotentialCoords(ActiveCell.coord, coords, out List<Coord> potentialCoords))
                 {
-                    Cell cell = matrix[coord.x, coord.y];
-
-                    if ((cell.piece == null) || (cell.piece.Set != set))
-                    {
-                        cells.Add(cell);
-                    }
+                    cells.AddRange(EvaluatePotentialCells(matrix, potentialCoords));
                 }
             }
 
             return cells;
         }
 
-        private List<Coord> GenerateCoords(Cell[,] matrix)
+        private List<Cell> EvaluatePotentialCells(Cell[,] matrix, List<Coord> potentialCoords)
         {
-            List<Coord> coords = new List<Coord>();
+            List<Cell> cells = new List<Cell>();
+
+            foreach (Coord coord in potentialCoords)
+            {
+                Cell cell = matrix[coord.x, coord.y];
+
+                if (cell.piece != null)
+                {
+                    // The cell is occupied
+                    if (cell.piece.Set != set)
+                    {
+                        // The cell is occuplied by an opposing piece
+                        cells.Add(cell);
+                    }
+
+                    return cells;
+                }
+                else
+                {
+                    // The cell is unoccupied
+                    cells.Add(cell);
+                }
+            }
+
+            return cells;
+        }
+
+        private List<List<Coord>> GenerateCoords(Cell[,] matrix)
+        {
+            List<List<Coord>> coords = new List<List<Coord>>();
             List<Coord> vectorCoords;
 
             Coord activeCoord = ActiveCell.coord;
             
             if (TryGetVectorCoords(activeCoord, -1, 1, out vectorCoords))
             {
-                coords.AddRange(vectorCoords);
+                coords.Add(vectorCoords);
             }
 
             if (TryGetVectorCoords(activeCoord, 1, 1, out vectorCoords))
             {
-                coords.AddRange(vectorCoords);
+                coords.Add(vectorCoords);
             }
 
             if (TryGetVectorCoords(activeCoord, -1, -1, out vectorCoords))
             {
-                coords.AddRange(vectorCoords);
+                coords.Add(vectorCoords);
             }
 
             if (TryGetVectorCoords(activeCoord, 1, -1, out vectorCoords))
             {
-                coords.AddRange(vectorCoords);
+                coords.Add(vectorCoords);
             }
 
             return coords;

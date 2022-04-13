@@ -7,80 +7,75 @@ namespace Chess.Pieces
         protected override List<Cell> ResolveAllAvailableQualifyingCells(Cell[,] matrix, int vector)
         {
             List<Cell> cells = new List<Cell>();
-            List<Coord> coords = GenerateCoords(matrix);
+            List<List<Coord>> generatedCoords = GenerateCoords(matrix);
 
-            // THIS IS WRONG
-            // COORDS (ABOVE) NEED TO RESTURN A LIST OF SET OF COORDS
-            // THE FUNCTION SHOULD RETURN A SET OF VECTOR SPECIFIC COORDS AND NOT AN AGGREGATE LIST
-            // EACH VECTOR SET NEEDS TO BE EVALUATED IN THE SEQUENCE IN WHICH THE CELLS WERE RESOLVED
-            // SUCH THAT BREAKING THE LOOP ONLY BREAKS THAT ONE VECTOR LINE.
-
-            if (TryGetPotentialCoords(ActiveCell.coord, coords, out List<Coord> potentialCoords))
+            foreach (List<Coord> coords in generatedCoords)
             {
-                bool complete = false;
-
-                foreach (Coord coord in potentialCoords)
+                if (TryGetPotentialCoords(ActiveCell.coord, coords, out List<Coord> potentialCoords))
                 {
-                    if (complete) break;
-
-                    Cell cell = matrix[coord.x, coord.y];
-
-                    UnityEngine.Debug.Log("1");
-
-                    if (cell.piece != null)
-                    {
-                        UnityEngine.Debug.Log("2 Piece : {cell.piece.name}");
-
-                        // The cell is occupied
-                        if (cell.piece.Set != set)
-                        {
-                            UnityEngine.Debug.Log("3 Set : {set}");
-                           
-                            // The cell is occuplied by an opposing piece
-                            cells.Add(cell);
-                        }
- 
-                        complete = true;
-                    }
-                    else
-                    {
-                        UnityEngine.Debug.Log("4 Unoccupied");
-                        // The cell is unoccupied
-                        cells.Add(cell);
-                    }
+                    cells.AddRange(EvaluatePotentialCells(matrix, potentialCoords));
                 }
             }
-
-            UnityEngine.Debug.Log("4");
 
             return cells;
         }
 
-        private List<Coord> GenerateCoords(Cell[,] matrix)
+        private List<Cell> EvaluatePotentialCells(Cell[,] matrix, List<Coord> potentialCoords)
         {
-            List<Coord> coords = new List<Coord>();
+            // UnityEngine.Debug.Log($"EvaluatePotentialCoords Potential Coord Count : {potentialCoords.Count}");
+
+            List<Cell> cells = new List<Cell>();
+
+            foreach (Coord coord in potentialCoords)
+            {
+                Cell cell = matrix[coord.x, coord.y];
+
+                if (cell.piece != null)
+                {
+                    // The cell is occupied
+                    if (cell.piece.Set != set)
+                    {
+                        // The cell is occuplied by an opposing piece
+                        cells.Add(cell);
+                    }
+
+                    return cells;
+                }
+                else
+                {
+                    // The cell is unoccupied
+                    cells.Add(cell);
+                }
+            }
+
+            return cells;
+        }
+
+        private List<List<Coord>> GenerateCoords(Cell[,] matrix)
+        {
+            List<List<Coord>> coords = new List<List<Coord>>();
             List<Coord> vectorCoords;
 
             Coord activeCoord = ActiveCell.coord;
             
             if (TryGetVectorCoords(activeCoord, -1, 0, out vectorCoords))
             {
-                coords.AddRange(vectorCoords);
+                coords.Add(vectorCoords);
             }
 
             if (TryGetVectorCoords(activeCoord, 1, 0, out vectorCoords))
             {
-                coords.AddRange(vectorCoords);
+                coords.Add(vectorCoords);
             }
 
             if (TryGetVectorCoords(activeCoord, 0, -1, out vectorCoords))
             {
-                coords.AddRange(vectorCoords);
+                coords.Add(vectorCoords);
             }
 
             if (TryGetVectorCoords(activeCoord, 0, 1, out vectorCoords))
             {
-                coords.AddRange(vectorCoords);
+                coords.Add(vectorCoords);
             }
 
             return coords;

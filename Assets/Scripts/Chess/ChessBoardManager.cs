@@ -150,7 +150,7 @@ namespace Chess
 
             foreach (PieceManager piece in activePieces)
             {
-                List<Cell> moves = piece.CalculateMoves(this, matrix, (activeSet == Set.Light) ? 1 : -1);
+                List<Cell> moves = piece.CalculateMoves(matrix, (activeSet == Set.Light) ? 1 : -1);
                 var hasMoves = moves.Count > 0;
 
                 piece.EnablePhysics(hasMoves);
@@ -399,7 +399,7 @@ namespace Chess
         }
     }
 
-    private void ReportMatrix()
+    public void ReportMatrix(bool includeEmptyCells = false)
     {
         List<Cell> cells = AllCells;
 
@@ -418,7 +418,7 @@ namespace Chess
                 {
                     Debug.Log($"ReportMatrix Piece : {cell.piece.name} Coord : [{cell.coord.x}, {cell.coord.y}] Reference : {cellReference} Position : [{cell.localPosition.x}, {cell.localPosition.y}, {cell.localPosition.z}]");
                 }
-                else
+                else if (includeEmptyCells)
                 {
                     Debug.Log($"ReportMatrix EMPTY Coord : [{cell.coord.x} {cell.coord.y}] Reference : {cellReference} Position : [{cell.localPosition.x}, {cell.localPosition.y}, {cell.localPosition.z}]");
                 }
@@ -492,7 +492,7 @@ namespace Chess
         }
     }
 
-    private void ReportPieces()
+    public void ReportPieces()
     {
         foreach (PieceManager piece in ActivePieces)
         {
