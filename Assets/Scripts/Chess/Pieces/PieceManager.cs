@@ -158,7 +158,49 @@ namespace Chess.Pieces
             return moves;
         }
 
-        protected abstract List<Cell> ResolveAllAvailableQualifyingCells(Cell[,] matrix, int vector);
+        protected abstract List<List<Coord>> GenerateCoords(Cell[,] matrix, int vector);
+
+        protected virtual List<Cell> ResolveAllAvailableQualifyingCells(Cell[,] matrix, int vector)
+        {
+            List<Cell> cells = new List<Cell>();
+            List<List<Coord>> generatedCoords = GenerateCoords(matrix, vector);
+
+            foreach (List<Coord> coords in generatedCoords)
+            {
+                if (TryGetPotentialCoords(ActiveCell.coord, coords, out List<Coord> potentialCoords))
+                {
+                    cells.AddRange(EvaluatePotentialCells(matrix, potentialCoords));
+                }
+            }
+
+            return cells;
+        }
+
+        private List<Cell> EvaluatePotentialCells(Cell[,] matrix, List<Coord> potentialCoords)
+        {
+            List<Cell> cells = new List<Cell>();
+
+            foreach (Coord coord in potentialCoords)
+            {
+                Cell cell = matrix[coord.x, coord.y];
+
+                if (cell.piece != null)
+                {
+                    if (cell.piece.Set != set)
+                    {
+                        cells.Add(cell);
+                    }
+
+                    return cells;
+                }
+                else
+                {
+                    cells.Add(cell);
+                }
+            }
+
+            return cells;
+        }
         
         protected List<Cell> ResolvePotentialCells(Cell[,] matrix, int vector, PlayMode playMode)
         {
@@ -197,7 +239,25 @@ namespace Chess.Pieces
             return cells;
         }
 
-        protected bool TryGetVectorCoords(Coord origin, int stepX, int stepY, out List<Coord> coords, int? interationCap = null)
+        
+        protected List<List<Coord>> TryOneTimeCoord(int stepX, int stepY, List<List<Coord>> coords)
+        {
+            return TryCoord(stepX, stepY, coords, 1);
+        }
+
+        protected List<List<Coord>> TryCoord(int stepX, int stepY, List<List<Coord>> coords, int? iterationCap = null)
+        {
+            List<Coord> vectorCoords;
+
+            if (TryGetVectorCoords(ActiveCell.coord, stepX, stepY, out vectorCoords, iterationCap))
+            {
+                coords.Add(vectorCoords);
+            }
+
+            return coords;
+        }
+
+        protected bool TryGetVectorCoords(Coord origin, int stepX, int stepY, out List<Coord> coords, int? iterationCap = null)
         {
             if ((stepX == 0) && (stepY == 0))
             {
@@ -216,7 +276,7 @@ namespace Chess.Pieces
 
             do
             {
-                if (interationCap.HasValue && itr == interationCap.Value) break;
+                if (iterationCap.HasValue && itr == iterationCap.Value) break;
 
                 coord.x += stepX;
                 coord.y += stepY;
@@ -302,12 +362,10 @@ namespace Chess.Pieces
 
         public void GoToCell(Cell cell, float rotationSpeed, float movementSpeed) => StartCoroutine(GoToCellCoroutine(cell, rotationSpeed, movementSpeed));
 
-        protected virtual void OnMove(Cell fromCell, Cell toCell) { }
+        protected virtual void OnMove(Cell fromCell, Cell toCell, bool resetting) { }
 
         private IEnumerator GoToCellCoroutine(Cell cell, float rotationSpeed, float movementSpeed)
         {
-            // Debug.Log($"GoToCellCoroutine ActiveCell Coord : [{ActiveCell.coord.x} : {ActiveCell.coord.y} -> Cell Coord : [{cell.coord.x} : {cell.coord.y}]");
-            
             EnablePhysics(false);
 
             while ((transform.localRotation != originalRotation) || (transform.localPosition != cell.localPosition))
@@ -322,7 +380,7 @@ namespace Chess.Pieces
                 ActiveCell.piece = null;
             }
 
-            OnMove(ActiveCell, cell);
+            OnMove(ActiveCell, cell, cell == HomeCell);
 
             ActiveCell = cell;
             ActiveCell.piece = this;

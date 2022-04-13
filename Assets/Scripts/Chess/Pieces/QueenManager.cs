@@ -4,73 +4,63 @@ namespace Chess.Pieces
 {
     public class QueenManager : PieceManager
     {
-        protected override List<Cell> ResolveAllAvailableQualifyingCells(Cell[,] matrix, int vector)
+        protected override List<List<Coord>> GenerateCoords(Cell[,] matrix, int vector)
         {
-            List<Cell> cells = new List<Cell>();
-            List<Coord> coords = GenerateCoords(matrix);
+            List<List<Coord>> coords = new List<List<Coord>>();
+            Coord activeCoord = ActiveCell.coord;
 
-            if (TryGetPotentialCoords(ActiveCell.coord, coords, out List<Coord> potentialCoords))
-            {
-                foreach (Coord coord in potentialCoords)
-                {
-                    Cell cell = matrix[coord.x, coord.y];
-
-                    if ((cell.piece == null) || (cell.piece.Set != set))
-                    {
-                        cells.Add(cell);
-                    }
-                }
-            }
+            TryCoord(-1, 0, coords);
+            TryCoord(-1, 1, coords);
+            TryCoord(1, 0, coords);
+            TryCoord(1, 1, coords);
+            TryCoord(0, -1, coords);
+            TryCoord(-1, -1, coords);
+            TryCoord(0, 1, coords);
+            TryCoord(1, -1, coords);
             
-            return cells;
-        }
-
-        private List<Coord> GenerateCoords(Cell[,] matrix)
-        {
-            List<Coord> coords = new List<Coord>();
+#if false
             List<Coord> vectorCoords;
 
-            Coord activeCoord = ActiveCell.coord;
-            
             if (TryGetVectorCoords(activeCoord, -1, 0, out vectorCoords))
             {
-                coords.AddRange(vectorCoords);
+                coords.Add(vectorCoords);
             }
 
             if (TryGetVectorCoords(activeCoord, -1, 1, out vectorCoords))
             {
-                coords.AddRange(vectorCoords);
+                coords.Add(vectorCoords);
             }
 
             if (TryGetVectorCoords(activeCoord, 1, 0, out vectorCoords))
             {
-                coords.AddRange(vectorCoords);
+                coords.Add(vectorCoords);
             }
 
             if (TryGetVectorCoords(activeCoord, 1, 1, out vectorCoords))
             {
-                coords.AddRange(vectorCoords);
+                coords.Add(vectorCoords);
             }
 
             if (TryGetVectorCoords(activeCoord, 0, -1, out vectorCoords))
             {
-                coords.AddRange(vectorCoords);
+                coords.Add(vectorCoords);
             }
 
             if (TryGetVectorCoords(activeCoord, -1, -1, out vectorCoords))
             {
-                coords.AddRange(vectorCoords);
+                coords.Add(vectorCoords);
             }
 
             if (TryGetVectorCoords(activeCoord, 0, 1, out vectorCoords))
             {
-                coords.AddRange(vectorCoords);
+                coords.Add(vectorCoords);
             }
 
             if (TryGetVectorCoords(activeCoord, 1, -1, out vectorCoords))
             {
-                coords.AddRange(vectorCoords);
+                coords.Add(vectorCoords);
             }
+#endif
 
             return coords;
         }

@@ -4,57 +4,18 @@ namespace Chess.Pieces
 {
     public class BishopManager : PieceManager
     {
-        protected override List<Cell> ResolveAllAvailableQualifyingCells(Cell[,] matrix, int vector)
-        {
-            List<Cell> cells = new List<Cell>();
-            List<List<Coord>> generatedCoords = GenerateCoords(matrix);
-
-            foreach (List<Coord> coords in generatedCoords)
-            {
-                if (TryGetPotentialCoords(ActiveCell.coord, coords, out List<Coord> potentialCoords))
-                {
-                    cells.AddRange(EvaluatePotentialCells(matrix, potentialCoords));
-                }
-            }
-
-            return cells;
-        }
-
-        private List<Cell> EvaluatePotentialCells(Cell[,] matrix, List<Coord> potentialCoords)
-        {
-            List<Cell> cells = new List<Cell>();
-
-            foreach (Coord coord in potentialCoords)
-            {
-                Cell cell = matrix[coord.x, coord.y];
-
-                if (cell.piece != null)
-                {
-                    // The cell is occupied
-                    if (cell.piece.Set != set)
-                    {
-                        // The cell is occuplied by an opposing piece
-                        cells.Add(cell);
-                    }
-
-                    return cells;
-                }
-                else
-                {
-                    // The cell is unoccupied
-                    cells.Add(cell);
-                }
-            }
-
-            return cells;
-        }
-
-        private List<List<Coord>> GenerateCoords(Cell[,] matrix)
+        protected override List<List<Coord>> GenerateCoords(Cell[,] matrix, int vector)
         {
             List<List<Coord>> coords = new List<List<Coord>>();
-            List<Coord> vectorCoords;
-
             Coord activeCoord = ActiveCell.coord;
+
+            TryCoord(-1, 1, coords);
+            TryCoord(1, 1, coords);
+            TryCoord(-1, -1, coords);
+            TryCoord(1, -1, coords);
+            
+#if false
+            List<Coord> vectorCoords;
             
             if (TryGetVectorCoords(activeCoord, -1, 1, out vectorCoords))
             {
@@ -75,15 +36,9 @@ namespace Chess.Pieces
             {
                 coords.Add(vectorCoords);
             }
+#endif
 
             return coords;
-        }
-    
-        private bool HasLineOfSightToCoord(Coord coord)
-        {
-            // TODO
-
-            return false;
         }
     }
 }
