@@ -7,6 +7,9 @@ namespace Chess.Pieces
 {
     public abstract class PieceManager : MonoBehaviour, IFocus
     {
+        [Header("Components")]
+        [SerializeField] PieceCanvasManager canvasManager;
+
         [Header("Config")]
         [SerializeField] protected PieceType type;
         public PieceType Type { get { return type; } }
@@ -14,8 +17,36 @@ namespace Chess.Pieces
         [SerializeField] protected Set set;
         public Set Set { get { return set; } }
 
-        public Cell HomeCell { get { return homeCell; } set { activeCell = homeCell = value; } }
-        public Cell ActiveCell { get { return activeCell; } set { activeCell = value; } }
+        public Cell HomeCell
+        {
+            get
+            {
+                return homeCell;
+            }
+            
+            set
+            {
+                ActiveCell = homeCell = value;
+            }
+        }
+
+        public Cell ActiveCell
+        {
+            get
+            {
+                return activeCell;
+            }
+            
+            set
+            {
+                activeCell = value;
+
+                if ((canvasManager.isActiveAndEnabled) && TryGets.TryGetCoordReference(activeCell.coord, out string reference))
+                {
+                    canvasManager.Text = reference;
+                }
+            }
+        }
 
         public delegate void MoveEvent(PieceManager piece);
         public event MoveEvent MoveEventReceived;
@@ -103,7 +134,16 @@ namespace Chess.Pieces
         public virtual List<Cell> CalculateMoves(ChessBoardManager manager, Cell[,] matrix, int vector)
         {
             List<Cell> moves = new List<Cell>();
-            List<Cell> potentialMoves = ResolvePotentialCells(manager, matrix, manager.PlayMode);
+            List<Cell> potentialMoves = ResolvePotentialCells(manager, matrix, vector, manager.PlayMode);
+
+            if (manager.TryGetSetPiecesByType(set, PieceType.King, out List<Cell> cells))
+            {
+                if (cells.Count > 0)
+                {
+                    var kingCell = cells[0];
+                    Debug.Log("$Calculate Moves King Cell Coords : [{kingCell.coords.x} {kingCell.coords.y}]");
+                }
+            }
 
             foreach (Cell potentialMove in potentialMoves)
             {
@@ -114,27 +154,18 @@ namespace Chess.Pieces
                 moves.Add(potentialMove);
             }
 
-            // if (manager.TryGetSetPiecesByType(set, PieceType.King, out List<Cell> cells))
-            // {
-            //     if (cells.Count > 0)
-            //     {
-            //         var kingCell = cells[0];
-            //         Debug.Log("$Calculate Moves King Cell Coords : [{kingCell.coords.x} {kingCell.coords.y}]");
-            //     }
-            // }
-
             return moves;
         }
 
-        protected abstract List<Cell> ResolveAllAvailableQualifyingCells(Cell[,] matrix);
+        protected abstract List<Cell> ResolveAllAvailableQualifyingCells(Cell[,] matrix, int vector);
         
-        protected List<Cell> ResolvePotentialCells(ChessBoardManager manager, Cell[,] matrix, PlayMode playMode)
+        protected List<Cell> ResolvePotentialCells(ChessBoardManager manager, Cell[,] matrix, int vector, PlayMode playMode)
         {
             List<Cell> cells;
 
             if (manager.PlayMode == PlayMode.RuleBased)
             {
-                cells = ResolveAllAvailableQualifyingCells(matrix);
+                cells = ResolveAllAvailableQualifyingCells(matrix, vector);
             }
             else
             {
@@ -163,6 +194,44 @@ namespace Chess.Pieces
             }
 
             return cells;
+        }
+
+        protected bool TryGetVectorCoords(Coord origin, int stepX, int stepY, out List<Coord> coords)
+        {
+            if ((stepX == 0) && (stepY == 0))
+            {
+                coords = null;
+                return false;
+            }
+
+            Coord coord = new Coord
+            {
+                x = origin.x,
+                y = origin.y
+            };
+
+            coords = new List<Coord>();
+
+            do
+            {
+                coord.x += stepX;
+                coord.y += stepY;
+
+                if ((coord.x >= 0) && (coord.x <= maxColumnIdx) && (coord.y >= 0) && (coord.y <= maxRowIdx))
+                {
+                    coords.Add(new Coord
+                    {
+                        x = coord.x,
+                        y = coord.y
+                    });    
+                }
+                else
+                {
+                    break;
+                }
+            } while (true);
+
+            return true;
         }
 
         protected bool TryGetPotentialCoords(Coord coord, List<Coord> coords, out List<Coord> potentialCoords)
@@ -216,12 +285,12 @@ namespace Chess.Pieces
             EnablePhysics(false);
 
             transform.localRotation = originalRotation;
-            transform.localPosition = activeCell.localPosition;
+            transform.localPosition = ActiveCell.localPosition;
 
             EnablePhysics(true);
         }
 
-        public void GoHome(float rotationSpeed, float movementSpeed) => StartCoroutine(GoToCellCoroutine(homeCell, rotationSpeed, movementSpeed));
+        public void GoHome(float rotationSpeed, float movementSpeed) => StartCoroutine(GoToCellCoroutine(HomeCell, rotationSpeed, movementSpeed));
 
         public void GoToCell(Cell cell, float rotationSpeed, float movementSpeed) => StartCoroutine(GoToCellCoroutine(cell, rotationSpeed, movementSpeed));
 
@@ -236,12 +305,12 @@ namespace Chess.Pieces
                 yield return null;
             }
 
-            if (activeCell != null)
+            if (ActiveCell != null)
             {
-                activeCell.piece = null;
+                ActiveCell.piece = null;
             }
 
-            activeCell = cell;
+            ActiveCell = cell;
             MoveEventReceived?.Invoke(this);
         }
     }

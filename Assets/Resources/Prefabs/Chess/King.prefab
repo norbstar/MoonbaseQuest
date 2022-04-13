@@ -34,6 +34,7 @@ Transform:
   m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_Children:
   - {fileID: 5699286255257503838}
+  - {fileID: 4248267519531006539}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -128,6 +129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d49034f14d4c054ebb27c4d767cb495, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  canvasManager: {fileID: 8406953237683167704}
   type: 4
   set: 0
 --- !u!114 &7493942910757521193
@@ -308,3 +310,124 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 464708722119052063, guid: de68a0fae864a6244a3225eab4bf116b, type: 3}
   m_PrefabInstance: {fileID: 5288656125641442113}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &9058669854008758119
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 3267844409713738608}
+    m_Modifications:
+    - target: {fileID: 2218885937591424238, guid: b37d8c9dac0cd1f40b826d987023e781, type: 3}
+      propertyPath: m_Color.a
+      value: 0.39215687
+      objectReference: {fileID: 0}
+    - target: {fileID: 5134733527681791276, guid: b37d8c9dac0cd1f40b826d987023e781, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5134733527681791276, guid: b37d8c9dac0cd1f40b826d987023e781, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5134733527681791276, guid: b37d8c9dac0cd1f40b826d987023e781, type: 3}
+      propertyPath: m_RootOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5134733527681791276, guid: b37d8c9dac0cd1f40b826d987023e781, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5134733527681791276, guid: b37d8c9dac0cd1f40b826d987023e781, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5134733527681791276, guid: b37d8c9dac0cd1f40b826d987023e781, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5134733527681791276, guid: b37d8c9dac0cd1f40b826d987023e781, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5134733527681791276, guid: b37d8c9dac0cd1f40b826d987023e781, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 5134733527681791276, guid: b37d8c9dac0cd1f40b826d987023e781, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 5134733527681791276, guid: b37d8c9dac0cd1f40b826d987023e781, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5134733527681791276, guid: b37d8c9dac0cd1f40b826d987023e781, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5134733527681791276, guid: b37d8c9dac0cd1f40b826d987023e781, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5134733527681791276, guid: b37d8c9dac0cd1f40b826d987023e781, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5134733527681791276, guid: b37d8c9dac0cd1f40b826d987023e781, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5134733527681791276, guid: b37d8c9dac0cd1f40b826d987023e781, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5134733527681791276, guid: b37d8c9dac0cd1f40b826d987023e781, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5134733527681791276, guid: b37d8c9dac0cd1f40b826d987023e781, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5134733527681791276, guid: b37d8c9dac0cd1f40b826d987023e781, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5134733527681791276, guid: b37d8c9dac0cd1f40b826d987023e781, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5134733527681791276, guid: b37d8c9dac0cd1f40b826d987023e781, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5134733527681791276, guid: b37d8c9dac0cd1f40b826d987023e781, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8337579582818000089, guid: b37d8c9dac0cd1f40b826d987023e781, type: 3}
+      propertyPath: m_Name
+      value: Piece Canvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 8337579582818000089, guid: b37d8c9dac0cd1f40b826d987023e781, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: b37d8c9dac0cd1f40b826d987023e781, type: 3}
+--- !u!224 &4248267519531006539 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 5134733527681791276, guid: b37d8c9dac0cd1f40b826d987023e781, type: 3}
+  m_PrefabInstance: {fileID: 9058669854008758119}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &8406953237683167704 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 656860692155444927, guid: b37d8c9dac0cd1f40b826d987023e781, type: 3}
+  m_PrefabInstance: {fileID: 9058669854008758119}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac200e5f7aebd6547adee174fd02e9a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

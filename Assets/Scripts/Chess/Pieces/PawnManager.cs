@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Collections.Generic;
 
 namespace Chess.Pieces
@@ -15,20 +14,10 @@ namespace Chess.Pieces
             return moves;
         }
 
-        protected override List<Cell> ResolveAllAvailableQualifyingCells(Cell[,] matrix)
+        protected override List<Cell> ResolveAllAvailableQualifyingCells(Cell[,] matrix, int vector)
         {
             List<Cell> cells = new List<Cell>();
-
-            List<Coord> coords = new[]
-            {
-                new Coord { x = 1, y = 3 },
-                new Coord { x = 2, y = 2 },
-                new Coord { x = 2, y = 4 },
-                new Coord { x = 3, y = 3 },
-                new Coord { x = 4, y = 2 },
-                new Coord { x = 4, y = 4 },
-                new Coord { x = 5, y = 3 }
-            }.ToList<Coord>();
+            List<Coord> coords = GenerateCoords(matrix, vector);
 
             if (TryGetPotentialCoords(ActiveCell.coord, coords, out List<Coord> potentialCoords))
             {
@@ -38,12 +27,27 @@ namespace Chess.Pieces
 
                     if ((cell.piece == null) || (cell.piece.Set != set))
                     {
-                        cells.Add(matrix[coord.x, coord.y]);
+                        cells.Add(cell);
                     }
                 }
             }
 
             return cells;
+        }
+
+        private List<Coord> GenerateCoords(Cell[,] matrix, int vector)
+        {
+            List<Coord> coords = new List<Coord>();
+            List<Coord> vectorCoords;
+
+            Coord activeCoord = ActiveCell.coord;
+            
+            if (TryGetVectorCoords(activeCoord, 0, vector, out vectorCoords))
+            {
+                coords.AddRange(vectorCoords);
+            }
+
+            return coords;
         }
 
         public override void Reset()

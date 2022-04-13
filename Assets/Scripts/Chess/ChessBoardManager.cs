@@ -75,6 +75,8 @@ namespace Chess
         {
             MapMatrix();
             MapPieces();
+            // ReportMatrix();
+            // ReportPieces();
             ResetGame();
         }
 
@@ -222,6 +224,8 @@ namespace Chess
                 inFocusPiece.ApplySelectedTheme();
                 cameraManager.ExcludeInteractableLayer("Chess Piece Layer");
 
+                Debug.Log($"ProcessIntent {inFocusPiece.name} [{inFocusPiece.ActiveCell.coord.x}, {inFocusPiece.ActiveCell.coord.y}]");
+                
                 if (availableMoves.TryGetValue(inFocusPiece, out List<Cell> cells))
                 {
                     foreach (Cell cell in cells)
@@ -231,7 +235,6 @@ namespace Chess
                         manager.PlaceAtCell(cell);
                         
                         preview.transform.parent = transform;
-
                         previews.Add(preview);
                     }
                 }
@@ -325,6 +328,13 @@ namespace Chess
 
         private void OnEvent(PieceManager piece, FocusType focusType)
         {
+            string cellReference = String.Empty;
+                
+            if (TryGets.TryGetCoordReference(piece.ActiveCell.coord, out string tmp))
+            {
+                cellReference = tmp;
+            }
+            
             switch (focusType)
             {
                 case FocusType.OnFocusGained:
@@ -332,7 +342,7 @@ namespace Chess
 
                     piece.ApplyHighlightTheme();
 
-                    if (TryGetCoordReference(piece.ActiveCell.coord, out string reference))
+                    if (TryGets.TryGetCoordReference(piece.ActiveCell.coord, out string reference))
                     {
                         coordReferenceCanvas.TextUI = reference;
                     }
@@ -399,13 +409,20 @@ namespace Chess
         {
             if (cell != null)
             {
+                string cellReference = String.Empty;
+                
+                if (TryGets.TryGetCoordReference(cell.coord, out string reference))
+                {
+                    cellReference = reference;
+                }
+
                 if (cell.piece != null)
                 {
-                    Debug.Log($"ReportMatrix X : {cell.coord.x} Y : {cell.coord.y} Piece : {cell.piece.name} Coord : [{cell.coord.x} {cell.coord.y}] Position : [{cell.localPosition.x} {cell.localPosition.y} {cell.localPosition.z}]");
+                    Debug.Log($"ReportMatrix Piece : {cell.piece.name} Coord : [{cell.coord.x}, {cell.coord.y}] Reference : {cellReference} Position : [{cell.localPosition.x}, {cell.localPosition.y}, {cell.localPosition.z}]");
                 }
                 else
                 {
-                    Debug.Log($"ReportMatrix X : {cell.coord.x} Y : {cell.coord.y} Coord : [{cell.coord.x} {cell.coord.y}] Position : [{cell.localPosition.x} {cell.localPosition.y} {cell.localPosition.z}]");
+                    Debug.Log($"ReportMatrix EMPTY Coord : [{cell.coord.x} {cell.coord.y}] Reference : {cellReference} Position : [{cell.localPosition.x}, {cell.localPosition.y}, {cell.localPosition.z}]");
                 }
             }
         }
@@ -463,8 +480,32 @@ namespace Chess
                 piece.MoveEventReceived += OnMoveEvent;
                 piece.EventReceived += OnEvent;
 
+                string cellReference = String.Empty;
+                
+                if (TryGets.TryGetCoordReference(cell.coord, out string reference))
+                {
+                    cellReference = reference;
+                }
+
+                // Debug.Log($"MapPieces {piece.name} Coord : [{piece.ActiveCell.coord.x}, {piece.ActiveCell.coord.y}] Reference : {cellReference} Position : [{piece.ActiveCell.localPosition.x}, {piece.ActiveCell.localPosition.y}, {piece.ActiveCell.localPosition.z}]");
+
                 matrix[cell.coord.x, cell.coord.y].piece = piece;
             }
+        }
+    }
+
+    private void ReportPieces()
+    {
+        foreach (PieceManager piece in ActivePieces)
+        {
+            string cellReference = String.Empty;
+                
+            if (TryGets.TryGetCoordReference(piece.ActiveCell.coord, out string reference))
+            {
+                cellReference = reference;
+            }
+            
+            Debug.Log($"ReportPieces {piece.name} Coord : [{piece.ActiveCell.coord.x}, {piece.ActiveCell.coord.y}] Reference : {cellReference} Position : [{piece.ActiveCell.localPosition.x}, {piece.ActiveCell.localPosition.y}, {piece.ActiveCell.localPosition.z}]");
         }
     }
 #endregion
@@ -538,20 +579,6 @@ namespace Chess
         }
 
         localPosition = default(Vector3);
-        return false;
-    }
-
-    public bool TryGetCoordReference(Coord coord, out string reference)
-    {
-        if ((coord.x >= 0 && coord.x <= maxColumnIdx) && (coord.y >= 0 && coord.y <= maxRowIdx))
-        {
-            char letter = Convert.ToChar((int) 'a' + coord.x);
-            char digit = Convert.ToChar((int) '1' + coord.y);
-            reference = $"{letter} : {digit}";
-            return true;
-        }
-
-        reference = default(string);
         return false;
     }
 #endregion

@@ -5,7 +5,7 @@ namespace Chess.Pieces
 {
     public class KnightManager : PieceManager
     {
-        protected override List<Cell> ResolveAllAvailableQualifyingCells(Cell[,] matrix)
+        protected override List<Cell> ResolveAllAvailableQualifyingCells(Cell[,] matrix, int vector)
         {
             List<Cell> cells = new List<Cell>();
 

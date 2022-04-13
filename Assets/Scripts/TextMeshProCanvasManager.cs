@@ -9,7 +9,8 @@ public class TextMeshProCanvasManager : MonoBehaviour
 
     private string text;
 
-    public string Text {
+    public string Text
+    {
         get
         {
             return text;
