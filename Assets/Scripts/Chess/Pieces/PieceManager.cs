@@ -208,7 +208,7 @@ namespace Chess.Pieces
             {
                 Cell cell = matrix[coord.x, coord.y];
 
-                if (cell.piece != null)
+                if (cell.IsOccupied)
                 {
                     if ((cell.piece.Set != set) && coordSpec.includeOccupedCells)
                     {
@@ -404,6 +404,17 @@ namespace Chess.Pieces
         private IEnumerator GoToCellCoroutine(Cell cell, float rotationSpeed, float movementSpeed)
         {
             EnablePhysics(false);
+
+            if (cell.IsOccupied)
+            {
+                if (chessBoardManager.SetManager.TryReserveSlot(cell.piece, out Vector3 localPosition))
+                {
+                    cell.piece.transform.localPosition = localPosition;
+                    cell.piece.EnablePhysics(false);
+                    cell.piece.ActiveCell = null;
+                    cell.piece = null;
+                }
+            }
 
             while ((transform.localRotation != originalRotation) || (transform.localPosition != cell.localPosition))
             {

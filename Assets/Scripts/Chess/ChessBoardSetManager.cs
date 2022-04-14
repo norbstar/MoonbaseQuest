@@ -8,8 +8,14 @@ namespace Chess
 {
     public class ChessBoardSetManager : MonoBehaviour
     {
-        [SerializeField] List<PieceManager> darkPieces;
+        [Header("Lights")]
         [SerializeField] List<PieceManager> lightPieces;
+        [SerializeField] CaptureZoneManager lightCaptureZone;
+
+        [Header("Darks")]
+        [SerializeField] List<PieceManager> darkPieces;
+        [SerializeField] CaptureZoneManager darkCaptureZone;
+
         
         public List<PieceManager> DarkPieces()
         {
@@ -33,6 +39,21 @@ namespace Chess
             }
 
             return pieces;
+        }
+
+        public bool TryReserveSlot(PieceManager piece, out Vector3 localPosition)
+        {
+            switch (piece.Set)
+            {
+                case Set.Light:
+                    return lightCaptureZone.TryReserveSlot(piece, out localPosition);
+                
+                case Set.Dark:
+                    return darkCaptureZone.TryReserveSlot(piece, out localPosition);
+            }
+
+            localPosition = default(Vector3);
+            return false;
         }
 
         public List<PieceManager> AllPieces()

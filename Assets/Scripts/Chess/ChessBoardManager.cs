@@ -21,6 +21,8 @@ namespace Chess
 
         [Header("Components")]
         [SerializeField] ChessBoardSetManager setManger;
+        public ChessBoardSetManager SetManager { get { return setManger; } }
+
         [SerializeField] CoordReferenceCanvas coordReferenceCanvas;
         [SerializeField] ButtonEventManager resetButton;
 
@@ -150,6 +152,8 @@ namespace Chess
 
             foreach (PieceManager piece in activePieces)
             {
+                if (piece.ActiveCell == null) continue;
+
                 List<Cell> moves = piece.CalculateMoves(matrix, (activeSet == Set.Light) ? 1 : -1);
                 var hasMoves = moves.Count > 0;
 
@@ -414,7 +418,7 @@ namespace Chess
                     cellReference = reference;
                 }
 
-                if (cell.piece != null)
+                if (cell.IsOccupied)
                 {
                     Debug.Log($"ReportMatrix Piece : {cell.piece.name} Coord : [{cell.coord.x}, {cell.coord.y}] Reference : {cellReference} Position : [{cell.localPosition.x}, {cell.localPosition.y}, {cell.localPosition.z}]");
                 }

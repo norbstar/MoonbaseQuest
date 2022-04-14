@@ -9,5 +9,7 @@
             public Coord coord;
             public Vector3 localPosition;
             public PieceManager piece;
+
+            public bool IsOccupied { get { return piece != null; } }
         }
     }
