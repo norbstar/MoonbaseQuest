@@ -5,6 +5,8 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.XR;
 
+using Random = UnityEngine.Random;
+
 using static Enum.ControllerEnums;
 using static Chess.StageManager;
 
@@ -37,6 +39,9 @@ namespace Chess
 
         [SerializeField] EngagementMode engagementMode;
         public EngagementMode EngagementMode { get { return engagementMode; } }
+
+        [SerializeField] OppositionMode oppositionMode;
+        public OppositionMode OppositionMode { get { return oppositionMode; } }
 
         [SerializeField] GameObject placementPreviewPrefab;
 
@@ -122,6 +127,12 @@ namespace Chess
             activeSet = Set.Light;
             cameraManager.IncludeInteractableLayer("Placement Preview Layer");
 
+            if (playMode == PlayMode.Freeform)
+            {
+                ConfigSetInteractions(Set.Light, true);
+                ConfigSetInteractions(Set.Dark, true);
+            }
+
             ManageTurn();
         }
 
@@ -130,11 +141,51 @@ namespace Chess
         private void ManageTurn()
         {
             stageManager.LiveStage = Stage.Evaluating;
-            cameraManager.ExcludeInteractableLayer("Chess Piece Layer");
             availableMoves.Clear();
             inFocusPiece = null;
+            
+            if (playMode == PlayMode.RuleBased)
+            {
+                ConfigSetInteractions(Set.Light, false);
+                ConfigSetInteractions(Set.Dark, false);
+            }
 
             CalculateMoves();
+        }
+
+        private void ConfigSetInteractions(Set set, bool enabled)
+        {
+            string layer = null;
+
+            switch (set)
+            {
+                case Set.Light:
+                    layer = "Light Chess Piece Layer";
+                    break;
+
+                case Set.Dark:
+                    layer = "Dark Chess Piece Layer";
+                    break;
+            }
+            
+            if (enabled)
+            {
+                cameraManager.IncludeInteractableLayer(layer);
+            }
+            else
+            {
+                cameraManager.ExcludeInteractableLayer(layer);
+            }
+
+            List<PieceManager> pieces = (set == Set.Light) ? ActiveLightPieces : ActiveDarkPieces;
+
+            foreach (PieceManager piece in pieces)
+            {
+                if (piece.ActiveCell != null)
+                {
+                    piece.EnablePhysics(enabled);
+                }
+            }
         }
 
         private void CalculateMoves()
@@ -150,8 +201,19 @@ namespace Chess
                 activePieces = (activeSet == Set.Light) ? ActiveLightPieces : ActiveDarkPieces;
             }
 
+            if (ShouldAutomate())
+            {
+
+            }
+            else
+            {
+                
+            }
+
             foreach (PieceManager piece in activePieces)
             {
+                // A necessary check to ensure we don't include any piece relegated to the capture zone,
+                // Once a piece is taken off the board it no longer has an ActiveCell reference
                 if (piece.ActiveCell == null) continue;
 
                 List<Cell> moves = piece.CalculateMoves(matrix, (activeSet == Set.Light) ? 1 : -1);
@@ -170,7 +232,34 @@ namespace Chess
             }
 
             stageManager.LiveStage = Stage.PendingSelect;
-            cameraManager.IncludeInteractableLayer("Chess Piece Layer");
+            
+            if (playMode == PlayMode.RuleBased)
+            {
+                ConfigSetInteractions(Set.Light, (activeSet == Set.Light));
+                ConfigSetInteractions(Set.Dark, (activeSet == Set.Dark));
+            }
+
+            AutomationCheck();
+        }
+
+        private bool ShouldAutomate()
+        {
+            return (activeSet == Set.Dark) && (oppositionMode != OppositionMode.None);
+        }
+
+        private void AutomationCheck()
+        {
+            switch (oppositionMode)
+            {
+                case OppositionMode.DumbBot:
+                    AutomateDumbMove();
+                    break;
+            }
+        }
+
+        private void AutomateDumbMove()
+        {
+            int moveIdx = Random.Range(0, availableMoves.Count);
         }
 
         private void CompleteTurn()
@@ -226,7 +315,7 @@ namespace Chess
 
                 stageManager.LiveStage = Stage.Selected;
                 inFocusPiece.ApplySelectedTheme();
-                cameraManager.ExcludeInteractableLayer("Chess Piece Layer");
+                ConfigSetInteractions(activeSet, false);
 
                 if (availableMoves.TryGetValue(inFocusPiece, out List<Cell> cells))
                 {
@@ -268,7 +357,7 @@ namespace Chess
             inFocusPiece?.ApplyDefaultTheme();
             FreePreviews();
 
-            cameraManager.IncludeInteractableLayer("Chess Piece Layer");
+            ConfigSetInteractions(activeSet, true);
         }
 
         private void OnGameOver()
