@@ -22,8 +22,8 @@ namespace Chess
         [SerializeField] new Camera camera;
 
         [Header("Components")]
-        [SerializeField] ChessBoardSetManager setManger;
-        public ChessBoardSetManager SetManager { get { return setManger; } }
+        [SerializeField] ChessBoardSetManager setManager;
+        public ChessBoardSetManager SetManager { get { return setManager; } }
 
         [SerializeField] CoordReferenceCanvas coordReferenceCanvas;
         [SerializeField] ButtonEventManager resetButton;
@@ -31,7 +31,11 @@ namespace Chess
         [Header("Pieces")]
         [SerializeField] float rotationSpeed = 25f;
         [SerializeField] float movementSpeed = 25f;
+
+        [Header("Materials")]
         [SerializeField] Material outOfScopeMaterial;
+        [SerializeField] Material inFocusMaterial;
+        [SerializeField] Material selectedMaterial;
 
         [Header("Config")]
         [SerializeField] PlayMode playMode;
@@ -68,8 +72,9 @@ namespace Chess
             matrix = new Cell[8, 8];
             previews = new List<GameObject>();
             availableMoves = new Dictionary<PieceManager, List<Cell>>();
-
             stageManager = new StageManager();
+            
+            cameraManager.IncludeInteractableLayer("Placement Preview Layer");
         }
 
         private void ResolveDependencies()
@@ -82,9 +87,17 @@ namespace Chess
         {
             MapMatrix();
             MapPieces();
+            
             // ReportMatrix();
             // ReportPieces();
-            ResetGame();
+
+            if (playMode == PlayMode.Freeform)
+            {
+                AdjustChessPieceInteractableLayer(Set.Light, true);
+                AdjustChessPieceInteractableLayer(Set.Dark, true);
+            }
+
+            InitGame();
         }
 
         void OnEnable()
@@ -114,29 +127,28 @@ namespace Chess
             }
         }
 
-        private List<PieceManager> ActivePieces { get { return setManger.AllPieces().Where(p => p.isActiveAndEnabled).ToList(); } }
+        private List<PieceManager> ActivePieces { get { return setManager.AllPieces().Where(p => p.isActiveAndEnabled).ToList(); } }
 
-        private List<PieceManager> ActiveLightPieces { get { return setManger.LightPieces().Where(p => p.isActiveAndEnabled).ToList(); } }
+        private List<PieceManager> ActiveLightPieces { get { return setManager.LightPieces().Where(p => p.isActiveAndEnabled).ToList(); } }
 
-        private List<PieceManager> ActiveDarkPieces { get { return setManger.DarkPieces().Where(p => p.isActiveAndEnabled).ToList(); } }
+        private List<PieceManager> ActiveDarkPieces { get { return setManager.DarkPieces().Where(p => p.isActiveAndEnabled).ToList(); } }
+
+        private void InitGame() => ResetGame();
 
         private void ResetGame()
         {
-            InitiateUI();
-            checkMate = false;
-            activeSet = Set.Light;
-            cameraManager.IncludeInteractableLayer("Placement Preview Layer");
-
-            if (playMode == PlayMode.Freeform)
-            {
-                ConfigSetInteractions(Set.Light, true);
-                ConfigSetInteractions(Set.Dark, true);
-            }
-
+            ResetUI();
+            ResetGameState();
             ManageTurn();
         }
 
-        private void InitiateUI() => coordReferenceCanvas.TextUI = String.Empty;
+        private void ResetGameState()
+        {
+            checkMate = false;
+            activeSet = Set.Light;
+        }
+
+        private void ResetUI() => coordReferenceCanvas.TextUI = String.Empty;
 
         private void ManageTurn()
         {
@@ -146,14 +158,14 @@ namespace Chess
             
             if (playMode == PlayMode.RuleBased)
             {
-                ConfigSetInteractions(Set.Light, false);
-                ConfigSetInteractions(Set.Dark, false);
+                EnableInteractions(Set.Light, false);
+                EnableInteractions(Set.Dark, false);
             }
 
             CalculateMoves();
         }
 
-        private void ConfigSetInteractions(Set set, bool enabled)
+        private void AdjustChessPieceInteractableLayer(Set set, bool enabled)
         {
             string layer = null;
 
@@ -176,16 +188,21 @@ namespace Chess
             {
                 cameraManager.ExcludeInteractableLayer(layer);
             }
+        }
 
+        private void EnableInteractions(Set set, bool enabled)
+        {
             List<PieceManager> pieces = (set == Set.Light) ? ActiveLightPieces : ActiveDarkPieces;
 
             foreach (PieceManager piece in pieces)
             {
                 if (piece.ActiveCell != null)
                 {
-                    piece.EnablePhysics(enabled);
+                    piece.EnableInteractions(enabled);
                 }
             }
+
+            AdjustChessPieceInteractableLayer(set, enabled);
         }
 
         private void CalculateMoves()
@@ -201,14 +218,7 @@ namespace Chess
                 activePieces = (activeSet == Set.Light) ? ActiveLightPieces : ActiveDarkPieces;
             }
 
-            if (ShouldAutomate())
-            {
-
-            }
-            else
-            {
-                
-            }
+            bool shouldAutomate = ShouldAutomate();
 
             foreach (PieceManager piece in activePieces)
             {
@@ -219,7 +229,10 @@ namespace Chess
                 List<Cell> moves = piece.CalculateMoves(matrix, (activeSet == Set.Light) ? 1 : -1);
                 var hasMoves = moves.Count > 0;
 
-                piece.EnablePhysics(hasMoves);
+                if (!shouldAutomate)
+                {
+                    piece.EnableInteractions(hasMoves);
+                }
 
                 if (hasMoves)
                 {
@@ -235,11 +248,14 @@ namespace Chess
             
             if (playMode == PlayMode.RuleBased)
             {
-                ConfigSetInteractions(Set.Light, (activeSet == Set.Light));
-                ConfigSetInteractions(Set.Dark, (activeSet == Set.Dark));
+                AdjustChessPieceInteractableLayer(Set.Light, (activeSet == Set.Light));
+                AdjustChessPieceInteractableLayer(Set.Dark, (activeSet == Set.Dark));
             }
 
-            AutomationCheck();
+            if (shouldAutomate)
+            {
+                AutomateMove();
+            }
         }
 
         private bool ShouldAutomate()
@@ -247,7 +263,7 @@ namespace Chess
             return (activeSet == Set.Dark) && (oppositionMode != OppositionMode.None);
         }
 
-        private void AutomationCheck()
+        private void AutomateMove()
         {
             switch (oppositionMode)
             {
@@ -259,7 +275,14 @@ namespace Chess
 
         private void AutomateDumbMove()
         {
-            int moveIdx = Random.Range(0, availableMoves.Count);
+            if (availableMoves.Count == 0) return;
+            
+            int idx = Random.Range(0, availableMoves.Count);
+            KeyValuePair<PieceManager, List<Cell>> availableCells = availableMoves.ElementAt(idx);
+            int cellIdx = Random.Range(0, availableCells.Value.Count);
+            inFocusPiece = availableCells.Key;
+            Cell cell = availableCells.Value[cellIdx];
+            CommitToMove(cell);
         }
 
         private void CompleteTurn()
@@ -270,11 +293,7 @@ namespace Chess
             }
             else
             {
-                if (playMode == PlayMode.RuleBased)
-                {
-                    activeSet = (activeSet == Set.Light) ? Set.Dark : Set.Light;
-                }
-
+                activeSet = (activeSet == Set.Light) ? Set.Dark : Set.Light;
                 ManageTurn();
             }
         }
@@ -314,14 +333,22 @@ namespace Chess
                 if (inFocusPiece == null) return;
 
                 stageManager.LiveStage = Stage.Selected;
-                inFocusPiece.ApplySelectedTheme();
-                ConfigSetInteractions(activeSet, false);
+                // inFocusPiece.ApplySelectedTheme();
+                inFocusPiece.ApplyMaterial(selectedMaterial);
+
+                if (playMode == PlayMode.RuleBased)
+                {
+                    foreach (KeyValuePair<PieceManager, List<Cell>> element in availableMoves)
+                    {
+                        element.Key.EnableInteractions(false);
+                    }
+                }
 
                 if (availableMoves.TryGetValue(inFocusPiece, out List<Cell> cells))
                 {
                     foreach (Cell cell in cells)
                     {
-                        var preview = GameObject.Instantiate(placementPreviewPrefab, Vector3.zero, Quaternion.identity, setManger.transform);
+                        var preview = GameObject.Instantiate(placementPreviewPrefab, Vector3.zero, Quaternion.identity, setManager.transform);
                         var manager = preview.GetComponent<PreviewManager>() as PreviewManager;
                         manager.PlaceAtCell(cell);
                         
@@ -334,14 +361,13 @@ namespace Chess
             {
                 if (inFocusPreview == null) return;
 
-                CommitToMove();
+                Cell cell = inFocusPreview.Cell;
+                CommitToMove(cell);
             }
         }
 
-        private void CommitToMove()
+        private void CommitToMove(Cell cell)
         {
-            Cell cell = inFocusPreview.Cell;
-
             FreePreviews();
             ResetThemes();
 
@@ -354,10 +380,19 @@ namespace Chess
         private void CancelIntent()
         {
             stageManager.LiveStage = Stage.PendingSelect;
-            inFocusPiece?.ApplyDefaultTheme();
+            // inFocusPiece?.ApplyDefaultTheme();
+            inFocusPiece?.UseDefaultMaterial();
             FreePreviews();
 
-            ConfigSetInteractions(activeSet, true);
+            if (playMode == PlayMode.RuleBased)
+            {
+                foreach (KeyValuePair<PieceManager, List<Cell>> element in availableMoves)
+                {
+                    element.Key.EnableInteractions(true);
+                }
+
+                AdjustChessPieceInteractableLayer(activeSet, true);
+            }
         }
 
         private void OnGameOver()
@@ -405,7 +440,7 @@ namespace Chess
 
                     foreach (PieceManager thisPiece in activePieces)
                     {
-                        thisPiece.ReinstatePhysics();
+                        thisPiece.EnablePhysics(false);
                     }
 
                     ResetGame();
@@ -431,7 +466,8 @@ namespace Chess
                 case FocusType.OnFocusGained:
                     if ((playMode == PlayMode.RuleBased) && (piece.Set != activeSet)) return;
 
-                    piece.ApplyHighlightTheme();
+                    // piece.ApplyHighlightTheme();
+                    piece.ApplyMaterial(inFocusMaterial);
 
                     if (TryGets.TryGetCoordReference(piece.ActiveCell.coord, out string reference))
                     {
@@ -446,7 +482,8 @@ namespace Chess
 
                     if (stageManager.LiveStage == Stage.Selected) return;
                     
-                    piece.ApplyDefaultTheme();
+                    // piece.ApplyDefaultTheme();
+                    piece.UseDefaultMaterial();
                     coordReferenceCanvas.TextUI = string.Empty;
                     break;
             }
@@ -658,7 +695,7 @@ namespace Chess
 
     public bool TryGetCoordToPosition(Coord coord, out Vector3 localPosition)
     {
-        Vector3 surface = setManger.transform.localPosition;
+        Vector3 surface = setManager.transform.localPosition;
 
         if ((coord.x >= 0 && coord.x <= maxColumnIdx) && (coord.y >= 0 && coord.y <= maxRowIdx))
         {

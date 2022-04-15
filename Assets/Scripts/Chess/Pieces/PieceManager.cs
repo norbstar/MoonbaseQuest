@@ -117,11 +117,11 @@ namespace Chess.Pieces
 
         public void LostFocus(GameObject gameObject) => EventReceived?.Invoke(this, FocusType.OnFocusLost);
 
-        public void ApplyDefaultTheme() => renderer.material.color = defaultMaterialColor;
+        // public void ApplyDefaultTheme() => renderer.material.color = defaultMaterialColor;
 
-        public void ApplyHighlightTheme() => renderer.material.color = Color.yellow;
+        // public void ApplyHighlightTheme() => renderer.material.color = Color.yellow;
 
-        public void ApplySelectedTheme() => renderer.material.color = Color.green;
+        // public void ApplySelectedTheme() => renderer.material.color = Color.green;
 
         public void ApplyMaterial(Material material) => renderer.material = material;
 
@@ -372,27 +372,29 @@ namespace Chess.Pieces
         public void ResetTheme()
         {
             UseDefaultMaterial();
-            ApplyDefaultTheme();
+            // ApplyDefaultTheme();
         }
 
         public virtual void Reset() => ResetTheme();
 
-        public void EnablePhysics(bool enabled)
+        public void EnablePhysics(bool enabled) => rigidbody.isKinematic = !enabled;
+
+        public void EnableCollider(bool enabled) => collider.enabled = enabled;
+
+        public void EnableInteractions(bool enabled)
         {
             rigidbody.isKinematic = !enabled;
             collider.enabled = enabled;
         }
 
-        public void ReinstatePhysics() => EnablePhysics(true);
-
         public void SnapToActiveCell()
         {
-            EnablePhysics(false);
+            EnableInteractions(false);
 
             transform.localRotation = originalRotation;
             transform.localPosition = ActiveCell.localPosition;
 
-            EnablePhysics(true);
+            EnableInteractions(true);
         }
 
         public void GoHome(float rotationSpeed, float movementSpeed) => StartCoroutine(GoToCellCoroutine(HomeCell, rotationSpeed, movementSpeed));
@@ -403,14 +405,14 @@ namespace Chess.Pieces
 
         private IEnumerator GoToCellCoroutine(Cell cell, float rotationSpeed, float movementSpeed)
         {
-            EnablePhysics(false);
+            EnableInteractions(false);
 
             if (cell.IsOccupied)
             {
                 if (chessBoardManager.SetManager.TryReserveSlot(cell.piece, out Vector3 localPosition))
                 {
                     cell.piece.transform.localPosition = localPosition;
-                    cell.piece.EnablePhysics(false);
+                    cell.piece.EnableInteractions(false);
                     cell.piece.ActiveCell = null;
                     cell.piece = null;
                 }
