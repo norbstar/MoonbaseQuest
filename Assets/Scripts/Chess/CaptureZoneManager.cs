@@ -22,5 +22,7 @@ namespace Chess
             localPosition = default(Vector3);
             return false;
         }
+
+        public void Reset() => nextSlot = 0;
     }
 }

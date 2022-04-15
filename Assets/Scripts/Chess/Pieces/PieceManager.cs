@@ -117,12 +117,6 @@ namespace Chess.Pieces
 
         public void LostFocus(GameObject gameObject) => EventReceived?.Invoke(this, FocusType.OnFocusLost);
 
-        // public void ApplyDefaultTheme() => renderer.material.color = defaultMaterialColor;
-
-        // public void ApplyHighlightTheme() => renderer.material.color = Color.yellow;
-
-        // public void ApplySelectedTheme() => renderer.material.color = Color.green;
-
         public void ApplyMaterial(Material material) => renderer.material = material;
 
         public void UseDefaultMaterial() => ApplyMaterial(defaultMaterial);
@@ -372,7 +366,6 @@ namespace Chess.Pieces
         public void ResetTheme()
         {
             UseDefaultMaterial();
-            // ApplyDefaultTheme();
         }
 
         public virtual void Reset() => ResetTheme();
@@ -407,7 +400,7 @@ namespace Chess.Pieces
         {
             EnableInteractions(false);
 
-            if (cell.IsOccupied)
+            if ((cell != ActiveCell) && cell.IsOccupied)
             {
                 if (chessBoardManager.SetManager.TryReserveSlot(cell.piece, out Vector3 localPosition))
                 {

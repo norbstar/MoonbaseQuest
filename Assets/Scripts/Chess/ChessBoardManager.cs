@@ -87,9 +87,6 @@ namespace Chess
         {
             MapMatrix();
             MapPieces();
-            
-            // ReportMatrix();
-            // ReportPieces();
 
             if (playMode == PlayMode.Freeform)
             {
@@ -139,6 +136,7 @@ namespace Chess
         {
             ResetUI();
             ResetGameState();
+            ResetSet();
             ManageTurn();
         }
 
@@ -147,6 +145,8 @@ namespace Chess
             checkMate = false;
             activeSet = Set.Light;
         }
+
+        private void ResetSet() => setManager.Reset();
 
         private void ResetUI() => coordReferenceCanvas.TextUI = String.Empty;
 
@@ -276,7 +276,7 @@ namespace Chess
         private void AutomateDumbMove()
         {
             if (availableMoves.Count == 0) return;
-            
+
             int idx = Random.Range(0, availableMoves.Count);
             KeyValuePair<PieceManager, List<Cell>> availableCells = availableMoves.ElementAt(idx);
             int cellIdx = Random.Range(0, availableCells.Value.Count);
@@ -333,7 +333,6 @@ namespace Chess
                 if (inFocusPiece == null) return;
 
                 stageManager.LiveStage = Stage.Selected;
-                // inFocusPiece.ApplySelectedTheme();
                 inFocusPiece.ApplyMaterial(selectedMaterial);
 
                 if (playMode == PlayMode.RuleBased)
@@ -380,7 +379,6 @@ namespace Chess
         private void CancelIntent()
         {
             stageManager.LiveStage = Stage.PendingSelect;
-            // inFocusPiece?.ApplyDefaultTheme();
             inFocusPiece?.UseDefaultMaterial();
             FreePreviews();
 
@@ -466,7 +464,6 @@ namespace Chess
                 case FocusType.OnFocusGained:
                     if ((playMode == PlayMode.RuleBased) && (piece.Set != activeSet)) return;
 
-                    // piece.ApplyHighlightTheme();
                     piece.ApplyMaterial(inFocusMaterial);
 
                     if (TryGets.TryGetCoordReference(piece.ActiveCell.coord, out string reference))
@@ -482,7 +479,6 @@ namespace Chess
 
                     if (stageManager.LiveStage == Stage.Selected) return;
                     
-                    // piece.ApplyDefaultTheme();
                     piece.UseDefaultMaterial();
                     coordReferenceCanvas.TextUI = string.Empty;
                     break;

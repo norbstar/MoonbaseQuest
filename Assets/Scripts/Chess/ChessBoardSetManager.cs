@@ -68,5 +68,11 @@ namespace Chess
 
             return pieces;
         }
+
+        public void Reset()
+        {
+            lightCaptureZone.Reset();
+            darkCaptureZone.Reset();
+        }
     }
 }
