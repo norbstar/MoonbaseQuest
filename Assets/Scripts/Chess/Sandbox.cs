@@ -17,25 +17,10 @@ namespace Chess
             yield return StartCoroutine(MoveCoroutine(target, movementSpeed));
         }
 
-        private float RoundFloat(float value)
-        {
-            return (float) Math.Round((value * 100f) / 100f, 2);
-        }
-
-        private Vector3 RoundVector3(Vector3 value)
-        {
-            return new Vector3
-            {
-                x = (float) Math.Round((value.x * 100f) / 100f, 2),
-                y = (float) Math.Round((value.y * 100f) / 100f, 2),
-                z = (float) Math.Round((value.z * 100f) / 100f, 2)
-            };
-        }
-
         private IEnumerator MoveCoroutine(Vector3 target, float movementSpeed)
         {
-            Vector3 targetPosition = RoundVector3(target);
-            Vector3 startPosition = RoundVector3(transform.localPosition);
+            Vector3 targetPosition = ChessMath.RoundVector3(target);
+            Vector3 startPosition = ChessMath.RoundVector3(transform.localPosition);
             
             Debug.Log($"MoveCoroutine Piece : {name} From : [{startPosition.x}, {startPosition.y}, {startPosition.z}] To : [{targetPosition.x}, {targetPosition.y}, {targetPosition.z}]");
             
@@ -45,7 +30,7 @@ namespace Chess
 
             if (duration < 1f) duration = 1f;
 
-            while ((RoundVector3(transform.localPosition) != targetPosition))
+            while ((ChessMath.RoundVector3(transform.localPosition) != targetPosition))
             {
                 timestamp += Time.deltaTime;
 

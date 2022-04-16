@@ -13,11 +13,15 @@ namespace Chess.Pieces
         [SerializeField] PieceCanvasManager canvasManager;
 
         [Header("Config")]
-        [SerializeField] protected PieceType type;
+        [SerializeField] Set set;
+        public Set Set { get { return set; } }
+        [SerializeField] PieceType type;
         public PieceType Type { get { return type; } }
 
-        [SerializeField] protected Set set;
-        public Set Set { get { return set; } }
+        [SerializeField] float rotationSpeed = 25f;
+        [SerializeField] float classicMovementSpeed = 25f;
+        [SerializeField] float parabolaMovementSpeed = 2.5f;
+
 
         protected class CoordSpec
         {
@@ -565,13 +569,13 @@ namespace Chess.Pieces
             EnableInteractions(true);
         }
 
-        public void GoHome(float rotationSpeed, float movementSpeed, float jumpMovementSpeed) => StartCoroutine(GoToCellCoroutine(HomeCell, rotationSpeed, movementSpeed, jumpMovementSpeed));
+        public void GoHome(MoveStyle moveStyle) => StartCoroutine(GoToCellCoroutine(HomeCell, moveStyle));
 
-        public void GoToCell(Cell cell, float rotationSpeed, float movementSpeed, float jumpMovementSpeed) => StartCoroutine(GoToCellCoroutine(cell, rotationSpeed, movementSpeed, jumpMovementSpeed));
+        public void GoToCell(Cell cell, MoveStyle moveStyle) => StartCoroutine(GoToCellCoroutine(cell, moveStyle));
 
         protected virtual void OnMove(Cell fromCell, Cell toCell, bool resetting) { }
 
-        private IEnumerator GoToCellCoroutine(Cell cell, float rotationSpeed, float movementSpeed, float jumpMovementSpeed)
+        private IEnumerator GoToCellCoroutine(Cell cell, MoveStyle moveStyle)
         {
             EnableInteractions(false);
 
@@ -586,8 +590,14 @@ namespace Chess.Pieces
                 }
             }
 
-            // yield return StartCoroutine(BasicMoveCoroutine(cell, rotationSpeed, movementSpeed));
-            yield return StartCoroutine(AdvancedMoveCoroutine(cell, rotationSpeed, jumpMovementSpeed));
+            if (moveStyle == MoveStyle.Parabola)
+            {
+                yield return StartCoroutine(AdvancedMoveCoroutine(cell, rotationSpeed, parabolaMovementSpeed));
+            }
+            else
+            {
+                yield return StartCoroutine(ClassicMoveCoroutine(cell, rotationSpeed, classicMovementSpeed));
+            }
 
             if (ActiveCell != null)
             {
@@ -602,7 +612,7 @@ namespace Chess.Pieces
             MoveEventReceived?.Invoke(this);
         }
 
-        private IEnumerator BasicMoveCoroutine(Cell cell, float rotationSpeed, float movementSpeed)
+        private IEnumerator ClassicMoveCoroutine(Cell cell, float rotationSpeed, float movementSpeed)
         {
             while ((transform.localRotation != originalRotation) || (transform.localPosition != cell.localPosition))
             {
@@ -612,36 +622,16 @@ namespace Chess.Pieces
             }
         }
 
-        private float RoundFloat(float value)
-        {
-            return (float) Math.Round((value * 100f) / 100f, 2);
-        }
-
-        private Vector3 RoundVector3(Vector3 value)
-        {
-            return new Vector3
-            {
-                x = (float) Math.Round((value.x * 100f) / 100f, 2),
-                y = (float) Math.Round((value.y * 100f) / 100f, 2),
-                z = (float) Math.Round((value.z * 100f) / 100f, 2)
-            };
-        }
-
         private IEnumerator AdvancedMoveCoroutine(Cell cell, float rotationSpeed, float movementSpeed)
         {
-            Debug.Log($"AdvancedMoveCoroutine Piece : {name} From : [{transform.localPosition.x}, {transform.localPosition.y}, {transform.localPosition.z}] To : [{cell.localPosition.x}, {cell.localPosition.y}, {cell.localPosition.z}]");
-
-            Vector3 targetPosition = RoundVector3(cell.localPosition);
-            Vector3 startPosition = RoundVector3(transform.localPosition);
-            Debug.Log($"AdvancedMoveCoroutine Piece : {name} From : [{startPosition.x}, {startPosition.y}, {startPosition.z}] To : [{targetPosition.x}, {targetPosition.y}, {targetPosition.z}]");
+            Vector3 targetPosition = ChessMath.RoundVector3(cell.localPosition);
+            Vector3 startPosition = ChessMath.RoundVector3(transform.localPosition);
             
             float distance = Vector3.Distance(startPosition, targetPosition);
-            float duration = distance * movementSpeed;
+            float duration = distance / movementSpeed;
             float timestamp = 0;
 
-            if (duration < 1f) duration = 1f;
-
-            while ((transform.localRotation != originalRotation) || (RoundVector3(transform.localPosition) != targetPosition))
+            while ((transform.localRotation != originalRotation) || (ChessMath.RoundVector3(transform.localPosition) != targetPosition))
             {
                 timestamp += Time.deltaTime;
 
@@ -649,7 +639,6 @@ namespace Chess.Pieces
 
                 transform.localRotation = Quaternion.RotateTowards(transform.localRotation, originalRotation, rotationSpeed * Time.deltaTime);
                 transform.localPosition = Parabola.MathParabola.Parabola(startPosition, targetPosition, 0.25f, timeframe);
-                Debug.Log($"AdvancedMoveCoroutine Piece : {name} Position : [{transform.localPosition.x}, {transform.localPosition.y}, {transform.localPosition.z}]");
 
                 if (timeframe >= 1f)
                 {
@@ -659,8 +648,6 @@ namespace Chess.Pieces
 
                 yield return null;
             }
-
-            Debug.Log($"MoveCoroutine End");
-        }
+       }
     }
 }

@@ -28,11 +28,6 @@ namespace Chess
         [SerializeField] CoordReferenceCanvas coordReferenceCanvas;
         [SerializeField] ButtonEventManager resetButton;
 
-        [Header("Pieces")]
-        [SerializeField] float rotationSpeed = 25f;
-        [SerializeField] float movementSpeed = 25f;
-        [SerializeField] float jumpMovementSpeed = 1f;
-
         [Header("Materials")]
         [SerializeField] Material outOfScopeMaterial;
         [SerializeField] Material inFocusMaterial;
@@ -41,6 +36,9 @@ namespace Chess
         [Header("Config")]
         [SerializeField] PlayMode playMode;
         public PlayMode PlayMode { get { return playMode; } }
+
+        [SerializeField] MoveStyle moveStyle;
+        public MoveStyle MoveStyle { get { return moveStyle; } }
 
         [SerializeField] EngagementMode engagementMode;
         public EngagementMode EngagementMode { get { return engagementMode; } }
@@ -384,7 +382,7 @@ namespace Chess
             coordReferenceCanvas.TextUI = string.Empty;
 
             stageManager.LiveStage = Stage.Moving;
-            inFocusPiece.GoToCell(cell, rotationSpeed, movementSpeed, jumpMovementSpeed);
+            inFocusPiece.GoToCell(cell, moveStyle);
         }
 
         private void CancelIntent()
@@ -428,7 +426,7 @@ namespace Chess
             foreach (PieceManager piece in activePieces)
             {
                 piece.Reset();
-                piece.GoHome(rotationSpeed, movementSpeed, jumpMovementSpeed);
+                piece.GoHome(moveStyle);
             }
         }
 
