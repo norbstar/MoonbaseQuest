@@ -165,6 +165,11 @@ namespace Chess
             CalculateMoves();
         }
 
+        public Cell[,] CloneMatrix()
+        {
+            return matrix.Clone() as Cell[,];
+        }
+
         private void AdjustChessPieceInteractableLayer(Set set, bool enabled)
         {
             string layer = null;
@@ -207,6 +212,7 @@ namespace Chess
 
         private void CalculateMoves()
         {
+
             List<PieceManager> activePieces;
 
             if (playMode == PlayMode.Freeform)
@@ -218,10 +224,14 @@ namespace Chess
                 activePieces = (activeSet == Set.Light) ? ActiveLightPieces : ActiveDarkPieces;
             }
 
+            Debug.Log($"CalculateMoves Set : {activeSet} Active Pieces : {activePieces.Count}");
+            
             bool shouldAutomate = ShouldAutomate();
 
             foreach (PieceManager piece in activePieces)
             {
+                // Debug.Log($"CalculateMoves Set : {activeSet} Piece : {piece.name}");
+
                 // A necessary check to ensure we don't include any piece relegated to the capture zone,
                 // Once a piece is taken off the board it no longer has an ActiveCell reference
                 if (piece.ActiveCell == null) continue;
@@ -616,6 +626,14 @@ namespace Chess
                 matrix[cell.coord.x, cell.coord.y].piece = piece;
             }
         }
+
+        // foreach (PieceManager piece in ActivePieces)
+        // {
+        //     if (piece.isActiveAndEnabled)
+        //     {
+        //         piece.TestKingTrajectories();
+        //     }
+        // }
     }
 
     public void ReportPieces()
@@ -635,6 +653,22 @@ namespace Chess
 #endregion
 
 #region TryGets
+    public bool TryGetSingleSetPieceByType(Set set, PieceType type, out Cell cell)
+    {
+        List<PieceManager> activePieces = (set == Set.Light) ? ActiveLightPieces : ActiveDarkPieces;
+        List<Cell> matchingCells = activePieces.Where(p => p.Type == type).Select(p => p.ActiveCell).ToList();
+
+        if (matchingCells.Count > 0)
+        {
+            cell = matchingCells.First();
+            return true;
+
+        }
+        
+        cell = default(Cell);
+        return false;
+    }
+
     public bool TryGetSetPiecesByType(Set set, PieceType type, out List<Cell> cells)
     {
         List<PieceManager> activePieces = (set == Set.Light) ? ActiveLightPieces : ActiveDarkPieces;
@@ -703,6 +737,32 @@ namespace Chess
         }
 
         localPosition = default(Vector3);
+        return false;
+    }
+
+    public bool TryGetPiecesAlongVector(Cell[,] projectedMatrix, Cell origin, Vector2 vector, out List<PieceManager> pieces)
+    {
+        pieces = new List<PieceManager>();
+
+        int x = origin.coord.x;
+        int y = origin.coord.y;
+
+        do
+        {
+            x += (int) vector.x;
+            y += (int) vector.y;
+
+            if ((x >= 0 && x <= maxColumnIdx) && (y >= 0 && y <= maxRowIdx))
+            {
+                Cell cell = projectedMatrix[x, y];
+
+                if (cell.piece != null)
+                {
+                    pieces.Add(cell.piece);
+                }
+            }
+        } while ((x >= 0 && x <= maxColumnIdx) && (y >= 0 && y <= maxRowIdx));
+
         return false;
     }
 #endregion

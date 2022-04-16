@@ -8,7 +8,7 @@ namespace Chess.Pieces
     public abstract class PieceManager : MonoBehaviour, IFocus
     {
         [Header("Components")]
-        [SerializeField] ChessBoardManager chessBoardManager;
+        [SerializeField] protected ChessBoardManager chessBoardManager;
         [SerializeField] PieceCanvasManager canvasManager;
 
         [Header("Config")]
@@ -111,6 +111,98 @@ namespace Chess.Pieces
             collider = GetComponent<Collider>() as Collider;
         }
 
+#if false
+        public void TestRealtiveKingVectors()
+        {
+            if ((type != PieceType.King) && (chessBoardManager.TryGetPiecesByType(PieceType.King, out List<Cell> cells)))
+            {
+                foreach (Cell king in cells)
+                {
+                    Cell activeCell = ActiveCell;
+                    Vector2 vector = GetNormalizedVector(new Vector2(activeCell.coord.x, activeCell.coord.y), new Vector2(king.coord.x, king.coord.y));
+                    Vector? vectorType = null;
+
+                    if ((vector.y != 0) && (vector.x != 0))
+                    {
+                        if (Mathf.Abs(vector.x) == Mathf.Abs(vector.y))
+                        {
+                            vectorType = Vector.Diagonal;
+                            vector = new Vector2((vector.x >= 0) ? 1 : -1, (vector.y >= 0) ? 1 : -1);
+                        }
+                    }
+                    else if (vector.y != 0)
+                    {
+                        vectorType = Vector.Vertical;
+                    }
+                    else if (vector.x != 0)
+                    {
+                        vectorType = Vector.Horizontal;
+                    }
+
+                    if (vectorType.HasValue)
+                    {
+                        Debug.Log($"TestKingVector King : {king.piece.name} Piece : {name} Type : {vectorType.Value} Vector : [{vector.x}, {vector.y}]");
+                    }
+                }
+            }
+        }
+
+        public void TestRealtiveKingVectors()
+        {
+            if ((type != PieceType.King) && (chessBoardManager.TryGetPiecesByType(PieceType.King, out List<Cell> cells)))
+            {
+                foreach (Cell kingCell in cells)
+                {
+                    if (TryGetRealtiveKingVector(kingCell, out VectorPackage package))
+                    {
+                        Debug.Log($"TestKingVector King : {kingCell.piece.name} Piece : {name} Type : {package.Type} Vector : [{package.Vector.x}, {package.Vector.y}]");
+                    }
+                }
+            }
+        }
+#endif
+
+        private bool TryGetRealtiveKingVector(Cell kingCell, out VectorPackage package)
+        {
+            Debug.Log($"TryGetRealtiveKingVector King Cell : {kingCell != null}");
+
+            Cell activeCell = ActiveCell;
+            Vector2 normalizedVector = GetNormalizedVector(new Vector2(activeCell.coord.x, activeCell.coord.y), new Vector2(kingCell.coord.x, kingCell.coord.y));
+            
+            VectorType? vectorType = null;
+
+            if ((normalizedVector.y != 0) && (normalizedVector.x != 0))
+            {
+                if (Mathf.Abs(normalizedVector.x) == Mathf.Abs(normalizedVector.y))
+                {
+                    normalizedVector = new Vector2((normalizedVector.x >= 0) ? 1 : -1, (normalizedVector.y >= 0) ? 1 : -1);
+                    vectorType = VectorType.Diagonal;
+                }
+            }
+            else if (normalizedVector.y != 0)
+            {
+                vectorType = VectorType.Vertical;
+            }
+            else if (normalizedVector.x != 0)
+            {
+                vectorType = VectorType.Horizontal;
+            }
+
+            if (vectorType.HasValue)
+            {
+                package = new VectorPackage
+                {
+                    Type = vectorType.Value,
+                    Vector = normalizedVector
+                };
+
+                return true;
+            }
+
+            package = default(VectorPackage);
+            return false;
+        }
+
         public Mesh Mesh { get { return filter.mesh; } }
 
         public void GainedFocus(GameObject gameObject) => EventReceived?.Invoke(this, FocusType.OnFocusGained);
@@ -150,28 +242,93 @@ namespace Chess.Pieces
             };
         }
 
+        private Vector2 GetNormalizedVector(Vector2 origin, Vector2 target)
+        {
+            return (target - origin).normalized;
+        }
+
+        public Cell ResolveKingCell(Set set)
+        {
+            Debug.Log($"ResolveKingCell : Set : {set}");
+
+            if (chessBoardManager.TryGetSingleSetPieceByType(set, PieceType.King, out Cell cell))
+            {
+                Debug.Log($"ResolveKingCell : YEAH");
+                return cell;
+            }
+
+            Debug.Log($"ResolveKingCell : NOOOO");
+            return null;
+        }
+
+        private Cell[,] ProjectMatrix(Cell cell, Cell targetCell)
+        {
+            Cell[,] clone = chessBoardManager.CloneMatrix();
+
+            PieceManager piece = cell.piece;
+            cell.piece = null;
+            targetCell.piece = piece;
+
+            return clone;
+        }
+
+        private bool WouldMovePlaceKingInCheck(Cell targetCell)
+        {
+            Cell kingCell = ResolveKingCell(set);
+
+            if (TryGetRealtiveKingVector(kingCell, out VectorPackage package))
+            {
+                Debug.Log($"WouldMovePlaceKingInCheck King : {kingCell.piece.name} Piece : {name} Target Cell : [{targetCell.coord.x}, {targetCell.coord.y}] Vector : [{package.Vector.x}, {package.Vector.y}] Type : {package.Type}");
+
+                Cell[,] projectedMatrix = ProjectMatrix(ActiveCell, targetCell);
+
+                if (chessBoardManager.TryGetPiecesAlongVector(projectedMatrix, kingCell, package.Vector, out List<PieceManager> pieces))
+                {
+                    foreach (PieceManager piece in pieces)
+                    {
+                        Debug.Log($"Piece : {piece.name}");
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private bool WouldMovingKingPlaceKingInCheck(Cell targetCell)
+        {
+            return false;
+        }
+
         public List<Cell> CalculateMoves(Cell[,] matrix, int vector)
         {
+            Debug.Log($"CalculateMoves Piece : {name}");
+
             List<Cell> moves = new List<Cell>();
             List<Cell> potentialMoves = ResolvePotentialCells(matrix, vector, chessBoardManager.PlayMode);
 
-            // if (manager.TryGetSetPiecesByType(set, PieceType.King, out List<Cell> cells))
-            // {
-            //     if (cells.Count > 0)
-            //     {
-            //         var kingCell = cells[0];
-            //         Debug.Log($"Calculate Moves King Cell Coords : [{kingCell.coord.x} {kingCell.coord.y}]");
-            //     }
-            // }
-
             foreach (Cell potentialMove in potentialMoves)
             {
-                // TODO determine if the potential move would put your own King in check.
-                // If so, the move is NOT legel, otherwise add it to the list of moves
-
-                // TMP measure to test the base functionality of the piece
+                Debug.Log($"CalculateMoves Piece : {name} Move : [{potentialMove.coord.x}, {potentialMove.coord.y}]");
                 moves.Add(potentialMove);
             }
+
+#if false
+            foreach (Cell potentialMove in potentialMoves)
+            {
+                Debug.Log($"CalculateMoves Piece : {name} Move : [{potentialMove.coord.x}, {potentialMove.coord.y}]");
+
+                if ((type == PieceType.King) && (!WouldMovingKingPlaceKingInCheck(potentialMove)))
+                {
+                    // Moving the King to the potential cell would not place it in check by a piece of the opposing set.
+                    moves.Add(potentialMove);
+                }
+                else if (!WouldMovePlaceKingInCheck(potentialMove))
+                {
+                    // Moving the piece relative to the King would not expose the King to check by a piece of the opposing set.
+                    moves.Add(potentialMove);
+                }
+            }
+#endif
 
             return moves;
         }
