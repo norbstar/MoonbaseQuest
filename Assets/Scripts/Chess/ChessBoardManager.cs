@@ -31,6 +31,7 @@ namespace Chess
         [Header("Pieces")]
         [SerializeField] float rotationSpeed = 25f;
         [SerializeField] float movementSpeed = 25f;
+        [SerializeField] float jumpMovementSpeed = 1f;
 
         [Header("Materials")]
         [SerializeField] Material outOfScopeMaterial;
@@ -74,7 +75,7 @@ namespace Chess
             availableMoves = new Dictionary<PieceManager, List<Cell>>();
             stageManager = new StageManager();
             
-            cameraManager.IncludeInteractableLayer("Placement Preview Layer");
+            cameraManager.IncludeInteractableLayer("Preview Layer");
         }
 
         private void ResolveDependencies()
@@ -224,7 +225,7 @@ namespace Chess
                 activePieces = (activeSet == Set.Light) ? ActiveLightPieces : ActiveDarkPieces;
             }
 
-            Debug.Log($"CalculateMoves Set : {activeSet} Active Pieces : {activePieces.Count}");
+            // Debug.Log($"CalculateMoves Set : {activeSet} Active Pieces : {activePieces.Count}");
             
             bool shouldAutomate = ShouldAutomate();
 
@@ -383,7 +384,7 @@ namespace Chess
             coordReferenceCanvas.TextUI = string.Empty;
 
             stageManager.LiveStage = Stage.Moving;
-            inFocusPiece.GoToCell(cell, rotationSpeed, movementSpeed);
+            inFocusPiece.GoToCell(cell, rotationSpeed, movementSpeed, jumpMovementSpeed);
         }
 
         private void CancelIntent()
@@ -422,16 +423,12 @@ namespace Chess
         {
             var activePieces = ActivePieces;
             onHomeEventsPending = activePieces.Count;
-
             stageManager.LiveStage = Stage.Resetting;
             
             foreach (PieceManager piece in activePieces)
             {
-                if (piece.isActiveAndEnabled)
-                {
-                    piece.Reset();
-                    piece.GoHome(rotationSpeed, movementSpeed);
-                }
+                piece.Reset();
+                piece.GoHome(rotationSpeed, movementSpeed, jumpMovementSpeed);
             }
         }
 
@@ -662,7 +659,6 @@ namespace Chess
         {
             cell = matchingCells.First();
             return true;
-
         }
         
         cell = default(Cell);
@@ -742,6 +738,8 @@ namespace Chess
 
     public bool TryGetPiecesAlongVector(Cell[,] projectedMatrix, Cell origin, Vector2 vector, out List<PieceManager> pieces)
     {
+        Debug.Log($"TryGetPiecesAlongVector Origin : [{origin.coord.x}, {origin.coord.y}] Vector : [{vector.x}, {vector.y}]");
+
         pieces = new List<PieceManager>();
 
         int x = origin.coord.x;

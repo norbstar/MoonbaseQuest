@@ -14,7 +14,10 @@ namespace Chess
             {
                 if (trigger.TryGetComponent<PieceManager>(out PieceManager piece))
                 {
-                    piece.SnapToActiveCell();
+                    if (piece.ActiveCell != null)
+                    {
+                        piece.SnapToActiveCell();
+                    }
                 }
             }
         }

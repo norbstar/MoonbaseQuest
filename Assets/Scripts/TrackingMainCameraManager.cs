@@ -22,16 +22,17 @@ public class TrackingMainCameraManager : GizmoManager
 
     [SerializeField] float farDistance;
     protected float FarDistance { get { return farDistance; } }
+    
+    [Header("Config")]
+    [SerializeField] private bool enableTracking = true;
 
-    protected int interactableLayerMask;
+    private int interactableLayerMask;
     private GameObject hitPrefabInstance;
     private GameObject lastObjectHit;
-    private bool enableTracking;
 
     public virtual void Awake()
     {
         interactableLayerMask = LayerMask.GetMask("Interactable Layer");
-        enableTracking = true;
     }
 
     public bool EnableTracking

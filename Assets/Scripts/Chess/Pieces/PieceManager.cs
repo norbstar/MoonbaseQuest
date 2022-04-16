@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -90,6 +91,7 @@ namespace Chess.Pieces
         private Quaternion originalRotation;
         private Cell homeCell;
         private Cell activeCell;
+        // private bool isMoving;
         
         void Awake()
         {
@@ -110,6 +112,14 @@ namespace Chess.Pieces
             rigidbody = GetComponent<Rigidbody>() as Rigidbody;
             collider = GetComponent<Collider>() as Collider;
         }
+
+        // void Update()
+        // {
+        //     if (isMoving)
+        //     {
+
+        //     }
+        // }
 
 #if false
         public void TestRealtiveKingVectors()
@@ -164,8 +174,6 @@ namespace Chess.Pieces
 
         private bool TryGetRealtiveKingVector(Cell kingCell, out VectorPackage package)
         {
-            Debug.Log($"TryGetRealtiveKingVector King Cell : {kingCell != null}");
-
             Cell activeCell = ActiveCell;
             Vector2 normalizedVector = GetNormalizedVector(new Vector2(activeCell.coord.x, activeCell.coord.y), new Vector2(kingCell.coord.x, kingCell.coord.y));
             
@@ -249,15 +257,11 @@ namespace Chess.Pieces
 
         public Cell ResolveKingCell(Set set)
         {
-            Debug.Log($"ResolveKingCell : Set : {set}");
-
             if (chessBoardManager.TryGetSingleSetPieceByType(set, PieceType.King, out Cell cell))
             {
-                Debug.Log($"ResolveKingCell : YEAH");
                 return cell;
             }
 
-            Debug.Log($"ResolveKingCell : NOOOO");
             return null;
         }
 
@@ -272,13 +276,16 @@ namespace Chess.Pieces
             return clone;
         }
 
-        private bool WouldMovePlaceKingInCheck(Cell targetCell)
+        private bool WouldMovePlaceKingInCheck(Cell kingCell, Cell targetCell)
         {
-            Cell kingCell = ResolveKingCell(set);
+            if (kingCell == null) return false;
 
+            Debug.Log($"WouldMovePlaceKingInCheck King : {kingCell.piece.name} Piece : {name} Target Cell : [{targetCell.coord.x}, {targetCell.coord.y}]");
+
+#if true
             if (TryGetRealtiveKingVector(kingCell, out VectorPackage package))
             {
-                Debug.Log($"WouldMovePlaceKingInCheck King : {kingCell.piece.name} Piece : {name} Target Cell : [{targetCell.coord.x}, {targetCell.coord.y}] Vector : [{package.Vector.x}, {package.Vector.y}] Type : {package.Type}");
+                Debug.Log($"WouldMovePlaceKingInCheck Vector : [{package.Vector.x}, {package.Vector.y}] Type : {package.Type}");
 
                 Cell[,] projectedMatrix = ProjectMatrix(ActiveCell, targetCell);
 
@@ -286,43 +293,54 @@ namespace Chess.Pieces
                 {
                     foreach (PieceManager piece in pieces)
                     {
-                        Debug.Log($"Piece : {piece.name}");
+                        Debug.Log($"WouldMovePlaceKingInCheck Piece : {piece.name}");
                     }
                 }
             }
+#endif
 
             return false;
         }
 
-        private bool WouldMovingKingPlaceKingInCheck(Cell targetCell)
+        private bool WouldMovingKingPlaceKingInCheck(Cell kingCell, Cell targetCell)
         {
+            if (kingCell == null) return false;
+
+            Debug.Log($"WouldMovingKingPlaceKingInCheck King : {kingCell.piece.name} Piece : {name} Target Cell : [{targetCell.coord.x}, {targetCell.coord.y}]");
+
             return false;
         }
 
         public List<Cell> CalculateMoves(Cell[,] matrix, int vector)
         {
-            Debug.Log($"CalculateMoves Piece : {name}");
+            // Debug.Log($"CalculateMoves Piece : {name}");
 
             List<Cell> moves = new List<Cell>();
             List<Cell> potentialMoves = ResolvePotentialCells(matrix, vector, chessBoardManager.PlayMode);
 
+#if true
+            Cell kingCell = ResolveKingCell(set);
+
             foreach (Cell potentialMove in potentialMoves)
             {
-                Debug.Log($"CalculateMoves Piece : {name} Move : [{potentialMove.coord.x}, {potentialMove.coord.y}]");
+                // Debug.Log($"CalculateMoves Piece : {name} Move : [{potentialMove.coord.x}, {potentialMove.coord.y}]");
                 moves.Add(potentialMove);
             }
+#endif
 
 #if false
+            Cell kingCell = ResolveKingCell(set);
+            
             foreach (Cell potentialMove in potentialMoves)
             {
                 Debug.Log($"CalculateMoves Piece : {name} Move : [{potentialMove.coord.x}, {potentialMove.coord.y}]");
 
-                if ((type == PieceType.King) && (!WouldMovingKingPlaceKingInCheck(potentialMove)))
+                if ((type == PieceType.King) && (!WouldMovingKingPlaceKingInCheck(kingCell, potentialMove)))
                 {
                     // Moving the King to the potential cell would not place it in check by a piece of the opposing set.
                     moves.Add(potentialMove);
                 }
-                else if (!WouldMovePlaceKingInCheck(potentialMove))
+                else if (!WouldMovePlaceKingInCheck(kingCell, potentialMove))
                 {
                     // Moving the piece relative to the King would not expose the King to check by a piece of the opposing set.
                     moves.Add(potentialMove);
@@ -547,13 +565,13 @@ namespace Chess.Pieces
             EnableInteractions(true);
         }
 
-        public void GoHome(float rotationSpeed, float movementSpeed) => StartCoroutine(GoToCellCoroutine(HomeCell, rotationSpeed, movementSpeed));
+        public void GoHome(float rotationSpeed, float movementSpeed, float jumpMovementSpeed) => StartCoroutine(GoToCellCoroutine(HomeCell, rotationSpeed, movementSpeed, jumpMovementSpeed));
 
-        public void GoToCell(Cell cell, float rotationSpeed, float movementSpeed) => StartCoroutine(GoToCellCoroutine(cell, rotationSpeed, movementSpeed));
+        public void GoToCell(Cell cell, float rotationSpeed, float movementSpeed, float jumpMovementSpeed) => StartCoroutine(GoToCellCoroutine(cell, rotationSpeed, movementSpeed, jumpMovementSpeed));
 
         protected virtual void OnMove(Cell fromCell, Cell toCell, bool resetting) { }
 
-        private IEnumerator GoToCellCoroutine(Cell cell, float rotationSpeed, float movementSpeed)
+        private IEnumerator GoToCellCoroutine(Cell cell, float rotationSpeed, float movementSpeed, float jumpMovementSpeed)
         {
             EnableInteractions(false);
 
@@ -568,12 +586,8 @@ namespace Chess.Pieces
                 }
             }
 
-            while ((transform.localRotation != originalRotation) || (transform.localPosition != cell.localPosition))
-            {
-                transform.localRotation = Quaternion.RotateTowards(transform.localRotation, originalRotation, rotationSpeed * Time.deltaTime);
-                transform.localPosition = Vector3.MoveTowards(transform.localPosition, cell.localPosition, movementSpeed * Time.deltaTime);
-                yield return null;
-            }
+            // yield return StartCoroutine(BasicMoveCoroutine(cell, rotationSpeed, movementSpeed));
+            yield return StartCoroutine(AdvancedMoveCoroutine(cell, rotationSpeed, jumpMovementSpeed));
 
             if (ActiveCell != null)
             {
@@ -586,6 +600,67 @@ namespace Chess.Pieces
             ActiveCell.piece = this;
 
             MoveEventReceived?.Invoke(this);
+        }
+
+        private IEnumerator BasicMoveCoroutine(Cell cell, float rotationSpeed, float movementSpeed)
+        {
+            while ((transform.localRotation != originalRotation) || (transform.localPosition != cell.localPosition))
+            {
+                transform.localRotation = Quaternion.RotateTowards(transform.localRotation, originalRotation, rotationSpeed * Time.deltaTime);
+                transform.localPosition = Vector3.MoveTowards(transform.localPosition, cell.localPosition, movementSpeed * Time.deltaTime);
+                yield return null;
+            }
+        }
+
+        private float RoundFloat(float value)
+        {
+            return (float) Math.Round((value * 100f) / 100f, 2);
+        }
+
+        private Vector3 RoundVector3(Vector3 value)
+        {
+            return new Vector3
+            {
+                x = (float) Math.Round((value.x * 100f) / 100f, 2),
+                y = (float) Math.Round((value.y * 100f) / 100f, 2),
+                z = (float) Math.Round((value.z * 100f) / 100f, 2)
+            };
+        }
+
+        private IEnumerator AdvancedMoveCoroutine(Cell cell, float rotationSpeed, float movementSpeed)
+        {
+            Debug.Log($"AdvancedMoveCoroutine Piece : {name} From : [{transform.localPosition.x}, {transform.localPosition.y}, {transform.localPosition.z}] To : [{cell.localPosition.x}, {cell.localPosition.y}, {cell.localPosition.z}]");
+
+            Vector3 targetPosition = RoundVector3(cell.localPosition);
+            Vector3 startPosition = RoundVector3(transform.localPosition);
+            Debug.Log($"AdvancedMoveCoroutine Piece : {name} From : [{startPosition.x}, {startPosition.y}, {startPosition.z}] To : [{targetPosition.x}, {targetPosition.y}, {targetPosition.z}]");
+            
+            float distance = Vector3.Distance(startPosition, targetPosition);
+            float duration = distance * movementSpeed;
+            float timestamp = 0;
+
+            if (duration < 1f) duration = 1f;
+
+            while ((transform.localRotation != originalRotation) || (RoundVector3(transform.localPosition) != targetPosition))
+            {
+                timestamp += Time.deltaTime;
+
+                float timeframe = Mathf.Clamp01(timestamp / duration);
+
+                transform.localRotation = Quaternion.RotateTowards(transform.localRotation, originalRotation, rotationSpeed * Time.deltaTime);
+                transform.localPosition = Parabola.MathParabola.Parabola(startPosition, targetPosition, 0.25f, timeframe);
+                Debug.Log($"AdvancedMoveCoroutine Piece : {name} Position : [{transform.localPosition.x}, {transform.localPosition.y}, {transform.localPosition.z}]");
+
+                if (timeframe >= 1f)
+                {
+                    transform.localRotation = originalRotation;
+                    transform.localPosition = targetPosition;
+                }
+
+                yield return null;
+            }
+
+            Debug.Log($"MoveCoroutine End");
         }
     }
 }
