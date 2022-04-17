@@ -8,15 +8,12 @@ public class TrackingMainCameraManager : GizmoManager
 
     [Header("Hits")]
     [SerializeField] bool showHits;
-    protected bool ShowHits { get { return showHits; } } 
+    protected bool ShowHits { get { return showHits; } }
 
     [SerializeField] GameObject hitPrefab;
-    protected GameObject HitPrefab { get { return hitPrefab; } } 
+    protected GameObject HitPrefab { get { return hitPrefab; } }
 
     [Header("Focus")]
-    [SerializeField] float focalRadius = 0.5f;
-    protected float FocalRadius { get { return focalRadius; } }
-
     [SerializeField] float nearDistance;
     protected float NearDistance { get { return nearDistance; } }
 
@@ -56,7 +53,6 @@ public class TrackingMainCameraManager : GizmoManager
     {
         if (!enableTracking) return;
 
-#if true
         var ray = new Ray(transform.position, transform.forward);
         bool hitDetected = Physics.Raycast(ray.origin, ray.direction, out RaycastHit hit, farDistance, interactableLayerMask);
         GameObject objectHit = null;
@@ -68,27 +64,9 @@ public class TrackingMainCameraManager : GizmoManager
         {
             objectHit = hit.transform.gameObject;
             point = hit.point;
-            var distanceToPoint = Vector3.Distance(transform.position, point);
+            float distanceToPoint = Vector3.Distance(transform.position, point);
             isValid = (distanceToPoint >= nearDistance);
         }
-        
-#endif
-
-#if false
-        bool hitDetected = Physics.SphereCast(transform.position/*transform.TransformPoint(Vector3.zero)*/, focalRadius, transform.forward, out RaycastHit hitInfo, farDistance, interactableLayerMask);
-        GameObject objectHit = null;
-        Vector3 point = default(Vector3);
-        
-        bool isValid = false;
-
-        if (hitDetected)
-        {
-            objectHit = hitInfo.transform.gameObject;
-            point = hitInfo.point;
-            var distanceToPoint = Vector3.Distance(transform.position, point);
-            isValid = (distanceToPoint >= nearDistance);
-        }
-#endif
 
         if (!isValid)
         {

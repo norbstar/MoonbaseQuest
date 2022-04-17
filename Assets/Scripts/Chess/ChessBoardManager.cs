@@ -21,6 +21,10 @@ namespace Chess
         [Header("Camera")]
         [SerializeField] new Camera camera;
 
+        [Header("Controllers")]
+        [SerializeField] HybridHandController leftController;
+        [SerializeField] HybridHandController rightController;
+
         [Header("Components")]
         [SerializeField] ChessBoardSetManager setManager;
         public ChessBoardSetManager SetManager { get { return setManager; } }
@@ -75,6 +79,8 @@ namespace Chess
             stageManager = new StageManager();
             
             cameraManager.IncludeInteractableLayer("Preview Layer");
+            leftController.IncludeInteractableLayer("Preview Layer");
+            rightController.IncludeInteractableLayer("Preview Layer");
         }
 
         private void ResolveDependencies()
@@ -188,10 +194,14 @@ namespace Chess
             if (enabled)
             {
                 cameraManager.IncludeInteractableLayer(layer);
+                leftController.IncludeInteractableLayer(layer);
+                rightController.IncludeInteractableLayer(layer);
             }
             else
             {
                 cameraManager.ExcludeInteractableLayer(layer);
+                leftController.ExcludeInteractableLayer(layer);
+                rightController.ExcludeInteractableLayer(layer);
             }
         }
 

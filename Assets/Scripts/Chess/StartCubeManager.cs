@@ -20,7 +20,7 @@ namespace Chess
             ResolveDependencies();
         }
 
-        IEnumerator OnEnable()
+        void OnEnable()
         {
             coroutine = StartCoroutine(scaleFX.Apply(new FX.ScaleFX.Config
             {
@@ -28,8 +28,6 @@ namespace Chess
                 toValue = toScale,
                 applyToZAxis = true
             }));
-
-            yield return coroutine;
         }
 
         void OnDisable() => StopCoroutine(coroutine);

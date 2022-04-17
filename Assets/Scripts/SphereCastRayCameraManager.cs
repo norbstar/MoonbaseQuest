@@ -122,7 +122,7 @@ public class SphereCastRayCameraManager : GizmoManager
 
                 if (objectHit.TryGetComponent<IFocus>(out IFocus focus))
                 {
-                    var distanceToPoint = Vector3.Distance(transform.position, point);
+                    float distanceToPoint = Vector3.Distance(transform.position, point);
 
                     if ((distanceToPoint <= farDistance) && (distanceToPoint >= nearDistance))
                     {
