@@ -64,7 +64,7 @@ public class HandController : BaseManager
     private DebugCanvas debugCanvas;
     private Actuation actuation, lastActuation;
 
-    void Awake()
+    public virtual void Awake()
     {
         ResolveDependencies();
     }

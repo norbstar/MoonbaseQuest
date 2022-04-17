@@ -37,7 +37,7 @@ public class StartButton : FocusableManager, IInteractableEvent
             StopCoroutine(coroutine);
         }
         
-        coroutine = StartCoroutine(scaleFX.Apply(new FX.ScaleFX.Range
+        coroutine = StartCoroutine(scaleFX.Apply(new FX.ScaleFX.Config
         {
             fromValue = 1f,
             toValue = 1.2f
@@ -53,7 +53,7 @@ public class StartButton : FocusableManager, IInteractableEvent
             StopCoroutine(coroutine);
         }
 
-        coroutine = StartCoroutine(scaleFX.Apply(new FX.ScaleFX.Range
+        coroutine = StartCoroutine(scaleFX.Apply(new FX.ScaleFX.Config
         {
             fromValue = 1.2f,
             toValue = 1f

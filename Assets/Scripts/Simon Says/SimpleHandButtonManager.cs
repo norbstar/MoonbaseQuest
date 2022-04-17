@@ -25,6 +25,7 @@ namespace SimonSays
         [SerializeField] UnityEvent onReleased;
 
         private new MeshRenderer renderer;
+        private int? enterInstanceId, exitInstanceId;
         private IList<string> tags;
 
         void Awake() => ResolveDependencies();
@@ -57,8 +58,17 @@ namespace SimonSays
         {
             var trigger =  collider.gameObject;
             var match = tags.FirstOrDefault(t => t.Equals(trigger.tag));
-            
+
             if (match == null) return;
+
+            int instanceId = trigger.GetInstanceID();
+
+            if (enterInstanceId.HasValue && enterInstanceId.Value == instanceId) return;
+
+            Debug.Log($"OnTriggerEnter : {trigger.name} Tag : {trigger.tag}");
+            
+            exitInstanceId = null;
+            enterInstanceId = instanceId;
 
             OnPressed();
             onPressed?.Invoke();
@@ -78,6 +88,15 @@ namespace SimonSays
             var match = tags.FirstOrDefault(t => t.Equals(trigger.tag));
             
             if (match == null) return;
+
+            int instanceId = trigger.GetInstanceID();
+
+            if (exitInstanceId.HasValue && exitInstanceId.Value == instanceId) return;
+
+            Debug.Log($"OnTriggerExit : {trigger.name} Tag : {trigger.tag}");
+
+            enterInstanceId = null;
+            exitInstanceId = instanceId;
 
             OnReleased();
             onReleased?.Invoke();

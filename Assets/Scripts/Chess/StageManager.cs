@@ -1,5 +1,3 @@
-using UnityEngine;
-
 namespace Chess
 {
     public class StageManager
