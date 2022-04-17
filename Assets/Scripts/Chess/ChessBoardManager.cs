@@ -32,6 +32,7 @@ namespace Chess
         [SerializeField] Material outOfScopeMaterial;
         [SerializeField] Material inFocusMaterial;
         [SerializeField] Material selectedMaterial;
+        [SerializeField] Material underThreatMaterial;
 
         [Header("Config")]
         [SerializeField] PlayMode playMode;
@@ -492,16 +493,35 @@ namespace Chess
 
         private void OnPreviewEvent(PreviewManager manager, FocusType focusType)
         {
-            switch (focusType)
+            if (TryGetCell(manager.transform.localPosition, out Cell cell))
             {
-                case FocusType.OnFocusGained:
-                    manager.SetMesh(inFocusPiece.Mesh, inFocusPiece.transform.localRotation);
-                    inFocusPreview = manager;
-                    break;
+                switch (focusType)
+                {
+                    case FocusType.OnFocusGained:
+                        if (cell.IsOccupied)
+                        {
+                            cell.piece.ApplyMaterial(underThreatMaterial);
+                        }
+                        else
+                        {
+                            manager.SetMesh(inFocusPiece.Mesh, inFocusPiece.transform.localRotation);
+                        }
+                
+                        inFocusPreview = manager;
+                        break;
 
-                case FocusType.OnFocusLost:
-                    manager.SetMesh(null, Quaternion.identity);
-                    break;
+                    case FocusType.OnFocusLost:
+                        if (cell.IsOccupied)
+                        {
+                            cell.piece.UseDefaultMaterial();
+                        }
+                        else
+                        {
+                            manager.SetMesh(null, Quaternion.identity);
+                        }
+
+                        break;
+                }
             }
         }
 
@@ -731,6 +751,28 @@ namespace Chess
         }
 
         localPosition = default(Vector3);
+        return false;
+    }
+
+    public bool TryGetCell(Vector3 localPosition, out Cell cell)
+    {
+        for (int y = 0 ; y <= maxRowIdx ; y++)
+        {
+            for (int x = 0 ; x <= maxColumnIdx ; x++)
+            {
+                cell = matrix[x, y];
+                Vector3 cellPosition = ChessMath.RoundVector3(cell.localPosition);
+                Vector3 queryPosition = ChessMath.RoundVector3(localPosition);
+
+                // if (Vector3.ReferenceEquals(cellPosition, queryPosition))
+                if ((cellPosition.x == queryPosition.x) && (cellPosition.y == queryPosition.y) && (cellPosition.z == queryPosition.z))
+                {
+                    return true;
+                }
+            }
+        }
+
+        cell = default(Cell);
         return false;
     }
 
