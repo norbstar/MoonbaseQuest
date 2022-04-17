@@ -5,6 +5,9 @@ public class SpawnPointManager : MonoBehaviour
     [Header("Components")]
     [SerializeField] LineRenderer line;
 
+    [Header("Config")]
+    [SerializeField] float lineWidth = 0.01f;
+
     public bool EnableLine
     {
         get
@@ -20,7 +23,7 @@ public class SpawnPointManager : MonoBehaviour
 
     void Start()
     {
-        line.startWidth = line.endWidth = 0.015f;
+        line.startWidth = line.endWidth = lineWidth;
         line.positionCount = 2;
     }
 

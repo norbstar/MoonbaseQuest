@@ -91,11 +91,9 @@ namespace Chess.Pieces
         private new Rigidbody rigidbody;
         private new Collider collider;
         private Material defaultMaterial;
-        private Color defaultMaterialColor;
         private Quaternion originalRotation;
         private Cell homeCell;
         private Cell activeCell;
-        // private bool isMoving;
         
         void Awake()
         {
@@ -106,7 +104,6 @@ namespace Chess.Pieces
             
             originalRotation = transform.localRotation;
             defaultMaterial = renderer.material;
-            defaultMaterialColor = renderer.material.color;
         }
 
         private void ResolveDependencies()
@@ -116,14 +113,6 @@ namespace Chess.Pieces
             rigidbody = GetComponent<Rigidbody>() as Rigidbody;
             collider = GetComponent<Collider>() as Collider;
         }
-
-        // void Update()
-        // {
-        //     if (isMoving)
-        //     {
-
-        //     }
-        // }
 
 #if false
         public void TestRealtiveKingVectors()
@@ -217,11 +206,17 @@ namespace Chess.Pieces
 
         public Mesh Mesh { get { return filter.mesh; } }
 
+        public void HideMesh() => renderer.enabled = false;
+
+        public void ShowMesh() => renderer.enabled = true;
+
         public void GainedFocus(GameObject gameObject) => EventReceived?.Invoke(this, FocusType.OnFocusGained);
 
         public void LostFocus(GameObject gameObject) => EventReceived?.Invoke(this, FocusType.OnFocusLost);
 
         public void ApplyMaterial(Material material) => renderer.material = material;
+
+        public Material Material { get { return renderer.material; } }
 
         public void UseDefaultMaterial() => ApplyMaterial(defaultMaterial);
 

@@ -36,7 +36,7 @@ namespace Chess
         [SerializeField] Material outOfScopeMaterial;
         [SerializeField] Material inFocusMaterial;
         [SerializeField] Material selectedMaterial;
-        [SerializeField] Material underThreatMaterial;
+        // [SerializeField] Material underThreatMaterial;
 
         [Header("Config")]
         [SerializeField] PlayMode playMode;
@@ -510,11 +510,13 @@ namespace Chess
                     case FocusType.OnFocusGained:
                         if (cell.IsOccupied)
                         {
-                            cell.piece.ApplyMaterial(underThreatMaterial);
+                            // cell.piece.ApplyMaterial(underThreatMaterial);
+                            cell.piece.HideMesh();
+                            manager.ShowFixedMesh(cell.piece.transform.localRotation, cell.piece.Material);
                         }
                         else
                         {
-                            manager.SetMesh(inFocusPiece.Mesh, inFocusPiece.transform.localRotation);
+                            manager.SetCustomMesh(inFocusPiece.Mesh, inFocusPiece.transform.localRotation);
                         }
                 
                         inFocusPreview = manager;
@@ -523,12 +525,11 @@ namespace Chess
                     case FocusType.OnFocusLost:
                         if (cell.IsOccupied)
                         {
-                            cell.piece.UseDefaultMaterial();
+                            // cell.piece.UseDefaultMaterial();
+                            cell.piece.ShowMesh();
                         }
-                        else
-                        {
-                            manager.SetMesh(null, Quaternion.identity);
-                        }
+
+                        manager.HideMesh();
 
                         break;
                 }

@@ -5,7 +5,8 @@ namespace Chess.Preview
     public class PreviewManager : MonoBehaviour, IFocus
     {
         [Header("Components")]
-        [SerializeField] MeshFilter preview;
+        [SerializeField] MeshFilter customMeshFilter;
+        [SerializeField] MeshFilter fixedMeshFilter;
 
         public delegate void Event(PreviewManager manager, FocusType focusType);
         public static event Event EventReceived;
@@ -31,10 +32,48 @@ namespace Chess.Preview
             transform.localPosition = cell.localPosition;
         }
 
-        public void SetMesh(Mesh mesh, Quaternion rotation)
+        public void SetCustomMesh(Mesh mesh, Quaternion rotation, Material material = null)
         {
+            if (mesh != null)
+            {
+                Debug.Log($"SetCustomMesh Mesh : {mesh.name}");
+            }
+            else
+            {
+                Debug.Log($"SetCustomMesh");
+            }
+
             transform.rotation = rotation;
-            preview.mesh = mesh;
+            customMeshFilter.mesh = mesh;
+
+            if (material != null)
+            {
+                customMeshFilter.GetComponent<MeshRenderer>().material = material;
+            }
+
+            customMeshFilter.gameObject.SetActive(true);
+        }
+
+        public void ShowFixedMesh(Quaternion rotation, Material material = null)
+        {
+            Debug.Log($"ShowFixedMesh");
+
+            transform.rotation = rotation;
+
+            if (material != null)
+            {
+                fixedMeshFilter.GetComponent<MeshRenderer>().material = material;
+            }
+
+            fixedMeshFilter.gameObject.SetActive(true);
+        }
+
+        public void HideMesh()
+        {
+            Debug.Log($"HideMesh");
+
+            customMeshFilter.gameObject.SetActive(false);
+            fixedMeshFilter.gameObject.SetActive(false);
         }
 
         public void GainedFocus(GameObject gameObject) => EventReceived?.Invoke(this, FocusType.OnFocusGained);
