@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace Chess.Pieces
 {
+    [RequireComponent(typeof(Outline))]
     public abstract class PieceManager : MonoBehaviour, IFocus
     {
         [Header("Components")]
@@ -94,6 +95,7 @@ namespace Chess.Pieces
         private Quaternion originalRotation;
         private Cell homeCell;
         private Cell activeCell;
+        private Outline outline;
         
         void Awake()
         {
@@ -112,6 +114,7 @@ namespace Chess.Pieces
             renderer = GetComponent<MeshRenderer>() as MeshRenderer;
             rigidbody = GetComponent<Rigidbody>() as Rigidbody;
             collider = GetComponent<Collider>() as Collider;
+            outline = GetComponent<Outline>() as Outline;
         }
 
 #if false
@@ -209,6 +212,10 @@ namespace Chess.Pieces
         public void HideMesh() => renderer.enabled = false;
 
         public void ShowMesh() => renderer.enabled = true;
+
+        public void HideOutline() => outline.enabled = false;
+
+        public void ShowOutline() => outline.enabled = true;
 
         public void GainedFocus(GameObject gameObject) => EventReceived?.Invoke(this, FocusType.OnFocusGained);
 
@@ -542,6 +549,7 @@ namespace Chess.Pieces
         public void ResetTheme()
         {
             UseDefaultMaterial();
+            HideOutline();
         }
 
         public virtual void Reset() => ResetTheme();

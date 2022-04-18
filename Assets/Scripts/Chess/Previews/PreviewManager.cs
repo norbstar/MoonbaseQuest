@@ -7,6 +7,7 @@ namespace Chess.Preview
         [Header("Components")]
         [SerializeField] MeshFilter customMeshFilter;
         [SerializeField] MeshFilter fixedMeshFilter;
+        [SerializeField] GameObject skull;
 
         public delegate void Event(PreviewManager manager, FocusType focusType);
         public static event Event EventReceived;
@@ -56,6 +57,10 @@ namespace Chess.Preview
 
             fixedMeshFilter.gameObject.SetActive(true);
         }
+
+        public void ShowSkull() => skull.SetActive(true);
+
+        public void HideSkull() => skull.SetActive(false);
 
         public void HideMesh()
         {

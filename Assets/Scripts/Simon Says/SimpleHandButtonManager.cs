@@ -65,8 +65,6 @@ namespace SimonSays
 
             if (enterInstanceId.HasValue && enterInstanceId.Value == instanceId) return;
 
-            Debug.Log($"OnTriggerEnter : {trigger.name} Tag : {trigger.tag}");
-            
             exitInstanceId = null;
             enterInstanceId = instanceId;
 
@@ -92,8 +90,6 @@ namespace SimonSays
             int instanceId = trigger.GetInstanceID();
 
             if (exitInstanceId.HasValue && exitInstanceId.Value == instanceId) return;
-
-            Debug.Log($"OnTriggerExit : {trigger.name} Tag : {trigger.tag}");
 
             enterInstanceId = null;
             exitInstanceId = instanceId;

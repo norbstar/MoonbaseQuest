@@ -388,9 +388,9 @@ namespace Chess
 
         private void CommitToMove(Cell cell)
         {
-            FreePreviews();
+            DestroyPreviews();
             ResetThemes();
-
+            
             coordReferenceCanvas.TextUI = string.Empty;
 
             stageManager.LiveStage = Stage.Moving;
@@ -401,7 +401,8 @@ namespace Chess
         {
             stageManager.LiveStage = Stage.PendingSelect;
             inFocusPiece?.UseDefaultMaterial();
-            FreePreviews();
+            inFocusPiece.HideOutline();
+            DestroyPreviews();
 
             if (playMode == PlayMode.RuleBased)
             {
@@ -419,7 +420,7 @@ namespace Chess
             // TODO
         }
 
-        private void FreePreviews()
+        private void DestroyPreviews()
         {
             foreach (GameObject preview in previews)
             {
@@ -481,7 +482,8 @@ namespace Chess
                 case FocusType.OnFocusGained:
                     if ((playMode == PlayMode.RuleBased) && (piece.Set != activeSet)) return;
 
-                    piece.ApplyMaterial(inFocusMaterial);
+                    // piece.ApplyMaterial(inFocusMaterial);
+                    piece.ShowOutline();
 
                     if (TryGets.TryGetCoordReference(piece.ActiveCell.coord, out string reference))
                     {
@@ -497,6 +499,7 @@ namespace Chess
                     if (stageManager.LiveStage == Stage.Selected) return;
                     
                     piece.UseDefaultMaterial();
+                    piece.HideOutline();
                     coordReferenceCanvas.TextUI = string.Empty;
                     break;
             }
@@ -512,10 +515,11 @@ namespace Chess
                         if (cell.IsOccupied)
                         {
                             cell.piece.HideMesh();
+                            // manager.ShowSkull();
                         }
 
                         manager.SetCustomMesh(inFocusPiece.Mesh, inFocusPiece.transform.localRotation, inFocusPiece.DefaultMaterial /*inFocusPiece.Material*/ /*moveMaterial*/);
-                
+
                         inFocusPreview = manager;
                         break;
 
@@ -523,6 +527,7 @@ namespace Chess
                         if (cell.IsOccupied)
                         {
                             cell.piece.ShowMesh();
+                            // manager.HideSkull();
                         }
 
                         manager.HideMesh();
