@@ -37,6 +37,7 @@ namespace Chess
         [SerializeField] Material inFocusMaterial;
         [SerializeField] Material selectedMaterial;
         // [SerializeField] Material underThreatMaterial;
+        // [SerializeField] Material moveMaterial;
 
         [Header("Config")]
         [SerializeField] PlayMode playMode;
@@ -51,7 +52,7 @@ namespace Chess
         [SerializeField] OppositionMode oppositionMode;
         public OppositionMode OppositionMode { get { return oppositionMode; } }
 
-        [SerializeField] GameObject placementPreviewPrefab;
+        [SerializeField] GameObject previewPrefab;
 
         public static int MatrixRows = 8;
         public static int MatrixColumns = 8;
@@ -367,7 +368,7 @@ namespace Chess
                 {
                     foreach (Cell cell in cells)
                     {
-                        var preview = GameObject.Instantiate(placementPreviewPrefab, Vector3.zero, Quaternion.identity, setManager.transform);
+                        var preview = GameObject.Instantiate(previewPrefab, Vector3.zero, Quaternion.identity, setManager.transform);
                         var manager = preview.GetComponent<PreviewManager>() as PreviewManager;
                         manager.PlaceAtCell(cell);
                         
@@ -393,6 +394,7 @@ namespace Chess
             coordReferenceCanvas.TextUI = string.Empty;
 
             stageManager.LiveStage = Stage.Moving;
+            // inFocusPiece.ShowMesh();
             inFocusPiece.GoToCell(cell, moveStyle);
         }
 
@@ -400,6 +402,7 @@ namespace Chess
         {
             stageManager.LiveStage = Stage.PendingSelect;
             inFocusPiece?.UseDefaultMaterial();
+            // inFocusPiece.ShowMesh();
             FreePreviews();
 
             if (playMode == PlayMode.RuleBased)
@@ -508,16 +511,22 @@ namespace Chess
                 switch (focusType)
                 {
                     case FocusType.OnFocusGained:
+                        // inFocusPiece.HideMesh();
+
                         if (cell.IsOccupied)
                         {
                             // cell.piece.ApplyMaterial(underThreatMaterial);
                             cell.piece.HideMesh();
-                            manager.ShowFixedMesh(cell.piece.transform.localRotation, cell.piece.Material);
+                            // manager.ShowFixedMesh(cell.piece.transform.localRotation, cell.piece.Material);
+                            // manager.SetCustomMesh(inFocusPiece.Mesh, inFocusPiece.transform.localRotation, inFocusPiece.Material);
                         }
-                        else
-                        {
-                            manager.SetCustomMesh(inFocusPiece.Mesh, inFocusPiece.transform.localRotation);
-                        }
+                        // else
+                        // {
+                            // manager.SetCustomMesh(inFocusPiece.Mesh, inFocusPiece.transform.localRotation);
+                            // manager.SetCustomMesh(inFocusPiece.Mesh, inFocusPiece.transform.localRotation, inFocusPiece.Material);
+                        // }
+
+                        manager.SetCustomMesh(inFocusPiece.Mesh, inFocusPiece.transform.localRotation, inFocusPiece.DefaultMaterial/*moveMaterial*/);
                 
                         inFocusPreview = manager;
                         break;
@@ -529,6 +538,7 @@ namespace Chess
                             cell.piece.ShowMesh();
                         }
 
+                        // inFocusPiece.ShowMesh();
                         manager.HideMesh();
 
                         break;

@@ -27,9 +27,9 @@ public class SpawnPointManager : MonoBehaviour
         line.positionCount = 2;
     }
 
-    public void ConfigLine(Vector3 endPoint)
+    public void ConfigLine(Vector3 endPoint, Vector3 vector)
     {
         Vector3 startPoint = transform.position;
-        line.SetPositions(new Vector3[] { startPoint, endPoint });
+        line.SetPositions(new Vector3[] { startPoint + (vector * 0.1f), endPoint - (vector * 0.025f) });
     }
 }

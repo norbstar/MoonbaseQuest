@@ -29,20 +29,13 @@ namespace Chess.Preview
         public void PlaceAtCell(Cell cell)
         {
             this.cell = cell;
-            transform.localPosition = cell.localPosition;
+
+            Debug.Log($"PlaceAtCell Cell Local Position : {cell.localPosition} Preview Local Position : {transform.localPosition}");
+            transform.localPosition = new Vector3(cell.localPosition.x, cell.localPosition.y, cell.localPosition.z);
         }
 
         public void SetCustomMesh(Mesh mesh, Quaternion rotation, Material material = null)
         {
-            if (mesh != null)
-            {
-                Debug.Log($"SetCustomMesh Mesh : {mesh.name}");
-            }
-            else
-            {
-                Debug.Log($"SetCustomMesh");
-            }
-
             transform.rotation = rotation;
             customMeshFilter.mesh = mesh;
 
@@ -56,8 +49,6 @@ namespace Chess.Preview
 
         public void ShowFixedMesh(Quaternion rotation, Material material = null)
         {
-            Debug.Log($"ShowFixedMesh");
-
             transform.rotation = rotation;
 
             if (material != null)
@@ -70,8 +61,6 @@ namespace Chess.Preview
 
         public void HideMesh()
         {
-            Debug.Log($"HideMesh");
-
             customMeshFilter.gameObject.SetActive(false);
             fixedMeshFilter.gameObject.SetActive(false);
         }

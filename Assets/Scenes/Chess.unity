@@ -2568,10 +2568,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1352412131}
     - target: {fileID: 1813446090752762579, guid: 171924c1571199441855e30650381e00, type: 3}
-      propertyPath: gravestoneMesh
-      value: 
-      objectReference: {fileID: -1330367727831327366, guid: 5804c5081861f124a9e83bf3a89c1efc, type: 3}
-    - target: {fileID: 1813446090752762579, guid: 171924c1571199441855e30650381e00, type: 3}
       propertyPath: leftController
       value: 
       objectReference: {fileID: 737322306}
@@ -3674,7 +3670,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38454c8064f182744be220b5a1c5b587, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  preview: {fileID: 4810269981061519217}
+  customMeshFilter: {fileID: 0}
+  fixedMeshFilter: {fileID: 0}
 --- !u!1 &5152377059526848933
 GameObject:
   m_ObjectHideFlags: 0

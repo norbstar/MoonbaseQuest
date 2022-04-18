@@ -91,7 +91,7 @@ public class HybridHandController : HandController
         bool hitDetected = Physics.Raycast(ray.origin, ray.direction, out RaycastHit hit, farDistance, interactableLayerMask);
         GameObject objectHit = null;
         Vector3 point = default(Vector3);
-        Vector3 direction = Vector3.zero;
+        Vector3 vector = Vector3.zero;
 
         bool isValid = false;
 
@@ -99,7 +99,7 @@ public class HybridHandController : HandController
         {
             objectHit = hit.transform.gameObject;
             point = hit.point;
-            direction = (point - hit.transform.position).normalized;
+            vector = (point - spawnPoint.transform.position).normalized;
 
             float distanceToPoint = Vector3.Distance(transform.position, point);
             isValid = (distanceToPoint >= nearDistance);
@@ -123,16 +123,15 @@ public class HybridHandController : HandController
             if (hitPrefabInstance == null)
             {
                 hitPrefabInstance = Instantiate(hitPrefab, point, objectHit.transform.rotation);
-                spawnPoint.ConfigLine(point);
-                spawnPoint.EnableLine = true;
             }
             else
             {
                 hitPrefabInstance.transform.position = point;
-                hitPrefabInstance.SetActive(true);
-                spawnPoint.ConfigLine(point);
-                spawnPoint.EnableLine = true;
             }
+
+            hitPrefabInstance.SetActive(true);                
+            spawnPoint.ConfigLine(point, vector);
+            spawnPoint.EnableLine = true;
         }
 
         if (!GameObject.ReferenceEquals(objectHit, lastObjectHit))

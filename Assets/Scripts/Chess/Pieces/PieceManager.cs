@@ -216,6 +216,8 @@ namespace Chess.Pieces
 
         public void ApplyMaterial(Material material) => renderer.material = material;
 
+        public Material DefaultMaterial { get { return defaultMaterial; } }
+        
         public Material Material { get { return renderer.material; } }
 
         public void UseDefaultMaterial() => ApplyMaterial(defaultMaterial);
