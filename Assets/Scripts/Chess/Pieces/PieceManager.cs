@@ -583,6 +583,7 @@ namespace Chess.Pieces
                     cell.piece.transform.localPosition = localPosition;
                     cell.piece.EnableInteractions(false);
                     cell.piece.ActiveCell = null;
+                    cell.piece.ShowMesh();
                     cell.piece = null;
                 }
             }

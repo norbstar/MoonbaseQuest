@@ -368,8 +368,8 @@ namespace Chess
                 {
                     foreach (Cell cell in cells)
                     {
-                        var preview = GameObject.Instantiate(previewPrefab, Vector3.zero, Quaternion.identity, setManager.transform);
-                        var manager = preview.GetComponent<PreviewManager>() as PreviewManager;
+                        var preview = GameObject.Instantiate(previewPrefab, setManager.transform.position, Quaternion.identity, setManager.transform);
+                        var manager = preview.GetComponentInChildren<PreviewManager>() as PreviewManager;
                         manager.PlaceAtCell(cell);
                         
                         preview.transform.parent = transform;
@@ -394,7 +394,6 @@ namespace Chess
             coordReferenceCanvas.TextUI = string.Empty;
 
             stageManager.LiveStage = Stage.Moving;
-            // inFocusPiece.ShowMesh();
             inFocusPiece.GoToCell(cell, moveStyle);
         }
 
@@ -402,7 +401,6 @@ namespace Chess
         {
             stageManager.LiveStage = Stage.PendingSelect;
             inFocusPiece?.UseDefaultMaterial();
-            // inFocusPiece.ShowMesh();
             FreePreviews();
 
             if (playMode == PlayMode.RuleBased)
@@ -511,22 +509,12 @@ namespace Chess
                 switch (focusType)
                 {
                     case FocusType.OnFocusGained:
-                        // inFocusPiece.HideMesh();
-
                         if (cell.IsOccupied)
                         {
-                            // cell.piece.ApplyMaterial(underThreatMaterial);
                             cell.piece.HideMesh();
-                            // manager.ShowFixedMesh(cell.piece.transform.localRotation, cell.piece.Material);
-                            // manager.SetCustomMesh(inFocusPiece.Mesh, inFocusPiece.transform.localRotation, inFocusPiece.Material);
                         }
-                        // else
-                        // {
-                            // manager.SetCustomMesh(inFocusPiece.Mesh, inFocusPiece.transform.localRotation);
-                            // manager.SetCustomMesh(inFocusPiece.Mesh, inFocusPiece.transform.localRotation, inFocusPiece.Material);
-                        // }
 
-                        manager.SetCustomMesh(inFocusPiece.Mesh, inFocusPiece.transform.localRotation, inFocusPiece.DefaultMaterial/*moveMaterial*/);
+                        manager.SetCustomMesh(inFocusPiece.Mesh, inFocusPiece.transform.localRotation, inFocusPiece.DefaultMaterial /*inFocusPiece.Material*/ /*moveMaterial*/);
                 
                         inFocusPreview = manager;
                         break;
@@ -534,11 +522,9 @@ namespace Chess
                     case FocusType.OnFocusLost:
                         if (cell.IsOccupied)
                         {
-                            // cell.piece.UseDefaultMaterial();
                             cell.piece.ShowMesh();
                         }
 
-                        // inFocusPiece.ShowMesh();
                         manager.HideMesh();
 
                         break;
@@ -785,8 +771,7 @@ namespace Chess
                 Vector3 cellPosition = ChessMath.RoundVector3(cell.localPosition);
                 Vector3 queryPosition = ChessMath.RoundVector3(localPosition);
 
-                // if (Vector3.ReferenceEquals(cellPosition, queryPosition))
-                if ((cellPosition.x == queryPosition.x) && (cellPosition.y == queryPosition.y) && (cellPosition.z == queryPosition.z))
+                if ((cellPosition.x == queryPosition.x) && (cellPosition.z == queryPosition.z))
                 {
                     return true;
                 }

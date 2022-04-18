@@ -29,9 +29,7 @@ namespace Chess.Preview
         public void PlaceAtCell(Cell cell)
         {
             this.cell = cell;
-
-            Debug.Log($"PlaceAtCell Cell Local Position : {cell.localPosition} Preview Local Position : {transform.localPosition}");
-            transform.localPosition = new Vector3(cell.localPosition.x, cell.localPosition.y, cell.localPosition.z);
+            transform.localPosition = new Vector3(cell.localPosition.x, transform.localPosition.y, cell.localPosition.z);
         }
 
         public void SetCustomMesh(Mesh mesh, Quaternion rotation, Material material = null)
