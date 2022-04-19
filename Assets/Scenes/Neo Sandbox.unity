@@ -472,6 +472,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51f3f21322aed7845a274fae22f6df81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enableLogging: 0
   pointMaps:
   - transforms:
     - {fileID: 231903451}
@@ -501,7 +502,6 @@ MonoBehaviour:
     - {fileID: 1575731999}
     - {fileID: 1291507658}
     value: 9
-  enableLogging: 0
 --- !u!114 &83361919
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -514,11 +514,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0daa98f4c36d304fa1797f919e589fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enableLogging: 0
   hitClip: {fileID: 8300000, guid: b7432c1f088507f41a1da1be2c9b2b02, type: 3}
+  autoDestroy: 1
   surfaceImpactPrefab: {fileID: 1040040228443029992, guid: d34092b4be62dea48bce7e1ec8d02de0, type: 3}
+  destroyAfter: 1
+  impactLimit: 10
   scoreCanvasManager: {fileID: 948725691}
   points: 10
-  enableLogging: 0
 --- !u!54 &83361920
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -13887,8 +13890,6 @@ MonoBehaviour:
   focusableUI: {fileID: 0}
   smokeDelay: 3
   band: {fileID: 107207501}
-  showHits: 1
-  hitPrefab: {fileID: 6110918014904403394, guid: 5d95586bfd9e933439d256446fab489c, type: 3}
   releaseClip: {fileID: 8300000, guid: b48d2493e5f8d524e81b3e2ee8462040, type: 3}
   detinationClip: {fileID: 8300000, guid: 5169b2df7ab498c44869a4fdbe1e238f, type: 3}
   particleSystem: {fileID: 329059041}
@@ -22246,76 +22247,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1873382178}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &1886011988 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7830393975865850524, guid: f8848fc8a98e75f48a146527456cfcbf, type: 3}
-  m_PrefabInstance: {fileID: 1958882041}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1886011989 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7830393975865850525, guid: f8848fc8a98e75f48a146527456cfcbf, type: 3}
   m_PrefabInstance: {fileID: 1958882041}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1886011990
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1886011988}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 948f4100a11a5c24981795d21301da5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  volumeTrigger: {fileID: 1886011989}
-  volumeLayer:
-    serializedVersion: 2
-    m_Bits: 1024
-  stopNaNPropagation: 1
-  finalBlitToCameraTarget: 0
-  antialiasingMode: 0
-  temporalAntialiasing:
-    jitterSpread: 0.75
-    sharpness: 0.25
-    stationaryBlending: 0.95
-    motionBlending: 0.85
-  subpixelMorphologicalAntialiasing:
-    quality: 2
-  fastApproximateAntialiasing:
-    fastMode: 0
-    keepAlpha: 0
-  fog:
-    enabled: 1
-    excludeSkybox: 1
-  debugLayer:
-    lightMeter:
-      width: 512
-      height: 256
-      showCurves: 1
-    histogram:
-      width: 512
-      height: 256
-      channel: 3
-    waveform:
-      exposure: 0.12
-      height: 256
-    vectorscope:
-      size: 256
-      exposure: 0.12
-    overlaySettings:
-      linearDepth: 0
-      motionColorIntensity: 4
-      motionGridSize: 64
-      colorBlindnessType: 0
-      colorBlindnessStrength: 1
-  m_Resources: {fileID: 0}
-  m_ShowToolkit: 0
-  m_ShowCustomSorter: 0
-  breakBeforeColorGrading: 0
-  m_BeforeTransparentBundles: []
-  m_BeforeStackBundles: []
-  m_AfterStackBundles: []
 --- !u!1 &1887047584
 GameObject:
   m_ObjectHideFlags: 0
@@ -25510,7 +25446,7 @@ HingeJoint:
   m_Anchor: {x: 0, y: 0, z: 5.5}
   m_Axis: {x: 0, y: 0, z: 1}
   m_AutoConfigureConnectedAnchor: 1
-  m_ConnectedAnchor: {x: 1.5000001, y: 1.1000001, z: 1.4210855e-14}
+  m_ConnectedAnchor: {x: 1.0000001, y: 1.1000001, z: -2}
   m_UseSpring: 1
   m_Spring:
     spring: 0

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,6 +17,7 @@ using Chess.Preview;
 
 namespace Chess
 {
+    [RequireComponent(typeof(AudioSource))]
     public class ChessBoardManager : MonoBehaviour
     {
         [Header("Camera")]
@@ -29,8 +31,13 @@ namespace Chess
         [SerializeField] ChessBoardSetManager setManager;
         public ChessBoardSetManager SetManager { get { return setManager; } }
 
+        [Header("Audio")]
+        [SerializeField] AudioClip adjustBoardHeightClip;
+
         [SerializeField] CoordReferenceCanvas coordReferenceCanvas;
-        [SerializeField] ButtonEventManager resetButton;
+        // [SerializeField] ButtonEventManager resetButton;
+        // [SerializeField] ButtonEventManager lowerTableButton;
+        // [SerializeField] ButtonEventManager raiseTableButton;
 
         [Header("Materials")]
         [SerializeField] Material outOfScopeMaterial;
@@ -53,6 +60,7 @@ namespace Chess
         public OppositionMode OppositionMode { get { return oppositionMode; } }
 
         [SerializeField] GameObject previewPrefab;
+        [SerializeField] float adjustTableSpeed = 0.5f;
 
         public static int MatrixRows = 8;
         public static int MatrixColumns = 8;
@@ -69,6 +77,10 @@ namespace Chess
         private int maxRowIdx = MatrixRows - 1;
         private int maxColumnIdx = MatrixColumns - 1;
         private List<GameObject> previews;
+        private float lowerYTableBounds = 0.25f;
+        private float upperYTableBounds = 0.75f;
+        private Coroutine coroutine;
+        private AudioSource audioSource;
 
         void Awake()
         {
@@ -87,6 +99,7 @@ namespace Chess
         private void ResolveDependencies()
         {
             cameraManager = camera.GetComponent<TrackingMainCameraManager>() as TrackingMainCameraManager;
+            audioSource = GetComponent<AudioSource>() as AudioSource;
         }
 
         // Start is called before the first frame update
@@ -126,6 +139,24 @@ namespace Chess
                 {
                     case ButtonEventManager.Id.Reset:
                         ResetBoard();
+                        break;
+
+                    case ButtonEventManager.Id.LowerTable:
+                        LowerTable();
+                        break;
+
+                    case ButtonEventManager.Id.RaiseTable:
+                        RaiseTable();
+                        break;
+                }
+            }
+            else if (eventType == ButtonEventType.OnReleased)
+            {
+                switch (id)
+                {
+                    case ButtonEventManager.Id.LowerTable:
+                    case ButtonEventManager.Id.RaiseTable:
+                        LockTable();
                         break;
                 }
             }
@@ -413,6 +444,11 @@ namespace Chess
 
                 AdjustChessPieceInteractableLayer(activeSet, true);
             }
+
+            if (TryGets.TryGetCoordReference(inFocusPiece.ActiveCell.coord, out string reference))
+            {
+                coordReferenceCanvas.TextUI = reference;
+            }
         }
 
         private void OnGameOver()
@@ -441,6 +477,52 @@ namespace Chess
                 piece.Reset();
                 piece.GoHome(moveStyle);
             }
+        }
+
+        private void LowerTable() => coroutine = StartCoroutine(LowerBoardCoroutine(adjustTableSpeed));
+
+        private IEnumerator LowerBoardCoroutine(float movementSpeed)
+        {
+            Vector3 targetPosition = new Vector3(transform.localPosition.x, lowerYTableBounds, transform.localPosition.z);
+            
+            audioSource.clip = adjustBoardHeightClip;
+            audioSource.Play();
+
+            while (transform.localPosition != targetPosition)
+            {
+                transform.localPosition = Vector3.MoveTowards(transform.localPosition, targetPosition, movementSpeed * Time.deltaTime);
+                yield return null;
+            }
+
+            audioSource.Stop();
+        }
+
+        private void RaiseTable() => coroutine = StartCoroutine(RaiseBoardCoroutine(adjustTableSpeed));
+
+        private IEnumerator RaiseBoardCoroutine(float movementSpeed)
+        {
+            Vector3 targetPosition = new Vector3(transform.localPosition.x, upperYTableBounds, transform.localPosition.z);
+            
+            audioSource.clip = adjustBoardHeightClip;
+            audioSource.Play();
+
+            while (transform.localPosition != targetPosition)
+            {
+                transform.localPosition = Vector3.MoveTowards(transform.localPosition, targetPosition, movementSpeed * Time.deltaTime);
+                yield return null;
+            }
+
+            audioSource.Stop();
+        }
+
+        private void LockTable()
+        {
+            if (coroutine != null)
+            {
+                StopCoroutine(coroutine);
+            }
+
+            audioSource.Stop();
         }
 
         private void OnMoveEvent(PieceManager piece)
@@ -509,6 +591,8 @@ namespace Chess
         {
             if (TryGetCell(manager.transform.localPosition, out Cell cell))
             {
+                string reference, moveReference;
+
                 switch (focusType)
                 {
                     case FocusType.OnFocusGained:
@@ -516,9 +600,18 @@ namespace Chess
                         {
                             cell.piece.HideMesh();
                             // manager.ShowSkull();
+                            // manager.SetOutlineColor(Color.red);
                         }
 
                         manager.SetCustomMesh(inFocusPiece.Mesh, inFocusPiece.transform.localRotation, inFocusPiece.DefaultMaterial /*inFocusPiece.Material*/ /*moveMaterial*/);
+
+                        if (TryGets.TryGetCoordReference(inFocusPiece.ActiveCell.coord, out reference))
+                        {
+                            if (TryGets.TryGetCoordReference(cell.coord, out moveReference))
+                            {
+                                coordReferenceCanvas.TextUI = $"{reference} to {moveReference}";
+                            }
+                        }
 
                         inFocusPreview = manager;
                         break;
@@ -528,9 +621,15 @@ namespace Chess
                         {
                             cell.piece.ShowMesh();
                             // manager.HideSkull();
+                            // manager.ApplyDefaultOutlineColor();
                         }
 
                         manager.HideMesh();
+
+                        if (TryGets.TryGetCoordReference(inFocusPiece.ActiveCell.coord, out reference))
+                        {
+                            coordReferenceCanvas.TextUI = reference;
+                        }
 
                         break;
                 }

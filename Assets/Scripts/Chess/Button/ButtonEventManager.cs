@@ -8,7 +8,9 @@ namespace Chess.Button
         
         public enum Id
         {
-            Reset
+            Reset,
+            LowerTable,
+            RaiseTable
         }
 
         public delegate void Event(Id id, ButtonEventType eventType);
