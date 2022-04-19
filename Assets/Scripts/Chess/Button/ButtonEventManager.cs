@@ -10,7 +10,8 @@ namespace Chess.Button
         {
             Reset,
             LowerTable,
-            RaiseTable
+            RaiseTable,
+            LaunchScene
         }
 
         public delegate void Event(Id id, ButtonEventType eventType);
