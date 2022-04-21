@@ -14,13 +14,13 @@ public class HoloChessLaunchManager : MonoBehaviour
         ButtonEventManager.EventReceived -= OnButtonEvent;
     }
 
-    private void OnButtonEvent(ButtonEventManager.Id id, ButtonEventType eventType)
+    private void OnButtonEvent(ButtonEventManager manager, ButtonEventManager.ButtonId id, ButtonEventType eventType)
     {
         if (eventType == ButtonEventType.OnPressed)
         {
             switch (id)
             {
-                case ButtonEventManager.Id.LaunchScene:
+                case ButtonEventManager.ButtonId.LaunchScene:
                     UnityEngine.SceneManagement.SceneManager.LoadScene("Chess");
                     break;
             }
@@ -29,7 +29,7 @@ public class HoloChessLaunchManager : MonoBehaviour
         {
             switch (id)
             {
-                case ButtonEventManager.Id.LaunchScene:
+                case ButtonEventManager.ButtonId.LaunchScene:
                     break;
             }
         }

@@ -4,21 +4,24 @@ namespace Chess.Button
 {
     public class ButtonEventManager : MonoBehaviour
     {
-        [SerializeField] Id id;
+        [SerializeField] protected ButtonId id;
         
-        public enum Id
+        public enum ButtonId
         {
-            Reset,
             LowerTable,
             RaiseTable,
+            ResetTable,
+            ResetBoard,
+            AudioOn,
+            AudioOff,
             LaunchScene
         }
 
-        public delegate void Event(Id id, ButtonEventType eventType);
+        public delegate void Event(ButtonEventManager manager, ButtonId id, ButtonEventType eventType);
         public static event Event EventReceived;
         
-        public void OnPressed() => EventReceived?.Invoke(id, ButtonEventType.OnPressed);
+        public void OnPressed() => EventReceived?.Invoke(this, id, ButtonEventType.OnPressed);
 
-        public void OnReleased() => EventReceived?.Invoke(id, ButtonEventType.OnReleased);
+        public void OnReleased() => EventReceived?.Invoke(this, id, ButtonEventType.OnReleased);
     }
 }

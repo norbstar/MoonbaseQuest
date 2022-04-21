@@ -32,19 +32,22 @@ namespace Chess
         public ChessBoardSetManager SetManager { get { return setManager; } }
 
         [Header("Audio")]
-        [SerializeField] AudioClip adjustBoardHeightClip;
+        [SerializeField] AudioClip adjustTableHeightClip;
 
+        [Header("Canvases")]
         [SerializeField] CoordReferenceCanvas coordReferenceCanvas;
-        // [SerializeField] ButtonEventManager resetButton;
-        // [SerializeField] ButtonEventManager lowerTableButton;
-        // [SerializeField] ButtonEventManager raiseTableButton;
+
+        [Header("Pieces")]
+        [Range(15f, 35f)]
+        [SerializeField] float pieceRotationSpeed = 25f;
+
+        [Range(0.1f, 25f)]
+        [SerializeField] float pieceMoveSpeed = 5f;
 
         [Header("Materials")]
         [SerializeField] Material outOfScopeMaterial;
         [SerializeField] Material inFocusMaterial;
         [SerializeField] Material selectedMaterial;
-        // [SerializeField] Material underThreatMaterial;
-        // [SerializeField] Material moveMaterial;
 
         [Header("Config")]
         [SerializeField] PlayMode playMode;
@@ -52,6 +55,9 @@ namespace Chess
 
         [SerializeField] MoveStyle moveStyle;
         public MoveStyle MoveStyle { get { return moveStyle; } }
+
+        [SerializeField] MoveType moveType;
+        public MoveType MoveType { get { return moveType; } }
 
         [SerializeField] EngagementMode engagementMode;
         public EngagementMode EngagementMode { get { return engagementMode; } }
@@ -66,6 +72,7 @@ namespace Chess
         public static int MatrixColumns = 8;
 
         private TrackingMainCameraManager cameraManager;
+        private AudioSource cameraAudioSource;
         private Cell[,] matrix;
         private int onHomeEventsPending;
         private Set activeSet;
@@ -77,6 +84,7 @@ namespace Chess
         private int maxRowIdx = MatrixRows - 1;
         private int maxColumnIdx = MatrixColumns - 1;
         private List<GameObject> previews;
+        private float defaultTableYOffset = 0.5f;
         private float lowerYTableBounds = 0.25f;
         private float upperYTableBounds = 0.75f;
         private Coroutine coroutine;
@@ -99,6 +107,12 @@ namespace Chess
         private void ResolveDependencies()
         {
             cameraManager = camera.GetComponent<TrackingMainCameraManager>() as TrackingMainCameraManager;
+
+            if (cameraManager != null)
+            {
+                cameraAudioSource = cameraManager.GetComponent<AudioSource>() as AudioSource;
+            }
+
             audioSource = GetComponent<AudioSource>() as AudioSource;
         }
 
@@ -131,22 +145,44 @@ namespace Chess
             PreviewManager.EventReceived -= OnPreviewEvent;
         }
 
-        private void OnButtonEvent(ButtonEventManager.Id id, ButtonEventType eventType)
+        private void OnButtonEvent(ButtonEventManager manager, ButtonEventManager.ButtonId id, ButtonEventType eventType)
         {
+            ReassignableButtonEventManager reassignableManager = null;
+
             if (eventType == ButtonEventType.OnPressed)
             {
                 switch (id)
                 {
-                    case ButtonEventManager.Id.Reset:
-                        ResetBoard();
-                        break;
-
-                    case ButtonEventManager.Id.LowerTable:
+                    case ButtonEventManager.ButtonId.LowerTable:
                         LowerTable();
                         break;
 
-                    case ButtonEventManager.Id.RaiseTable:
+                    case ButtonEventManager.ButtonId.RaiseTable:
                         RaiseTable();
+                        break;
+
+                    case ButtonEventManager.ButtonId.ResetTable:
+                        ResetTable();
+                        break;
+
+                    case ButtonEventManager.ButtonId.ResetBoard:
+                        ResetBoard();
+                        break;
+
+                    case ButtonEventManager.ButtonId.AudioOff:
+                        EnableAudio(false);
+
+                        reassignableManager = ((ReassignableButtonEventManager) manager);
+                        reassignableManager.Id = ButtonEventManager.ButtonId.AudioOn;
+                        reassignableManager.Text = "On";
+                        break;
+
+                    case ButtonEventManager.ButtonId.AudioOn:
+                        EnableAudio(true);
+
+                        reassignableManager = ((ReassignableButtonEventManager) manager);
+                        reassignableManager.Id = ButtonEventManager.ButtonId.AudioOff;
+                        reassignableManager.Text = "Off";
                         break;
                 }
             }
@@ -154,8 +190,8 @@ namespace Chess
             {
                 switch (id)
                 {
-                    case ButtonEventManager.Id.LowerTable:
-                    case ButtonEventManager.Id.RaiseTable:
+                    case ButtonEventManager.ButtonId.LowerTable:
+                    case ButtonEventManager.ButtonId.RaiseTable:
                         LockTable();
                         break;
                 }
@@ -417,6 +453,9 @@ namespace Chess
             }
         }
 
+        public float PieceRotationSpeed { get { return pieceRotationSpeed; } }
+        public float PieceMoveSpeed { get { return pieceMoveSpeed; } }
+
         private void CommitToMove(Cell cell)
         {
             DestroyPreviews();
@@ -425,7 +464,7 @@ namespace Chess
             coordReferenceCanvas.TextUI = string.Empty;
 
             stageManager.LiveStage = Stage.Moving;
-            inFocusPiece.GoToCell(cell, moveStyle);
+            inFocusPiece.GoToCell(cell, moveType, moveStyle);
         }
 
         private void CancelIntent()
@@ -475,17 +514,17 @@ namespace Chess
             foreach (PieceManager piece in activePieces)
             {
                 piece.Reset();
-                piece.GoHome(moveStyle);
+                piece.GoHome(moveType, moveStyle);
             }
         }
 
-        private void LowerTable() => coroutine = StartCoroutine(LowerBoardCoroutine(adjustTableSpeed));
+        private void LowerTable() => coroutine = StartCoroutine(LowerTableCoroutine(adjustTableSpeed));
 
-        private IEnumerator LowerBoardCoroutine(float movementSpeed)
+        private IEnumerator LowerTableCoroutine(float movementSpeed)
         {
             Vector3 targetPosition = new Vector3(transform.localPosition.x, lowerYTableBounds, transform.localPosition.z);
             
-            audioSource.clip = adjustBoardHeightClip;
+            audioSource.clip = adjustTableHeightClip;
             audioSource.Play();
 
             while (transform.localPosition != targetPosition)
@@ -497,13 +536,13 @@ namespace Chess
             audioSource.Stop();
         }
 
-        private void RaiseTable() => coroutine = StartCoroutine(RaiseBoardCoroutine(adjustTableSpeed));
+        private void RaiseTable() => coroutine = StartCoroutine(RaiseTableCoroutine(adjustTableSpeed));
 
-        private IEnumerator RaiseBoardCoroutine(float movementSpeed)
+        private IEnumerator RaiseTableCoroutine(float movementSpeed)
         {
             Vector3 targetPosition = new Vector3(transform.localPosition.x, upperYTableBounds, transform.localPosition.z);
             
-            audioSource.clip = adjustBoardHeightClip;
+            audioSource.clip = adjustTableHeightClip;
             audioSource.Play();
 
             while (transform.localPosition != targetPosition)
@@ -514,6 +553,26 @@ namespace Chess
 
             audioSource.Stop();
         }
+
+        private void ResetTable() => coroutine = StartCoroutine(ResetTableCoroutine(adjustTableSpeed));
+
+        private IEnumerator ResetTableCoroutine(float movementSpeed)
+        {
+            Vector3 targetPosition = new Vector3(transform.localPosition.x, defaultTableYOffset, transform.localPosition.z);
+            
+            audioSource.clip = adjustTableHeightClip;
+            audioSource.Play();
+
+            while (transform.localPosition != targetPosition)
+            {
+                transform.localPosition = Vector3.MoveTowards(transform.localPosition, targetPosition, movementSpeed * Time.deltaTime);
+                yield return null;
+            }
+
+            audioSource.Stop();
+        }
+
+        private void EnableAudio(bool enabled) => cameraAudioSource.enabled = enabled;
 
         private void LockTable()
         {
@@ -564,7 +623,6 @@ namespace Chess
                 case FocusType.OnFocusGained:
                     if ((playMode == PlayMode.RuleBased) && (piece.Set != activeSet)) return;
 
-                    // piece.ApplyMaterial(inFocusMaterial);
                     piece.ShowOutline();
 
                     if (TryGets.TryGetCoordReference(piece.ActiveCell.coord, out string reference))
@@ -599,11 +657,9 @@ namespace Chess
                         if (cell.IsOccupied)
                         {
                             cell.piece.HideMesh();
-                            // manager.ShowSkull();
-                            // manager.SetOutlineColor(Color.red);
                         }
 
-                        manager.SetCustomMesh(inFocusPiece.Mesh, inFocusPiece.transform.localRotation, inFocusPiece.DefaultMaterial /*inFocusPiece.Material*/ /*moveMaterial*/);
+                        manager.SetCustomMesh(inFocusPiece.Mesh, inFocusPiece.transform.localRotation, inFocusPiece.DefaultMaterial);
 
                         if (TryGets.TryGetCoordReference(inFocusPiece.ActiveCell.coord, out reference))
                         {
@@ -620,8 +676,6 @@ namespace Chess
                         if (cell.IsOccupied)
                         {
                             cell.piece.ShowMesh();
-                            // manager.HideSkull();
-                            // manager.ApplyDefaultOutlineColor();
                         }
 
                         manager.HideMesh();
