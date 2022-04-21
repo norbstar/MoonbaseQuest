@@ -34,7 +34,7 @@ public class HybridHandController : HandController
         base.Awake();
         ResolveLocalDependencies();
 
-        interactableLayerMask = LayerMask.GetMask("Interactable Layer");
+        interactableLayerMask = LayerMask.GetMask("Interactable Layer") | LayerMask.GetMask("UI");
     }
 
     private void ResolveLocalDependencies()
@@ -143,7 +143,7 @@ public class HybridHandController : HandController
 
             if (objectHit.TryGetComponent<IFocus>(out IFocus focus))
             {
-                focus.GainedFocus(gameObject);
+                focus.GainedFocus(gameObject, point);
             }
 
             lastObjectHit = objectHit;

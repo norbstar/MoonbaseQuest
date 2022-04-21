@@ -74,7 +74,7 @@ public class SphereCastRayCameraManager : GizmoManager
 
                 if (objectHit.TryGetComponent<IFocus>(out IFocus focus))
                 {
-                    focus.GainedFocus(gameObject);
+                    focus.GainedFocus(gameObject, point);
                     lastFocus = focus;
                 }
 

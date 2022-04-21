@@ -140,7 +140,7 @@ public class DockableGunInteractableManager : DockableFocusableInteractableManag
 
                 if (objectHit.TryGetComponent<IFocus>(out IFocus focus))
                 {
-                    focus.GainedFocus(gameObject);
+                    focus.GainedFocus(gameObject, point);
                     lastFocus = focus;
                 }            
 

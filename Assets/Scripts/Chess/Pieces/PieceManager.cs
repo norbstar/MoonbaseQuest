@@ -215,7 +215,7 @@ namespace Chess.Pieces
 
         public void ShowOutline() => outline.enabled = true;
 
-        public void GainedFocus(GameObject gameObject) => EventReceived?.Invoke(this, FocusType.OnFocusGained);
+        public void GainedFocus(GameObject gameObject, Vector3 point) => EventReceived?.Invoke(this, FocusType.OnFocusGained);
 
         public void LostFocus(GameObject gameObject) => EventReceived?.Invoke(this, FocusType.OnFocusLost);
 
@@ -600,15 +600,14 @@ namespace Chess.Pieces
 
             float rotationSpeed = chessBoardManager.PieceRotationSpeed;
             float moveSpeed = chessBoardManager.PieceMoveSpeed;
+            float speed = (moveType == MoveType.TimeRelativeToDistance) ? moveSpeed : moveSpeed * distance;
 
             if (moveStyle == MoveStyle.Parabola)
             {
-                float speed = (moveType == MoveType.TimeRelativeToDistance) ? moveSpeed : moveSpeed * distance;
-                yield return StartCoroutine(ParabolaMoveCoroutine(cell, rotationSpeed, speed * 0.1f));
+                yield return StartCoroutine(ParabolaMoveCoroutine(cell, rotationSpeed, speed));
             }
             else
             {
-                float speed = (moveType == MoveType.TimeRelativeToDistance) ? moveSpeed : moveSpeed * distance;
                 yield return StartCoroutine(DirectMoveCoroutine(cell, rotationSpeed, speed));
             }
 

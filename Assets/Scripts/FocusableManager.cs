@@ -7,7 +7,7 @@ public class FocusableManager : MonoBehaviour, IFocus
 
     private int hasFocusCount;
 
-    public void GainedFocus(GameObject focusObject)
+    public void GainedFocus(GameObject focusObject, Vector3 focalPoint)
     {
         if (!HasFocus)
         {

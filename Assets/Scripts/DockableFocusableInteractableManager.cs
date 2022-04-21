@@ -14,7 +14,7 @@ public class DockableFocusableInteractableManager : DockableInteractableManager,
         base.Awake();
     }
 
-    public void GainedFocus(GameObject focusObject)
+    public void GainedFocus(GameObject focusObject, Vector3 focalPoint)
     {
         if (!HasFocus)
         {

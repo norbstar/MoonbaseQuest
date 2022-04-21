@@ -82,7 +82,7 @@ namespace Chess.Preview
 
         public void ShowOutline() => outline.enabled = true;
 
-        public void GainedFocus(GameObject gameObject) => EventReceived?.Invoke(this, FocusType.OnFocusGained);
+        public void GainedFocus(GameObject gameObject, Vector3 focalPoint) => EventReceived?.Invoke(this, FocusType.OnFocusGained);
 
         public void LostFocus(GameObject gameObject) => EventReceived?.Invoke(this, FocusType.OnFocusLost);
     }

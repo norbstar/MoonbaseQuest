@@ -14,7 +14,7 @@ public class FocusableInteractableManager : InteractableManager, IFocus
         base.Awake();
     }
 
-    public void GainedFocus(GameObject focusObject)
+    public void GainedFocus(GameObject focusObject, Vector3 focalPoint)
     {
         if (!HasFocus)
         {

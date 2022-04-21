@@ -91,7 +91,7 @@ public class TurrentManager : BaseManager
 
                 if (objectHit.TryGetComponent<IFocus>(out IFocus focus))
                 {
-                    focus.GainedFocus(gameObject);
+                    focus.GainedFocus(gameObject, point);
                     lastFocus = focus;
                 }            
 

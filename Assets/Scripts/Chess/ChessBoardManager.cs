@@ -641,6 +641,8 @@ namespace Chess
                     piece.UseDefaultMaterial();
                     piece.HideOutline();
                     coordReferenceCanvas.TextUI = string.Empty;
+
+                    inFocusPiece = null;
                     break;
             }
         }
