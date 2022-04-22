@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 using UnityEngine;
 
@@ -166,10 +167,10 @@ namespace Chess.Pieces
         }
 #endif
 
-        private bool TryGetRealtiveKingVector(Cell kingCell, out VectorPackage package)
+        private bool TryGetRealtiveVector(Cell cell, out VectorPackage package)
         {
             Cell activeCell = ActiveCell;
-            Vector2 normalizedVector = GetNormalizedVector(new Vector2(activeCell.coord.x, activeCell.coord.y), new Vector2(kingCell.coord.x, kingCell.coord.y));
+            Vector2 normalizedVector = GetNormalizedVector(new Vector2(activeCell.coord.x, activeCell.coord.y), new Vector2(cell.coord.x, cell.coord.y));
             
             VectorType? vectorType = null;
 
@@ -203,6 +204,12 @@ namespace Chess.Pieces
 
             package = default(VectorPackage);
             return false;
+        }
+
+        private bool TryGetRealtiveKingVector(Set set, out VectorPackage package)
+        {
+            Cell kingCell = chessBoardManager.ResolveKingCell(set);
+            return TryGetRealtiveVector(kingCell, out package);
         }
 
         public Mesh Mesh { get { return filter.mesh; } }
@@ -261,16 +268,6 @@ namespace Chess.Pieces
             return (target - origin).normalized;
         }
 
-        public Cell ResolveKingCell(Set set)
-        {
-            if (chessBoardManager.TryGetSingleSetPieceByType(set, PieceType.King, out Cell cell))
-            {
-                return cell;
-            }
-
-            return null;
-        }
-
         private Cell[,] ProjectMatrix(Cell cell, Cell targetCell)
         {
             Cell[,] clone = chessBoardManager.CloneMatrix();
@@ -282,79 +279,51 @@ namespace Chess.Pieces
             return clone;
         }
 
-        private bool WouldMovePlaceKingInCheck(Cell kingCell, Cell targetCell)
+        public bool CanMoveTo(Cell[,] matrix, Cell targetCell)
         {
-            if (kingCell == null) return false;
-
-            Debug.Log($"WouldMovePlaceKingInCheck King : {kingCell.piece.name} Piece : {name} Target Cell : [{targetCell.coord.x}, {targetCell.coord.y}]");
-
-#if true
-            if (TryGetRealtiveKingVector(kingCell, out VectorPackage package))
-            {
-                Debug.Log($"WouldMovePlaceKingInCheck Vector : [{package.Vector.x}, {package.Vector.y}] Type : {package.Type}");
-
-                Cell[,] projectedMatrix = ProjectMatrix(ActiveCell, targetCell);
-
-                if (chessBoardManager.TryGetPiecesAlongVector(projectedMatrix, kingCell, package.Vector, out List<PieceManager> pieces))
-                {
-                    foreach (PieceManager piece in pieces)
-                    {
-                        Debug.Log($"WouldMovePlaceKingInCheck Piece : {piece.name}");
-                    }
-                }
-            }
-#endif
-
-            return false;
-        }
-
-        private bool WouldMovingKingPlaceKingInCheck(Cell kingCell, Cell targetCell)
-        {
-            if (kingCell == null) return false;
-
-            Debug.Log($"WouldMovingKingPlaceKingInCheck King : {kingCell.piece.name} Piece : {name} Target Cell : [{targetCell.coord.x}, {targetCell.coord.y}]");
-
-            return false;
+            List<Cell> moves = CalculateMoves(matrix, (set == Set.Light) ? 1 : -1);
+            return (moves.FirstOrDefault(c => c == targetCell) != null);
         }
 
         public List<Cell> CalculateMoves(Cell[,] matrix, int vector)
         {
-            // Debug.Log($"CalculateMoves Piece : {name}");
-
             List<Cell> moves = new List<Cell>();
             List<Cell> potentialMoves = ResolvePotentialCells(matrix, vector, chessBoardManager.PlayMode);
 
-#if true
-            Cell kingCell = ResolveKingCell(set);
-
             foreach (Cell potentialMove in potentialMoves)
             {
-                // Debug.Log($"CalculateMoves Piece : {name} Move : [{potentialMove.coord.x}, {potentialMove.coord.y}]");
-                moves.Add(potentialMove);
-            }
-#endif
-
-#if false
-            Cell kingCell = ResolveKingCell(set);
-            
-            foreach (Cell potentialMove in potentialMoves)
-            {
-                Debug.Log($"CalculateMoves Piece : {name} Move : [{potentialMove.coord.x}, {potentialMove.coord.y}]");
-
-                if ((type == PieceType.King) && (!WouldMovingKingPlaceKingInCheck(kingCell, potentialMove)))
+                // if (!WouldMovePutKingInCheck(potentialMove))
                 {
-                    // Moving the King to the potential cell would not place it in check by a piece of the opposing set.
-                    moves.Add(potentialMove);
-                }
-                else if (!WouldMovePlaceKingInCheck(kingCell, potentialMove))
-                {
-                    // Moving the piece relative to the King would not expose the King to check by a piece of the opposing set.
+                    // if (TryGets.TryGetCoordReference(potentialMove.coord, out string reference))
+                    // {
+                    //     Debug.Log($"{name} can move to {reference} !!!");
+                    // }
+
                     moves.Add(potentialMove);
                 }
             }
-#endif
 
             return moves;
+        }
+
+        private bool WouldMovePutKingInCheck(Cell targetCell)
+        {
+            Cell kingCell = chessBoardManager.ResolveKingCell(set);
+            return WouldMovePutKingInCheck((type == PieceType.King), kingCell, targetCell);
+        }
+
+        private bool WouldMovePutKingInCheck(bool isKing, Cell kingCell, Cell targetCell)
+        {
+            if (isKing)
+            {
+                // Would moving this piece, the King, expose it to check by a piece of the opposing set.
+            }
+            else
+            {
+                // Would moving this non-King piece expose the King to check by a piece of the opposing set.
+            }
+
+            return false;
         }
 
         protected abstract List<CoordBundle> GenerateCoordBundles(Cell[,] matrix, int vector);
@@ -371,6 +340,8 @@ namespace Chess.Pieces
                     cells.AddRange(EvaluatePotentialCells(matrix, potentialCoords, bundle.coordSpec));
                 }
             }
+
+            // Debug.Log($"Piece {name} has {cells.Count} available qualifying cells");
 
             return cells;
         }
@@ -434,6 +405,8 @@ namespace Chess.Pieces
                     }
                 }
             }
+
+            // Debug.Log($"Piece {name} has {cells.Count} available cells");
 
             return cells;
         }

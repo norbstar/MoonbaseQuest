@@ -40,12 +40,16 @@ public class HybridHandButtonManager : SimpleHandButtonManager, IFocus
     }
 
     // NOTE that this focus model does not accomodate multiple source of concurrent focus,
-    // as once one looses focus, all others are untracked
+    // as once one looses focus, all that remain are untracked
     public void LostFocus(GameObject gameObject) => hasFocus = false;
 
     private void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics)
     {
-        if (!hasFocus) return;
+        if (!hasFocus)
+        {
+            if (lastIsPressed) ResetButton();
+            return;
+        }
 
         bool isPressed = actuation.HasFlag(Actuation.Trigger);
         

@@ -52,6 +52,11 @@ public class SimpleHandButtonManager : MonoBehaviour
         renderer.material = offMaterial;
     }
 
+    protected bool IsPressed()
+    {
+        return (enterInstanceId.HasValue);
+    }
+
     public void OnTriggerEnter(Collider collider)
     {
         var trigger =  collider.gameObject;
@@ -100,6 +105,12 @@ public class SimpleHandButtonManager : MonoBehaviour
 
         OnReleased();
         onReleased?.Invoke();
+    }
+
+    protected void ResetButton()
+    {
+        enterInstanceId = exitInstanceId = null;
+        renderer.material = offMaterial;
     }
 
     public void OnSimulateOnReleased() => OnReleased();
