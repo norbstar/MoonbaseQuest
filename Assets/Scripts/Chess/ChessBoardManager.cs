@@ -72,12 +72,6 @@ namespace Chess
         public static int MatrixRows = 8;
         public static int MatrixColumns = 8;
 
-        public class InCheckResolver
-        {
-            public bool InCheck { get; set; }
-            public PieceManager Piece { get; set; }
-        }
-        
         private TrackingMainCameraManager cameraManager;
         private AudioSource cameraAudioSource;
         private Cell[,] matrix;
@@ -85,7 +79,6 @@ namespace Chess
         private Set activeSet;
         private PieceManager inFocusPiece;
         private PreviewManager inFocusPreview;
-        private bool checkMate;
         private StageManager stageManager;
         private Dictionary<PieceManager, List<Cell>> availableMoves;
         private int maxRowIdx = MatrixRows - 1;
@@ -101,7 +94,7 @@ namespace Chess
         {
             ResolveDependencies();
 
-            matrix = new Cell[8, 8];
+            matrix = new Cell[MatrixColumns, MatrixRows];
             previews = new List<GameObject>();
             availableMoves = new Dictionary<PieceManager, List<Cell>>();
             stageManager = new StageManager();
@@ -222,7 +215,6 @@ namespace Chess
 
         private void ResetGameState()
         {
-            checkMate = false;
             activeSet = Set.Light;
         }
 
@@ -243,6 +235,11 @@ namespace Chess
             }
 
             CalculateMoves();
+
+            if (availableMoves.Count == 0)
+            {
+                OnCheckMate();
+            }
         }
 
         public Cell[,] CloneMatrix()
@@ -294,41 +291,111 @@ namespace Chess
             AdjustChessPieceInteractableLayer(set, enabled);
         }
 
+        public bool IsKingInCheck(Set set, Cell[,] matrix)
+        {
+            ReportPieces();
+            ReportMatrix();
+
+            Cell kingCell = ResolveKingCell(set);
+            // List<PieceManager> opposingPieces = GetSetFromMatrix((set == Set.Light) ? Set.Dark : Set.Light, matrix);
+            List<PieceManager> opposingPieces = GetSetPieces((activeSet == Set.Light) ? Set.Dark : Set.Light);
+
+            foreach (PieceManager opposingPiece in opposingPieces)
+            {
+                // Determine if the King is actively in check by the opposing piece
+                if (opposingPiece.CanMoveTo(matrix, kingCell))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private List<PieceManager> GetSetFromMatrix(Set set, Cell[,] matrix)
+        {
+            List<PieceManager> pieces = new List<PieceManager>();
+
+            for (int y = 0 ; y <= maxRowIdx ; y++)
+            {
+                for (int x = 0 ; x <= maxColumnIdx ; x++)
+                {
+                    Cell cell = matrix[x, y];
+
+                    if ((cell.piece != null) && (cell.piece.Set == set))
+                    {
+                        pieces.Add(cell.piece);
+                    }
+                }
+            }
+
+            return pieces;
+        }
+
         private void CalculateMoves()
         {
             bool shouldAutomate = ShouldAutomate();
-
-#if true
-            InCheckResolver inCheckResolver = IsKingInCheck(activeSet);
+            bool inCheck = IsKingInCheck(activeSet, matrix);
             
-            Cell kingCell = ResolveKingCell(activeSet);
-            PieceManager kingPiece = kingCell.piece;
-
-            if (inCheckResolver.InCheck)
-            {
-                if (TryGets.TryGetCoordReference(inCheckResolver.Piece.ActiveCell.coord, out string reference))
-                {
-                    Debug.Log($"King is in check by {inCheckResolver.Piece.name} at {reference} !!!");
-                }
-
-                kingPiece.ApplyMaterial(inCheckMaterial);
-            }
-            else
-            {
-                kingPiece.UseDefaultMaterial();
-            }
-            
-            // NOTE that if in check, we need to restrict the potential moves to those that free the king from in check
-#endif
+            // if (inCheck)
+            // {
+            //     Cell kingCell = ResolveKingCell(activeSet);
+            //     PieceManager kingPiece = kingCell.piece;
+            //     kingPiece.ApplyMaterial(inCheckMaterial);
+            // }
 
             List<PieceManager> activeEnabledPieces = (activeSet == Set.Light) ? ActiveEnabledLightPieces : ActiveEnabledDarkPieces;
 
             foreach (PieceManager piece in activeEnabledPieces)
             {
-                List<Cell> moves = piece.CalculateMoves(matrix, (activeSet == Set.Light) ? 1 : -1);
-                var hasMoves = moves.Count > 0;
+                if (TryGets.TryGetCoordReference(piece.ActiveCell.coord, out string reference))
+                {
+                    Debug.Log($"Piece : {piece.name} {reference}");
+                }
 
-                // Debug.Log($"Piece {piece.name} has {moves.Count} potential moves");
+                List<Cell> potentialMoves = piece.CalculateMoves(matrix, (activeSet == Set.Light) ? 1 : -1);
+                var hasMoves = potentialMoves.Count > 0;
+
+                List<Cell> legalMoves = new List<Cell>();
+
+                Debug.Log($"Potential Moves : {piece.name} {potentialMoves.Count}");
+
+#if false
+                foreach (Cell move in potentialMoves)
+                {
+                    if (TryGets.TryGetCoordReference(move.coord, out reference))
+                    {
+                        Debug.Log($"Potential Move : {piece.name} {reference}");
+                    }
+
+                    legalMoves.Add(move);
+                }
+#endif
+
+#if true
+                foreach (Cell move in potentialMoves)
+                {
+                    if (TryGets.TryGetCoordReference(move.coord, out reference))
+                    {
+                        Debug.Log($"Potential Move : {piece.name} {reference}");
+                    }
+
+                    if (!piece.WouldMovePutKingInCheck(move))
+                    {
+                        legalMoves.Add(move);
+                    }
+                }
+#endif
+
+                foreach  (Cell move in legalMoves)
+                {
+                    if (TryGets.TryGetCoordReference(move.coord, out reference))
+                    {
+                        Debug.Log($"Legal Move : {piece.name} {reference}");
+                    }
+                }
+
+                hasMoves = legalMoves.Count > 0;
 
                 if (!shouldAutomate)
                 {
@@ -337,7 +404,7 @@ namespace Chess
 
                 if (hasMoves)
                 {
-                    availableMoves.Add(piece, moves);
+                    availableMoves.Add(piece, legalMoves);
                 }
                 else
                 {
@@ -361,42 +428,12 @@ namespace Chess
 
         public Cell ResolveKingCell(Set set)
         {
-            if (TryGetSingleSetPieceByType(set, PieceType.King, out Cell cell))
+            if (TryGetSingleSetPieceByType(set, PieceType.King, out PieceManager piece))
             {
-                return cell;
+                return piece.ActiveCell;
             }
 
             return null;
-        }
-
-        private InCheckResolver IsKingInCheck(Set set)
-        {
-            Cell kingCell = ResolveKingCell(set);
-
-            if (TryGets.TryGetCoordReference(kingCell.coord, out string reference))
-            {
-                Debug.Log($"Resolved King {kingCell.piece.name} at {reference} !!!");
-            }
-
-            List<PieceManager> opposingActiveEnabledPieces = GetSetPieces((activeSet == Set.Light) ? Set.Dark : Set.Light);
-
-            foreach (PieceManager piece in opposingActiveEnabledPieces)
-            {
-                // Determine if the King is actively in check by the opposing piece
-                if (piece.CanMoveTo(matrix, kingCell))
-                {
-                    return new InCheckResolver
-                    {
-                        InCheck = true,
-                        Piece = piece
-                    };
-                }
-            }
-
-            return new InCheckResolver
-            {
-                InCheck = false
-            };
         }
 
         private bool ShouldAutomate()
@@ -428,15 +465,8 @@ namespace Chess
 
         private void CompleteTurn()
         {
-            if (checkMate)
-            {
-                OnGameOver();
-            }
-            else
-            {
-                activeSet = (activeSet == Set.Light) ? Set.Dark : Set.Light;
-                ManageTurn();
-            }
+            activeSet = (activeSet == Set.Light) ? Set.Dark : Set.Light;
+            ManageTurn();
         }
 
         private void ResetThemes()
@@ -543,9 +573,10 @@ namespace Chess
             }
         }
 
-        private void OnGameOver()
+        private void OnCheckMate()
         {
-            // TODO
+            Set winner = (activeSet == Set.Light) ? Set.Dark : Set.Light;
+            Debug.Log($"{activeSet} has LOST, {winner} WINS");
         }
 
         private void DestroyPreviews()
@@ -872,31 +903,51 @@ namespace Chess
                 cellReference = reference;
             }
             
-            Debug.Log($"ReportPieces {piece.name} Coord : [{piece.ActiveCell.coord.x}, {piece.ActiveCell.coord.y}] Reference : {cellReference} Position : [{piece.ActiveCell.localPosition.x}, {piece.ActiveCell.localPosition.y}, {piece.ActiveCell.localPosition.z}]");
+            Debug.Log($"ReportPieces {piece.name} Cell : {cellReference} Coord : [{piece.ActiveCell.coord.x}, {piece.ActiveCell.coord.y}] Reference : {cellReference} Position : [{piece.ActiveCell.localPosition.x}, {piece.ActiveCell.localPosition.y}, {piece.ActiveCell.localPosition.z}]");
         }
     }
 #endregion
 
 #region TryGets
-    public bool TryGetSingleSetPieceByType(Set set, PieceType type, out Cell cell)
-    {
-        List<PieceManager> activeEnabledPieces = GetSetPieces(set);
-        List<Cell> matchingCells = activeEnabledPieces.Where(p => p.Type == type).Select(p => p.ActiveCell).ToList();
-
-        if (matchingCells.Count > 0)
-        {
-            cell = matchingCells.First();
-            return true;
-        }
-        
-        cell = default(Cell);
-        return false;
-    }
-
     public List<PieceManager> GetSetPieces(Set set)
     {
         return (set == Set.Light) ? ActiveEnabledLightPieces : ActiveEnabledDarkPieces;
     }
+
+    public bool TryGetSingleSetPieceByType(Set set, PieceType type, out PieceManager piece)
+    {
+        Debug.Log($"1 Set : {set} Type : {type}");
+        List<PieceManager> activeEnabledPieces = GetSetPieces(set);
+        Debug.Log($"1b {activeEnabledPieces.Count}");
+
+        foreach (PieceManager thisPiece in activeEnabledPieces)
+        {
+            Debug.Log($"1c {thisPiece.name} {thisPiece.Type}");
+        }
+
+        List<Cell> matchingCells = activeEnabledPieces.Where(p => p.Type == type).Select(p => p.ActiveCell).ToList();
+
+        if (matchingCells.Count > 0)
+        {
+            Debug.Log($"2 {matchingCells.Count}");
+
+            foreach (Cell thisCell in matchingCells)
+            {
+                if (TryGets.TryGetCoordReference(thisCell.coord, out string reference))
+                {
+                    Debug.Log($"2a {reference} Piece : {thisCell.piece}");
+                }
+            }
+            
+            piece = matchingCells.First().piece;
+            return true;
+        }
+        
+        Debug.Log("3");
+        piece = default(PieceManager);
+        return false;
+    }
+
 
     public bool TryGetSetPiecesByType(Set set, PieceType type, out List<PieceManager> pieces)
     {

@@ -11,5 +11,15 @@
             public PieceManager piece;
 
             public bool IsOccupied { get { return piece != null; } }
+
+            // public Cell Clone()
+            // {
+            //     return new Cell
+            //     {
+            //         coord = coord,
+            //         localPosition = localPosition,
+            //         piece = piece.Clone()
+            //     };
+            // }
         }
     }
