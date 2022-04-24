@@ -48,7 +48,6 @@ namespace Chess
         [SerializeField] Material outOfScopeMaterial;
         [SerializeField] Material inFocusMaterial;
         [SerializeField] Material selectedMaterial;
-        [SerializeField] Material inCheckMaterial;
 
         [Header("Config")]
         [SerializeField] PlayMode playMode;
@@ -234,9 +233,9 @@ namespace Chess
                 EnableInteractions(Set.Dark, false);
             }
 
-            CalculateMoves();
+            bool inCheck = CalculateMoves();
 
-            if (availableMoves.Count == 0)
+            if (inCheck && availableMoves.Count == 0)
             {
                 OnCheckMate();
             }
@@ -293,17 +292,14 @@ namespace Chess
 
         public bool IsKingInCheck(Set set, Cell[,] matrix)
         {
-            ReportPieces();
-            ReportMatrix();
-
-            Cell kingCell = ResolveKingCell(set);
-            // List<PieceManager> opposingPieces = GetSetFromMatrix((set == Set.Light) ? Set.Dark : Set.Light, matrix);
+            // Cell kingCell = ResolveKingCell(set);
+            PieceManager king = ResolveKing(set);
+            
             List<PieceManager> opposingPieces = GetSetPieces((activeSet == Set.Light) ? Set.Dark : Set.Light);
 
             foreach (PieceManager opposingPiece in opposingPieces)
             {
-                // Determine if the King is actively in check by the opposing piece
-                if (opposingPiece.CanMoveTo(matrix, kingCell))
+                if (opposingPiece.CanMoveTo(matrix, /*kingCell*/king.ActiveCell))
                 {
                     return true;
                 }
@@ -314,7 +310,7 @@ namespace Chess
 
         private List<PieceManager> GetSetFromMatrix(Set set, Cell[,] matrix)
         {
-            List<PieceManager> pieces = new List<PieceManager>();
+            List<PieceManager> pieceManagers = new List<PieceManager>();
 
             for (int y = 0 ; y <= maxRowIdx ; y++)
             {
@@ -322,17 +318,17 @@ namespace Chess
                 {
                     Cell cell = matrix[x, y];
 
-                    if ((cell.piece != null) && (cell.piece.Set == set))
+                    if ((cell.wrapper.manager != null) && (cell.wrapper.manager.Set == set))
                     {
-                        pieces.Add(cell.piece);
+                        pieceManagers.Add(cell.wrapper.manager);
                     }
                 }
             }
 
-            return pieces;
+            return pieceManagers;
         }
 
-        private void CalculateMoves()
+        private bool CalculateMoves()
         {
             bool shouldAutomate = ShouldAutomate();
             bool inCheck = IsKingInCheck(activeSet, matrix);
@@ -340,58 +336,26 @@ namespace Chess
             // if (inCheck)
             // {
             //     Cell kingCell = ResolveKingCell(activeSet);
-            //     PieceManager kingPiece = kingCell.piece;
-            //     kingPiece.ApplyMaterial(inCheckMaterial);
-            // }
+            //     PieceManager manager = kingCell.wrapper.manager;
+            // }           
+
+            PieceManager manager = ResolveKing(activeSet);
+            ((KingManager) manager).InCheck = inCheck;
 
             List<PieceManager> activeEnabledPieces = (activeSet == Set.Light) ? ActiveEnabledLightPieces : ActiveEnabledDarkPieces;
 
             foreach (PieceManager piece in activeEnabledPieces)
             {
-                if (TryGets.TryGetCoordReference(piece.ActiveCell.coord, out string reference))
-                {
-                    Debug.Log($"Piece : {piece.name} {reference}");
-                }
-
                 List<Cell> potentialMoves = piece.CalculateMoves(matrix, (activeSet == Set.Light) ? 1 : -1);
                 var hasMoves = potentialMoves.Count > 0;
 
                 List<Cell> legalMoves = new List<Cell>();
 
-                Debug.Log($"Potential Moves : {piece.name} {potentialMoves.Count}");
-
-#if false
                 foreach (Cell move in potentialMoves)
                 {
-                    if (TryGets.TryGetCoordReference(move.coord, out reference))
-                    {
-                        Debug.Log($"Potential Move : {piece.name} {reference}");
-                    }
-
-                    legalMoves.Add(move);
-                }
-#endif
-
-#if true
-                foreach (Cell move in potentialMoves)
-                {
-                    if (TryGets.TryGetCoordReference(move.coord, out reference))
-                    {
-                        Debug.Log($"Potential Move : {piece.name} {reference}");
-                    }
-
-                    if (!piece.WouldMovePutKingInCheck(move))
+                    if (!piece.WouldKingBeInCheck(move))
                     {
                         legalMoves.Add(move);
-                    }
-                }
-#endif
-
-                foreach  (Cell move in legalMoves)
-                {
-                    if (TryGets.TryGetCoordReference(move.coord, out reference))
-                    {
-                        Debug.Log($"Legal Move : {piece.name} {reference}");
                     }
                 }
 
@@ -424,13 +388,20 @@ namespace Chess
             {
                 AutomateMove();
             }
+
+            return inCheck;
         }
 
         public Cell ResolveKingCell(Set set)
         {
+            return ResolveKing(set).ActiveCell;
+        }
+
+        public PieceManager ResolveKing(Set set)
+        {
             if (TryGetSingleSetPieceByType(set, PieceType.King, out PieceManager piece))
             {
-                return piece.ActiveCell;
+                return piece;
             }
 
             return null;
@@ -742,7 +713,7 @@ namespace Chess
                     case FocusType.OnFocusGained:
                         if (cell.IsOccupied)
                         {
-                            cell.piece.HideMesh();
+                            cell.wrapper.manager.HideMesh();
                         }
 
                         manager.SetCustomMesh(inFocusPiece.Mesh, inFocusPiece.transform.localRotation, inFocusPiece.DefaultMaterial);
@@ -761,7 +732,7 @@ namespace Chess
                     case FocusType.OnFocusLost:
                         if (cell.IsOccupied)
                         {
-                            cell.piece.ShowMesh();
+                            cell.wrapper.manager.ShowMesh();
                         }
 
                         manager.HideMesh();
@@ -794,7 +765,8 @@ namespace Chess
                     matrix[x, y] = new Cell
                     {
                         coord = coord,
-                        localPosition = localPosition
+                        localPosition = localPosition,
+                        wrapper = new PieceManagerWrapper()
                     };
                 }
             }
@@ -818,7 +790,7 @@ namespace Chess
 
                 if (cell.IsOccupied)
                 {
-                    Debug.Log($"ReportMatrix Piece : {cell.piece.name} Coord : [{cell.coord.x}, {cell.coord.y}] Reference : {cellReference} Position : [{cell.localPosition.x}, {cell.localPosition.y}, {cell.localPosition.z}]");
+                    Debug.Log($"ReportMatrix Piece : {cell.wrapper.manager.name} Coord : [{cell.coord.x}, {cell.coord.y}] Reference : {cellReference} Position : [{cell.localPosition.x}, {cell.localPosition.y}, {cell.localPosition.z}]");
                 }
                 else if (includeEmptyCells)
                 {
@@ -872,13 +844,13 @@ namespace Chess
 #region Pieces
     private void MapPieces()
     {
-        foreach (PieceManager piece in EnabledPieces)
+        foreach (PieceManager pieceManager in EnabledPieces)
         {
-            if ((piece.isActiveAndEnabled) && (TryGetPieceToCell(piece, out Cell cell)))
+            if ((pieceManager.isActiveAndEnabled) && (TryGetPieceToCell(pieceManager, out Cell cell)))
             {
-                piece.HomeCell = cell;
-                piece.MoveEventReceived += OnMoveEvent;
-                piece.EventReceived += OnEvent;
+                pieceManager.HomeCell = cell;
+                pieceManager.MoveEventReceived += OnMoveEvent;
+                pieceManager.EventReceived += OnEvent;
 
                 string cellReference = String.Empty;
                 
@@ -887,7 +859,7 @@ namespace Chess
                     cellReference = reference;
                 }
 
-                matrix[cell.coord.x, cell.coord.y].piece = piece;
+                matrix[cell.coord.x, cell.coord.y].wrapper.manager = pieceManager;
             }
         }
     }
@@ -914,37 +886,18 @@ namespace Chess
         return (set == Set.Light) ? ActiveEnabledLightPieces : ActiveEnabledDarkPieces;
     }
 
-    public bool TryGetSingleSetPieceByType(Set set, PieceType type, out PieceManager piece)
+    public bool TryGetSingleSetPieceByType(Set set, PieceType type, out PieceManager pieceManager)
     {
-        Debug.Log($"1 Set : {set} Type : {type}");
         List<PieceManager> activeEnabledPieces = GetSetPieces(set);
-        Debug.Log($"1b {activeEnabledPieces.Count}");
-
-        foreach (PieceManager thisPiece in activeEnabledPieces)
-        {
-            Debug.Log($"1c {thisPiece.name} {thisPiece.Type}");
-        }
-
         List<Cell> matchingCells = activeEnabledPieces.Where(p => p.Type == type).Select(p => p.ActiveCell).ToList();
 
         if (matchingCells.Count > 0)
         {
-            Debug.Log($"2 {matchingCells.Count}");
-
-            foreach (Cell thisCell in matchingCells)
-            {
-                if (TryGets.TryGetCoordReference(thisCell.coord, out string reference))
-                {
-                    Debug.Log($"2a {reference} Piece : {thisCell.piece}");
-                }
-            }
-            
-            piece = matchingCells.First().piece;
+            pieceManager = matchingCells.First().wrapper.manager;
             return true;
         }
         
-        Debug.Log("3");
-        piece = default(PieceManager);
+        pieceManager = default(PieceManager);
         return false;
     }
 
@@ -1038,9 +991,9 @@ namespace Chess
         return false;
     }
 
-    public bool TryGetPiecesAlongVector(Cell[,] projectedMatrix, Cell origin, Vector2 vector, out List<PieceManager> pieces)
+    public bool TryGetPiecesAlongVector(Cell[,] projectedMatrix, Cell origin, Vector2 vector, out List<PieceManager> pieceManagers)
     {
-        pieces = new List<PieceManager>();
+        pieceManagers = new List<PieceManager>();
 
         int x = origin.coord.x;
         int y = origin.coord.y;
@@ -1054,9 +1007,9 @@ namespace Chess
             {
                 Cell cell = projectedMatrix[x, y];
 
-                if (cell.piece != null)
+                if (cell.wrapper.manager != null)
                 {
-                    pieces.Add(cell.piece);
+                    pieceManagers.Add(cell.wrapper.manager);
                 }
             }
         } while ((x >= 0 && x <= maxColumnIdx) && (y >= 0 && y <= maxRowIdx));

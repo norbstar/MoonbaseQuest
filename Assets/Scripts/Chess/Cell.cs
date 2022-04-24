@@ -1,25 +1,30 @@
     using UnityEngine;
 
-    using Chess.Pieces;
-
     namespace Chess
     {
         public class Cell
         {
             public Coord coord;
             public Vector3 localPosition;
-            public PieceManager piece;
+            public PieceManagerWrapper wrapper;
 
-            public bool IsOccupied { get { return piece != null; } }
+            public bool IsOccupied { get { return wrapper.manager != null; } }
 
-            // public Cell Clone()
-            // {
-            //     return new Cell
-            //     {
-            //         coord = coord,
-            //         localPosition = localPosition,
-            //         piece = piece.Clone()
-            //     };
-            // }
+            public Cell Clone()
+            {
+                return new Cell
+                {
+                    coord = new Coord
+                    {
+                        x = coord.x,
+                        y = coord.y
+                    },
+                    localPosition = new Vector3(localPosition.x, localPosition.y, localPosition.z),
+                    wrapper = new PieceManagerWrapper
+                    {
+                        manager = wrapper.manager
+                    }
+                };
+            }
         }
     }

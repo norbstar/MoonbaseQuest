@@ -180,7 +180,7 @@ namespace Chess.Pieces
         
         public Material Material { get { return renderer.material; } }
 
-        public void UseDefaultMaterial() => ApplyMaterial(defaultMaterial);
+        public virtual void UseDefaultMaterial() => ApplyMaterial(defaultMaterial);
 
         protected bool TryGetPotentialCoord(Coord coord, int x, int y, out Coord potentialCoord)
         {
@@ -218,27 +218,20 @@ namespace Chess.Pieces
 
         private Cell[,] ProjectMatrix(Cell cell, Cell targetCell)
         {
-            // Cell[,] clone = new Cell[ChessBoardManager.MatrixColumns, ChessBoardManager.MatrixRows];
-
             Cell[,] clone = chessBoardManager.CloneMatrix();
 
-#if false
             for (int y = 0 ; y <= maxRowIdx ; y++)
             {
                 for (int x = 0 ; x <= maxColumnIdx ; x++)
                 {
                     Cell thisCell = clone[x, y];
-
-                    thisCell.Clone();
+                    clone[x, y] = thisCell.Clone();
                 }
             }
-#endif
 
-#if true
-            PieceManager piece = cell.piece;
-            clone[cell.coord.x, cell.coord.y].piece = null;
-            clone[targetCell.coord.x, targetCell.coord.y].piece = piece;
-#endif
+            PieceManager manager = cell.wrapper.manager;
+            clone[cell.coord.x, cell.coord.y].wrapper.manager = null;
+            clone[targetCell.coord.x, targetCell.coord.y].wrapper.manager = manager;
 
             return clone;
         }
@@ -262,7 +255,7 @@ namespace Chess.Pieces
             return moves;
         }
 
-        public bool WouldMovePutKingInCheck(Cell targetCell)
+        public bool WouldKingBeInCheck(Cell targetCell)
         {
             Cell[,] projectedMatrix = ProjectMatrix(ActiveCell, targetCell);
             return chessBoardManager.IsKingInCheck(set, projectedMatrix);
@@ -296,7 +289,7 @@ namespace Chess.Pieces
 
                 if (cell.IsOccupied)
                 {
-                    if ((cell.piece.Set != set) && coordSpec.includeOccupedCells)
+                    if ((cell.wrapper.manager.Set != set) && coordSpec.includeOccupedCells)
                     {
                         cells.Add(cell);
                     }
@@ -339,7 +332,7 @@ namespace Chess.Pieces
                 {
                     Cell cell = matrix[coord.x, coord.y];
 
-                    if ((cell.piece == null) || (cell.piece.Set != set))
+                    if ((cell.wrapper.manager == null) || (cell.wrapper.manager.Set != set))
                     {
                         cells.Add(matrix[coord.x, coord.y]);
                     }
@@ -495,13 +488,13 @@ namespace Chess.Pieces
 
             if ((cell != ActiveCell) && cell.IsOccupied)
             {
-                if (chessBoardManager.SetManager.TryReserveSlot(cell.piece, out Vector3 localPosition))
+                if (chessBoardManager.SetManager.TryReserveSlot(cell.wrapper.manager, out Vector3 localPosition))
                 {
-                    cell.piece.transform.localPosition = localPosition;
-                    cell.piece.EnableInteractions(false);
-                    cell.piece.ActiveCell = null;
-                    cell.piece.ShowMesh();
-                    cell.piece = null;
+                    cell.wrapper.manager.transform.localPosition = localPosition;
+                    cell.wrapper.manager.EnableInteractions(false);
+                    cell.wrapper.manager.ActiveCell = null;
+                    cell.wrapper.manager.ShowMesh();
+                    cell.wrapper.manager = null;
                 }
             }
 
@@ -524,13 +517,13 @@ namespace Chess.Pieces
 
             if (ActiveCell != null)
             {
-                ActiveCell.piece = null;
+                ActiveCell.wrapper.manager = null;
             }
 
             OnMove(ActiveCell, cell, cell == HomeCell);
 
             ActiveCell = cell;
-            ActiveCell.piece = this;
+            ActiveCell.wrapper.manager = this;
 
             MoveEventReceived?.Invoke(this);
         }
