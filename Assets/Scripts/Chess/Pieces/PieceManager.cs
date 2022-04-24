@@ -216,25 +216,25 @@ namespace Chess.Pieces
             return (target - origin).normalized;
         }
 
-        private Cell[,] ProjectMatrix(Cell cell, Cell targetCell)
-        {
-            Cell[,] clone = chessBoardManager.CloneMatrix();
+        // private Cell[,] ProjectMatrix(Cell cell, Cell targetCell)
+        // {
+        //     Cell[,] clone = chessBoardManager.CloneMatrix();
 
-            for (int y = 0 ; y <= maxRowIdx ; y++)
-            {
-                for (int x = 0 ; x <= maxColumnIdx ; x++)
-                {
-                    Cell thisCell = clone[x, y];
-                    clone[x, y] = thisCell.Clone();
-                }
-            }
+        //     for (int y = 0 ; y <= maxRowIdx ; y++)
+        //     {
+        //         for (int x = 0 ; x <= maxColumnIdx ; x++)
+        //         {
+        //             Cell thisCell = clone[x, y];
+        //             clone[x, y] = thisCell.Clone();
+        //         }
+        //     }
 
-            PieceManager manager = cell.wrapper.manager;
-            clone[cell.coord.x, cell.coord.y].wrapper.manager = null;
-            clone[targetCell.coord.x, targetCell.coord.y].wrapper.manager = manager;
+        //     PieceManager manager = cell.wrapper.manager;
+        //     clone[cell.coord.x, cell.coord.y].wrapper.manager = null;
+        //     clone[targetCell.coord.x, targetCell.coord.y].wrapper.manager = manager;
 
-            return clone;
-        }
+        //     return clone;
+        // }
 
         public bool CanMoveTo(Cell[,] matrix, Cell targetCell)
         {
@@ -255,11 +255,21 @@ namespace Chess.Pieces
             return moves;
         }
 
-        public bool WouldKingBeInCheck(Cell targetCell)
-        {
-            Cell[,] projectedMatrix = ProjectMatrix(ActiveCell, targetCell);
-            return chessBoardManager.IsKingInCheck(set, projectedMatrix);
-        }
+        // public bool WouldKingBeInCheck(Cell targetCell)
+        // {
+        //     Cell[,] projectedMatrix = ProjectMatrix(ActiveCell, targetCell);
+
+        //     TryGets.TryGetCoordReference(targetCell.coord, out string reference);
+
+        //     Debug.Log($"WouldKingBeInCheck {name} Target Cell : {reference} Snapshot Summary :");
+        //     chessBoardManager.ReportCells(projectedMatrix, false);
+
+        //     bool inCheck = chessBoardManager.IsKingInCheck(set, projectedMatrix);
+
+        //     Debug.Log($"WouldKingBeInCheck {name} Target Cell : {reference} In Check : {inCheck}");
+
+        //     return inCheck;
+        // }
 
         protected abstract List<CoordBundle> GenerateCoordBundles(Cell[,] matrix, int vector);
 

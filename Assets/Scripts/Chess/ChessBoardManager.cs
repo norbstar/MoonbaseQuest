@@ -119,6 +119,11 @@ namespace Chess
         void Start()
         {
             MapMatrix();
+
+            // List<Cell> cells = AllCells;
+            // List<Cell> cells = ExtractCells(matrix);
+            // ReportCells(cells, false);
+
             MapPieces();
             InitGame();
         }
@@ -292,41 +297,100 @@ namespace Chess
 
         public bool IsKingInCheck(Set set, Cell[,] matrix)
         {
-            // Cell kingCell = ResolveKingCell(set);
-            PieceManager king = ResolveKing(set);
-            
-            List<PieceManager> opposingPieces = GetSetPieces((activeSet == Set.Light) ? Set.Dark : Set.Light);
+            Debug.Log($"IsKingInCheck Set : {set}");
 
-            foreach (PieceManager opposingPiece in opposingPieces)
+            if (TryResolveKingCell(matrix, set, out Cell kingCell))
             {
-                if (opposingPiece.CanMoveTo(matrix, /*kingCell*/king.ActiveCell))
+                List<PieceManager> opposingPieces = GetSetPieces((activeSet == Set.Light) ? Set.Dark : Set.Light);
+
+                TryGets.TryGetCoordReference(kingCell.coord, out string kingReference);
+
+                foreach (PieceManager opposingPiece in opposingPieces)
                 {
-                    return true;
+                    TryGets.TryGetCoordReference(opposingPiece.ActiveCell.coord, out string reference);
+
+                    if (opposingPiece.CanMoveTo(matrix, kingCell))
+                    {
+                        Debug.Log($"IsKingInCheck {opposingPiece.name} [{reference}] Can Move To {kingCell.wrapper.manager.name} : [{kingReference}] True");
+                        return true;
+                    }
+                    
+                    Debug.Log($"IsKingInCheck {opposingPiece.name} [{reference}] Can Move To {kingCell.wrapper.manager.name} : [{kingReference}] False");
                 }
             }
+
+            // List<PieceManager> pieces = ResolveSetFromMatrix(matrix, set);
+
+            // if (TryResolveKingFromSet(pieces, out PieceManager king))
+            // {
+            //     List<PieceManager> opposingPieces = GetSetPieces((activeSet == Set.Light) ? Set.Dark : Set.Light);
+
+            //     TryGets.TryGetCoordReference(king.ActiveCell.coord, out string kingReference);
+
+            //     foreach (PieceManager opposingPiece in opposingPieces)
+            //     {
+            //         TryGets.TryGetCoordReference(opposingPiece.ActiveCell.coord, out string reference);
+
+            //         if (opposingPiece.CanMoveTo(matrix, king.ActiveCell))
+            //         {
+            //             Debug.Log($"IsKingInCheck {opposingPiece.name} [{reference}] Can Move To King : [{kingReference}] True");
+            //             return true;
+            //         }
+                    
+            //         Debug.Log($"IsKingInCheck {opposingPiece.name} [{reference}] Can Move To King : [{kingReference}] False");
+            //     }
+            // }
 
             return false;
         }
 
-        private List<PieceManager> GetSetFromMatrix(Set set, Cell[,] matrix)
+        private bool TryResolveKingCell(Cell[,] matrix, Set set, out Cell cell)
         {
-            List<PieceManager> pieceManagers = new List<PieceManager>();
-
             for (int y = 0 ; y <= maxRowIdx ; y++)
             {
                 for (int x = 0 ; x <= maxColumnIdx ; x++)
                 {
-                    Cell cell = matrix[x, y];
-
-                    if ((cell.wrapper.manager != null) && (cell.wrapper.manager.Set == set))
+                    Cell thisCell = matrix[x, y];
+                    if (!thisCell.IsOccupied) continue;
+                    PieceManager piece = thisCell.wrapper.manager;
+                    
+                    if (piece.Set == set && piece.Type == PieceType.King)
                     {
-                        pieceManagers.Add(cell.wrapper.manager);
+                        cell = thisCell;
+                        return true;
                     }
                 }
             }
 
-            return pieceManagers;
+            cell = default(Cell);
+            return false;
         }
+
+        // private bool TryResolveKingFromSet(List<PieceManager> pieces, out PieceManager king)
+        // {
+        //     king = pieces.SingleOrDefault(p => p.Type == PieceType.King);
+        //     return (king != null);
+        // }
+
+        // private List<PieceManager> ResolveSetFromMatrix(Cell[,] matrix, Set set)
+        // {
+        //     List<PieceManager> pieceManagers = new List<PieceManager>();
+
+        //     for (int y = 0 ; y <= maxRowIdx ; y++)
+        //     {
+        //         for (int x = 0 ; x <= maxColumnIdx ; x++)
+        //         {
+        //             Cell cell = matrix[x, y];
+
+        //             if ((cell.wrapper.manager != null) && (cell.wrapper.manager.Set == set))
+        //             {
+        //                 pieceManagers.Add(cell.wrapper.manager);
+        //             }
+        //         }
+        //     }
+
+        //     return pieceManagers;
+        // }
 
         private bool CalculateMoves()
         {
@@ -339,13 +403,25 @@ namespace Chess
             //     PieceManager manager = kingCell.wrapper.manager;
             // }           
 
-            PieceManager manager = ResolveKing(activeSet);
-            ((KingManager) manager).InCheck = inCheck;
+            // PieceManager manager = ResolveKing(activeSet);
+            // ((KingManager) manager).InCheck = inCheck;
 
             List<PieceManager> activeEnabledPieces = (activeSet == Set.Light) ? ActiveEnabledLightPieces : ActiveEnabledDarkPieces;
 
+            var piecesDesc = new System.Text.StringBuilder();
+            piecesDesc.AppendLine("Pieces");
+            
+            var legalMovesDesc = new System.Text.StringBuilder();
+            legalMovesDesc.AppendLine("Legal Moves");
+            
+            var availableMovesDesc = new System.Text.StringBuilder();
+            availableMovesDesc.AppendLine("Available Moves");
+
             foreach (PieceManager piece in activeEnabledPieces)
             {
+                TryGets.TryGetCoordReference(piece.ActiveCell.coord, out string reference);
+                piecesDesc.AppendLine($"{piece.name} [{reference}]");
+
                 List<Cell> potentialMoves = piece.CalculateMoves(matrix, (activeSet == Set.Light) ? 1 : -1);
                 var hasMoves = potentialMoves.Count > 0;
 
@@ -353,8 +429,14 @@ namespace Chess
 
                 foreach (Cell move in potentialMoves)
                 {
-                    if (!piece.WouldKingBeInCheck(move))
+                    // if (!piece.WouldKingBeInCheck(move))
+                    if (!WouldKingBeInCheck(piece, move))
                     {
+                        if (TryGets.TryGetCoordReference(move.coord, out reference))
+                        {
+                            legalMovesDesc.AppendLine($"{piece.name} Legal Move : [{reference}]");
+                        }
+                        
                         legalMoves.Add(move);
                     }
                 }
@@ -367,14 +449,21 @@ namespace Chess
                 }
 
                 if (hasMoves)
-                {
-                    availableMoves.Add(piece, legalMoves);
+                {    
+                    this.availableMoves.Add(piece, legalMoves);
                 }
                 else
                 {
                     piece.ApplyMaterial(outOfScopeMaterial);
                 }
+                    
+                availableMovesDesc.AppendLine($"{piece.name} Has Moves : {hasMoves}");
             }
+
+            // Debug.Log(piecesDesc);
+            // Debug.Log($"{activeSet} In Check : {inCheck}");
+            // Debug.Log(legalMovesDesc);
+            // Debug.Log(availableMovesDesc);
 
             stageManager.LiveStage = Stage.PendingSelect;
             
@@ -390,6 +479,43 @@ namespace Chess
             }
 
             return inCheck;
+        }
+
+        private Cell[,] ProjectMatrix(Cell cell, Cell targetCell)
+        {
+            Cell[,] clone = CloneMatrix();
+
+            for (int y = 0 ; y <= maxRowIdx ; y++)
+            {
+                for (int x = 0 ; x <= maxColumnIdx ; x++)
+                {
+                    Cell thisCell = clone[x, y];
+                    clone[x, y] = thisCell.Clone();
+                }
+            }
+
+            PieceManager manager = cell.wrapper.manager;
+            clone[cell.coord.x, cell.coord.y].wrapper.manager = null;
+            clone[targetCell.coord.x, targetCell.coord.y].wrapper.manager = manager;
+
+            return clone;
+        }
+
+        public bool WouldKingBeInCheck(PieceManager piece, Cell targetCell)
+        {
+            Cell[,] projectedMatrix = ProjectMatrix(piece.ActiveCell, targetCell);
+
+            TryGets.TryGetCoordReference(piece.ActiveCell.coord, out string reference);
+            TryGets.TryGetCoordReference(targetCell.coord, out string targetReference);
+            // Debug.Log($"WouldKingBeInCheck {piece.name} Target Cell : {reference} Snapshot Summary :");
+            // ReportCells(projectedMatrix, false);
+
+            // bool inCheck = IsKingInCheck(activeSet, projectedMatrix);
+            // Debug.Log($"WouldKingBeInCheck {piece.name} Target Cell : {reference} In Check : {inCheck}");
+            // return inCheck;
+
+            Debug.Log($"WouldKingBeInCheck {piece.name} From : {reference} To : {targetReference}");
+            return IsKingInCheck(activeSet, projectedMatrix);
         }
 
         public Cell ResolveKingCell(Set set)
@@ -666,13 +792,6 @@ namespace Chess
 
         private void OnEvent(PieceManager piece, FocusType focusType)
         {
-            string cellReference = String.Empty;
-                
-            if (TryGets.TryGetCoordReference(piece.ActiveCell.coord, out string tmp))
-            {
-                cellReference = tmp;
-            }
-            
             switch (focusType)
             {
                 case FocusType.OnFocusGained:
@@ -773,48 +892,52 @@ namespace Chess
         }
     }
 
-    public void ReportMatrix(bool includeEmptyCells = false)
+    public void ReportCells(Cell[,] matrix, bool includeEmptyCells = false)
     {
-        List<Cell> cells = AllCells;
+        List<Cell> cells = ExtractCells(matrix);
+        ReportCells(cells, includeEmptyCells);
+    }
 
+    public void ReportCells(List<Cell> cells, bool includeEmptyCells = false)
+    {
         foreach (Cell cell in cells)
         {
             if (cell != null)
             {
-                string cellReference = String.Empty;
-                
-                if (TryGets.TryGetCoordReference(cell.coord, out string reference))
-                {
-                    cellReference = reference;
-                }
+                TryGets.TryGetCoordReference(cell.coord, out string reference);
 
                 if (cell.IsOccupied)
                 {
-                    Debug.Log($"ReportMatrix Piece : {cell.wrapper.manager.name} Coord : [{cell.coord.x}, {cell.coord.y}] Reference : {cellReference} Position : [{cell.localPosition.x}, {cell.localPosition.y}, {cell.localPosition.z}]");
+                    Debug.Log($"ReportMatrix Piece : {cell.wrapper.manager.name} Coord : [{cell.coord.x}, {cell.coord.y}] Reference : {reference} Position : [{cell.localPosition.x}, {cell.localPosition.y}, {cell.localPosition.z}]");
                 }
                 else if (includeEmptyCells)
                 {
-                    Debug.Log($"ReportMatrix EMPTY Coord : [{cell.coord.x} {cell.coord.y}] Reference : {cellReference} Position : [{cell.localPosition.x}, {cell.localPosition.y}, {cell.localPosition.z}]");
+                    Debug.Log($"ReportMatrix EMPTY Coord : [{cell.coord.x} {cell.coord.y}] Reference : {reference} Position : [{cell.localPosition.x}, {cell.localPosition.y}, {cell.localPosition.z}]");
                 }
             }
         }
+    }
+
+    public List<Cell> ExtractCells(Cell[,] matrix)
+    {
+        List<Cell> cells = new List<Cell>();
+
+        for (int y = 0 ; y <= maxRowIdx ; y++)
+        {
+            for (int x = 0 ; x <= maxColumnIdx ; x++)
+            {
+                cells.Add(matrix[x, y]);
+            }
+        }
+
+        return cells;
     }
 
     public List<Cell> AllCells
     {
         get
         {
-            List<Cell> cells = new List<Cell>();
-
-            for (int y = 0 ; y <= maxRowIdx ; y++)
-            {
-                for (int x = 0 ; x <= maxColumnIdx ; x++)
-                {
-                    cells.Add(matrix[x, y]);
-                }
-            }
-
-            return cells;
+            return ExtractCells(matrix);
         }
     }
 
@@ -852,13 +975,6 @@ namespace Chess
                 pieceManager.MoveEventReceived += OnMoveEvent;
                 pieceManager.EventReceived += OnEvent;
 
-                string cellReference = String.Empty;
-                
-                if (TryGets.TryGetCoordReference(cell.coord, out string reference))
-                {
-                    cellReference = reference;
-                }
-
                 matrix[cell.coord.x, cell.coord.y].wrapper.manager = pieceManager;
             }
         }
@@ -868,14 +984,9 @@ namespace Chess
     {
         foreach (PieceManager piece in EnabledPieces)
         {
-            string cellReference = String.Empty;
-                
-            if (TryGets.TryGetCoordReference(piece.ActiveCell.coord, out string reference))
-            {
-                cellReference = reference;
-            }
-            
-            Debug.Log($"ReportPieces {piece.name} Cell : {cellReference} Coord : [{piece.ActiveCell.coord.x}, {piece.ActiveCell.coord.y}] Reference : {cellReference} Position : [{piece.ActiveCell.localPosition.x}, {piece.ActiveCell.localPosition.y}, {piece.ActiveCell.localPosition.z}]");
+            TryGets.TryGetCoordReference(piece.ActiveCell.coord, out string reference);
+
+            Debug.Log($"ReportPieces {piece.name} Cell : {reference} Coord : [{piece.ActiveCell.coord.x}, {piece.ActiveCell.coord.y}] Position : [{piece.ActiveCell.localPosition.x}, {piece.ActiveCell.localPosition.y}, {piece.ActiveCell.localPosition.z}]");
         }
     }
 #endregion
