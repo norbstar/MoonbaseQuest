@@ -29,7 +29,17 @@ namespace Chess
         private int maxRowIdx = ChessBoardManager.MatrixRows - 1;
         private int maxColumnIdx = ChessBoardManager.MatrixColumns - 1;
 
-        public void MapPieces(Cell[,] matrix)
+        void OnEnable()
+        {
+            ChessBoardManager.MatrixEventReceived += OnMatrixEvent;
+        }
+
+        void OnDisable()
+        {
+            ChessBoardManager.MatrixEventReceived -= OnMatrixEvent;
+        }
+
+        private void OnMatrixEvent(Cell[,] matrix)
         {
             int cellIdx = 0;
 

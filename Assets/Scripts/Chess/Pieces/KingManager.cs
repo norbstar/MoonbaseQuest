@@ -8,8 +8,10 @@ namespace Chess.Pieces
     {
         [Header("Materials")]
         [SerializeField] Material inCheckMaterial;
+        [SerializeField] Material inCheckMateMaterial;
 
         private bool inCheck;
+        private bool inCheckMate;
         
         protected override List<CoordBundle> GenerateCoordBundles(Cell[,] matrix, int vector)
         {
@@ -41,9 +43,27 @@ namespace Chess.Pieces
             }
         }
 
+        public bool InCheckMate
+        {
+            get
+            {
+                return inCheckMate;
+            }
+
+            set
+            {
+                inCheckMate = value;
+                RefreshInCheck();
+            }
+        }
+
         private void RefreshInCheck()
         {
-            if (inCheck)
+            if (inCheckMate)
+            {
+                ApplyMaterial(inCheckMateMaterial);
+            }
+            else if (inCheck)
             {
                 ApplyMaterial(inCheckMaterial);
             }
@@ -56,13 +76,16 @@ namespace Chess.Pieces
         public override void UseDefaultMaterial()
         {
             base.UseDefaultMaterial();
+
             RefreshInCheck();
         }
 
         public override void Reset()
         {
             base.Reset();
-            inCheck = false;
+
+            inCheck = inCheckMate = false;
+            RefreshInCheck();
         }
     }
 }

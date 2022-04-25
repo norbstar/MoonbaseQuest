@@ -33,10 +33,11 @@ namespace Chess
 
         [Header("Audio")]
         [SerializeField] AudioClip adjustTableHeightClip;
+        [SerializeField] AudioClip pieceDownClip;
+        [SerializeField] AudioClip victoryClip;
 
         [Header("Canvases")]
         [SerializeField] CoordReferenceCanvas coordReferenceCanvas;
-        [SerializeField] Board2DCanvasManager board2DCanvasManager;
 
         [Header("Pieces")]
         [Range(15f, 35f)]
@@ -68,6 +69,9 @@ namespace Chess
 
         [SerializeField] GameObject previewPrefab;
         [SerializeField] float adjustTableSpeed = 0.5f;
+
+        public delegate void MatrixEvent(Cell[,] matrix);
+        public static event MatrixEvent MatrixEventReceived;
 
         public static int MatrixRows = 8;
         public static int MatrixColumns = 8;
@@ -120,11 +124,6 @@ namespace Chess
         void Start()
         {
             MapMatrix();
-
-            // List<Cell> cells = AllCells;
-            // List<Cell> cells = ExtractCells(matrix);
-            // ReportCells(cells, false);
-
             MapPieces();
             InitGame();
         }
@@ -245,7 +244,7 @@ namespace Chess
 
         private void ManageTurn()
         {
-            board2DCanvasManager.MapPieces(matrix);
+            MatrixEventReceived?.Invoke(matrix);
 
             stageManager.LiveStage = Stage.Evaluating;
             availableMoves.Clear();
@@ -486,6 +485,8 @@ namespace Chess
 
         private void CompleteTurn()
         {
+            AudioSource.PlayClipAtPoint(pieceDownClip, transform.position, 1.0f);
+            
             PieceManager manager = ResolveKing(activeSet);
             ((KingManager) manager).InCheck = false;
 
@@ -599,6 +600,11 @@ namespace Chess
 
         private void OnCheckMate()
         {
+            AudioSource.PlayClipAtPoint(victoryClip, transform.position, 1.0f);
+
+            PieceManager manager = ResolveKing(activeSet);
+            ((KingManager) manager).InCheckMate = true;
+
             Set winner = (activeSet == Set.Light) ? Set.Dark : Set.Light;
             Debug.Log($"{activeSet} has LOST, {winner} WINS");
         }
