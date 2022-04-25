@@ -37,20 +37,26 @@ namespace Chess.Pieces
             set
             {
                 inCheck = value;
+                RefreshInCheck();
+            }
+        }
 
-                if (inCheck)
-                {
-                    ApplyMaterial(inCheckMaterial);
-                }
+        private void RefreshInCheck()
+        {
+            if (inCheck)
+            {
+                ApplyMaterial(inCheckMaterial);
+            }
+            else
+            {
+                ApplyMaterial(defaultMaterial);
             }
         }
 
         public override void UseDefaultMaterial()
         {
-            if (!inCheck)
-            {
-                base.UseDefaultMaterial();
-            }
+            base.UseDefaultMaterial();
+            RefreshInCheck();
         }
 
         public override void Reset()

@@ -36,6 +36,7 @@ namespace Chess
 
         [Header("Canvases")]
         [SerializeField] CoordReferenceCanvas coordReferenceCanvas;
+        [SerializeField] Board2DCanvasManager board2DCanvasManager;
 
         [Header("Pieces")]
         [Range(15f, 35f)]
@@ -181,6 +182,22 @@ namespace Chess
                         reassignableManager.Id = ButtonEventManager.ButtonId.AudioOff;
                         reassignableManager.Text = "Off";
                         break;
+
+                    case ButtonEventManager.ButtonId.BotOff:
+                        EnableBot(false);
+
+                        reassignableManager = ((ReassignableButtonEventManager) manager);
+                        reassignableManager.Id = ButtonEventManager.ButtonId.BotOn;
+                        reassignableManager.Text = "On";
+                        break;
+
+                    case ButtonEventManager.ButtonId.BotOn:
+                        EnableBot(true);
+
+                        reassignableManager = ((ReassignableButtonEventManager) manager);
+                        reassignableManager.Id = ButtonEventManager.ButtonId.BotOff;
+                        reassignableManager.Text = "Off";
+                        break;
                 }
             }
             else if (eventType == ButtonEventType.OnReleased)
@@ -228,6 +245,8 @@ namespace Chess
 
         private void ManageTurn()
         {
+            board2DCanvasManager.MapPieces(matrix);
+
             stageManager.LiveStage = Stage.Evaluating;
             availableMoves.Clear();
             inFocusPiece = null;
@@ -297,8 +316,6 @@ namespace Chess
 
         public bool IsKingInCheck(Set set, Cell[,] matrix)
         {
-            Debug.Log($"IsKingInCheck Set : {set}");
-
             if (TryResolveKingCell(matrix, set, out Cell kingCell))
             {
                 List<PieceManager> opposingPieces = GetSetPieces((activeSet == Set.Light) ? Set.Dark : Set.Light);
@@ -311,35 +328,10 @@ namespace Chess
 
                     if (opposingPiece.CanMoveTo(matrix, kingCell))
                     {
-                        Debug.Log($"IsKingInCheck {opposingPiece.name} [{reference}] Can Move To {kingCell.wrapper.manager.name} : [{kingReference}] True");
                         return true;
                     }
-                    
-                    Debug.Log($"IsKingInCheck {opposingPiece.name} [{reference}] Can Move To {kingCell.wrapper.manager.name} : [{kingReference}] False");
                 }
             }
-
-            // List<PieceManager> pieces = ResolveSetFromMatrix(matrix, set);
-
-            // if (TryResolveKingFromSet(pieces, out PieceManager king))
-            // {
-            //     List<PieceManager> opposingPieces = GetSetPieces((activeSet == Set.Light) ? Set.Dark : Set.Light);
-
-            //     TryGets.TryGetCoordReference(king.ActiveCell.coord, out string kingReference);
-
-            //     foreach (PieceManager opposingPiece in opposingPieces)
-            //     {
-            //         TryGets.TryGetCoordReference(opposingPiece.ActiveCell.coord, out string reference);
-
-            //         if (opposingPiece.CanMoveTo(matrix, king.ActiveCell))
-            //         {
-            //             Debug.Log($"IsKingInCheck {opposingPiece.name} [{reference}] Can Move To King : [{kingReference}] True");
-            //             return true;
-            //         }
-                    
-            //         Debug.Log($"IsKingInCheck {opposingPiece.name} [{reference}] Can Move To King : [{kingReference}] False");
-            //     }
-            // }
 
             return false;
         }
@@ -366,62 +358,18 @@ namespace Chess
             return false;
         }
 
-        // private bool TryResolveKingFromSet(List<PieceManager> pieces, out PieceManager king)
-        // {
-        //     king = pieces.SingleOrDefault(p => p.Type == PieceType.King);
-        //     return (king != null);
-        // }
-
-        // private List<PieceManager> ResolveSetFromMatrix(Cell[,] matrix, Set set)
-        // {
-        //     List<PieceManager> pieceManagers = new List<PieceManager>();
-
-        //     for (int y = 0 ; y <= maxRowIdx ; y++)
-        //     {
-        //         for (int x = 0 ; x <= maxColumnIdx ; x++)
-        //         {
-        //             Cell cell = matrix[x, y];
-
-        //             if ((cell.wrapper.manager != null) && (cell.wrapper.manager.Set == set))
-        //             {
-        //                 pieceManagers.Add(cell.wrapper.manager);
-        //             }
-        //         }
-        //     }
-
-        //     return pieceManagers;
-        // }
-
         private bool CalculateMoves()
         {
             bool shouldAutomate = ShouldAutomate();
             bool inCheck = IsKingInCheck(activeSet, matrix);
             
-            // if (inCheck)
-            // {
-            //     Cell kingCell = ResolveKingCell(activeSet);
-            //     PieceManager manager = kingCell.wrapper.manager;
-            // }           
-
-            // PieceManager manager = ResolveKing(activeSet);
-            // ((KingManager) manager).InCheck = inCheck;
+            PieceManager manager = ResolveKing(activeSet);
+            ((KingManager) manager).InCheck = inCheck;
 
             List<PieceManager> activeEnabledPieces = (activeSet == Set.Light) ? ActiveEnabledLightPieces : ActiveEnabledDarkPieces;
 
-            var piecesDesc = new System.Text.StringBuilder();
-            piecesDesc.AppendLine("Pieces");
-            
-            var legalMovesDesc = new System.Text.StringBuilder();
-            legalMovesDesc.AppendLine("Legal Moves");
-            
-            var availableMovesDesc = new System.Text.StringBuilder();
-            availableMovesDesc.AppendLine("Available Moves");
-
             foreach (PieceManager piece in activeEnabledPieces)
             {
-                TryGets.TryGetCoordReference(piece.ActiveCell.coord, out string reference);
-                piecesDesc.AppendLine($"{piece.name} [{reference}]");
-
                 List<Cell> potentialMoves = piece.CalculateMoves(matrix, (activeSet == Set.Light) ? 1 : -1);
                 var hasMoves = potentialMoves.Count > 0;
 
@@ -429,14 +377,8 @@ namespace Chess
 
                 foreach (Cell move in potentialMoves)
                 {
-                    // if (!piece.WouldKingBeInCheck(move))
                     if (!WouldKingBeInCheck(piece, move))
                     {
-                        if (TryGets.TryGetCoordReference(move.coord, out reference))
-                        {
-                            legalMovesDesc.AppendLine($"{piece.name} Legal Move : [{reference}]");
-                        }
-                        
                         legalMoves.Add(move);
                     }
                 }
@@ -456,14 +398,7 @@ namespace Chess
                 {
                     piece.ApplyMaterial(outOfScopeMaterial);
                 }
-                    
-                availableMovesDesc.AppendLine($"{piece.name} Has Moves : {hasMoves}");
             }
-
-            // Debug.Log(piecesDesc);
-            // Debug.Log($"{activeSet} In Check : {inCheck}");
-            // Debug.Log(legalMovesDesc);
-            // Debug.Log(availableMovesDesc);
 
             stageManager.LiveStage = Stage.PendingSelect;
             
@@ -504,17 +439,6 @@ namespace Chess
         public bool WouldKingBeInCheck(PieceManager piece, Cell targetCell)
         {
             Cell[,] projectedMatrix = ProjectMatrix(piece.ActiveCell, targetCell);
-
-            TryGets.TryGetCoordReference(piece.ActiveCell.coord, out string reference);
-            TryGets.TryGetCoordReference(targetCell.coord, out string targetReference);
-            // Debug.Log($"WouldKingBeInCheck {piece.name} Target Cell : {reference} Snapshot Summary :");
-            // ReportCells(projectedMatrix, false);
-
-            // bool inCheck = IsKingInCheck(activeSet, projectedMatrix);
-            // Debug.Log($"WouldKingBeInCheck {piece.name} Target Cell : {reference} In Check : {inCheck}");
-            // return inCheck;
-
-            Debug.Log($"WouldKingBeInCheck {piece.name} From : {reference} To : {targetReference}");
             return IsKingInCheck(activeSet, projectedMatrix);
         }
 
@@ -562,6 +486,9 @@ namespace Chess
 
         private void CompleteTurn()
         {
+            PieceManager manager = ResolveKing(activeSet);
+            ((KingManager) manager).InCheck = false;
+
             activeSet = (activeSet == Set.Light) ? Set.Dark : Set.Light;
             ManageTurn();
         }
@@ -754,6 +681,8 @@ namespace Chess
         }
 
         private void EnableAudio(bool enabled) => cameraAudioSource.enabled = enabled;
+
+        private void EnableBot(bool enabled) => oppositionMode = (enabled) ? OppositionMode.DumbBot : OppositionMode.None;
 
         private void LockTable()
         {
