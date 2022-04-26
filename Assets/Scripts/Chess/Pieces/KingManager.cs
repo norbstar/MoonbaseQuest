@@ -8,10 +8,18 @@ namespace Chess.Pieces
     {
         [Header("Materials")]
         [SerializeField] Material inCheckMaterial;
-        [SerializeField] Material inCheckMateMaterial;
+        [SerializeField] Material checkmateMaterial;
+        [SerializeField] Material stalemateMaterial;
 
-        private bool inCheck;
-        private bool inCheckMate;
+        public enum State
+        {
+            Nominal,
+            InCheck,
+            Checkmate,
+            Stalemate
+        }
+
+        private State state;
         
         protected override List<CoordBundle> GenerateCoordBundles(Cell[,] matrix, int vector)
         {
@@ -29,43 +37,33 @@ namespace Chess.Pieces
             return bundles;
         }
 
-        public bool InCheck
+        public State KingState
         {
             get
             {
-                return inCheck;
+                return state;
             }
 
             set
             {
-                inCheck = value;
-                RefreshInCheck();
-            }
-        }
-
-        public bool InCheckMate
-        {
-            get
-            {
-                return inCheckMate;
-            }
-
-            set
-            {
-                inCheckMate = value;
+                state = value;
                 RefreshInCheck();
             }
         }
 
         private void RefreshInCheck()
         {
-            if (inCheckMate)
+            if (state == State.Checkmate)
             {
-                ApplyMaterial(inCheckMateMaterial);
+                ApplyMaterial(checkmateMaterial);
             }
-            else if (inCheck)
+            else if (state == State.InCheck)
             {
                 ApplyMaterial(inCheckMaterial);
+            }
+            else if (state == State.Stalemate)
+            {
+                ApplyMaterial(stalemateMaterial);
             }
             else
             {
@@ -84,7 +82,7 @@ namespace Chess.Pieces
         {
             base.Reset();
 
-            inCheck = inCheckMate = false;
+            state = State.Nominal;
             RefreshInCheck();
         }
     }

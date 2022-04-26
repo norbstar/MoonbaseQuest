@@ -12,8 +12,8 @@ namespace Chess.Button
             RaiseTable,
             ResetTable,
             ResetBoard,
-            AudioOn,
-            AudioOff,
+            MusicOn,
+            MusicOff,
             BotOn,
             BotOff,
             LaunchScene

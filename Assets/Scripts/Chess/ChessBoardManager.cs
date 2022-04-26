@@ -34,7 +34,9 @@ namespace Chess
         [Header("Audio")]
         [SerializeField] AudioClip adjustTableHeightClip;
         [SerializeField] AudioClip pieceDownClip;
-        [SerializeField] AudioClip victoryClip;
+        [SerializeField] AudioClip inCheckClip;
+        [SerializeField] AudioClip checkmateClip;
+        [SerializeField] AudioClip stalemateClip;
 
         [Header("Canvases")]
         [SerializeField] CoordReferenceCanvas coordReferenceCanvas;
@@ -166,19 +168,19 @@ namespace Chess
                         ResetBoard();
                         break;
 
-                    case ButtonEventManager.ButtonId.AudioOff:
+                    case ButtonEventManager.ButtonId.MusicOff:
                         EnableAudio(false);
 
                         reassignableManager = ((ReassignableButtonEventManager) manager);
-                        reassignableManager.Id = ButtonEventManager.ButtonId.AudioOn;
+                        reassignableManager.Id = ButtonEventManager.ButtonId.MusicOn;
                         reassignableManager.Text = "On";
                         break;
 
-                    case ButtonEventManager.ButtonId.AudioOn:
+                    case ButtonEventManager.ButtonId.MusicOn:
                         EnableAudio(true);
 
                         reassignableManager = ((ReassignableButtonEventManager) manager);
-                        reassignableManager.Id = ButtonEventManager.ButtonId.AudioOff;
+                        reassignableManager.Id = ButtonEventManager.ButtonId.MusicOff;
                         reassignableManager.Text = "Off";
                         break;
 
@@ -256,11 +258,31 @@ namespace Chess
                 EnableInteractions(Set.Dark, false);
             }
 
-            bool inCheck = CalculateMoves();
+            bool inCheck = IsKingInCheck(activeSet, matrix);
+            bool hasMoves = CalculateMoves();
 
-            if (inCheck && availableMoves.Count == 0)
+            if (hasMoves)
             {
-                OnCheckMate();
+                if (inCheck)
+                {
+                    OnInCheck(hasMoves);
+                }
+
+                if (ShouldAutomate())
+                {
+                    AutomateMove();
+                }
+            }
+            else
+            {
+                if (inCheck)
+                {
+                    OnCheckmate();
+                }
+                else
+                {
+                    OnStalemate();
+                }
             }
         }
 
@@ -359,18 +381,14 @@ namespace Chess
 
         private bool CalculateMoves()
         {
-            bool shouldAutomate = ShouldAutomate();
-            bool inCheck = IsKingInCheck(activeSet, matrix);
-            
-            PieceManager manager = ResolveKing(activeSet);
-            ((KingManager) manager).InCheck = inCheck;
+            bool hasAnyMoves = false;
 
             List<PieceManager> activeEnabledPieces = (activeSet == Set.Light) ? ActiveEnabledLightPieces : ActiveEnabledDarkPieces;
 
             foreach (PieceManager piece in activeEnabledPieces)
             {
                 List<Cell> potentialMoves = piece.CalculateMoves(matrix, (activeSet == Set.Light) ? 1 : -1);
-                var hasMoves = potentialMoves.Count > 0;
+                bool hasMoves = potentialMoves.Count > 0;
 
                 List<Cell> legalMoves = new List<Cell>();
 
@@ -384,14 +402,12 @@ namespace Chess
 
                 hasMoves = legalMoves.Count > 0;
 
-                if (!shouldAutomate)
-                {
-                    piece.EnableInteractions(hasMoves);
-                }
+                piece.EnableInteractions(hasMoves);
 
                 if (hasMoves)
                 {    
                     this.availableMoves.Add(piece, legalMoves);
+                    hasAnyMoves = true;
                 }
                 else
                 {
@@ -407,12 +423,7 @@ namespace Chess
                 AdjustChessPieceInteractableLayer(Set.Dark, (activeSet == Set.Dark));
             }
 
-            if (shouldAutomate)
-            {
-                AutomateMove();
-            }
-
-            return inCheck;
+            return hasAnyMoves;
         }
 
         private Cell[,] ProjectMatrix(Cell cell, Cell targetCell)
@@ -488,7 +499,7 @@ namespace Chess
             AudioSource.PlayClipAtPoint(pieceDownClip, transform.position, 1.0f);
             
             PieceManager manager = ResolveKing(activeSet);
-            ((KingManager) manager).InCheck = false;
+            ((KingManager) manager).KingState = KingManager.State.Nominal;
 
             activeSet = (activeSet == Set.Light) ? Set.Dark : Set.Light;
             ManageTurn();
@@ -598,15 +609,33 @@ namespace Chess
             }
         }
 
-        private void OnCheckMate()
+        private void OnInCheck(bool hasMoves)
         {
-            AudioSource.PlayClipAtPoint(victoryClip, transform.position, 1.0f);
+            AudioSource.PlayClipAtPoint(inCheckClip, transform.position, 1.0f);
 
             PieceManager manager = ResolveKing(activeSet);
-            ((KingManager) manager).InCheckMate = true;
+            ((KingManager) manager).KingState = KingManager.State.InCheck;
+            Debug.Log($"InCheck {activeSet}");
+        }
+
+        private void OnCheckmate()
+        {
+            AudioSource.PlayClipAtPoint(checkmateClip, transform.position, 1.0f);
+
+            PieceManager manager = ResolveKing(activeSet);
+            ((KingManager) manager).KingState = KingManager.State.Checkmate;
 
             Set winner = (activeSet == Set.Light) ? Set.Dark : Set.Light;
-            Debug.Log($"{activeSet} has LOST, {winner} WINS");
+            Debug.Log($"Checkmate {activeSet} has LOST, {winner} WINS");
+        }
+
+        private void OnStalemate()
+        {
+            AudioSource.PlayClipAtPoint(stalemateClip, transform.position, 1.0f);
+
+            PieceManager manager = ResolveKing(activeSet);
+            ((KingManager) manager).KingState = KingManager.State.Stalemate;
+            Debug.Log($"Nobody WINS");
         }
 
         private void DestroyPreviews()
