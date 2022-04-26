@@ -31,6 +31,8 @@ namespace Chess
         [SerializeField] ChessBoardSetManager setManager;
         public ChessBoardSetManager SetManager { get { return setManager; } }
 
+        [SerializeField] NotificationManager notificationManager;
+
         [Header("Audio")]
         [SerializeField] AudioClip adjustTableHeightClip;
         [SerializeField] AudioClip pieceDownClip;
@@ -231,6 +233,7 @@ namespace Chess
         {
             ResetUI();
             ResetGameState();
+            ResetNotifications();
             ResetSet();
             ManageTurn();
         }
@@ -241,6 +244,8 @@ namespace Chess
         }
 
         private void ResetSet() => setManager.Reset();
+
+        private void ResetNotifications() => notificationManager.Hide();
 
         private void ResetUI() => coordReferenceCanvas.TextUI = String.Empty;
 
@@ -612,6 +617,9 @@ namespace Chess
         private void OnInCheck(bool hasMoves)
         {
             AudioSource.PlayClipAtPoint(inCheckClip, transform.position, 1.0f);
+            
+            notificationManager.Text = "Check";
+            notificationManager.ShowFor(0.75f);
 
             PieceManager manager = ResolveKing(activeSet);
             ((KingManager) manager).KingState = KingManager.State.InCheck;
@@ -621,6 +629,9 @@ namespace Chess
         private void OnCheckmate()
         {
             AudioSource.PlayClipAtPoint(checkmateClip, transform.position, 1.0f);
+
+            notificationManager.Text = "Checkmate";
+            notificationManager.Show();
 
             PieceManager manager = ResolveKing(activeSet);
             ((KingManager) manager).KingState = KingManager.State.Checkmate;
@@ -632,6 +643,9 @@ namespace Chess
         private void OnStalemate()
         {
             AudioSource.PlayClipAtPoint(stalemateClip, transform.position, 1.0f);
+
+            notificationManager.Text = "Stalemate";
+            notificationManager.Show();
 
             PieceManager manager = ResolveKing(activeSet);
             ((KingManager) manager).KingState = KingManager.State.Stalemate;
