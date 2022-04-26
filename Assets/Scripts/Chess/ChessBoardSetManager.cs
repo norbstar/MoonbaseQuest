@@ -8,6 +8,11 @@ namespace Chess
 {
     public class ChessBoardSetManager : MonoBehaviour
     {
+        [Header("Components")]
+        [SerializeField] ChessBoardManager chessBoardManager;
+        [SerializeField] GameObject lightSet;
+        [SerializeField] GameObject darkSet;
+
         [Header("Lights")]
         [SerializeField] List<PieceManager> lightPieces;
         [SerializeField] CaptureZoneManager lightCaptureZone;
@@ -16,7 +21,38 @@ namespace Chess
         [SerializeField] List<PieceManager> darkPieces;
         [SerializeField] CaptureZoneManager darkCaptureZone;
 
+        [Header("Setup")]
+        [SerializeField] BoardSetupScriptable boardSetup;
         
+        // Start is called before the first frame update
+        void Start()
+        {
+            if (boardSetup == null) return;
+
+            AddPieces(Set.Light, boardSetup.LightPieces);
+            AddPieces(Set.Dark, boardSetup.DarkPieces);
+        }
+
+        private void AddPieces(Set set, List<Chess.BoardSetupScriptable.Piece> pieces)
+        {
+            foreach (Chess.BoardSetupScriptable.Piece piece in pieces)
+            {
+                if (chessBoardManager.TryGetCoordToPosition(piece.coord, out Vector3 localPosition))
+                {
+                    var instance = GameObject.Instantiate(piece.manager.gameObject);
+                    instance.transform.parent = (set == Set.Light) ? lightSet.transform : darkSet.transform;
+                    instance.transform.localPosition = localPosition;
+                    instance.transform.localRotation = (set == Set.Light) ? Quaternion.identity : Quaternion.Euler(0f, 180f, 0f);
+                    
+                    var manager = instance.GetComponent<PieceManager>() as PieceManager;
+                    manager.ChessBoardManager = chessBoardManager;
+                    
+                    List<PieceManager> list = (set == Set.Light) ? lightPieces : darkPieces;
+                    list.Add(manager);
+                }
+            }
+        }
+
         public List<PieceManager> DarkPieces()
         {
             List<PieceManager> pieces = new List<PieceManager>();

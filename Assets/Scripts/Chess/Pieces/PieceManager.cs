@@ -11,6 +11,8 @@ namespace Chess.Pieces
     {
         [Header("Components")]
         [SerializeField] protected ChessBoardManager chessBoardManager;
+        public ChessBoardManager ChessBoardManager { get { return chessBoardManager; } set { chessBoardManager = value; } }
+        
         [SerializeField] PieceCanvasManager canvasManager;
 
         [Header("Config")]
