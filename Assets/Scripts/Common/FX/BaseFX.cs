@@ -60,6 +60,7 @@ namespace FX
             if (coroutine != null)
             {
                 StopCoroutine(coroutine);
+                coroutine = null;
             }
         }
 

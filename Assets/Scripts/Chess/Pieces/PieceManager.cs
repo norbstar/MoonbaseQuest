@@ -476,6 +476,7 @@ namespace Chess.Pieces
         {
             EnableInteractions(false);
 
+            bool isResetting = (cell == HomeCell);
             bool doMove = (cell != ActiveCell);
 
             if (cell.IsOccupied)
@@ -484,7 +485,7 @@ namespace Chess.Pieces
                 {
                     chessBoardManager.SetManager.RemovePiece(cell.wrapper.manager);
                 }
-                else
+                else if (!isResetting)
                 {
                     if (chessBoardManager.SetManager.TryReserveSlot(cell.wrapper.manager, out Vector3 localPosition))
                     {
@@ -516,7 +517,7 @@ namespace Chess.Pieces
                     yield return StartCoroutine(DirectMoveCoroutine(cell, rotationSpeed, speed));
                 }
             }
-            
+
             if (ActiveCell != null)
             {
                 ActiveCell.wrapper.manager = null;

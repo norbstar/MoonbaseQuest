@@ -1,10 +1,9 @@
 using UnityEngine;
 
-public class LookAtGameObject : MonoBehaviour
+public class LookAtTransform : MonoBehaviour
 {
     [SerializeField] GameObject target;
-    [SerializeField] GameObject origin;
-    [SerializeField] Vector3 upwards = Vector3.up;
+ 
     [SerializeField] bool enableRefresh = false;
     
     protected virtual void Awake()
@@ -21,8 +20,6 @@ public class LookAtGameObject : MonoBehaviour
 
     private void FaceToCamera()
     {
-        Vector3 relativePosition = (target.transform.position - origin.transform.position).normalized;
-        Quaternion rotation = Quaternion.LookRotation(relativePosition, upwards);
-        transform.rotation = rotation;
+        transform.LookAt(target.transform, Vector3.up);
     }
 }

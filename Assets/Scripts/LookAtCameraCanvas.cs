@@ -20,7 +20,7 @@ public class LookAtCameraCanvas : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Vector3 relativePosition = camera.transform.position - transform.position;
+        Vector3 relativePosition = (camera.transform.position - transform.position).normalized;
         Quaternion rotation = Quaternion.LookRotation(relativePosition, Vector3.up);
         canvas.transform.rotation = rotation;
     }
