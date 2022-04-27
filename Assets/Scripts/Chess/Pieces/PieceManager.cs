@@ -12,7 +12,7 @@ namespace Chess.Pieces
         [Header("Components")]
         [SerializeField] protected ChessBoardManager chessBoardManager;
         public ChessBoardManager ChessBoardManager { get { return chessBoardManager; } set { chessBoardManager = value; } }
-        
+
         [SerializeField] PieceCanvasManager canvasManager;
 
         [Header("Config")]
@@ -21,8 +21,22 @@ namespace Chess.Pieces
         [SerializeField] PieceType type;
         public PieceType Type { get { return type; } }
 
+        public bool IsAddInPiece
+        {
+            get
+            {
+                return isAddInPiece;
+            }
+
+            set
+            {
+                isAddInPiece = value;
+            }
+        }
+
         private float rotationSpeed = 25f;
         private float moveSpeed = 25f;
+        private bool isAddInPiece = false;
 
         protected class CoordSpec
         {
@@ -462,35 +476,47 @@ namespace Chess.Pieces
         {
             EnableInteractions(false);
 
-            if ((cell != ActiveCell) && cell.IsOccupied)
+            bool doMove = (cell != ActiveCell);
+
+            if (cell.IsOccupied)
             {
-                if (chessBoardManager.SetManager.TryReserveSlot(cell.wrapper.manager, out Vector3 localPosition))
+                if (cell.wrapper.manager.IsAddInPiece)
                 {
-                    cell.wrapper.manager.transform.localPosition = localPosition;
-                    cell.wrapper.manager.EnableInteractions(false);
-                    cell.wrapper.manager.ActiveCell = null;
-                    cell.wrapper.manager.ShowMesh();
-                    cell.wrapper.manager = null;
+                    chessBoardManager.SetManager.RemovePiece(cell.wrapper.manager);
+                }
+                else
+                {
+                    if (chessBoardManager.SetManager.TryReserveSlot(cell.wrapper.manager, out Vector3 localPosition))
+                    {
+                        cell.wrapper.manager.transform.localPosition = localPosition;
+                        cell.wrapper.manager.EnableInteractions(false);
+                        cell.wrapper.manager.ActiveCell = null;
+                        cell.wrapper.manager.ShowMesh();
+                        cell.wrapper.manager = null;
+                    }
                 }
             }
 
-            Vector3 targetPosition = ChessMath.RoundVector3(cell.localPosition);
-            Vector3 startPosition = ChessMath.RoundVector3(transform.localPosition);
-            float distance = Vector3.Distance(startPosition, targetPosition);
-
-            float rotationSpeed = chessBoardManager.PieceRotationSpeed;
-            float moveSpeed = chessBoardManager.PieceMoveSpeed;
-            float speed = (moveType == MoveType.TimeRelativeToDistance) ? moveSpeed : moveSpeed * distance;
-
-            if (moveStyle == MoveStyle.Parabola)
+            if (doMove)
             {
-                yield return StartCoroutine(ParabolaMoveCoroutine(cell, rotationSpeed, speed));
-            }
-            else
-            {
-                yield return StartCoroutine(DirectMoveCoroutine(cell, rotationSpeed, speed));
-            }
+                Vector3 targetPosition = ChessMath.RoundVector3(cell.localPosition);
+                Vector3 startPosition = ChessMath.RoundVector3(transform.localPosition);
+                float distance = Vector3.Distance(startPosition, targetPosition);
 
+                float rotationSpeed = chessBoardManager.PieceRotationSpeed;
+                float moveSpeed = chessBoardManager.PieceMoveSpeed;
+                float speed = (moveType == MoveType.TimeRelativeToDistance) ? moveSpeed : moveSpeed * distance;
+
+                if (moveStyle == MoveStyle.Parabola)
+                {
+                    yield return StartCoroutine(ParabolaMoveCoroutine(cell, rotationSpeed, speed));
+                }
+                else
+                {
+                    yield return StartCoroutine(DirectMoveCoroutine(cell, rotationSpeed, speed));
+                }
+            }
+            
             if (ActiveCell != null)
             {
                 ActiveCell.wrapper.manager = null;

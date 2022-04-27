@@ -37,20 +37,38 @@ namespace Chess
         {
             foreach (Chess.BoardSetupScriptable.Piece piece in pieces)
             {
-                if (chessBoardManager.TryGetCoordToPosition(piece.coord, out Vector3 localPosition))
-                {
-                    var instance = GameObject.Instantiate(piece.manager.gameObject);
-                    instance.transform.parent = (set == Set.Light) ? lightSet.transform : darkSet.transform;
-                    instance.transform.localPosition = localPosition;
-                    instance.transform.localRotation = (set == Set.Light) ? Quaternion.identity : Quaternion.Euler(0f, 180f, 0f);
-                    
-                    var manager = instance.GetComponent<PieceManager>() as PieceManager;
-                    manager.ChessBoardManager = chessBoardManager;
-                    
-                    List<PieceManager> list = (set == Set.Light) ? lightPieces : darkPieces;
-                    list.Add(manager);
-                }
+                AddPiece(set, piece.manager, piece.coord);
             }
+        }
+
+        public PieceManager AddPiece(Set set, PieceManager piece, Coord coord, bool isAddInPiece = false)
+        {
+            if (chessBoardManager.TryGetCoordToPosition(coord, out Vector3 localPosition))
+            {
+                var instance = GameObject.Instantiate(piece.gameObject);
+                instance.transform.parent = (set == Set.Light) ? lightSet.transform : darkSet.transform;
+                instance.transform.localPosition = localPosition;
+                instance.transform.localRotation = (set == Set.Light) ? Quaternion.identity : Quaternion.Euler(0f, 180f, 0f);
+                
+                var manager = instance.GetComponent<PieceManager>() as PieceManager;
+                manager.ChessBoardManager = chessBoardManager;
+                manager.IsAddInPiece = isAddInPiece;
+
+                List<PieceManager> list = (set == Set.Light) ? lightPieces : darkPieces;
+                list.Add(manager);
+
+                return manager;
+            }
+
+            return null;
+        }
+
+        public void RemovePiece(PieceManager piece)
+        {
+            List<PieceManager> list = (piece.Set == Set.Light) ? lightPieces : darkPieces;
+            list.Remove(piece);
+            
+            GameObject.Destroy(piece.gameObject);
         }
 
         public List<PieceManager> DarkPieces()

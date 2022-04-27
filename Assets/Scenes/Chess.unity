@@ -9283,7 +9283,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   frontTextUI: {fileID: 0}
+  leftTextUI: {fileID: 0}
   rearTextUI: {fileID: 0}
+  rightTextUI: {fileID: 0}
 --- !u!95 &1587885376
 Animator:
   serializedVersion: 3
@@ -13522,6 +13524,38 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 107489385}
     m_Modifications:
+    - target: {fileID: 15754034, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: darkRook
+      value: 
+      objectReference: {fileID: 8102947127171825624, guid: ceb6cee87c35a6e459c16ffaccd8658b, type: 3}
+    - target: {fileID: 15754034, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: darkQueen
+      value: 
+      objectReference: {fileID: 8624493483460251936, guid: e72153998cd684748927811c0506ab76, type: 3}
+    - target: {fileID: 15754034, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: lightRook
+      value: 
+      objectReference: {fileID: 3679588930032896027, guid: 03a1818827e518d428d84494e810dbdf, type: 3}
+    - target: {fileID: 15754034, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: darkBishop
+      value: 
+      objectReference: {fileID: 4210149038936860385, guid: 631eb36794741ca43922dbb50d34facd, type: 3}
+    - target: {fileID: 15754034, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: darkKnight
+      value: 
+      objectReference: {fileID: 2420445641124321471, guid: b322b5c87a777c6439a489e1d299d467, type: 3}
+    - target: {fileID: 15754034, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: lightQueen
+      value: 
+      objectReference: {fileID: 1407545083818810016, guid: 9a16c094c0be41b4aa9bd5a14c2266fb, type: 3}
+    - target: {fileID: 15754034, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: lightBishop
+      value: 
+      objectReference: {fileID: 8631900479757577563, guid: 2cf60144af16c924ba535670423e6c77, type: 3}
+    - target: {fileID: 15754034, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: lightKnight
+      value: 
+      objectReference: {fileID: 1343931239896073136, guid: 4aec4fe17e00cf84693dd960d4be603d, type: 3}
     - target: {fileID: 1813446090752762579, guid: 171924c1571199441855e30650381e00, type: 3}
       propertyPath: camera
       value: 
@@ -13593,7 +13627,7 @@ PrefabInstance:
     - target: {fileID: 4562339314349393204, guid: 171924c1571199441855e30650381e00, type: 3}
       propertyPath: boardSetup
       value: 
-      objectReference: {fileID: 11400000, guid: bd12f55f0af6ae341b5a3fd6e770562c, type: 2}
+      objectReference: {fileID: 11400000, guid: 0f4e17aaa99be694db13e8b497976427, type: 2}
     - target: {fileID: 6004237269265523477, guid: 171924c1571199441855e30650381e00, type: 3}
       propertyPath: interactables.Array.data[0]
       value: 

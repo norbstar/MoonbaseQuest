@@ -9,7 +9,9 @@ namespace Chess
     public class NotificationManager : MonoBehaviour
     {
         [SerializeField] TextMeshProUGUI frontTextUI;
+        [SerializeField] TextMeshProUGUI leftTextUI;
         [SerializeField] TextMeshProUGUI rearTextUI;
+        [SerializeField] TextMeshProUGUI rightTextUI;
 
         public string Text
         {
@@ -21,7 +23,9 @@ namespace Chess
             set
             {
                 frontTextUI.text = value;
+                leftTextUI.text = value;
                 rearTextUI.text = value;
+                rightTextUI.text = value;
             }
         }
 

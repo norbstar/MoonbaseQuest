@@ -28,10 +28,12 @@ namespace Chess
         [SerializeField] HybridHandController rightController;
 
         [Header("Components")]
+        [SerializeField] GameObject board;
         [SerializeField] ChessBoardSetManager setManager;
         public ChessBoardSetManager SetManager { get { return setManager; } }
 
         [SerializeField] NotificationManager notificationManager;
+        [SerializeField] PiecePickerManager piecePickerManager;
 
         [Header("Audio")]
         [SerializeField] AudioClip adjustTableHeightClip;
@@ -39,6 +41,7 @@ namespace Chess
         [SerializeField] AudioClip inCheckClip;
         [SerializeField] AudioClip checkmateClip;
         [SerializeField] AudioClip stalemateClip;
+        [SerializeField] AudioClip pawnPromotionClip;
 
         [Header("Canvases")]
         [SerializeField] CoordReferenceCanvas coordReferenceCanvas;
@@ -54,6 +57,7 @@ namespace Chess
         [SerializeField] Material outOfScopeMaterial;
         [SerializeField] Material inFocusMaterial;
         [SerializeField] Material selectedMaterial;
+        [SerializeField] Material pawnPromotionMaterial;
 
         [Header("Config")]
         [SerializeField] PlayMode playMode;
@@ -86,15 +90,17 @@ namespace Chess
         private int onHomeEventsPending;
         private Set activeSet;
         private PieceManager inFocusPiece;
+        private PieceManager promotionPiece;
         private PreviewManager inFocusPreview;
         private StageManager stageManager;
         private Dictionary<PieceManager, List<Cell>> availableMoves;
         private int maxRowIdx = MatrixRows - 1;
         private int maxColumnIdx = MatrixColumns - 1;
         private List<GameObject> previews;
-        private float defaultTableYOffset = 0.5f;
-        private float lowerYTableBounds = 0.25f;
-        private float upperYTableBounds = 0.75f;
+        private float defaultTableYOffset = 0f;
+        private float lowerYTableBounds = -0.25f;
+        private float upperYTableBounds = 0.25f;
+        private float inCheckNotificationDelay = 1f;
         private Coroutine coroutine;
         private AudioSource audioSource;
 
@@ -137,6 +143,7 @@ namespace Chess
             HandController.ActuationEventReceived += OnActuation;
             ButtonEventManager.EventReceived += OnButtonEvent;
             PreviewManager.EventReceived += OnPreviewEvent;
+            PiecePickerManager.EventReceived += OnPiecePickerEvent;
         }
 
         void OnDisable()
@@ -144,6 +151,7 @@ namespace Chess
             HandController.ActuationEventReceived -= OnActuation;
             ButtonEventManager.EventReceived -= OnButtonEvent;
             PreviewManager.EventReceived -= OnPreviewEvent;
+            PiecePickerManager.EventReceived -= OnPiecePickerEvent;
         }
 
         private void OnButtonEvent(ButtonEventManager manager, ButtonEventManager.ButtonId id, ButtonEventType eventType)
@@ -233,7 +241,6 @@ namespace Chess
         {
             ResetUI();
             ResetGameState();
-            ResetNotifications();
             ResetSet();
             ManageTurn();
         }
@@ -245,7 +252,7 @@ namespace Chess
 
         private void ResetSet() => setManager.Reset();
 
-        private void ResetNotifications() => notificationManager.Hide();
+        private void HideNotifications() => notificationManager.Hide();
 
         private void ResetUI() => coordReferenceCanvas.TextUI = String.Empty;
 
@@ -501,8 +508,6 @@ namespace Chess
 
         private void CompleteTurn()
         {
-            AudioSource.PlayClipAtPoint(pieceDownClip, transform.position, 1.0f);
-            
             PieceManager manager = ResolveKing(activeSet);
             ((KingManager) manager).KingState = KingManager.State.Nominal;
 
@@ -619,7 +624,7 @@ namespace Chess
             AudioSource.PlayClipAtPoint(inCheckClip, transform.position, 1.0f);
             
             notificationManager.Text = "Check";
-            notificationManager.ShowFor(0.75f);
+            notificationManager.ShowFor(inCheckNotificationDelay);
 
             PieceManager manager = ResolveKing(activeSet);
             ((KingManager) manager).KingState = KingManager.State.InCheck;
@@ -666,12 +671,24 @@ namespace Chess
         {
             var enabledPieces = EnabledPieces;
             onHomeEventsPending = enabledPieces.Count;
+
+            HideNotifications();
+
             stageManager.LiveStage = Stage.Resetting;
             
             foreach (PieceManager piece in enabledPieces)
             {
-                piece.Reset();
-                piece.GoHome(moveType, moveStyle);
+                if (piece.IsAddInPiece)
+                {
+                    piece.EventReceived -= OnEvent;
+                    piece.MoveEventReceived -= OnMoveEvent;
+                    setManager.RemovePiece(piece);
+                }
+                else
+                {
+                    piece.Reset();
+                    piece.GoHome(moveType, moveStyle);
+                }
             }
         }
 
@@ -679,14 +696,14 @@ namespace Chess
 
         private IEnumerator LowerTableCoroutine(float movementSpeed)
         {
-            Vector3 targetPosition = new Vector3(transform.localPosition.x, lowerYTableBounds, transform.localPosition.z);
+            Vector3 targetPosition = new Vector3(board.transform.localPosition.x, lowerYTableBounds, board.transform.localPosition.z);
             
             audioSource.clip = adjustTableHeightClip;
             audioSource.Play();
 
-            while (transform.localPosition != targetPosition)
+            while (board.transform.localPosition != targetPosition)
             {
-                transform.localPosition = Vector3.MoveTowards(transform.localPosition, targetPosition, movementSpeed * Time.deltaTime);
+                board.transform.localPosition = Vector3.MoveTowards(board.transform.localPosition, targetPosition, movementSpeed * Time.deltaTime);
                 yield return null;
             }
 
@@ -697,14 +714,14 @@ namespace Chess
 
         private IEnumerator RaiseTableCoroutine(float movementSpeed)
         {
-            Vector3 targetPosition = new Vector3(transform.localPosition.x, upperYTableBounds, transform.localPosition.z);
+            Vector3 targetPosition = new Vector3(board.transform.localPosition.x, upperYTableBounds, board.transform.localPosition.z);
             
             audioSource.clip = adjustTableHeightClip;
             audioSource.Play();
 
-            while (transform.localPosition != targetPosition)
+            while (board.transform.localPosition != targetPosition)
             {
-                transform.localPosition = Vector3.MoveTowards(transform.localPosition, targetPosition, movementSpeed * Time.deltaTime);
+                board.transform.localPosition = Vector3.MoveTowards(board.transform.localPosition, targetPosition, movementSpeed * Time.deltaTime);
                 yield return null;
             }
 
@@ -715,14 +732,14 @@ namespace Chess
 
         private IEnumerator ResetTableCoroutine(float movementSpeed)
         {
-            Vector3 targetPosition = new Vector3(transform.localPosition.x, defaultTableYOffset, transform.localPosition.z);
+            Vector3 targetPosition = new Vector3(board.transform.localPosition.x, defaultTableYOffset, board.transform.localPosition.z);
             
             audioSource.clip = adjustTableHeightClip;
             audioSource.Play();
 
-            while (transform.localPosition != targetPosition)
+            while (board.transform.localPosition != targetPosition)
             {
-                transform.localPosition = Vector3.MoveTowards(transform.localPosition, targetPosition, movementSpeed * Time.deltaTime);
+                board.transform.localPosition = Vector3.MoveTowards(board.transform.localPosition, targetPosition, movementSpeed * Time.deltaTime);
                 yield return null;
             }
 
@@ -764,8 +781,41 @@ namespace Chess
             }
             else if (stageManager.LiveStage == Stage.Moving)
             {
-                CompleteTurn();
+                AudioSource.PlayClipAtPoint(pieceDownClip, transform.position, 1.0f);
+                MatrixEventReceived?.Invoke(matrix);
+                
+                bool completeTurn = true;
+
+                if (piece.Type == PieceType.Pawn)
+                {
+                    int vector = (activeSet == Set.Light) ? 1 : -1;
+                    int lastRank = (vector == 1) ? maxRowIdx : 0;
+
+                    if (piece.ActiveCell.coord.y == lastRank)
+                    {
+                        completeTurn = false;
+                        PromotePawn(piece);
+                    }
+                }
+
+                if (completeTurn)
+                {
+                    CompleteTurn();
+                }
             }
+        }
+
+        private void PromotePawn(PieceManager piece)
+        {
+            AudioSource.PlayClipAtPoint(pawnPromotionClip, transform.position, 1.0f);
+            piece.ApplyMaterial(pawnPromotionMaterial);
+
+            promotionPiece = piece;
+
+            leftController.IncludeInteractableLayer("Piece Picker Layer");
+            rightController.IncludeInteractableLayer("Piece Picker Layer");
+
+            piecePickerManager.gameObject.SetActive(true);
         }
 
         private void OnEvent(PieceManager piece, FocusType focusType)
@@ -842,6 +892,39 @@ namespace Chess
                         break;
                 }
             }
+        }
+
+        private void OnPiecePickerEvent(PieceManager piece)
+        {
+            piecePickerManager.gameObject.SetActive(false);
+            
+            leftController.ExcludeInteractableLayer("Piece Picker Layer");
+            rightController.ExcludeInteractableLayer("Piece Picker Layer");
+
+            Cell cell = promotionPiece.ActiveCell;
+
+            if (setManager.TryReserveSlot(cell.wrapper.manager, out Vector3 localPosition))
+            {
+                cell.wrapper.manager.transform.localPosition = localPosition;
+                cell.wrapper.manager.EnableInteractions(false);
+                cell.wrapper.manager.ActiveCell = null;
+                cell.wrapper.manager.ShowMesh();
+                cell.wrapper.manager = null;
+            }
+
+            PieceManager promotedPiece = setManager.AddPiece(activeSet, piece, cell.coord, true);
+
+            cell.wrapper.manager = promotedPiece;
+
+            promotedPiece.ActiveCell = cell;
+            promotedPiece.MoveEventReceived += OnMoveEvent;
+            promotedPiece.EventReceived += OnEvent;
+
+            matrix[cell.coord.x, cell.coord.y].wrapper.manager = promotedPiece;
+
+            promotionPiece = null;
+
+            CompleteTurn();
         }
 
 #region Matrix
