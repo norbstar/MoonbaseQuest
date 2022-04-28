@@ -387,8 +387,9 @@ public class HandController : BaseManager
             //     callback.OnActuation(actuation, characteristics);
             // }
 
+            bool pinching = (ActuationContains(Actuation.Trigger));
             bool gripping = (ActuationContains(Actuation.Grip));
-            IsGripping(gripping);
+            IsPinchingOrGripping(pinching | gripping);
 
             if (ActuationEventReceived != null)
             {
@@ -422,7 +423,7 @@ public class HandController : BaseManager
         UpdateState();
     }
 
-    protected virtual void IsGripping(bool gripping) { }
+    protected virtual void IsPinchingOrGripping(bool pinchingOrGripping) { }
 
     private bool ActuationContains(Actuation thisActuation)
     {

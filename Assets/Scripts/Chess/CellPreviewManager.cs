@@ -32,6 +32,10 @@ namespace Chess
                 {
                     Debug.Log($"OnTriggerEnter : {rootGameObject.name}");
                     ShowOutline();
+
+                    var meshFilter = rootGameObject.GetComponent<MeshFilter>() as MeshFilter;
+                    SetMesh(meshFilter.mesh, Quaternion.identity);
+                    ShowMesh();
                 }
             }
         }
@@ -46,6 +50,7 @@ namespace Chess
                 {
                     Debug.Log($"OnTriggerExit : {rootGameObject.name}");
                     HideOutline();
+                    HideMesh();
                 }
             }
         }

@@ -21,7 +21,11 @@ public class OnCollisionHandler : MonoBehaviour
         if (instanceId != enterInstanceId)
         {
             enterInstanceId = instanceId;
-            EventReceived?.Invoke(EventType.OnCollisionEnter, trigger);
+            
+            if (TryGet.TryGetRootResolver(trigger, out GameObject rootGameObject))
+            {
+                EventReceived?.Invoke(EventType.OnCollisionEnter, rootGameObject);
+            }
         }
     }
 
@@ -33,7 +37,11 @@ public class OnCollisionHandler : MonoBehaviour
         if (instanceId != exitInstanceId)
         {
             exitInstanceId = instanceId;
-            EventReceived?.Invoke(EventType.OnCollisionExit, trigger);
+            
+            if (TryGet.TryGetRootResolver(trigger, out GameObject rootGameObject))
+            {
+                EventReceived?.Invoke(EventType.OnCollisionExit, rootGameObject);
+            }
         }
     }
 }

@@ -21,7 +21,11 @@ public class OnTriggerHandler : MonoBehaviour
         if (instanceId != enterInstanceId)
         {
             enterInstanceId = instanceId;
-            EventReceived?.Invoke(EventType.OnTriggerEnter, trigger);
+
+            if (TryGet.TryGetRootResolver(trigger, out GameObject rootGameObject))
+            {
+                EventReceived?.Invoke(EventType.OnTriggerEnter, rootGameObject);
+            }
         }
     }
 
@@ -33,7 +37,11 @@ public class OnTriggerHandler : MonoBehaviour
         if (instanceId != exitInstanceId)
         {
             exitInstanceId = instanceId;
-            EventReceived?.Invoke(EventType.OnTriggerExit, trigger);
+            
+            if (TryGet.TryGetRootResolver(trigger, out GameObject rootGameObject))
+            {
+                EventReceived?.Invoke(EventType.OnTriggerExit, rootGameObject);
+            }
         }
     }
 }

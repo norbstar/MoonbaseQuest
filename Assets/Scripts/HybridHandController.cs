@@ -162,9 +162,9 @@ public class HybridHandController : HandController
         return false;
     }
     
-    protected override void IsGripping(bool gripping)
+    protected override void IsPinchingOrGripping(bool pinchingOrGripping)
     {
-        meshCollider.enabled = !gripping;
-        sphereCollider.enabled = gripping;
+        meshCollider.enabled = !pinchingOrGripping;
+        sphereCollider.enabled = pinchingOrGripping;
     }
 }
