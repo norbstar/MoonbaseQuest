@@ -273,7 +273,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8840445530360547198}
-  m_LocalRotation: {x: -0, y: -0.7071068, z: -0, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0.35, y: 1.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -321,7 +321,7 @@ ConfigurableJoint:
   m_YMotion: 1
   m_ZMotion: 0
   m_AngularXMotion: 0
-  m_AngularYMotion: 0
+  m_AngularYMotion: 1
   m_AngularZMotion: 0
   m_LinearLimitSpring:
     spring: 0
@@ -379,8 +379,8 @@ ConfigurableJoint:
     maximumForce: 3.4028233e+38
   m_AngularYZDrive:
     serializedVersion: 3
-    positionSpring: 0
-    positionDamper: 0
+    positionSpring: 200
+    positionDamper: 25
     maximumForce: 3.4028233e+38
   m_SlerpDrive:
     serializedVersion: 3
@@ -1601,10 +1601,10 @@ Rigidbody:
   m_Drag: 0
   m_AngularDrag: 0.05
   m_UseGravity: 0
-  m_IsKinematic: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 126
-  m_CollisionDetection: 1
+  m_CollisionDetection: 3
 --- !u!114 &8840445530696737003
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1955,10 +1955,10 @@ Rigidbody:
   m_Drag: 0
   m_AngularDrag: 0.05
   m_UseGravity: 0
-  m_IsKinematic: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 126
-  m_CollisionDetection: 1
+  m_CollisionDetection: 3
 --- !u!114 &8840445530810960737
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2017,7 +2017,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8840445530825184126}
   m_Layer: 0
-  m_Name: Toggle Audio Base
+  m_Name: Toggle Music Base
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2363,7 +2363,7 @@ GameObject:
   - component: {fileID: 8840445531080642288}
   - component: {fileID: 8840445531080642289}
   m_Layer: 0
-  m_Name: Toggle Audio Button
+  m_Name: Toggle Music Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3067,10 +3067,10 @@ Rigidbody:
   m_Drag: 0
   m_AngularDrag: 0.05
   m_UseGravity: 0
-  m_IsKinematic: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 126
-  m_CollisionDetection: 1
+  m_CollisionDetection: 3
 --- !u!114 &8840445531329119055
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3448,10 +3448,10 @@ Rigidbody:
   m_Drag: 0
   m_AngularDrag: 0.05
   m_UseGravity: 0
-  m_IsKinematic: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 126
-  m_CollisionDetection: 1
+  m_CollisionDetection: 3
 --- !u!114 &8840445531585609098
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3509,9 +3509,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8840445531612029456}
-  - component: {fileID: 8840445531612029457}
   m_Layer: 0
-  m_Name: Audio Base
+  m_Name: Music Base
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3533,18 +3532,6 @@ Transform:
   m_Father: {fileID: 8840445530363629747}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8840445531612029457
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8840445531612029459}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a054274092705d47b8cc27f27aab3bc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &8840445531615428931
 GameObject:
   m_ObjectHideFlags: 0
@@ -3999,10 +3986,10 @@ Rigidbody:
   m_Drag: 0
   m_AngularDrag: 0.05
   m_UseGravity: 0
-  m_IsKinematic: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 126
-  m_CollisionDetection: 1
+  m_CollisionDetection: 3
 --- !u!114 &8840445531727281826
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5607,10 +5594,10 @@ Rigidbody:
   m_Drag: 0
   m_AngularDrag: 0.05
   m_UseGravity: 0
-  m_IsKinematic: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 126
-  m_CollisionDetection: 1
+  m_CollisionDetection: 3
 --- !u!114 &8840445532197082312
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5953,7 +5940,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Audio
+  m_text: Music
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 33bb8afb5153ebc4dacb36c5f54df3ed, type: 2}
   m_sharedMaterial: {fileID: -9039015085838605812, guid: 33bb8afb5153ebc4dacb36c5f54df3ed, type: 2}
