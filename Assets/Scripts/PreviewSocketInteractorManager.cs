@@ -65,13 +65,27 @@ public class PreviewSocketInteractorManager : BaseManager
         meshFilter = mesh.GetComponent<MeshFilter>() as MeshFilter;
     }
 
+    void OnEnable()
+    {
+        HoverConfigInteractable.EventReceived += OnAttachTransformUpdateEvent;
+    }
+
+    void OnDisable()
+    {
+        HoverConfigInteractable.EventReceived -= OnAttachTransformUpdateEvent;
+    }
+
+    private void OnAttachTransformUpdateEvent(GameObject gameObject) => CalibrateAttachTransform(gameObject);
+
     public void EnablePreview(bool enable) => mesh.SetActive(enable);
 
     public void EnableSocket(bool enable) => socketInteractor.socketActive = enable;
 
     private void CalibrateAttachTransform(GameObject gameObject)
     {
-        Debug.Log($"CalibrateAttachTransform");
+        Log($"{Time.time} {gameObject.name} {className} CalibrateAttachTransform");
+
+        if (IsOccupied && (gameObject.GetInstanceID() != Data.gameObject.GetInstanceID())) return;
 
         var interactable = gameObject.GetComponent<XRGrabInteractable>() as XRGrabInteractable;
 
@@ -84,7 +98,6 @@ public class PreviewSocketInteractorManager : BaseManager
         Log($"{Time.time} {gameObject.name} {className} OnHoverEntered");
 
         var interactableGameObject = args.interactableObject.transform.gameObject;
-        CalibrateAttachTransform(interactableGameObject);
 
         if (!IsOccupied)
         {
@@ -103,8 +116,6 @@ public class PreviewSocketInteractorManager : BaseManager
         Log($"{Time.time} {gameObject.name} {className} OnSelectEntered");
 
         var interactableGameObject = args.interactableObject.transform.gameObject;
-        CalibrateAttachTransform(interactableGameObject);
-
         meshFilter.gameObject.SetActive(false);
 
         Data = new OccupancyData
@@ -113,7 +124,10 @@ public class PreviewSocketInteractorManager : BaseManager
             gameObject = interactableGameObject
         };
 
-        AudioSource.PlayClipAtPoint(dockClip, transform.position, 1.0f);
+        if (dockClip != null)
+        {
+            AudioSource.PlayClipAtPoint(dockClip, transform.position, 1.0f);
+        }
 
         if (interactableGameObject.TryGetComponent<IInteractable>(out IInteractable interactable))
         {
@@ -141,7 +155,10 @@ public class PreviewSocketInteractorManager : BaseManager
             gameObject = null
         };
 
-        AudioSource.PlayClipAtPoint(undockClip, transform.position, 1.0f);
+        if (undockClip != null)
+        {
+            AudioSource.PlayClipAtPoint(undockClip, transform.position, 1.0f);
+        }
 
         if (interactableGameObject.TryGetComponent<IInteractable>(out IInteractable interactable))
         {

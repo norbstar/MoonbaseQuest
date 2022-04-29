@@ -11,6 +11,9 @@ public class HoverConfigInteractable : MonoBehaviour
     [Header("Config")]
     [SerializeField] InputHelpers.Button selectUsage;
 
+    public delegate void AttachTransformUpdateEvent(GameObject gameObject);
+    public static event AttachTransformUpdateEvent EventReceived;
+
     private XRGrabInteractable interactable;
     private InputHelpers.Button defaultlSelectUsage;
 
@@ -26,8 +29,6 @@ public class HoverConfigInteractable : MonoBehaviour
     
     public void OnHoverEntered(HoverEnterEventArgs args)
     {
-        // Debug.Log("OnHoverEntered");
-
         var interactor = args.interactorObject.transform.gameObject;
         
         if (TryGet.TryGetIdentifyController(interactor, out HandController controller))
@@ -40,21 +41,19 @@ public class HoverConfigInteractable : MonoBehaviour
 
             if ((int) device.characteristics == (int) HandController.LeftHand)
             {
-                Debug.Log("Apply Left Transform");
                 interactable.attachTransform = leftTransform;
             }
             else if ((int) device.characteristics == (int) HandController.RightHand)
             {
-                Debug.Log("Apply Right Transform");
                 interactable.attachTransform = rightTransform;
             }
+
+            EventReceived?.Invoke(gameObject);
         }
     }
 
     public void OnHoverExited(HoverExitEventArgs args)
     {
-        // Debug.Log("OnHoverExited");
-
         var interactor = args.interactorObject.transform.gameObject;
         
         if (TryGet.TryGetIdentifyController(interactor, out HandController controller))
