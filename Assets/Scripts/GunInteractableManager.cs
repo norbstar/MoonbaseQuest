@@ -520,17 +520,17 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
         }
     }
 
-    public void OnSocketCompatiblityLayerEvent(SocketCompatibilityLayerManager manager, SocketCompatibilityLayerManager.EventType eventType, GameObject gameObject)
+    public void OnSocketCompatiblityLayerEvent(SocketCompatibilityLayerManager manager, TriggerEventType eventType, GameObject gameObject)
     {
         Log($"{Time.time} {this.gameObject.name}.OnSocketCompatiblityLayer:Manager : {manager.name} GameObject : {gameObject.name} Type : {eventType}");
 
         switch (eventType)
         {
-            case SocketCompatibilityLayerManager.EventType.OnTriggerEnter:
+            case TriggerEventType.OnTriggerEnter:
                 OnSocketCompatibilityLayerEntryEvent(manager, gameObject);
                 break;
             
-            case SocketCompatibilityLayerManager.EventType.OnTriggerExit:
+            case TriggerEventType.OnTriggerExit:
                 OnSocketCompatibilityLayerExitEvent(manager, gameObject);
                 break;
         }

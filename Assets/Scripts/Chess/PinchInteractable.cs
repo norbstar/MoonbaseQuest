@@ -20,13 +20,21 @@ namespace Chess
         [SerializeField] Transform leftHandAttachTransform;
         [SerializeField] Transform rightHandAttachTransform;
 
+        public delegate void Event(GameObject gameObject, Actuation actuation);
+        public event Event EventReceived;
+
         private MeshCollider meshCollider;
         private BoxCollider boxCollider;
         private new Rigidbody rigidbody;
         private InputDeviceCharacteristics? isHoveringCharacteristics;
         private InputDeviceCharacteristics? isHolldingCharacteristics;
+        private bool applyDefaultStateOnDrop;
 
-        void Awake() => ResolveDependencies();
+        void Awake()
+        {
+            ResolveDependencies();
+            applyDefaultStateOnDrop = true;
+        }
 
         private void ResolveDependencies()
         {
@@ -88,23 +96,23 @@ namespace Chess
             }
         }
 
-        private void OnHover(OnPrimitiveTriggerHandler.EventType type, GameObject gameObject)
-        {
-            Debug.Log($"OnHover Game Object : {gameObject.name} Type : {type}");
+        private void OnHover(TriggerEventType type, GameObject gameObject)
+        {     
+            // Debug.Log($"OnHover Game Object : {gameObject.name} Type : {type}");
 
             switch (type)
             {
-                case OnPrimitiveTriggerHandler.EventType.OnTriggerEnter:
+                case TriggerEventType.OnTriggerEnter:
                     break;
 
-                case OnPrimitiveTriggerHandler.EventType.OnTriggerExit:
+                case TriggerEventType.OnTriggerExit:
                     break;
             }
         }
 
         public void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics)
         {
-            Debug.Log($"OnActuation Actuation : {actuation}");
+            // Debug.Log($"OnActuation Actuation : {actuation}");
 
             if (actuation.HasFlag(Actuation.Trigger))
             {
@@ -120,11 +128,15 @@ namespace Chess
                     DropObject();
                 }
             }
+
+            EventReceived?.Invoke(gameObject, actuation);
         }
+
+        public bool InZone { set { applyDefaultStateOnDrop = !value; } }
 
         private void PickupObject(InputDeviceCharacteristics characteristics)
         {
-            Debug.Log("PickupObject");
+            // Debug.Log("PickupObject");
             
             rigidbody.isKinematic = true;
             meshCollider.enabled = false;
@@ -134,11 +146,11 @@ namespace Chess
 
         private void DropObject()
         {
-            Debug.Log("DropObject");
+            // Debug.Log("DropObject");
 
             boxCollider.enabled = false;
-            meshCollider.enabled = true;
-            rigidbody.isKinematic = false;
+            meshCollider.enabled = applyDefaultStateOnDrop;
+            rigidbody.isKinematic = !applyDefaultStateOnDrop;
             isHolldingCharacteristics = null;
         }
     }

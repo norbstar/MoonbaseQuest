@@ -2,13 +2,7 @@ using UnityEngine;
 
 public class OnCollisionHandler : MonoBehaviour
 {
-    public enum EventType
-    {
-        OnCollisionEnter,
-        OnCollisionExit
-    }
-
-    public delegate void Event(EventType type, GameObject gameObject);
+    public delegate void Event(CollisionEventType type, GameObject gameObject);
     public event Event EventReceived;
 
     private int enterInstanceId, exitInstanceId;
@@ -24,7 +18,7 @@ public class OnCollisionHandler : MonoBehaviour
             
             if (TryGet.TryGetRootResolver(trigger, out GameObject rootGameObject))
             {
-                EventReceived?.Invoke(EventType.OnCollisionEnter, rootGameObject);
+                EventReceived?.Invoke(CollisionEventType.OnCollisionEnter, rootGameObject);
             }
         }
     }
@@ -40,7 +34,7 @@ public class OnCollisionHandler : MonoBehaviour
             
             if (TryGet.TryGetRootResolver(trigger, out GameObject rootGameObject))
             {
-                EventReceived?.Invoke(EventType.OnCollisionExit, rootGameObject);
+                EventReceived?.Invoke(CollisionEventType.OnCollisionExit, rootGameObject);
             }
         }
     }

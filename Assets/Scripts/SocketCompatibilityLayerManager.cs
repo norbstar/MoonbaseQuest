@@ -7,16 +7,10 @@ public class SocketCompatibilityLayerManager : BaseManager
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
-    public enum EventType
-    {
-        OnTriggerEnter,
-        OnTriggerExit
-    }
-
     [Header("Config")]
     [SerializeField] string tagName;
 
-    public delegate void Event(SocketCompatibilityLayerManager manager, EventType type, GameObject gameObject);
+    public delegate void Event(SocketCompatibilityLayerManager manager, TriggerEventType type, GameObject gameObject);
     public event Event EventReceived;
 
     private new SphereCollider collider;
@@ -44,7 +38,7 @@ public class SocketCompatibilityLayerManager : BaseManager
         
             if (EventReceived != null)
             {
-                EventReceived(this, EventType.OnTriggerEnter, rootGameObject);
+                EventReceived(this, TriggerEventType.OnTriggerEnter, rootGameObject);
             }
         }
     }
@@ -61,7 +55,7 @@ public class SocketCompatibilityLayerManager : BaseManager
 
             if (EventReceived != null)
             {
-                EventReceived(this, EventType.OnTriggerExit, rootGameObject);
+                EventReceived(this, TriggerEventType.OnTriggerExit, rootGameObject);
             }
         }
     }

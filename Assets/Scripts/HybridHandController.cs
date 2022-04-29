@@ -71,14 +71,14 @@ public class HybridHandController : HandController
         collisionHandler.EventReceived -= OnCollisionEvent;
     }
 
-    public void OnCollisionEvent(OnCollisionHandler.EventType type, GameObject gameObject)
+    public void OnCollisionEvent(CollisionEventType type, GameObject gameObject)
     {
         switch (type)
         {
-            case OnCollisionHandler.EventType.OnCollisionEnter:
+            case CollisionEventType.OnCollisionEnter:
                 break;
 
-            case OnCollisionHandler.EventType.OnCollisionExit:
+            case CollisionEventType.OnCollisionExit:
                 break;
         }
     }
