@@ -6,7 +6,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 
 [RequireComponent(typeof(XRSocketInteractor))]
 [RequireComponent(typeof(SphereCollider))]
-public class SocketInteractorManager : BaseManager
+public class PreviewSocketInteractorManager : BaseManager
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
@@ -25,7 +25,11 @@ public class SocketInteractorManager : BaseManager
         OnHoverExited
     }
 
-    [SerializeField] GameObject meshPrefab;
+    [Header("Mesh")]
+    [SerializeField] GameObject mesh;
+
+    [Header("Attach Transform")]
+    [SerializeField] new Transform transform;
 
     [Header("Audio")]
     [SerializeField] AudioClip dockClip;
@@ -37,16 +41,16 @@ public class SocketInteractorManager : BaseManager
     [Header("Optional settings")]
     [SerializeField] bool startEnabled = true;
 
-    public delegate void Event(SocketInteractorManager manager, EventType type, GameObject gameObject);
+    public delegate void Event(PreviewSocketInteractorManager manager, EventType type, GameObject gameObject);
     public event Event EventReceived;
 
     public OccupancyData Data { get { return (occupied != null) ? occupied : new OccupancyData(); } set { occupied = value; } }
     public bool IsOccupied { get { return occupied != null && occupied.occupied; } }
-    public void Free() => occupied = new SocketInteractorManager.OccupancyData();
+    public void Free() => occupied = new PreviewSocketInteractorManager.OccupancyData();
 
     private XRSocketInteractor socketInteractor;
     private Transform objects;
-    private MeshRenderer visualElement;
+    private MeshFilter meshFilter;
 
     void Awake()
     {
@@ -58,18 +62,35 @@ public class SocketInteractorManager : BaseManager
     private void ResolveDependencies()
     {
         socketInteractor = GetComponent<XRSocketInteractor>() as XRSocketInteractor;
-        visualElement = meshPrefab.GetComponent<MeshRenderer>() as MeshRenderer;
+        meshFilter = mesh.GetComponent<MeshFilter>() as MeshFilter;
     }
 
-    public void EnablePreview(bool enable) => visualElement.enabled = enable;
+    public void EnablePreview(bool enable) => mesh.SetActive(enable);
 
     public void EnableSocket(bool enable) => socketInteractor.socketActive = enable;
+
+    private void CalibrateAttachTransform(GameObject gameObject)
+    {
+        Debug.Log($"CalibrateAttachTransform");
+
+        var interactable = gameObject.GetComponent<XRGrabInteractable>() as XRGrabInteractable;
+
+        transform.localPosition = new Vector3(interactable.attachTransform.localPosition.x, interactable.attachTransform.localPosition.y - 0.5f, interactable.attachTransform.localPosition.z);
+        transform.localRotation = interactable.attachTransform.localRotation;
+    }
 
     public void OnHoverEntered(HoverEnterEventArgs args)
     {
         Log($"{Time.time} {gameObject.name} {className} OnHoverEntered");
+
         var interactableGameObject = args.interactableObject.transform.gameObject;
-        visualElement.gameObject.SetActive(false);
+        CalibrateAttachTransform(interactableGameObject);
+
+        if (!IsOccupied)
+        {
+            meshFilter.mesh = interactableGameObject.GetComponent<MeshFilter>().mesh;
+            meshFilter.gameObject.SetActive(true);
+        }
 
         if (EventReceived != null)
         {
@@ -82,7 +103,9 @@ public class SocketInteractorManager : BaseManager
         Log($"{Time.time} {gameObject.name} {className} OnSelectEntered");
 
         var interactableGameObject = args.interactableObject.transform.gameObject;
-        visualElement.enabled = false;
+        CalibrateAttachTransform(interactableGameObject);
+
+        meshFilter.gameObject.SetActive(false);
 
         Data = new OccupancyData
         {
@@ -109,7 +132,8 @@ public class SocketInteractorManager : BaseManager
         Log($"{Time.time} {gameObject.name} {className} OnSelectExited");
 
         var interactableGameObject = args.interactableObject.transform.gameObject;
-        visualElement.enabled = true;
+        
+        meshFilter.gameObject.SetActive(true);
 
         Data = new OccupancyData
         {
@@ -133,9 +157,11 @@ public class SocketInteractorManager : BaseManager
     public void OnHoverExited(HoverExitEventArgs args)
     {
         Log($"{Time.time} {gameObject.name} {className} OnHoverExited");
+
         var interactableGameObject = args.interactableObject.transform.gameObject;
 
-        visualElement.gameObject.SetActive(true);
+        meshFilter.gameObject.SetActive(false);
+        meshFilter.mesh = null;
 
         if (EventReceived != null)
         {

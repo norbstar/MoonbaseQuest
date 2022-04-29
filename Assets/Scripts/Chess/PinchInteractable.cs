@@ -140,7 +140,7 @@ namespace Chess
             
             rigidbody.isKinematic = true;
             meshCollider.enabled = false;
-            boxCollider.enabled = true;
+            // boxCollider.enabled = true;
             isHolldingCharacteristics = characteristics;
         }
 
@@ -148,7 +148,7 @@ namespace Chess
         {
             // Debug.Log("DropObject");
 
-            boxCollider.enabled = false;
+            // boxCollider.enabled = false;
             meshCollider.enabled = applyDefaultStateOnDrop;
             rigidbody.isKinematic = !applyDefaultStateOnDrop;
             isHolldingCharacteristics = null;
