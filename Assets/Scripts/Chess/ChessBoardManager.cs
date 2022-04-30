@@ -825,6 +825,7 @@ namespace Chess
                 case FocusType.OnFocusGained:
                     if ((playMode == PlayMode.RuleBased) && (piece.Set != activeSet)) return;
 
+                    Debug.Log("OnEvent ShowOutline");
                     piece.ShowOutline();
 
                     if (TryGets.TryGetCoordReference(piece.ActiveCell.coord, out string reference))
