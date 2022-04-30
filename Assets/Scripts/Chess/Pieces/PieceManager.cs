@@ -182,21 +182,9 @@ namespace Chess.Pieces
 
         public void ShowMesh() => renderer.enabled = true;
 
-        // public void HideOutline() => outline.enabled = false;
+        public void HideOutline() => outline.enabled = false;
 
-        public void HideOutline()
-        {
-            Debug.Log("HideOutline");
-            outline.enabled = false;
-        }
-
-        // public void ShowOutline() => outline.enabled = true;
-
-        public void ShowOutline()
-        {
-            Debug.Log("ShowOutline");
-            outline.enabled = true;
-        }
+        public void ShowOutline() => outline.enabled = true;
 
         public void GainedFocus(GameObject gameObject, Vector3 point) => EventReceived?.Invoke(this, FocusType.OnFocusGained);
 

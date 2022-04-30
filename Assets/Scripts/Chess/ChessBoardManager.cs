@@ -670,7 +670,7 @@ namespace Chess
         private void ResetBoard()
         {
             var enabledPieces = EnabledPieces;
-            onHomeEventsPending = enabledPieces.Count;
+            onHomeEventsPending = enabledPieces.Where(p => !p.IsAddInPiece).Count();
 
             HideNotifications();
 
@@ -776,6 +776,8 @@ namespace Chess
                         thisPiece.EnablePhysics(false);
                     }
 
+                    Debug.Log($"OnMoveEvent Moving To Reset Game");
+
                     ResetGame();
                 }
             }
@@ -825,7 +827,6 @@ namespace Chess
                 case FocusType.OnFocusGained:
                     if ((playMode == PlayMode.RuleBased) && (piece.Set != activeSet)) return;
 
-                    Debug.Log("OnEvent ShowOutline");
                     piece.ShowOutline();
 
                     if (TryGets.TryGetCoordReference(piece.ActiveCell.coord, out string reference))

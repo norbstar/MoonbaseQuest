@@ -45,9 +45,6 @@ namespace Chess
         [Header("Optional settings")]
         [SerializeField] bool startEnabled = true;
 
-        // public delegate void Event(PreviewSocketInteractorManager manager, EventType type, GameObject gameObject);
-        // public event Event EventReceived;
-
         public OccupancyData Data { get { return (occupied != null) ? occupied : new OccupancyData(); } set { occupied = value; } }
         public bool IsOccupied { get { return occupied != null && occupied.occupied; } }
         public void Free() => occupied = new PreviewSocketInteractorManager.OccupancyData();
@@ -112,11 +109,6 @@ namespace Chess
                 SetMesh(interactableGameObject.GetComponent<MeshFilter>().mesh);
                 ShowMesh(true);
             }
-
-            // if (EventReceived != null)
-            // {
-            //     EventReceived(this, EventType.OnHoverEntered, interactableGameObject);
-            // }
         }
 
         public void OnSelectEntered(SelectEnterEventArgs args)
@@ -141,11 +133,6 @@ namespace Chess
             {
                 interactable.OnSocketed(true);
             }
-
-            // if (EventReceived != null)
-            // {
-            //     EventReceived(this, EventType.OnSelectEntered, interactableGameObject);
-            // }
         }
 
         public void OnSelectExited(SelectExitEventArgs args)
@@ -171,11 +158,6 @@ namespace Chess
             {
                 interactable.OnSocketed(false);
             }
-
-            // if (EventReceived != null)
-            // {
-            //     EventReceived(this, EventType.OnSelectExited, interactableGameObject);
-            // }
         }
 
         public void OnHoverExited(HoverExitEventArgs args)
@@ -186,11 +168,6 @@ namespace Chess
 
             ShowMesh(false);
             meshFilter.mesh = null;
-
-            // if (EventReceived != null)
-            // {
-            //     EventReceived(this, EventType.OnHoverExited, interactableGameObject);
-            // }
         }
     }
 }
