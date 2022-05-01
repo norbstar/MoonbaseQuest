@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Linq;
 
 using UnityEngine;
@@ -9,6 +10,8 @@ namespace Chess.Pieces
     [RequireComponent(typeof(Outline))]
     public abstract class PieceManager : MonoBehaviour, IFocus
     {
+        private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
+        
         [Header("Components")]
         [SerializeField] protected ChessBoardManager chessBoardManager;
         public ChessBoardManager ChessBoardManager { get { return chessBoardManager; } set { chessBoardManager = value; } }

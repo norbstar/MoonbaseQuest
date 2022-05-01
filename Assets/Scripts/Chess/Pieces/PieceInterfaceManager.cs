@@ -1,3 +1,5 @@
+using System.Reflection;
+
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
@@ -7,6 +9,8 @@ namespace Chess.Pieces
     [RequireComponent(typeof(PieceManager))]
     public class PieceInterfaceManager : MonoBehaviour, IPieceInteractable
     {
+        private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
+
         [Header("Attach Transforms")]
         [SerializeField] Transform leftTransform;
         [SerializeField] Transform rightTransform;

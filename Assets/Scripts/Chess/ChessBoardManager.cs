@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Linq;
 
 using UnityEngine;
@@ -18,8 +19,10 @@ using Chess.Preview;
 namespace Chess
 {
     [RequireComponent(typeof(AudioSource))]
-    public class ChessBoardManager : MonoBehaviour
+    public class ChessBoardManager : BaseManager
     {
+        private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
+
         [Header("Camera")]
         [SerializeField] new Camera camera;
 
@@ -628,7 +631,8 @@ namespace Chess
 
             PieceManager manager = ResolveKing(activeSet);
             ((KingManager) manager).KingState = KingManager.State.InCheck;
-            Debug.Log($"InCheck {activeSet}");
+
+            Log($"{Time.time} {gameObject.name} {className} OnInCheck:Set : {activeSet} Has Moves :{hasMoves}");
         }
 
         private void OnCheckmate()
@@ -642,7 +646,8 @@ namespace Chess
             ((KingManager) manager).KingState = KingManager.State.Checkmate;
 
             Set winner = (activeSet == Set.Light) ? Set.Dark : Set.Light;
-            Debug.Log($"Checkmate {activeSet} has LOST, {winner} WINS");
+
+            Log($"{Time.time} {gameObject.name} {className} OnCheckmate:{activeSet} has LOST, {winner} WINS");
         }
 
         private void OnStalemate()
@@ -654,7 +659,8 @@ namespace Chess
 
             PieceManager manager = ResolveKing(activeSet);
             ((KingManager) manager).KingState = KingManager.State.Stalemate;
-            Debug.Log($"Nobody WINS");
+
+            Log($"{Time.time} {gameObject.name} {className} OnStalemate:Nobody WINS");
         }
 
         private void DestroyPreviews()
@@ -775,8 +781,6 @@ namespace Chess
                     {
                         thisPiece.EnablePhysics(false);
                     }
-
-                    Debug.Log($"OnMoveEvent Moving To Reset Game");
 
                     ResetGame();
                 }
