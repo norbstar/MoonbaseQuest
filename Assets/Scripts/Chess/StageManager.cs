@@ -8,6 +8,7 @@ namespace Chess
             PendingSelect,
             Selected,
             Moving,
+            Promoting,
             Resetting
         }
         

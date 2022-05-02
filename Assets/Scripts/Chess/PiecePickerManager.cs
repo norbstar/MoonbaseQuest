@@ -49,6 +49,10 @@ namespace Chess
             }
         }
 
+        public void Show() => gameObject.SetActive(true);
+
+        public void Hide() => gameObject.SetActive(false);
+
         private void OnEvent(PieceManager piece, FocusType focusType)
         {
             switch (focusType)

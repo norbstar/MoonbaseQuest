@@ -9,7 +9,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 using static Enum.ControllerEnums;
 
 [RequireComponent(typeof(XRController))]
-public class HandController : BaseManager
+public class HandController : GizmoManager
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 

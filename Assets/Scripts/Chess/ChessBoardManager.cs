@@ -34,6 +34,7 @@ namespace Chess
         [SerializeField] GameObject board;
         [SerializeField] ChessBoardSetManager setManager;
         public ChessBoardSetManager SetManager { get { return setManager; } }
+        [SerializeField] PieceTransformManager pieceTransformManager;
 
         [SerializeField] NotificationManager notificationManager;
         [SerializeField] PiecePickerManager piecePickerManager;
@@ -94,6 +95,7 @@ namespace Chess
         private Set activeSet;
         private PieceManager inFocusPiece;
         private PieceManager promotionPiece;
+        private PieceManager pickedPiece;
         private PreviewManager inFocusPreview;
         private StageManager stageManager;
         private Dictionary<PieceManager, List<Cell>> availableMoves;
@@ -147,6 +149,7 @@ namespace Chess
             ButtonEventManager.EventReceived += OnButtonEvent;
             PreviewManager.EventReceived += OnPreviewEvent;
             PiecePickerManager.EventReceived += OnPiecePickerEvent;
+            PieceTransformManager.CompleteEventReceived += OnPieceTransformComplete;
         }
 
         void OnDisable()
@@ -155,6 +158,7 @@ namespace Chess
             ButtonEventManager.EventReceived -= OnButtonEvent;
             PreviewManager.EventReceived -= OnPreviewEvent;
             PiecePickerManager.EventReceived -= OnPiecePickerEvent;
+            PieceTransformManager.CompleteEventReceived -= OnPieceTransformComplete;
         }
 
         private void OnButtonEvent(ButtonEventManager manager, ButtonEventManager.ButtonId id, ButtonEventType eventType)
@@ -800,7 +804,7 @@ namespace Chess
                     if (piece.ActiveCell.coord.y == lastRank)
                     {
                         completeTurn = false;
-                        PromotePawn(piece);
+                        PreparePawnForPromotion(piece);
                     }
                 }
 
@@ -811,17 +815,91 @@ namespace Chess
             }
         }
 
-        private void PromotePawn(PieceManager piece)
+        private void PreparePawnForPromotion(PieceManager piece)
         {
+            stageManager.LiveStage = Stage.Promoting;
             AudioSource.PlayClipAtPoint(pawnPromotionClip, transform.position, 1.0f);
-            piece.ApplyMaterial(pawnPromotionMaterial);
 
             promotionPiece = piece;
+            piece.gameObject.SetActive(false);
+            pieceTransformManager.ShowAndRaisePiece(piece.transform.position);
+        }
 
+        private void OnPieceTransformComplete(PieceTransformManager.Action action)
+        {
+            switch (action)
+            {
+                case PieceTransformManager.Action.Raise:
+                    if (stageManager.LiveStage == Stage.Promoting)
+                    {
+                        if ((playMode == PlayMode.RuleBased) && (activeSet == Set.Dark))
+                        {
+                            // AUTOMATE SELECTION
+                        }
+                        else
+                        {
+                            ShowPiecePicker();
+                        }
+                    }
+                    break;
+
+                case PieceTransformManager.Action.Lower:
+                    if (stageManager.LiveStage == Stage.Promoting)
+                    {
+                        PromotePiece();
+                    }
+                    break;
+            }
+        }
+
+        private void ShowPiecePicker()
+        {
             leftController.IncludeInteractableLayer("Piece Picker Layer");
             rightController.IncludeInteractableLayer("Piece Picker Layer");
+            piecePickerManager.Show();
+        }
 
-            piecePickerManager.gameObject.SetActive(true);
+        private void HidePiecePicker()
+        {
+            piecePickerManager.Hide();
+            leftController.ExcludeInteractableLayer("Piece Picker Layer");
+            rightController.ExcludeInteractableLayer("Piece Picker Layer");
+        }
+
+        private void PromotePiece()
+        {
+            Cell cell = promotionPiece.ActiveCell;
+
+            if (promotionPiece.IsAddInPiece)
+            {
+                setManager.RemovePiece(promotionPiece);
+            }
+            else
+            {
+                promotionPiece.gameObject.SetActive(true);
+
+                if (setManager.TryReserveSlot(cell.wrapper.manager, out Vector3 localPosition))
+                {
+                    cell.wrapper.manager.transform.localPosition = localPosition;
+                    cell.wrapper.manager.EnableInteractions(false);
+                    cell.wrapper.manager.ActiveCell = null;
+                    cell.wrapper.manager.ShowMesh();
+                    cell.wrapper.manager = null;
+                }
+            }
+
+            PieceManager promotedPiece = setManager.AddPiece(activeSet, pickedPiece, cell.coord, true);
+            cell.wrapper.manager = promotedPiece;
+
+            promotedPiece.ActiveCell = cell;
+            promotedPiece.MoveEventReceived += OnMoveEvent;
+            promotedPiece.EventReceived += OnEvent;
+
+            matrix[cell.coord.x, cell.coord.y].wrapper.manager = promotedPiece;
+
+            promotionPiece = null;
+
+            CompleteTurn();
         }
 
         private void OnEvent(PieceManager piece, FocusType focusType)
@@ -902,35 +980,12 @@ namespace Chess
 
         private void OnPiecePickerEvent(PieceManager piece)
         {
-            piecePickerManager.gameObject.SetActive(false);
-            
-            leftController.ExcludeInteractableLayer("Piece Picker Layer");
-            rightController.ExcludeInteractableLayer("Piece Picker Layer");
+            HidePiecePicker();
 
-            Cell cell = promotionPiece.ActiveCell;
+            pickedPiece = piece;
 
-            if (setManager.TryReserveSlot(cell.wrapper.manager, out Vector3 localPosition))
-            {
-                cell.wrapper.manager.transform.localPosition = localPosition;
-                cell.wrapper.manager.EnableInteractions(false);
-                cell.wrapper.manager.ActiveCell = null;
-                cell.wrapper.manager.ShowMesh();
-                cell.wrapper.manager = null;
-            }
-
-            PieceManager promotedPiece = setManager.AddPiece(activeSet, piece, cell.coord, true);
-
-            cell.wrapper.manager = promotedPiece;
-
-            promotedPiece.ActiveCell = cell;
-            promotedPiece.MoveEventReceived += OnMoveEvent;
-            promotedPiece.EventReceived += OnEvent;
-
-            matrix[cell.coord.x, cell.coord.y].wrapper.manager = promotedPiece;
-
-            promotionPiece = null;
-
-            CompleteTurn();
+            pieceTransformManager.SetPiece(piece.Type);
+            pieceTransformManager.LowerAndHidePiece();
         }
 
 #region Matrix
