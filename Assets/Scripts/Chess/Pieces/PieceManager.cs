@@ -244,7 +244,7 @@ namespace Chess.Pieces
         public List<Cell> CalculateMoves(Cell[,] matrix, int vector)
         {
             List<Cell> moves = new List<Cell>();
-            List<Cell> potentialMoves = ResolvePotentialCells(matrix, vector, chessBoardManager.PlayMode);
+            List<Cell> potentialMoves = ResolvePotentialCells(matrix, vector);
 
             foreach (Cell potentialMove in potentialMoves)
             {
@@ -298,20 +298,9 @@ namespace Chess.Pieces
             return cells;
         }
         
-        protected List<Cell> ResolvePotentialCells(Cell[,] matrix, int vector, PlayMode playMode)
+        protected List<Cell> ResolvePotentialCells(Cell[,] matrix, int vector)
         {
-            List<Cell> cells;
-
-            if (chessBoardManager.PlayMode == PlayMode.RuleBased)
-            {
-                cells = ResolveAllAvailableQualifyingCells(matrix, vector);
-            }
-            else
-            {
-                cells = ResolveAllAvailableCells(matrix);
-            }
-
-            return cells;
+            return ResolveAllAvailableQualifyingCells(matrix, vector);
         }
 
         private List<Cell> ResolveAllAvailableCells(Cell[,] matrix)

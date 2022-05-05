@@ -64,9 +64,6 @@ namespace Chess
         [SerializeField] Material pawnPromotionMaterial;
 
         [Header("Config")]
-        [SerializeField] PlayMode playMode;
-        public PlayMode PlayMode { get { return playMode; } }
-
         [SerializeField] MoveStyle moveStyle;
         public MoveStyle MoveStyle { get { return moveStyle; } }
 
@@ -76,8 +73,10 @@ namespace Chess
         [SerializeField] EngagementMode engagementMode;
         public EngagementMode EngagementMode { get { return engagementMode; } }
 
-        [SerializeField] OppositionMode oppositionMode;
-        public OppositionMode OppositionMode { get { return oppositionMode; } }
+        [SerializeField] PlayerMode lightPlayer;
+        public PlayerMode LightPlayer { get { return lightPlayer; } }
+        [SerializeField] PlayerMode darkPlayer;
+        public PlayerMode DarkPlayer { get { return darkPlayer; } }
 
         [SerializeField] GameObject previewPrefab;
         [SerializeField] float adjustTableSpeed = 0.5f;
@@ -185,8 +184,24 @@ namespace Chess
                         ResetBoard();
                         break;
 
+                    case ButtonEventManager.ButtonId.SFXOff:
+                        EnableSFX(false);
+
+                        reassignableManager = ((ReassignableButtonEventManager) manager);
+                        reassignableManager.Id = ButtonEventManager.ButtonId.SFXOn;
+                        reassignableManager.Text = "On";
+                        break;
+
+                    case ButtonEventManager.ButtonId.SFXOn:
+                        EnableSFX(true);
+
+                        reassignableManager = ((ReassignableButtonEventManager) manager);
+                        reassignableManager.Id = ButtonEventManager.ButtonId.SFXOff;
+                        reassignableManager.Text = "Off";
+                        break;
+
                     case ButtonEventManager.ButtonId.MusicOff:
-                        EnableAudio(false);
+                        EnablleMusic(false);
 
                         reassignableManager = ((ReassignableButtonEventManager) manager);
                         reassignableManager.Id = ButtonEventManager.ButtonId.MusicOn;
@@ -194,26 +209,10 @@ namespace Chess
                         break;
 
                     case ButtonEventManager.ButtonId.MusicOn:
-                        EnableAudio(true);
+                        EnablleMusic(true);
 
                         reassignableManager = ((ReassignableButtonEventManager) manager);
                         reassignableManager.Id = ButtonEventManager.ButtonId.MusicOff;
-                        reassignableManager.Text = "Off";
-                        break;
-
-                    case ButtonEventManager.ButtonId.BotOff:
-                        EnableBot(false);
-
-                        reassignableManager = ((ReassignableButtonEventManager) manager);
-                        reassignableManager.Id = ButtonEventManager.ButtonId.BotOn;
-                        reassignableManager.Text = "On";
-                        break;
-
-                    case ButtonEventManager.ButtonId.BotOn:
-                        EnableBot(true);
-
-                        reassignableManager = ((ReassignableButtonEventManager) manager);
-                        reassignableManager.Id = ButtonEventManager.ButtonId.BotOff;
                         reassignableManager.Text = "Off";
                         break;
                 }
@@ -271,11 +270,8 @@ namespace Chess
             availableMoves.Clear();
             inFocusPiece = null;
             
-            if (playMode == PlayMode.RuleBased)
-            {
-                EnableInteractions(Set.Light, false);
-                EnableInteractions(Set.Dark, false);
-            }
+            EnableInteractions(Set.Light, false);
+            EnableInteractions(Set.Dark, false);
 
             bool inCheck = IsKingInCheck(activeSet, matrix);
             bool hasMoves = CalculateMoves();
@@ -436,11 +432,8 @@ namespace Chess
 
             stageManager.LiveStage = Stage.PendingSelect;
             
-            if (playMode == PlayMode.RuleBased)
-            {
-                AdjustChessPieceInteractableLayer(Set.Light, (activeSet == Set.Light));
-                AdjustChessPieceInteractableLayer(Set.Dark, (activeSet == Set.Dark));
-            }
+            AdjustChessPieceInteractableLayer(Set.Light, (activeSet == Set.Light));
+            AdjustChessPieceInteractableLayer(Set.Dark, (activeSet == Set.Dark));
 
             return hasAnyMoves;
         }
@@ -488,20 +481,25 @@ namespace Chess
 
         private bool ShouldAutomate()
         {
-            return (activeSet == Set.Dark) && (oppositionMode != OppositionMode.None);
-        }
+            bool result = false;
 
-        private void AutomateMove()
-        {
-            switch (oppositionMode)
+            switch (activeSet)
             {
-                case OppositionMode.DumbBot:
-                    AutomateDumbMove();
+                case Set.Light:
+                    result = (lightPlayer == PlayerMode.Bot);
+                    break;
+
+                case Set.Dark:
+                    result = (darkPlayer == PlayerMode.Bot);
                     break;
             }
+
+            return result;
         }
 
-        private void AutomateDumbMove()
+        private void AutomateMove() => PlayRandomMove();
+
+        private void PlayRandomMove()
         {
             if (availableMoves.Count == 0) return;
 
@@ -559,12 +557,9 @@ namespace Chess
                 stageManager.LiveStage = Stage.Selected;
                 inFocusPiece.ApplyMaterial(selectedMaterial);
 
-                if (playMode == PlayMode.RuleBased)
+                foreach (KeyValuePair<PieceManager, List<Cell>> element in availableMoves)
                 {
-                    foreach (KeyValuePair<PieceManager, List<Cell>> element in availableMoves)
-                    {
-                        element.Key.EnableInteractions(false);
-                    }
+                    element.Key.EnableInteractions(false);
                 }
 
                 if (availableMoves.TryGetValue(inFocusPiece, out List<Cell> cells))
@@ -610,15 +605,12 @@ namespace Chess
             inFocusPiece.HideOutline();
             DestroyPreviews();
 
-            if (playMode == PlayMode.RuleBased)
+            foreach (KeyValuePair<PieceManager, List<Cell>> element in availableMoves)
             {
-                foreach (KeyValuePair<PieceManager, List<Cell>> element in availableMoves)
-                {
-                    element.Key.EnableInteractions(true);
-                }
-
-                AdjustChessPieceInteractableLayer(activeSet, true);
+                element.Key.EnableInteractions(true);
             }
+
+            AdjustChessPieceInteractableLayer(activeSet, true);
 
             if (TryGets.TryGetCoordReference(inFocusPiece.ActiveCell.coord, out string reference))
             {
@@ -756,9 +748,12 @@ namespace Chess
             audioSource.Stop();
         }
 
-        private void EnableAudio(bool enabled) => cameraAudioSource.enabled = enabled;
+        private void EnableSFX(bool enabled)
+        {
+            // TODO
+        }
 
-        private void EnableBot(bool enabled) => oppositionMode = (enabled) ? OppositionMode.DumbBot : OppositionMode.None;
+        private void EnablleMusic(bool enabled) => cameraAudioSource.enabled = enabled;
 
         private void LockTable()
         {
@@ -832,9 +827,10 @@ namespace Chess
                 case PieceTransformManager.Action.Raise:
                     if (stageManager.LiveStage == Stage.Promoting)
                     {
-                        if ((playMode == PlayMode.RuleBased) && (activeSet == Set.Dark))
+                        if (ShouldAutomate())
                         {
-                            // AUTOMATE SELECTION
+                            PieceManager piece = piecePickerManager.ResolvePieceBySet(activeSet, piecePickerManager.PickRandomType());
+                            SetPickedPiece(piece);
                         }
                         else
                         {
@@ -907,7 +903,7 @@ namespace Chess
             switch (focusType)
             {
                 case FocusType.OnFocusGained:
-                    if ((playMode == PlayMode.RuleBased) && (piece.Set != activeSet)) return;
+                    if (piece.Set != activeSet) return;
 
                     piece.ShowOutline();
 
@@ -920,7 +916,7 @@ namespace Chess
                     break;
 
                 case FocusType.OnFocusLost:
-                    if ((playMode == PlayMode.RuleBased) && (piece.Set != activeSet)) return;
+                    if (piece.Set != activeSet) return;
 
                     if (stageManager.LiveStage == Stage.Selected) return;
                     
@@ -981,7 +977,11 @@ namespace Chess
         private void OnPiecePickerEvent(PieceManager piece)
         {
             HidePiecePicker();
+            SetPickedPiece(piece);
+        }
 
+        private void SetPickedPiece(PieceManager piece)
+        {
             pickedPiece = piece;
 
             pieceTransformManager.SetPiece(piece.Type);

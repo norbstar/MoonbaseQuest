@@ -14,8 +14,8 @@ namespace Chess.Button
             ResetBoard,
             MusicOn,
             MusicOff,
-            BotOn,
-            BotOff,
+            SFXOn,
+            SFXOff,
             LaunchScene
         }
 

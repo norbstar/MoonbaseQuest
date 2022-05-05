@@ -75,29 +75,41 @@ namespace Chess
 
             if (actuation.HasFlag(Actuation.Button_AX))
             {
-                PieceManager piece = null;
-
-                switch(inFocusPiece.Type)
-                {
-                    case PieceType.Queen:
-                        piece = (inFocusPiece.Set == Set.Light) ? lightQueen : darkQueen;
-                        break;
-                    
-                    case PieceType.Knight:
-                        piece = (inFocusPiece.Set == Set.Light) ? lightKnight : darkKnight;
-                        break;
-
-                    case PieceType.Rook:
-                        piece = (inFocusPiece.Set == Set.Light) ? lightRook : darkRook;
-                        break;
-
-                    case PieceType.Bishop:
-                        piece = (inFocusPiece.Set == Set.Light) ? lightBishop : darkBishop;
-                        break;
-                }
-
+                PieceManager piece = ResolvePieceBySet(inFocusPiece.Set, inFocusPiece.Type);
                 EventReceived?.Invoke(piece);
             }
+        }
+
+        public PieceManager ResolvePieceBySet(Set set, PieceType type)
+        {
+            PieceManager piece = null;
+
+            switch(type)
+            {
+                case PieceType.Queen:
+                    piece = (set == Set.Light) ? lightQueen : darkQueen;
+                    break;
+                
+                case PieceType.Knight:
+                    piece = (set == Set.Light) ? lightKnight : darkKnight;
+                    break;
+
+                case PieceType.Rook:
+                    piece = (set == Set.Light) ? lightRook : darkRook;
+                    break;
+
+                case PieceType.Bishop:
+                    piece = (set == Set.Light) ? lightBishop : darkBishop;
+                    break;
+            }
+
+            return piece;
+        }
+
+        public PieceType PickRandomType()
+        {
+            int pieceIdx = Random.Range(0, pieces.Count);
+            return pieces[pieceIdx].Type;
         }
     }
 }

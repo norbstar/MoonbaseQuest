@@ -2889,7 +2889,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Bot
+  m_text: SFX
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 33bb8afb5153ebc4dacb36c5f54df3ed, type: 2}
   m_sharedMaterial: {fileID: -9039015085838605812, guid: 33bb8afb5153ebc4dacb36c5f54df3ed, type: 2}
@@ -5030,7 +5030,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8840445531933546099}
-  - component: {fileID: 8840445531933546096}
   m_Layer: 0
   m_Name: Board Base
   m_TagString: Untagged
@@ -5054,18 +5053,6 @@ Transform:
   m_Father: {fileID: 8840445530363629747}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8840445531933546096
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8840445531933546098}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a054274092705d47b8cc27f27aab3bc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &8840445531991736371
 GameObject:
   m_ObjectHideFlags: 0
@@ -5075,9 +5062,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8840445531991736368}
-  - component: {fileID: 8840445531991736369}
   m_Layer: 0
-  m_Name: Bot Base
+  m_Name: SFX Base
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5099,18 +5085,6 @@ Transform:
   m_Father: {fileID: 8840445530363629747}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8840445531991736369
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8840445531991736371}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a054274092705d47b8cc27f27aab3bc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &8840445531996965585
 GameObject:
   m_ObjectHideFlags: 0
@@ -5184,7 +5158,7 @@ GameObject:
   - component: {fileID: 8840445532087956522}
   - component: {fileID: 8840445532087956523}
   m_Layer: 0
-  m_Name: Toggle Bot Button
+  m_Name: Toggle SFX Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5687,7 +5661,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8840445532225741221}
   m_Layer: 0
-  m_Name: Toggle Bot Base
+  m_Name: Toggle SFX Base
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
