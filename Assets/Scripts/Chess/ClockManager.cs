@@ -25,60 +25,51 @@ namespace Chess
         }
 
         [Header("Config")]
+        [SerializeField] int minutes;
+        public int Minutes { get { return minutes; } }
         [SerializeField] int seconds;
         public int Seconds { get { return seconds; } }
 
-        [SerializeField] bool startOnLoad;
+        protected bool running, expired;
+        protected long ticks, startTicks, startSpanTicks;
+        protected int lastMinutes, lastSeconds;
+        protected TimeSpan duration;
 
-        protected DateTime startTime;
-        protected DateTime lastTime;
-        protected DateTime trackedTime;
-        protected int totalSecs;
-        protected bool running;
+        public virtual void Awake() => duration = TimeSpan.FromSeconds((minutes * 60) + seconds);
 
-        // Start is called before the first frame update
-        void Start()
+        public void Go()
         {
-            if (startOnLoad)
-            {
-                StartClock(seconds);
-            }
+            startTicks = DateTime.Now.Ticks;
+            Resume();
         }
 
-        public void StartClock(int seconds)
+        public void Resume()
         {
-            this.seconds = seconds;
-            startTime = lastTime = trackedTime = DateTime.Now;
-            ResetClock();
+            startSpanTicks = SpanTicks;
             running = true;
         }
 
-        public void PauseClock() => running = false;
-
-        public void StopClock() => running = false;
-
-        public void ResetClock()
+        public void Pause()
         {
-            textUI.text = "00:00";
-            totalSecs = 0;
+            running = false;
+            ticks += (DateTime.Now.Ticks - startSpanTicks);
         }
 
-        protected void Refresh(DateTime now)
-        {
-            trackedTime += (now - lastTime);
-            lastTime = now;
-            int elapsedSecs = (int) trackedTime.TimeOfDay.TotalSeconds;
-        }
+        protected long SpanTicks { get { return DateTime.Now.Ticks - startTicks; } }
 
-        private void Set(int secs)
+        protected void Set(int minutes, int seconds)
         {
-            int mins = secs / 60;
-            string minsPadded = mins.ToString("00");
-            
-            secs -= secs * mins;
-            string secsPadded = secs.ToString("00");
-
+            string minsPadded = minutes.ToString("00");
+            string secsPadded = seconds.ToString("00");
             textUI.text = $"{minsPadded}:{secsPadded}";
+
+            UnityEngine.Debug.Log($"{textUI.text}");
+        }
+
+        protected void Reset()
+        {
+            ticks = 0;
+            running = expired = false;
         }
     }
 }
