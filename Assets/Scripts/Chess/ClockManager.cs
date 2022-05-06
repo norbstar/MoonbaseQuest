@@ -55,6 +55,26 @@ namespace Chess
             ticks += (DateTime.Now.Ticks - startSpanTicks);
         }
 
+        protected abstract void OnUpdate(TimeSpan totalTicks);
+
+        // Update is called once per frame
+        void Update()
+        {
+            if (!running | expired) return;
+
+            long totalTicks = ticks + ((DateTime.Now.Ticks - startTicks) - startSpanTicks);
+            var timespan = new TimeSpan(totalTicks);
+
+            OnUpdate(timespan);
+
+            TimeSpan elapsed = TimeSpan.FromSeconds(timespan.TotalSeconds);
+
+            if (elapsed.Ticks >= duration.Ticks)
+            {
+                expired = true;
+            }
+        }
+
         protected long SpanTicks { get { return DateTime.Now.Ticks - startTicks; } }
 
         protected void Set(int minutes, int seconds)
