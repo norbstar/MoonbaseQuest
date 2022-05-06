@@ -15,8 +15,8 @@ namespace Chess
         {
             yield return new WaitForSeconds(1f);
 
-            stopwatch?.Go();
-            timer?.Go();
+            stopwatch?.Play();
+            timer?.Play();
         }
     }
 }

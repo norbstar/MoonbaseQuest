@@ -49,6 +49,16 @@ namespace Chess
             }
         }
 
+        public void ConfigureAndShow(Set set)
+        {
+            foreach (PieceManager piece in pieces)
+            {
+                piece.Set = set;
+            }
+
+            Show();
+        }
+
         public void Show() => gameObject.SetActive(true);
 
         public void Hide() => gameObject.SetActive(false);

@@ -15,5 +15,11 @@ namespace Chess
             TimeSpan remaining = new TimeSpan(duration.Ticks - TimeSpan.FromSeconds((totalTicks.Minutes * 60) + totalTicks.Seconds).Ticks);
             Set(remaining.Minutes, remaining.Seconds);
         }
+
+        public override void Reset()
+        {
+            base.Reset();
+            Set(Minutes, Seconds);
+        }
     }
 }

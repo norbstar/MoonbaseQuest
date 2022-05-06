@@ -20,7 +20,7 @@ namespace Chess.Pieces
 
         [Header("Config")]
         [SerializeField] Set set;
-        public Set Set { get { return set; } }
+        public Set Set { get { return set; } set { set = value; } }
         [SerializeField] PieceType type;
         public PieceType Type { get { return type; } }
 
@@ -109,7 +109,6 @@ namespace Chess.Pieces
         private new Rigidbody rigidbody;
         private new Collider collider;
         protected Material defaultMaterial;
-        private Quaternion originalRotation;
         private Cell homeCell;
         private Cell activeCell;
         private Outline outline;
@@ -121,7 +120,6 @@ namespace Chess.Pieces
             maxColumnIdx = ChessBoardManager.MatrixColumns - 1;
             maxRowIdx = ChessBoardManager.MatrixRows - 1;
             
-            originalRotation = transform.localRotation;
             defaultMaterial = renderer.material;
         }
 
@@ -452,7 +450,7 @@ namespace Chess.Pieces
         {
             EnableInteractions(false);
 
-            transform.localRotation = originalRotation;
+            transform.localRotation = (set == Set.Light) ? Quaternion.identity : Quaternion.Euler(0f, 180f, 0f);;
             transform.localPosition = ActiveCell.localPosition;
 
             EnableInteractions(true);
@@ -525,9 +523,11 @@ namespace Chess.Pieces
 
         private IEnumerator DirectMoveCoroutine(Cell cell, float rotationSpeed, float movementSpeed)
         {
-            while ((transform.localRotation != originalRotation) || (transform.localPosition != cell.localPosition))
+            Quaternion targetRotation = (set == Set.Light) ? Quaternion.identity : Quaternion.Euler(0f, 180f, 0f);
+
+            while ((transform.localRotation != targetRotation) || (transform.localPosition != cell.localPosition))
             {
-                transform.localRotation = Quaternion.RotateTowards(transform.localRotation, originalRotation, rotationSpeed * Time.deltaTime);
+                transform.localRotation = Quaternion.RotateTowards(transform.localRotation, targetRotation, rotationSpeed * Time.deltaTime);
                 transform.localPosition = Vector3.MoveTowards(transform.localPosition, cell.localPosition, movementSpeed * Time.deltaTime);
                 yield return null;
             }
@@ -542,18 +542,20 @@ namespace Chess.Pieces
             float duration = distance / movementSpeed;
             float timestamp = 0;
 
-            while ((transform.localRotation != originalRotation) || (ChessMath.RoundVector3(transform.localPosition) != targetPosition))
+            Quaternion targetRotation = (set == Set.Light) ? Quaternion.identity : Quaternion.Euler(0f, 180f, 0f);
+
+            while ((transform.localRotation != targetRotation) || (ChessMath.RoundVector3(transform.localPosition) != targetPosition))
             {
                 timestamp += Time.deltaTime;
 
                 float timeframe = Mathf.Clamp01(timestamp / duration);
 
-                transform.localRotation = Quaternion.RotateTowards(transform.localRotation, originalRotation, rotationSpeed * Time.deltaTime);
+                transform.localRotation = Quaternion.RotateTowards(transform.localRotation, targetRotation, rotationSpeed * Time.deltaTime);
                 transform.localPosition = Parabola.MathParabola.Parabola(startPosition, targetPosition, 0.25f, timeframe);
 
                 if (timeframe >= 1f)
                 {
-                    transform.localRotation = originalRotation;
+                    transform.localRotation = targetRotation;
                     transform.localPosition = targetPosition;
                 }
 

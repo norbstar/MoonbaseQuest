@@ -285,7 +285,6 @@ GameObject:
   - component: {fileID: 188803721}
   - component: {fileID: 188803720}
   - component: {fileID: 188803719}
-  - component: {fileID: 188803718}
   m_Layer: 16
   m_Name: Queen
   m_TagString: Chess Piece
@@ -404,18 +403,6 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
---- !u!114 &188803718
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 188803716}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a054274092705d47b8cc27f27aab3bc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &235547378
 GameObject:
   m_ObjectHideFlags: 0
@@ -4892,6 +4879,8 @@ MonoBehaviour:
   pieceTransformManager: {fileID: 2866416087489065616}
   notificationManager: {fileID: 1800886651}
   piecePickerManager: {fileID: 519967640}
+  lightClock: {fileID: 0}
+  darkClock: {fileID: 0}
   adjustTableHeightClip: {fileID: 8300000, guid: 2fa69da0e4419564d83c8b70d0b5eb90, type: 3}
   pieceDownClip: {fileID: 8300000, guid: 671837d3482e9974a9110f9293109bc6, type: 3}
   inCheckClip: {fileID: 8300000, guid: c1d9a296f9b7cc7478edece68d4ca7f1, type: 3}
@@ -4905,11 +4894,11 @@ MonoBehaviour:
   inFocusMaterial: {fileID: 2100000, guid: 3df9c3f643de0764e87f1fb8b189fe10, type: 2}
   selectedMaterial: {fileID: 2100000, guid: 9ebd17eebb55e8f4b8e32c29aaa62b04, type: 2}
   pawnPromotionMaterial: {fileID: -6729338364286771479, guid: 8984d61b575b9f1428f05129a9b67a9f, type: 2}
-  playMode: 0
   moveStyle: 1
   moveType: 1
   engagementMode: 0
-  oppositionMode: 1
+  lightPlayer: 1
+  darkPlayer: 1
   previewPrefab: {fileID: 2344250377201869969, guid: 8a6d4d5b851407547b182d37c68a08a9, type: 3}
   adjustTableSpeed: 0.5
 --- !u!54 &1813446091530321398

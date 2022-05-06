@@ -35,16 +35,18 @@ namespace Chess
         protected int lastMinutes, lastSeconds;
         protected TimeSpan duration;
 
-        public virtual void Awake() => duration = TimeSpan.FromSeconds((minutes * 60) + seconds);
-
-        public void Go()
+        public virtual void Awake()
         {
-            startTicks = DateTime.Now.Ticks;
-            Resume();
+            duration = TimeSpan.FromSeconds((minutes * 60) + seconds);
         }
 
-        public void Resume()
+        public void Play()
         {
+            if (startTicks == -1)
+            {
+                startTicks = DateTime.Now.Ticks;
+            }
+
             startSpanTicks = SpanTicks;
             running = true;
         }
@@ -82,13 +84,12 @@ namespace Chess
             string minsPadded = minutes.ToString("00");
             string secsPadded = seconds.ToString("00");
             textUI.text = $"{minsPadded}:{secsPadded}";
-
-            UnityEngine.Debug.Log($"{textUI.text}");
         }
 
-        protected void Reset()
+        public virtual void Reset()
         {
             ticks = 0;
+            startTicks = -1L;
             running = expired = false;
         }
     }

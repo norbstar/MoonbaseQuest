@@ -25,20 +25,21 @@ namespace Chess
         public delegate void Event(PieceTransformManager.Action action);
         public static event Event CompleteEventReceived;
 
-        public void ShowAndRaisePiece(Vector3 position)
+        public void ShowAndRaisePiece(Set set, Vector3 position)
         {
-            SetPiece(PieceType.Pawn);
+            SetPiece(set, PieceType.Pawn);
             
             transform.position = position;
             gameObject.SetActive(true);
             animationManager.Invoke(Action.Raise);
         }
 
-        public void SetPiece(PieceType type)
+        public void SetPiece(Set set, PieceType type)
         {
             switch (type)
             {
                 case PieceType.Pawn:
+                    pawn.transform.localRotation = (set == Set.Light) ? Quaternion.identity : Quaternion.Euler(0f, 180f, 0f);
                     pawn.SetActive(true);
                     queen.SetActive(false);
                     knight.SetActive(false);
@@ -48,6 +49,7 @@ namespace Chess
 
                 case PieceType.Queen:
                     pawn.SetActive(false);
+                    queen.transform.localRotation = (set == Set.Light) ? Quaternion.identity : Quaternion.Euler(0f, 180f, 0f);
                     queen.SetActive(true);
                     knight.SetActive(false);
                     rook.SetActive(false);
@@ -57,6 +59,7 @@ namespace Chess
                 case PieceType.Knight:
                     pawn.SetActive(false);
                     queen.SetActive(false);
+                    knight.transform.localRotation = (set == Set.Light) ? Quaternion.identity : Quaternion.Euler(0f, 180f, 0f);
                     knight.SetActive(true);
                     rook.SetActive(false);
                     bishop.SetActive(false);
@@ -66,6 +69,7 @@ namespace Chess
                     pawn.SetActive(false);
                     queen.SetActive(false);
                     knight.SetActive(false);
+                    rook.transform.localRotation = (set == Set.Light) ? Quaternion.identity : Quaternion.Euler(0f, 180f, 0f);
                     rook.SetActive(true);
                     bishop.SetActive(false);
                     break;
@@ -75,6 +79,7 @@ namespace Chess
                     queen.SetActive(false);
                     knight.SetActive(false);
                     rook.SetActive(false);
+                    bishop.transform.localRotation = (set == Set.Light) ? Quaternion.identity : Quaternion.Euler(0f, 180f, 0f);
                     bishop.SetActive(true);
                     break;
             }

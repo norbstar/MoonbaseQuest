@@ -35,9 +35,12 @@ namespace Chess
         [SerializeField] ChessBoardSetManager setManager;
         public ChessBoardSetManager SetManager { get { return setManager; } }
         [SerializeField] PieceTransformManager pieceTransformManager;
-
         [SerializeField] NotificationManager notificationManager;
         [SerializeField] PiecePickerManager piecePickerManager;
+
+        [Header("Clocks")]
+        [SerializeField] TimerClockManager lightClock;
+        [SerializeField] TimerClockManager darkClock;
 
         [Header("Audio")]
         [SerializeField] AudioClip adjustTableHeightClip;
@@ -201,7 +204,7 @@ namespace Chess
                         break;
 
                     case ButtonEventManager.ButtonId.MusicOff:
-                        EnablleMusic(false);
+                        EnableMusic(false);
 
                         reassignableManager = ((ReassignableButtonEventManager) manager);
                         reassignableManager.Id = ButtonEventManager.ButtonId.MusicOn;
@@ -209,7 +212,7 @@ namespace Chess
                         break;
 
                     case ButtonEventManager.ButtonId.MusicOn:
-                        EnablleMusic(true);
+                        EnableMusic(true);
 
                         reassignableManager = ((ReassignableButtonEventManager) manager);
                         reassignableManager.Id = ButtonEventManager.ButtonId.MusicOff;
@@ -248,6 +251,7 @@ namespace Chess
             ResetUI();
             ResetGameState();
             ResetSet();
+            ResetClocks();
             ManageTurn();
         }
 
@@ -275,6 +279,17 @@ namespace Chess
 
             bool inCheck = IsKingInCheck(activeSet, matrix);
             bool hasMoves = CalculateMoves();
+
+            switch (activeSet)
+            {
+                case Set.Light:
+                    lightClock.Play();
+                    break;
+
+                case Set.Dark:
+                    darkClock.Play();
+                    break;
+            }
 
             if (hasMoves)
             {
@@ -513,6 +528,17 @@ namespace Chess
 
         private void CompleteTurn()
         {
+            switch (activeSet)
+            {
+                case Set.Light:
+                    lightClock.Pause();
+                    break;
+
+                case Set.Dark:
+                    darkClock.Pause();
+                    break;
+            }
+
             PieceManager manager = ResolveKing(activeSet);
             ((KingManager) manager).KingState = KingManager.State.Nominal;
 
@@ -694,6 +720,12 @@ namespace Chess
             }
         }
 
+        private void ResetClocks()
+        {
+            lightClock.Reset();
+            darkClock.Reset();
+        }
+
         private void LowerTable() => coroutine = StartCoroutine(LowerTableCoroutine(adjustTableSpeed));
 
         private IEnumerator LowerTableCoroutine(float movementSpeed)
@@ -753,7 +785,7 @@ namespace Chess
             // TODO
         }
 
-        private void EnablleMusic(bool enabled) => cameraAudioSource.enabled = enabled;
+        private void EnableMusic(bool enabled) => cameraAudioSource.enabled = enabled;
 
         private void LockTable()
         {
@@ -817,7 +849,7 @@ namespace Chess
 
             promotionPiece = piece;
             piece.gameObject.SetActive(false);
-            pieceTransformManager.ShowAndRaisePiece(piece.transform.position);
+            pieceTransformManager.ShowAndRaisePiece(activeSet, piece.transform.position);
         }
 
         private void OnPieceTransformComplete(PieceTransformManager.Action action)
@@ -852,7 +884,7 @@ namespace Chess
         {
             leftController.IncludeInteractableLayer("Piece Picker Layer");
             rightController.IncludeInteractableLayer("Piece Picker Layer");
-            piecePickerManager.Show();
+            piecePickerManager.ConfigureAndShow(activeSet);
         }
 
         private void HidePiecePicker()
@@ -984,7 +1016,7 @@ namespace Chess
         {
             pickedPiece = piece;
 
-            pieceTransformManager.SetPiece(piece.Type);
+            pieceTransformManager.SetPiece(activeSet, piece.Type);
             pieceTransformManager.LowerAndHidePiece();
         }
 
