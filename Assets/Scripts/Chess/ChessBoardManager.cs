@@ -38,9 +38,9 @@ namespace Chess
         [SerializeField] NotificationManager notificationManager;
         [SerializeField] PiecePickerManager piecePickerManager;
 
-        [Header("Clocks")]
-        [SerializeField] TimerClockManager lightClock;
-        [SerializeField] TimerClockManager darkClock;
+        // [Header("Clocks")]
+        // [SerializeField] TimerClockManager lightClock;
+        // [SerializeField] TimerClockManager darkClock;
 
         [Header("Audio")]
         [SerializeField] AudioClip adjustTableHeightClip;
@@ -280,16 +280,16 @@ namespace Chess
             bool inCheck = IsKingInCheck(activeSet, matrix);
             bool hasMoves = CalculateMoves();
 
-            switch (activeSet)
-            {
-                case Set.Light:
-                    lightClock.Play();
-                    break;
+            // switch (activeSet)
+            // {
+            //     case Set.Light:
+            //         lightClock.Run();
+            //         break;
 
-                case Set.Dark:
-                    darkClock.Play();
-                    break;
-            }
+            //     case Set.Dark:
+            //         darkClock.Run();
+            //         break;
+            // }
 
             if (hasMoves)
             {
@@ -528,16 +528,16 @@ namespace Chess
 
         private void CompleteTurn()
         {
-            switch (activeSet)
-            {
-                case Set.Light:
-                    lightClock.Pause();
-                    break;
+            // switch (activeSet)
+            // {
+            //     case Set.Light:
+            //         lightClock.Pause();
+            //         break;
 
-                case Set.Dark:
-                    darkClock.Pause();
-                    break;
-            }
+            //     case Set.Dark:
+            //         darkClock.Pause();
+            //         break;
+            // }
 
             PieceManager manager = ResolveKing(activeSet);
             ((KingManager) manager).KingState = KingManager.State.Nominal;
@@ -722,8 +722,8 @@ namespace Chess
 
         private void ResetClocks()
         {
-            lightClock.Reset();
-            darkClock.Reset();
+            // lightClock.Reset();
+            // darkClock.Reset();
         }
 
         private void LowerTable() => coroutine = StartCoroutine(LowerTableCoroutine(adjustTableSpeed));

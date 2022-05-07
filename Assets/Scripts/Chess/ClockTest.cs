@@ -1,4 +1,4 @@
-using System.Collections;
+using System.Collections.Generic;
 
 using UnityEngine;
 
@@ -7,16 +7,43 @@ namespace Chess
     public class ClockTest : MonoBehaviour
     {
         [Header("Components")]
-        [SerializeField] StopwatchClockManager stopwatch;
-        [SerializeField] TimerClockManager timer;
+        [SerializeField] List<StopwatchClockManager> stopwatchss;
+        [SerializeField] List<TimerClockManager> timers;
 
-        // Start is called before the first frame update
-        private IEnumerator Start()
+        // Update is called once per frame
+        void Update()
         {
-            yield return new WaitForSeconds(1f);
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                UnityEngine.Debug.Log($"{Time.time} Test 1");
+                foreach (StopwatchClockManager stopwatch in stopwatchss)
+                {
+                    if (stopwatch.IsRunning)
+                    {
+                        UnityEngine.Debug.Log($"{Time.time} Test 2");
+                        stopwatch.Pause();
+                    }
+                    else
+                    {
+                        UnityEngine.Debug.Log($"{Time.time} Test 3");
+                        stopwatch.Run();
+                    }
+                }
 
-            stopwatch?.Play();
-            timer?.Play();
+                foreach (TimerClockManager timer in timers)
+                {
+                    if (timer.IsRunning)
+                    {
+                        UnityEngine.Debug.Log($"{Time.time} Test 4");
+                        timer.Pause();
+                    }
+                    else
+                    {
+                        UnityEngine.Debug.Log($"{Time.time} Test 5");
+                        timer.Run();
+                    }
+                }
+            }
         }
     }
 }
