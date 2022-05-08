@@ -38,9 +38,9 @@ namespace Chess
         [SerializeField] NotificationManager notificationManager;
         [SerializeField] PiecePickerManager piecePickerManager;
 
-        // [Header("Clocks")]
-        // [SerializeField] TimerClockManager lightClock;
-        // [SerializeField] TimerClockManager darkClock;
+        [Header("Clocks")]
+        [SerializeField] TimerClockManager lightClock;
+        [SerializeField] TimerClockManager darkClock;
 
         [Header("Audio")]
         [SerializeField] AudioClip adjustTableHeightClip;
@@ -110,6 +110,7 @@ namespace Chess
         private float inCheckNotificationDelay = 1f;
         private Coroutine coroutine;
         private AudioSource audioSource;
+        private bool parkRequest;
 
         void Awake()
         {
@@ -140,9 +141,17 @@ namespace Chess
         // Start is called before the first frame update
         void Start()
         {
+            StartCoroutine(StartCoroutine());
+        }
+
+        private IEnumerator StartCoroutine()
+        {
             MapMatrix();
             MapPieces();
             InitGame();
+            
+            yield return new WaitForSeconds(0.1f);
+            ManageTurn();
         }
 
         void OnEnable()
@@ -184,7 +193,8 @@ namespace Chess
                         break;
 
                     case ButtonEventManager.ButtonId.ResetBoard:
-                        ResetBoard();
+                        // ResetBoard();
+                        ParkBoard(ResetBoard);
                         break;
 
                     case ButtonEventManager.ButtonId.SFXOff:
@@ -252,12 +262,12 @@ namespace Chess
             ResetGameState();
             ResetSet();
             ResetClocks();
-            ManageTurn();
         }
 
         private void ResetGameState()
         {
             activeSet = Set.Light;
+            parkRequest = false;
         }
 
         private void ResetSet() => setManager.Reset();
@@ -268,6 +278,12 @@ namespace Chess
 
         private void ManageTurn()
         {
+            if (parkRequest)
+            {
+                onParkAction?.Invoke();
+                return;
+            }
+
             MatrixEventReceived?.Invoke(matrix);
 
             stageManager.LiveStage = Stage.Evaluating;
@@ -280,16 +296,16 @@ namespace Chess
             bool inCheck = IsKingInCheck(activeSet, matrix);
             bool hasMoves = CalculateMoves();
 
-            // switch (activeSet)
-            // {
-            //     case Set.Light:
-            //         lightClock.Run();
-            //         break;
+            switch (activeSet)
+            {
+                case Set.Light:
+                    lightClock.Run();
+                    break;
 
-            //     case Set.Dark:
-            //         darkClock.Run();
-            //         break;
-            // }
+                case Set.Dark:
+                    darkClock.Run();
+                    break;
+            }
 
             if (hasMoves)
             {
@@ -528,16 +544,16 @@ namespace Chess
 
         private void CompleteTurn()
         {
-            // switch (activeSet)
-            // {
-            //     case Set.Light:
-            //         lightClock.Pause();
-            //         break;
+            switch (activeSet)
+            {
+                case Set.Light:
+                    lightClock.Pause();
+                    break;
 
-            //     case Set.Dark:
-            //         darkClock.Pause();
-            //         break;
-            // }
+                case Set.Dark:
+                    darkClock.Pause();
+                    break;
+            }
 
             PieceManager manager = ResolveKing(activeSet);
             ((KingManager) manager).KingState = KingManager.State.Nominal;
@@ -695,25 +711,41 @@ namespace Chess
             inFocusPreview = null;
         }
 
+        private Action onParkAction;
+
+        private void ParkBoard(Action action)
+        {
+            onParkAction = action;
+            parkRequest = true;
+        }
+
         private void ResetBoard()
         {
             var enabledPieces = EnabledPieces;
             onHomeEventsPending = enabledPieces.Where(p => !p.IsAddInPiece).Count();
+            Debug.Log($"ResetBoard Home Events Pending Count {onHomeEventsPending}");
 
             HideNotifications();
 
             stageManager.LiveStage = Stage.Resetting;
             
+            int addInPieces = 0;
+            int originalPieces = 0;
+
             foreach (PieceManager piece in enabledPieces)
             {
                 if (piece.IsAddInPiece)
                 {
+                    ++addInPieces;
+                    Debug.Log($"ResetBoard Add In Piece {piece.name} Total : {addInPieces}");
                     piece.EventReceived -= OnEvent;
                     piece.MoveEventReceived -= OnMoveEvent;
                     setManager.RemovePiece(piece);
                 }
                 else
                 {
+                    ++originalPieces;
+                    Debug.Log($"ResetBoard Original Piece {piece.name} Total : {originalPieces}");
                     piece.Reset();
                     piece.GoHome(moveType, moveStyle);
                 }
@@ -722,8 +754,8 @@ namespace Chess
 
         private void ResetClocks()
         {
-            // lightClock.Reset();
-            // darkClock.Reset();
+            lightClock.Reset();
+            darkClock.Reset();
         }
 
         private void LowerTable() => coroutine = StartCoroutine(LowerTableCoroutine(adjustTableSpeed));
@@ -802,9 +834,11 @@ namespace Chess
             if (stageManager.LiveStage == Stage.Resetting)
             {
                 --onHomeEventsPending;
+                Debug.Log($"OnMoveEvent Remaining Home Events Pending {onHomeEventsPending}");
 
                 if (onHomeEventsPending == 0)
                 {
+                    Debug.Log($"OnMoveEvent Reseting Game");
                     var enabledPieces = EnabledPieces;
                     onHomeEventsPending = enabledPieces.Count;
 
@@ -814,6 +848,7 @@ namespace Chess
                     }
 
                     ResetGame();
+                    ManageTurn();
                 }
             }
             else if (stageManager.LiveStage == Stage.Moving)

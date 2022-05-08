@@ -39,6 +39,7 @@ namespace Chess.Pieces
 
         private float rotationSpeed = 25f;
         private float moveSpeed = 25f;
+        private float parabolaApexHeight = 0.25f;
         private bool isAddInPiece = false;
 
         protected class CoordSpec
@@ -464,6 +465,8 @@ namespace Chess.Pieces
 
         private IEnumerator GoToCellCoroutine(Cell cell, MoveType moveType, MoveStyle moveStyle)
         {
+            Debug.Log($"GoToCellCoroutine Piece : {name} Top");
+
             EnableInteractions(false);
 
             bool isResetting = (cell == HomeCell);
@@ -518,6 +521,7 @@ namespace Chess.Pieces
             ActiveCell = cell;
             ActiveCell.wrapper.manager = this;
 
+            Debug.Log($"GoToCellCoroutine Piece : {name} Complete");
             MoveEventReceived?.Invoke(this);
         }
 
@@ -535,6 +539,8 @@ namespace Chess.Pieces
 
         private IEnumerator ParabolaMoveCoroutine(Cell cell, float rotationSpeed, float movementSpeed)
         {
+            Debug.Log($"ParabolaMoveCoroutine Piece : {name}");
+
             Vector3 targetPosition = ChessMath.RoundVector3(cell.localPosition);
             Vector3 startPosition = ChessMath.RoundVector3(transform.localPosition);
             
@@ -546,21 +552,26 @@ namespace Chess.Pieces
 
             while ((transform.localRotation != targetRotation) || (ChessMath.RoundVector3(transform.localPosition) != targetPosition))
             {
+                Debug.Log($"ParabolaMoveCoroutine Piece : {name} Moving Target Position : [{targetPosition.x}, {targetPosition.y}, {targetPosition.z}] Position : [{ChessMath.RoundVector3(transform.localPosition).x}, {ChessMath.RoundVector3(transform.localPosition).y}, {ChessMath.RoundVector3(transform.localPosition).z}] Target Rotation @ [{targetRotation.x}, {targetRotation.y}, {targetRotation.z}] Rotation : [{transform.localRotation.x}, {transform.localRotation.y}, {transform.localRotation.z}]");
+
                 timestamp += Time.deltaTime;
 
                 float timeframe = Mathf.Clamp01(timestamp / duration);
 
                 transform.localRotation = Quaternion.RotateTowards(transform.localRotation, targetRotation, rotationSpeed * Time.deltaTime);
-                transform.localPosition = Parabola.MathParabola.Parabola(startPosition, targetPosition, 0.25f, timeframe);
+                transform.localPosition = Parabola.MathParabola.Parabola(startPosition, targetPosition, parabolaApexHeight, timeframe);
 
                 if (timeframe >= 1f)
                 {
+                    Debug.Log($"ParabolaMoveCoroutine Piece : {name} Timeframe Complete Position : [{ChessMath.RoundVector3(transform.localPosition).x}, {ChessMath.RoundVector3(transform.localPosition).y}, {ChessMath.RoundVector3(transform.localPosition).z}] Rotation : [{transform.localRotation.x}, {transform.localRotation.y}, {transform.localRotation.z}]");
                     transform.localRotation = targetRotation;
                     transform.localPosition = targetPosition;
                 }
 
                 yield return null;
             }
+
+            Debug.Log($"ParabolaMoveCoroutine Piece : {name} Complete Position : [{ChessMath.RoundVector3(transform.localPosition).x}, {ChessMath.RoundVector3(transform.localPosition).y}, {ChessMath.RoundVector3(transform.localPosition).z}] Rotation : [{transform.localRotation.x}, {transform.localRotation.y}, {transform.localRotation.z}]");
        }
     }
 }
