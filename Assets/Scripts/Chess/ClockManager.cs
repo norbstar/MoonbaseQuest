@@ -25,12 +25,17 @@ namespace Chess
         }
 
         [Header("Config")]
+        [SerializeField] Set associatedSet;
+        public Set AssociatedSet { get { return associatedSet; } }
         [SerializeField] int minutes;
         public int Minutes { get { return minutes; } }
         [SerializeField] int seconds;
         public int Seconds { get { return seconds; } }
 
         public bool IsRunning { get { return running; } }
+
+        public delegate void OnExpiredEvent(ClockManager instance);
+        public static event OnExpiredEvent OnExpiredEventReceived;
 
         protected bool running, expired;
         protected long ticks, startTurnTicks;
@@ -71,6 +76,7 @@ namespace Chess
             if (elapsed.Ticks >= duration.Ticks)
             {
                 expired = true;
+                OnExpiredEventReceived?.Invoke(this);
             }
         }
 

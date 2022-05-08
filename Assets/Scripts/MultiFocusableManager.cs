@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class FocusableManager : MonoBehaviour, IFocus
+public class MultiFocusableManager : MonoBehaviour, IFocus
 {
     public bool HasFocus { get { return hasFocusCount > 0; } }
     public bool HasMultiFocus { get { return hasFocusCount > 1; } }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 using UnityEngine;
@@ -9,10 +10,17 @@ using Chess.Pieces;
 
 namespace Chess
 {
-    public class PiecePickerManager : MonoBehaviour
+    public class PawnPromotionManager : MonoBehaviour
     {
+        [Serializable]
+        public class Element
+        {
+            public FocusableManager manager;
+            public PieceType type;
+        }
+
         [Header("Components")]
-        [SerializeField] List<PieceManager> pieces;
+        [SerializeField] List<Element> elements;
 
         [Header("Prefabs")]
         [SerializeField] PieceManager lightQueen;
@@ -27,15 +35,16 @@ namespace Chess
         public delegate void Event(PieceManager piece);
         public static event Event EventReceived;
 
-        private PieceManager inFocusPiece;
+        private Element inFocusElement;
+        private Set set;
 
         void OnEnable()
         {
             HandController.ActuationEventReceived += OnActuation;
 
-            foreach (PieceManager piece in pieces)
+            foreach (Element element in elements)
             {
-                piece.EventReceived += OnEvent;
+                element.manager.EventReceived += OnEvent;
             }
         }
 
@@ -43,19 +52,15 @@ namespace Chess
         {
             HandController.ActuationEventReceived -= OnActuation;
 
-            foreach (PieceManager piece in pieces)
+            foreach (Element element in elements)
             {
-                piece.EventReceived -= OnEvent;
+                element.manager.EventReceived -= OnEvent;
             }
         }
 
         public void ConfigureAndShow(Set set)
         {
-            foreach (PieceManager piece in pieces)
-            {
-                piece.Set = set;
-            }
-
+            this.set = set;
             Show();
         }
 
@@ -63,31 +68,42 @@ namespace Chess
 
         public void Hide() => gameObject.SetActive(false);
 
-        private void OnEvent(PieceManager manager, FocusType focusType)
+        private void OnEvent(FocusableManager manager, FocusType focusType)
         {
             switch (focusType)
             {
                 case FocusType.OnFocusGained:
-                    manager.ShowOutline();
-                    inFocusPiece = manager;
+                    inFocusElement = ResolveElement(manager);
                     break;
 
                 case FocusType.OnFocusLost:
-                    manager.HideOutline();
-                    inFocusPiece = null;
+                    inFocusElement = null;
                     break;
             }
         }
-
+        
         public void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics)
         {
-            if (inFocusPiece == null) return;
+            if (inFocusElement == null) return;
 
-            if (actuation.HasFlag(Actuation.Button_AX))
+            if (actuation.HasFlag(Actuation.Trigger))
             {
-                PieceManager piece = ResolvePieceBySet(inFocusPiece.Set, inFocusPiece.Type);
+                PieceManager piece = ResolvePieceBySet(set, inFocusElement.type);
                 EventReceived?.Invoke(piece);
             }
+        }
+
+        private Element ResolveElement(FocusableManager manager)
+        {
+            foreach (Element element in elements)
+            {
+                if (element.manager.GetInstanceID() == manager.GetInstanceID())
+                {
+                    return element;
+                }
+            }
+
+            return null;
         }
 
         public PieceManager ResolvePieceBySet(Set set, PieceType type)
@@ -118,8 +134,8 @@ namespace Chess
 
         public PieceType PickRandomType()
         {
-            int pieceIdx = Random.Range(0, pieces.Count);
-            return pieces[pieceIdx].Type;
+            int pieceIdx = UnityEngine.Random.Range(0, elements.Count);
+            return elements[pieceIdx].type;
         }
     }
 }

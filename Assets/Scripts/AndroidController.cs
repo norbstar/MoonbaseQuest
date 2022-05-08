@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class AndroidController : FocusableManager
+public class AndroidController : MultiFocusableManager
 {
     // [SerializeField] GameObject target;
     // [SerializeField] float force = 100f;

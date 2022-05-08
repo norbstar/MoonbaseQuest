@@ -94,7 +94,7 @@ namespace Chess.Pieces
         public delegate void MoveEvent(PieceManager piece);
         public event MoveEvent MoveEventReceived;
 
-        public delegate void Event(PieceManager piece, FocusType focusType);
+        public delegate void Event(PieceManager manager, FocusType focusType);
         public event Event EventReceived;
         
         protected int maxColumnIdx, maxRowIdx;
@@ -465,8 +465,6 @@ namespace Chess.Pieces
 
         private IEnumerator GoToCellCoroutine(Cell cell, MoveType moveType, MoveStyle moveStyle)
         {
-            Debug.Log($"GoToCellCoroutine Piece : {name} Top");
-
             EnableInteractions(false);
 
             bool isResetting = (cell == HomeCell);
@@ -521,7 +519,6 @@ namespace Chess.Pieces
             ActiveCell = cell;
             ActiveCell.wrapper.manager = this;
 
-            Debug.Log($"GoToCellCoroutine Piece : {name} Complete");
             MoveEventReceived?.Invoke(this);
         }
 
@@ -539,8 +536,6 @@ namespace Chess.Pieces
 
         private IEnumerator ParabolaMoveCoroutine(Cell cell, float rotationSpeed, float movementSpeed)
         {
-            Debug.Log($"ParabolaMoveCoroutine Piece : {name}");
-
             Vector3 targetPosition = ChessMath.RoundVector3(cell.localPosition);
             Vector3 startPosition = ChessMath.RoundVector3(transform.localPosition);
             
@@ -552,8 +547,6 @@ namespace Chess.Pieces
 
             while ((transform.localRotation != targetRotation) || (ChessMath.RoundVector3(transform.localPosition) != targetPosition))
             {
-                Debug.Log($"ParabolaMoveCoroutine Piece : {name} Moving Target Position : [{targetPosition.x}, {targetPosition.y}, {targetPosition.z}] Position : [{ChessMath.RoundVector3(transform.localPosition).x}, {ChessMath.RoundVector3(transform.localPosition).y}, {ChessMath.RoundVector3(transform.localPosition).z}] Target Rotation @ [{targetRotation.x}, {targetRotation.y}, {targetRotation.z}] Rotation : [{transform.localRotation.x}, {transform.localRotation.y}, {transform.localRotation.z}]");
-
                 timestamp += Time.deltaTime;
 
                 float timeframe = Mathf.Clamp01(timestamp / duration);
@@ -563,15 +556,12 @@ namespace Chess.Pieces
 
                 if (timeframe >= 1f)
                 {
-                    Debug.Log($"ParabolaMoveCoroutine Piece : {name} Timeframe Complete Position : [{ChessMath.RoundVector3(transform.localPosition).x}, {ChessMath.RoundVector3(transform.localPosition).y}, {ChessMath.RoundVector3(transform.localPosition).z}] Rotation : [{transform.localRotation.x}, {transform.localRotation.y}, {transform.localRotation.z}]");
                     transform.localRotation = targetRotation;
                     transform.localPosition = targetPosition;
                 }
 
                 yield return null;
             }
-
-            Debug.Log($"ParabolaMoveCoroutine Piece : {name} Complete Position : [{ChessMath.RoundVector3(transform.localPosition).x}, {ChessMath.RoundVector3(transform.localPosition).y}, {ChessMath.RoundVector3(transform.localPosition).z}] Rotation : [{transform.localRotation.x}, {transform.localRotation.y}, {transform.localRotation.z}]");
        }
     }
 }

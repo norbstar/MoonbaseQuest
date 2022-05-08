@@ -14,7 +14,7 @@ namespace Chess.Pieces
         public enum State
         {
             Nominal,
-            InCheck,
+            Check,
             Checkmate,
             Stalemate
         }
@@ -57,7 +57,7 @@ namespace Chess.Pieces
             {
                 ApplyMaterial(checkmateMaterial);
             }
-            else if (state == State.InCheck)
+            else if (state == State.Check)
             {
                 ApplyMaterial(inCheckMaterial);
             }

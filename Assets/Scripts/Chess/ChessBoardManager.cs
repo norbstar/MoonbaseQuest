@@ -36,7 +36,8 @@ namespace Chess
         public ChessBoardSetManager SetManager { get { return setManager; } }
         [SerializeField] PieceTransformManager pieceTransformManager;
         [SerializeField] NotificationManager notificationManager;
-        [SerializeField] PiecePickerManager piecePickerManager;
+        // [SerializeField] PiecePickerManager piecePickerManager;
+        [SerializeField] PawnPromotionManager pawnPromotionManager;
 
         [Header("Clocks")]
         [SerializeField] TimerClockManager lightClock;
@@ -110,7 +111,10 @@ namespace Chess
         private float inCheckNotificationDelay = 1f;
         private Coroutine coroutine;
         private AudioSource audioSource;
+        private bool playPieceDownClip;
+        private Action onParkAction;
         private bool parkRequest;
+        private bool gameOver;
 
         void Awake()
         {
@@ -124,6 +128,8 @@ namespace Chess
             cameraManager.IncludeInteractableLayer("Preview Layer");
             leftController.IncludeInteractableLayer("Preview Layer");
             rightController.IncludeInteractableLayer("Preview Layer");
+
+            playPieceDownClip = true;
         }
 
         private void ResolveDependencies()
@@ -159,8 +165,10 @@ namespace Chess
             HandController.ActuationEventReceived += OnActuation;
             ButtonEventManager.EventReceived += OnButtonEvent;
             PreviewManager.EventReceived += OnPreviewEvent;
-            PiecePickerManager.EventReceived += OnPiecePickerEvent;
+            // PiecePickerManager.EventReceived += OnPiecePickerEvent;
+            PawnPromotionManager.EventReceived += OnPawnPromotionEvent;
             PieceTransformManager.CompleteEventReceived += OnPieceTransformComplete;
+            ClockManager.OnExpiredEventReceived += OnClockExpiredEvent;
         }
 
         void OnDisable()
@@ -168,8 +176,10 @@ namespace Chess
             HandController.ActuationEventReceived -= OnActuation;
             ButtonEventManager.EventReceived -= OnButtonEvent;
             PreviewManager.EventReceived -= OnPreviewEvent;
-            PiecePickerManager.EventReceived -= OnPiecePickerEvent;
+            // PiecePickerManager.EventReceived -= OnPiecePickerEvent;
+            PawnPromotionManager.EventReceived -= OnPawnPromotionEvent;
             PieceTransformManager.CompleteEventReceived -= OnPieceTransformComplete;
+            ClockManager.OnExpiredEventReceived -= OnClockExpiredEvent;
         }
 
         private void OnButtonEvent(ButtonEventManager manager, ButtonEventManager.ButtonId id, ButtonEventType eventType)
@@ -193,8 +203,14 @@ namespace Chess
                         break;
 
                     case ButtonEventManager.ButtonId.ResetBoard:
-                        // ResetBoard();
-                        ParkBoard(ResetBoard);
+                        if (gameOver)
+                        {
+                            ResetBoard();
+                        }
+                        else
+                        {
+                            ParkBoard(ResetBoard);
+                        }
                         break;
 
                     case ButtonEventManager.ButtonId.SFXOff:
@@ -267,7 +283,7 @@ namespace Chess
         private void ResetGameState()
         {
             activeSet = Set.Light;
-            parkRequest = false;
+            parkRequest = gameOver = false;
         }
 
         private void ResetSet() => setManager.Reset();
@@ -311,7 +327,7 @@ namespace Chess
             {
                 if (inCheck)
                 {
-                    OnInCheck(hasMoves);
+                    OnCheck(hasMoves);
                 }
 
                 if (ShouldAutomate())
@@ -660,7 +676,7 @@ namespace Chess
             }
         }
 
-        private void OnInCheck(bool hasMoves)
+        private void OnCheck(bool hasMoves)
         {
             AudioSource.PlayClipAtPoint(inCheckClip, transform.position, 1.0f);
             
@@ -668,7 +684,7 @@ namespace Chess
             notificationManager.ShowFor(inCheckNotificationDelay);
 
             PieceManager manager = ResolveKing(activeSet);
-            ((KingManager) manager).KingState = KingManager.State.InCheck;
+            ((KingManager) manager).KingState = KingManager.State.Check;
 
             Log($"{Time.time} {gameObject.name} {className} OnInCheck:Set : {activeSet} Has Moves :{hasMoves}");
         }
@@ -682,6 +698,9 @@ namespace Chess
 
             PieceManager manager = ResolveKing(activeSet);
             ((KingManager) manager).KingState = KingManager.State.Checkmate;
+
+            PauseClocks();
+            gameOver = true;
 
             Set winner = (activeSet == Set.Light) ? Set.Dark : Set.Light;
 
@@ -698,6 +717,9 @@ namespace Chess
             PieceManager manager = ResolveKing(activeSet);
             ((KingManager) manager).KingState = KingManager.State.Stalemate;
 
+            PauseClocks();
+            gameOver = true;
+
             Log($"{Time.time} {gameObject.name} {className} OnStalemate:Nobody WINS");
         }
 
@@ -711,8 +733,6 @@ namespace Chess
             inFocusPreview = null;
         }
 
-        private Action onParkAction;
-
         private void ParkBoard(Action action)
         {
             onParkAction = action;
@@ -723,7 +743,6 @@ namespace Chess
         {
             var enabledPieces = EnabledPieces;
             onHomeEventsPending = enabledPieces.Where(p => !p.IsAddInPiece).Count();
-            Debug.Log($"ResetBoard Home Events Pending Count {onHomeEventsPending}");
 
             HideNotifications();
 
@@ -737,7 +756,6 @@ namespace Chess
                 if (piece.IsAddInPiece)
                 {
                     ++addInPieces;
-                    Debug.Log($"ResetBoard Add In Piece {piece.name} Total : {addInPieces}");
                     piece.EventReceived -= OnEvent;
                     piece.MoveEventReceived -= OnMoveEvent;
                     setManager.RemovePiece(piece);
@@ -745,11 +763,16 @@ namespace Chess
                 else
                 {
                     ++originalPieces;
-                    Debug.Log($"ResetBoard Original Piece {piece.name} Total : {originalPieces}");
                     piece.Reset();
                     piece.GoHome(moveType, moveStyle);
                 }
             }
+        }
+
+        private void PauseClocks()
+        {
+            lightClock.Pause();
+            darkClock.Pause();
         }
 
         private void ResetClocks()
@@ -812,10 +835,7 @@ namespace Chess
             audioSource.Stop();
         }
 
-        private void EnableSFX(bool enabled)
-        {
-            // TODO
-        }
+        private void EnableSFX(bool enabled) => playPieceDownClip = enabled;
 
         private void EnableMusic(bool enabled) => cameraAudioSource.enabled = enabled;
 
@@ -834,11 +854,9 @@ namespace Chess
             if (stageManager.LiveStage == Stage.Resetting)
             {
                 --onHomeEventsPending;
-                Debug.Log($"OnMoveEvent Remaining Home Events Pending {onHomeEventsPending}");
 
                 if (onHomeEventsPending == 0)
                 {
-                    Debug.Log($"OnMoveEvent Reseting Game");
                     var enabledPieces = EnabledPieces;
                     onHomeEventsPending = enabledPieces.Count;
 
@@ -853,28 +871,45 @@ namespace Chess
             }
             else if (stageManager.LiveStage == Stage.Moving)
             {
-                AudioSource.PlayClipAtPoint(pieceDownClip, transform.position, 1.0f);
-                MatrixEventReceived?.Invoke(matrix);
-                
-                bool completeTurn = true;
-
-                if (piece.Type == PieceType.Pawn)
+                if (playPieceDownClip)
                 {
-                    int vector = (activeSet == Set.Light) ? 1 : -1;
-                    int lastRank = (vector == 1) ? maxRowIdx : 0;
-
-                    if (piece.ActiveCell.coord.y == lastRank)
-                    {
-                        completeTurn = false;
-                        PreparePawnForPromotion(piece);
-                    }
+                    AudioSource.PlayClipAtPoint(pieceDownClip, transform.position, 1.0f);
                 }
 
-                if (completeTurn)
+                MatrixEventReceived?.Invoke(matrix);
+                
+                if (!DeferTurnCompletion(piece))
                 {
                     CompleteTurn();
                 }
             }
+        }
+
+        private bool DeferTurnCompletion(PieceManager piece)
+        {
+            if (piece.Type == PieceType.Pawn && ShouldPawnBePromoted(piece))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool ShouldPawnBePromoted(PieceManager piece)
+        {
+            if (piece.Type == PieceType.Pawn)
+            {
+                int vector = (activeSet == Set.Light) ? 1 : -1;
+                int lastRank = (vector == 1) ? maxRowIdx : 0;
+
+                if (piece.ActiveCell.coord.y == lastRank)
+                {
+                    PreparePawnForPromotion(piece);
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void PreparePawnForPromotion(PieceManager piece)
@@ -896,12 +931,14 @@ namespace Chess
                     {
                         if (ShouldAutomate())
                         {
-                            PieceManager piece = piecePickerManager.ResolvePieceBySet(activeSet, piecePickerManager.PickRandomType());
+                            // PieceManager piece = piecePickerManager.ResolvePieceBySet(activeSet, piecePickerManager.PickRandomType());
+                            PieceManager piece = pawnPromotionManager.ResolvePieceBySet(activeSet, pawnPromotionManager.PickRandomType());
                             SetPickedPiece(piece);
                         }
                         else
                         {
-                            ShowPiecePicker();
+                            ShowPawnPromotionUI();
+                            // ShowPiecePicker();
                         }
                     }
                     break;
@@ -915,19 +952,38 @@ namespace Chess
             }
         }
 
-        private void ShowPiecePicker()
+        private void OnClockExpiredEvent(ClockManager instance)
         {
-            leftController.IncludeInteractableLayer("Piece Picker Layer");
-            rightController.IncludeInteractableLayer("Piece Picker Layer");
-            piecePickerManager.ConfigureAndShow(activeSet);
+            Debug.Log($"{instance.name} has expired");
         }
 
-        private void HidePiecePicker()
+        private void ShowPawnPromotionUI()
         {
-            piecePickerManager.Hide();
-            leftController.ExcludeInteractableLayer("Piece Picker Layer");
-            rightController.ExcludeInteractableLayer("Piece Picker Layer");
+            leftController.IncludeInteractableLayer("Pawn Promotion Layer");
+            rightController.IncludeInteractableLayer("Pawn Promotion Layer");
+            pawnPromotionManager.ConfigureAndShow(activeSet);
         }
+
+        // private void ShowPiecePicker()
+        // {
+        //     leftController.IncludeInteractableLayer("Piece Picker Layer");
+        //     rightController.IncludeInteractableLayer("Piece Picker Layer");
+        //     piecePickerManager.ConfigureAndShow(activeSet);
+        // }
+
+        private void HidePawnPromotionUI()
+        {
+            pawnPromotionManager.Hide();
+            leftController.ExcludeInteractableLayer("Pawn Promotion Layer");
+            rightController.ExcludeInteractableLayer("Pawn Promotion Layer");
+        }
+
+        // private void HidePiecePicker()
+        // {
+        //     piecePickerManager.Hide();
+        //     leftController.ExcludeInteractableLayer("Piece Picker Layer");
+        //     rightController.ExcludeInteractableLayer("Piece Picker Layer");
+        // }
 
         private void PromotePiece()
         {
@@ -1041,9 +1097,15 @@ namespace Chess
             }
         }
 
-        private void OnPiecePickerEvent(PieceManager piece)
+        // private void OnPiecePickerEvent(PieceManager piece)
+        // {
+        //     HidePiecePicker();
+        //     SetPickedPiece(piece);
+        // }
+
+        private void OnPawnPromotionEvent(PieceManager piece)
         {
-            HidePiecePicker();
+            HidePawnPromotionUI();
             SetPickedPiece(piece);
         }
 

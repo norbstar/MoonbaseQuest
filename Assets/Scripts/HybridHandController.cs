@@ -98,6 +98,7 @@ public class HybridHandController : HandController
         if (hitDetected)
         {
             objectHit = hit.transform.gameObject;
+            // Debug.Log($"Hit Detected Object : {objectHit.name}");
             point = hit.point;
             vector = (point - spawnPoint.transform.position).normalized;
 
