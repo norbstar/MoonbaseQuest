@@ -1,44 +1,36 @@
 using UnityEngine;
-// using UnityEngine.UI;
 
 namespace Chess
 {
     public class ButtonFocusableManager : FocusableManager
     {
-        // [Header("Components")]
-        // [SerializeField] Image backdrop;
-        // [SerializeField] Image icon;
-
         [Header("Config")]
-        // [SerializeField] Color inFocusColor;
-        // [SerializeField] Vector3 inFocusIconScale = Vector3.one * 1.25f;
         [SerializeField] float inFocusScaleMultiplier = 1.25f;
+        [SerializeField] Vector3 inFocusPositionOffset;
 
-        private Color defaultColor;
-        private Vector3 defaultIconScale;
-        private Vector3 defaultScale;
+        private Color originalColor;
+        private Vector3 originalIconScale;
+        private Vector3 originalScale;
+        private Vector3 originalPosition;
 
         void Awake()
         {
-            // defaultColor = backdrop.color;
-            // defaultIconScale = icon.transform.localScale;
-            defaultScale = transform.localScale;
+            originalScale = transform.localScale;
+            originalPosition = transform.localPosition;
         }
 
         public override void GainedFocus(GameObject gameObject, Vector3 point)
         {
             base.GainedFocus(gameObject, point);
-            // backdrop.color = inFocusColor;
-            // icon.transform.localScale = inFocusIconScale;
-            transform.localScale = defaultScale * inFocusScaleMultiplier;
+            transform.localScale = originalScale * inFocusScaleMultiplier;
+            transform.localPosition += inFocusPositionOffset;
         }
 
         public override void LostFocus(GameObject gameObject)
         {
             base.LostFocus(gameObject);
-            // backdrop.color = defaultColor;
-            // icon.transform.localScale = defaultIconScale;
-            transform.localScale = defaultScale;
+            transform.localScale = originalScale;
+            transform.localPosition = originalPosition;
         }
     }
 }

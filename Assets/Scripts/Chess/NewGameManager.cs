@@ -4,43 +4,40 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
 
-using static Enum.ControllerEnums;
+using TMPro;
 
-using Chess.Pieces;
+using static Enum.ControllerEnums;
 
 namespace Chess
 {
-    public class PawnPromotionManager : MonoBehaviour
+    public class NewGameManager : MonoBehaviour
     {
+        public enum Mode
+        {
+            PVP,
+            PVB,
+            BVB
+        }
+
         [Serializable]
         public class Element
         {
             public FocusableManager manager;
-            public PieceType type;
+            public Mode mode;
         }
 
         [Header("Components")]
         [SerializeField] List<Element> elements;
-
-        [Header("Prefabs")]
-        [SerializeField] PieceManager lightQueen;
-        [SerializeField] PieceManager darkQueen;
-        [SerializeField] PieceManager lightKnight;
-        [SerializeField] PieceManager darkKnight;
-        [SerializeField] PieceManager lightRook;
-        [SerializeField] PieceManager darkRook;
-        [SerializeField] PieceManager lightBishop;
-        [SerializeField] PieceManager darkBishop;
+        [SerializeField] TextMeshProUGUI modeTextUI;
 
         [Header("Config")]
         [SerializeField] AudioClip inFocusAudioClip;
         [SerializeField] AudioClip onSelectAudioClip;
 
-        public delegate void Event(PieceManager piece);
+        public delegate void Event(Mode mode);
         public static event Event EventReceived;
 
         private Element inFocusElement;
-        private Set set;
 
         void OnEnable()
         {
@@ -62,31 +59,42 @@ namespace Chess
             }
         }
 
-        public void ConfigureAndShow(Set set)
-        {
-            this.set = set;
-            Show();
-        }
-
         public void Show() => gameObject.SetActive(true);
 
         public void Hide() => gameObject.SetActive(false);
 
-        private void OnEvent(FocusableManager manager, FocusType focusType)
+         private void OnEvent(FocusableManager manager, FocusType focusType)
         {
             switch (focusType)
             {
                 case FocusType.OnFocusGained:
                     AudioSource.PlayClipAtPoint(inFocusAudioClip, transform.position, 1.0f);
+
                     inFocusElement = ResolveElement(manager);
+
+                    switch (inFocusElement.mode)
+                    {
+                        case Mode.PVP:
+                            modeTextUI.text = "Player v Player";
+                            break;
+
+                        case Mode.PVB:
+                            modeTextUI.text = "Player v Bot";
+                            break;
+
+                        case Mode.BVB:
+                            modeTextUI.text = "Bot v Bot";
+                            break;
+                    }
                     break;
 
                 case FocusType.OnFocusLost:
                     inFocusElement = null;
+                    modeTextUI.text = String.Empty;
                     break;
             }
         }
-
+        
         public void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics)
         {
             if (inFocusElement == null) return;
@@ -94,8 +102,7 @@ namespace Chess
             if (actuation.HasFlag(Actuation.Trigger))
             {
                 AudioSource.PlayClipAtPoint(onSelectAudioClip, transform.position, 1.0f);
-                PieceManager piece = ResolvePieceBySet(set, inFocusElement.type);
-                EventReceived?.Invoke(piece);
+                EventReceived?.Invoke(inFocusElement.mode);
             }
         }
 
@@ -110,38 +117,6 @@ namespace Chess
             }
 
             return null;
-        }
-
-        public PieceManager ResolvePieceBySet(Set set, PieceType type)
-        {
-            PieceManager piece = null;
-
-            switch(type)
-            {
-                case PieceType.Queen:
-                    piece = (set == Set.Light) ? lightQueen : darkQueen;
-                    break;
-                
-                case PieceType.Knight:
-                    piece = (set == Set.Light) ? lightKnight : darkKnight;
-                    break;
-
-                case PieceType.Rook:
-                    piece = (set == Set.Light) ? lightRook : darkRook;
-                    break;
-
-                case PieceType.Bishop:
-                    piece = (set == Set.Light) ? lightBishop : darkBishop;
-                    break;
-            }
-
-            return piece;
-        }
-
-        public PieceType PickRandomType()
-        {
-            int pieceIdx = UnityEngine.Random.Range(0, elements.Count);
-            return elements[pieceIdx].type;
         }
     }
 }

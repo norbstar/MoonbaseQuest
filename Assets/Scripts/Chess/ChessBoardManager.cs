@@ -37,6 +37,8 @@ namespace Chess
         [SerializeField] PieceTransformManager pieceTransformManager;
         [SerializeField] NotificationManager notificationManager;
         // [SerializeField] PiecePickerManager piecePickerManager;
+        
+        [SerializeField] NewGameManager newGameManager;
         [SerializeField] PawnPromotionManager pawnPromotionManager;
 
         [Header("Clocks")]
@@ -154,10 +156,9 @@ namespace Chess
         {
             MapMatrix();
             MapPieces();
-            InitGame();
-            
+
             yield return new WaitForSeconds(0.1f);
-            ManageTurn();
+            ShowNewGameUI();
         }
 
         void OnEnable()
@@ -166,6 +167,7 @@ namespace Chess
             ButtonEventManager.EventReceived += OnButtonEvent;
             PreviewManager.EventReceived += OnPreviewEvent;
             // PiecePickerManager.EventReceived += OnPiecePickerEvent;
+            NewGameManager.EventReceived += OnNewGameEvent;
             PawnPromotionManager.EventReceived += OnPawnPromotionEvent;
             PieceTransformManager.CompleteEventReceived += OnPieceTransformComplete;
             ClockManager.OnExpiredEventReceived += OnClockExpiredEvent;
@@ -177,6 +179,7 @@ namespace Chess
             ButtonEventManager.EventReceived -= OnButtonEvent;
             PreviewManager.EventReceived -= OnPreviewEvent;
             // PiecePickerManager.EventReceived -= OnPiecePickerEvent;
+            NewGameManager.EventReceived -= OnNewGameEvent;
             PawnPromotionManager.EventReceived -= OnPawnPromotionEvent;
             PieceTransformManager.CompleteEventReceived -= OnPieceTransformComplete;
             ClockManager.OnExpiredEventReceived -= OnClockExpiredEvent;
@@ -270,14 +273,14 @@ namespace Chess
 
         private List<PieceManager> ActiveEnabledDarkPieces { get { return setManager.DarkPieces().Where(p => p.isActiveAndEnabled && (p.ActiveCell != null)).ToList(); } }
 
-        private void InitGame() => ResetGame();
-
         private void ResetGame()
         {
             ResetUI();
             ResetGameState();
             ResetSet();
             ResetClocks();
+            
+            MatrixEventReceived?.Invoke(matrix);
         }
 
         private void ResetGameState()
@@ -865,8 +868,7 @@ namespace Chess
                         thisPiece.EnablePhysics(false);
                     }
 
-                    ResetGame();
-                    ManageTurn();
+                    ShowNewGameUI();
                 }
             }
             else if (stageManager.LiveStage == Stage.Moving)
@@ -964,6 +966,15 @@ namespace Chess
             pawnPromotionManager.ConfigureAndShow(activeSet);
         }
 
+        private void ShowNewGameUI()
+        {
+            MatrixEventReceived?.Invoke(matrix);
+
+            leftController.IncludeInteractableLayer("UI Input Layer");
+            rightController.IncludeInteractableLayer("UI Input Layer");
+            newGameManager.Show();
+        }
+
         // private void ShowPiecePicker()
         // {
         //     leftController.IncludeInteractableLayer("Piece Picker Layer");
@@ -976,6 +987,13 @@ namespace Chess
             pawnPromotionManager.Hide();
             leftController.ExcludeInteractableLayer("Pawn Promotion Layer");
             rightController.ExcludeInteractableLayer("Pawn Promotion Layer");
+        }
+
+        private void HideNewGameUI()
+        {
+            newGameManager.Hide();
+            leftController.ExcludeInteractableLayer("UI Input Layer");
+            rightController.ExcludeInteractableLayer("UI Input Layer");
         }
 
         // private void HidePiecePicker()
@@ -1102,6 +1120,32 @@ namespace Chess
         //     HidePiecePicker();
         //     SetPickedPiece(piece);
         // }
+
+        private void OnNewGameEvent(NewGameManager.Mode mode)
+        {
+            HideNewGameUI();
+            ResetGame();
+            
+            switch (mode)
+            {
+                case NewGameManager.Mode.PVP:
+                    lightPlayer = PlayerMode.Human;
+                    darkPlayer = PlayerMode.Human;
+                    break;
+
+                case NewGameManager.Mode.PVB:
+                    lightPlayer = PlayerMode.Human;
+                    darkPlayer = PlayerMode.Bot;
+                    break;
+
+                case NewGameManager.Mode.BVB:
+                    lightPlayer = PlayerMode.Bot;
+                    darkPlayer = PlayerMode.Bot;
+                    break;
+            }
+
+            ManageTurn();
+        }
 
         private void OnPawnPromotionEvent(PieceManager piece)
         {
