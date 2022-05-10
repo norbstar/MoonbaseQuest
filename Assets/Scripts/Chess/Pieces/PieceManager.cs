@@ -118,8 +118,8 @@ namespace Chess.Pieces
         {
             ResolveDependencies();
 
-            maxColumnIdx = ChessBoardManager.MatrixColumns - 1;
-            maxRowIdx = ChessBoardManager.MatrixRows - 1;
+            maxColumnIdx = MatrixManager.MatrixColumns - 1;
+            maxRowIdx = MatrixManager.MatrixRows - 1;
             
             defaultMaterial = renderer.material;
         }
@@ -329,9 +329,9 @@ namespace Chess.Pieces
             {
                 List<Coord> coords = new List<Coord>();
 
-                for (int y = 0 ; y <= ChessBoardManager.MaxRowIdx ; y++)
+                for (int y = 0 ; y <= MatrixManager.MaxRowIdx ; y++)
                 {
-                    for (int x = 0 ; x <= ChessBoardManager.MaxColumnIdx ; x++)
+                    for (int x = 0 ; x <= MatrixManager.MaxColumnIdx ; x++)
                     {
                         coords.Add(new Coord
                         {

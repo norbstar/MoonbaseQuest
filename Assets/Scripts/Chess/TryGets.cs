@@ -13,12 +13,12 @@ namespace Chess
         public static bool TryGetCoord(Vector3 localPosition, out Coord coord)
         {
             var normX = ChessMath.Normalize(localPosition.x, -0.35f, 0.35f);
-            int x = (int) Mathf.Round(ChessBoardManager.MaxColumnIdx * (float) normX);
+            int x = (int) Mathf.Round(MatrixManager.MaxColumnIdx * (float) normX);
 
             var normZ = ChessMath.Normalize(localPosition.z, -0.35f, 0.35f);
-            int z = (int) Mathf.Round(ChessBoardManager.MaxRowIdx * (float) normZ);
+            int z = (int) Mathf.Round(MatrixManager.MaxRowIdx * (float) normZ);
 
-            if ((x >= 0 && x <= ChessBoardManager.MaxColumnIdx) && (z >= 0 && z <= ChessBoardManager.MaxRowIdx))
+            if ((x >= 0 && x <= MatrixManager.MaxColumnIdx) && (z >= 0 && z <= MatrixManager.MaxRowIdx))
             {
                 coord = new Coord
                 {
@@ -35,7 +35,7 @@ namespace Chess
 
         public static bool TryGetCoordToPosition(Coord coord, float height, out Vector3 localPosition)
         {
-            if ((coord.x >= 0 && coord.x <= ChessBoardManager.MaxColumnIdx) && (coord.y >= 0 && coord.y <= ChessBoardManager.MaxRowIdx))
+            if ((coord.x >= 0 && coord.x <= MatrixManager.MaxColumnIdx) && (coord.y >= 0 && coord.y <= MatrixManager.MaxRowIdx))
             {
                 float x = ChessMath.RoundFloat(-0.35f + (coord.x * 0.1f));
                 float y = ChessMath.RoundFloat(-0.35f + (coord.y * 0.1f));
@@ -50,8 +50,8 @@ namespace Chess
 
         public static bool TryGetCoordReference(Coord coord, out string reference)
         {
-            int maxRowIdx = ChessBoardManager.MatrixRows - 1;
-            int maxColumnIdx = ChessBoardManager.MatrixColumns - 1;
+            int maxRowIdx = MatrixManager.MatrixRows - 1;
+            int maxColumnIdx = MatrixManager.MatrixColumns - 1;
 
             if ((coord.x >= 0 && coord.x <= maxColumnIdx) && (coord.y >= 0 && coord.y <= maxRowIdx))
             {
@@ -67,9 +67,9 @@ namespace Chess
 
         public static bool TryGetCell(Cell[,] matrix, Vector3 localPosition, out Cell cell)
         {
-            for (int y = 0 ; y <= ChessBoardManager.MaxRowIdx ; y++)
+            for (int y = 0 ; y <= MatrixManager.MaxRowIdx ; y++)
             {
-                for (int x = 0 ; x <= ChessBoardManager.MaxColumnIdx ; x++)
+                for (int x = 0 ; x <= MatrixManager.MaxColumnIdx ; x++)
                 {
                     cell = matrix[x, y];
                     Vector3 cellPosition = ChessMath.RoundVector3(cell.localPosition);
@@ -98,7 +98,7 @@ namespace Chess
                 x += (int) vector.x;
                 y += (int) vector.y;
 
-                if ((x >= 0 && x <= ChessBoardManager.MaxColumnIdx) && (y >= 0 && y <= ChessBoardManager.MaxRowIdx))
+                if ((x >= 0 && x <= MatrixManager.MaxColumnIdx) && (y >= 0 && y <= MatrixManager.MaxRowIdx))
                 {
                     Cell cell = projectedMatrix[x, y];
 
@@ -107,7 +107,7 @@ namespace Chess
                         pieceManagers.Add(cell.wrapper.manager);
                     }
                 }
-            } while ((x >= 0 && x <= ChessBoardManager.MaxColumnIdx) && (y >= 0 && y <= ChessBoardManager.MaxRowIdx));
+            } while ((x >= 0 && x <= MatrixManager.MaxColumnIdx) && (y >= 0 && y <= MatrixManager.MaxRowIdx));
 
             return false;
         }
@@ -128,7 +128,7 @@ namespace Chess
     
         public static bool TryGetSetPieces(ChessBoardManager manager, Set set, out List<PieceManager> pieces)
         {
-            pieces = (set == Set.Light) ? manager.ActiveEnabledLightPieces : manager.ActiveEnabledDarkPieces;
+            pieces = (set == Set.Light) ? manager.SetManager.ActiveEnabledLightPieces : manager.SetManager.ActiveEnabledDarkPieces;
             return true;
         }
 
@@ -189,15 +189,15 @@ namespace Chess
 
         public static bool TryGetPiecesByType(ChessBoardManager manager, PieceType type, out List<PieceManager> pieces)
         {
-            pieces = manager.ActiveEnabledPieces.Where(p => p.Type == type).ToList();
+            pieces = manager.SetManager.ActiveEnabledPieces.Where(p => p.Type == type).ToList();
             return (pieces.Count > 0);
         }
 
         public static bool TryResolveKingCell(Cell[,] matrix, Set set, out Cell cell)
         {
-            for (int y = 0 ; y <= ChessBoardManager.MaxRowIdx ; y++)
+            for (int y = 0 ; y <= MatrixManager.MaxRowIdx ; y++)
             {
-                for (int x = 0 ; x <= ChessBoardManager.MaxColumnIdx ; x++)
+                for (int x = 0 ; x <= MatrixManager.MaxColumnIdx ; x++)
                 {
                     Cell thisCell = matrix[x, y];
                     if (!thisCell.IsOccupied) continue;

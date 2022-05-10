@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 using UnityEngine;
 
@@ -10,6 +11,8 @@ namespace Chess
     [RequireComponent(typeof(ChessBoardManager))]
     public class MoveManager : MonoBehaviour
     {
+        private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
+
         [Header("Config")]
         [SerializeField] MoveStyle moveStyle;
         public MoveStyle MoveStyle { get { return moveStyle; } }
@@ -43,7 +46,7 @@ namespace Chess
             chessBoardManager.EnableInteractions(Set.Light, false);
             chessBoardManager.EnableInteractions(Set.Dark, false);
 
-            bool inCheck = IsKingInCheck(activeSet, chessBoardManager.Matrix);
+            bool inCheck = IsKingInCheck(activeSet, chessBoardManager.MatrixManager.Matrix);
             bool hasMoves = CalculateMoves(out availableMoves);
 
             chessBoardManager.ResumeActiveClock();
@@ -90,7 +93,7 @@ namespace Chess
         public bool WouldKingBeInCheck(PieceManager piece, Cell targetCell)
         {
             Set activeSet = chessBoardManager.ActiveSet;
-            Cell[,] projectedMatrix = chessBoardManager.ProjectMatrix(piece.ActiveCell, targetCell);
+            Cell[,] projectedMatrix = chessBoardManager.MatrixManager.ProjectMatrix(piece.ActiveCell, targetCell);
             return IsKingInCheck(activeSet, projectedMatrix);
         }
 
@@ -124,13 +127,14 @@ namespace Chess
         {
             bool hasAnyMoves = false;
             Set activeSet = chessBoardManager.ActiveSet;
+            ChessBoardSetManager setManager = chessBoardManager.SetManager;
             availableMoves = new Dictionary<PieceManager, List<Cell>>();
 
-            List<PieceManager> activeEnabledPieces = (activeSet == Set.Light) ? chessBoardManager.ActiveEnabledLightPieces : chessBoardManager.ActiveEnabledDarkPieces;
+            List<PieceManager> activeEnabledPieces = (activeSet == Set.Light) ? setManager.ActiveEnabledLightPieces : setManager.ActiveEnabledDarkPieces;
 
             foreach (PieceManager piece in activeEnabledPieces)
             {
-                List<Cell> potentialMoves = piece.CalculateMoves(chessBoardManager.Matrix, (activeSet == Set.Light) ? 1 : -1);
+                List<Cell> potentialMoves = piece.CalculateMoves(chessBoardManager.MatrixManager.Matrix, (activeSet == Set.Light) ? 1 : -1);
                 bool hasMoves = potentialMoves.Count > 0;
 
                 List<Cell> legalMoves = new List<Cell>();

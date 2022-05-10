@@ -26,8 +26,8 @@ namespace Chess
         [SerializeField] Sprite darkKing;
         [SerializeField] Sprite darkQueen;
 
-        private int maxRowIdx = ChessBoardManager.MatrixRows - 1;
-        private int maxColumnIdx = ChessBoardManager.MatrixColumns - 1;
+        private int maxRowIdx = MatrixManager.MatrixRows - 1;
+        private int maxColumnIdx = MatrixManager.MatrixColumns - 1;
 
         void OnEnable()
         {

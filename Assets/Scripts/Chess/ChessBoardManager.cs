@@ -7,8 +7,6 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.XR;
 
-using Random = UnityEngine.Random;
-
 using static Enum.ControllerEnums;
 using static Chess.StageManager;
 
@@ -20,11 +18,11 @@ namespace Chess
 {
     [RequireComponent(typeof(AudioSource))]
     [RequireComponent(typeof(MoveManager))]
+    [RequireComponent(typeof(MatrixManager))]
     public class ChessBoardManager : BaseManager
     {
         private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
-#region Variables
         [Header("Camera")]
         [SerializeField] new Camera camera;
 
@@ -85,14 +83,8 @@ namespace Chess
         public delegate void MatrixEvent(Cell[,] matrix);
         public static event MatrixEvent MatrixEventReceived;
 
-        public Cell[,] Matrix { get { return matrix; } }
         public StageManager StageManager { get { return stageManager; } }
         public Set ActiveSet { get { return activeSet; } }
-
-        public static int MatrixRows = 8;
-        public static int MaxRowIdx = MatrixRows - 1;
-        public static int MatrixColumns = 8;
-        public static int MaxColumnIdx = MatrixColumns - 1;
 
         public PieceManager InFocusPiece
         {
@@ -107,10 +99,12 @@ namespace Chess
             }
         }
 
+        public MatrixManager MatrixManager { get { return matrixManager; } }
+
         private TrackingMainCameraManager cameraManager;
         private MoveManager moveManager;
+        private MatrixManager matrixManager;
         private AudioSource cameraAudioSource;
-        private Cell[,] matrix;
         private int onHomeEventsPending;
         private Set activeSet;
         private PieceManager inFocusPiece;
@@ -127,14 +121,10 @@ namespace Chess
         private AudioSource audioSource;
         private bool playPieceDownClip;
         // private bool gameOver;
-#endregion
 
-#region Flow
         void Awake()
         {
             ResolveDependencies();
-
-            matrix = new Cell[MatrixColumns, MatrixRows];
             previews = new List<GameObject>();
             stageManager = new StageManager();
 
@@ -150,6 +140,7 @@ namespace Chess
                 cameraAudioSource = cameraManager.GetComponent<AudioSource>() as AudioSource;
             }
 
+            matrixManager = GetComponent<MatrixManager>() as MatrixManager;
             moveManager = GetComponent<MoveManager>() as MoveManager;
             audioSource = GetComponent<AudioSource>() as AudioSource;
         }
@@ -157,7 +148,7 @@ namespace Chess
         // Start is called before the first frame update
         void Start()
         {
-            MapLayout();
+            matrixManager.MapLayout();
             ResetGame();
             StartCoroutine(ShowNewGameUIAfterDelayCoroutine(0.25f));
         }
@@ -183,71 +174,6 @@ namespace Chess
             PieceTransformManager.CompleteEventReceived -= OnPieceTransformComplete;
             ClockManager.OnExpiredEventReceived -= OnClockExpiredEvent;
         }
-#endregion
-
-#region Mappings
-        private void MapLayout()
-        {
-            MapMatrix();
-            MapPieces();
-        }
-
-        private void MapMatrix()
-        {
-            for (int y = 0 ; y <= MaxRowIdx ; y++)
-            {
-                for (int x = 0 ; x <= MaxColumnIdx ; x++)
-                {
-                    Coord coord = new Coord
-                    {
-                        x = x,
-                        y = y
-                    };
-
-                    Vector3 surface = setManager.transform.localPosition;
-
-                    if (TryGets.TryGetCoordToPosition(coord, surface.y, out Vector3 localPosition))
-                    {
-                        matrix[x, y] = new Cell
-                        {
-                            coord = coord,
-                            localPosition = localPosition,
-                            wrapper = new PieceManagerWrapper()
-                        };
-                    }
-                }
-            }
-        }
-
-        private void MapPieces()
-        {
-            foreach (PieceManager pieceManager in EnabledPieces)
-            {
-                if ((pieceManager.isActiveAndEnabled) && (TryGets.TryGetPieceToCell(matrix, pieceManager, out Cell cell)))
-                {
-                    pieceManager.HomeCell = cell;
-                    pieceManager.MoveEventReceived += OnMoveEvent;
-                    pieceManager.EventReceived += OnEvent;
-
-                    matrix[cell.coord.x, cell.coord.y].wrapper.manager = pieceManager;
-                }
-            }
-        }
-#endregion
-
-#region Pieces
-        public List<PieceManager> EnabledPieces { get { return setManager.AllPieces().Where(p => p.isActiveAndEnabled).ToList(); } }
-
-        public List<PieceManager> ActiveEnabledPieces { get { return setManager.AllPieces().Where(p => p.isActiveAndEnabled && (p.ActiveCell != null)).ToList(); } }
-
-        public List<PieceManager> EnabledLightPieces { get { return setManager.LightPieces().Where(p => p.isActiveAndEnabled).ToList(); } }
-
-        public List<PieceManager> ActiveEnabledLightPieces { get { return setManager.LightPieces().Where(p => p.isActiveAndEnabled && (p.ActiveCell != null)).ToList(); } }
-
-        public List<PieceManager> EnabledDarkPieces { get { return setManager.DarkPieces().Where(p => p.isActiveAndEnabled).ToList(); } }
-
-        public List<PieceManager> ActiveEnabledDarkPieces { get { return setManager.DarkPieces().Where(p => p.isActiveAndEnabled && (p.ActiveCell != null)).ToList(); } }
-#endregion
 
 #region Reset
         private void ResetGame()
@@ -318,16 +244,11 @@ namespace Chess
         }
 #endregion
 
-        private void PostMatrixUpdate() => MatrixEventReceived?.Invoke(matrix);
+        private void PostMatrixUpdate() => MatrixEventReceived?.Invoke(matrixManager.Matrix);
 
         private void HideNotifications() => notificationManager.Hide();
 
         private bool IsMoving { get { return stageManager.LiveStage == Stage.Moving; } }
-
-        public Cell[,] CloneMatrix()
-        {
-            return matrix.Clone() as Cell[,];
-        }
 
         public void AdjustChessPieceInteractableLayer(Set set, bool enabled)
         {
@@ -356,7 +277,7 @@ namespace Chess
 
         public void EnableInteractions(Set set, bool enabled)
         {
-            List<PieceManager> pieces = (set == Set.Light) ? EnabledLightPieces : EnabledDarkPieces;
+            List<PieceManager> pieces = (set == Set.Light) ? setManager.EnabledLightPieces : setManager.EnabledDarkPieces;
 
             foreach (PieceManager piece in pieces)
             {
@@ -367,26 +288,6 @@ namespace Chess
             }
 
             AdjustChessPieceInteractableLayer(set, enabled);
-        }
-
-        public Cell[,] ProjectMatrix(Cell cell, Cell targetCell)
-        {
-            Cell[,] clone = CloneMatrix();
-
-            for (int y = 0 ; y <= MaxRowIdx ; y++)
-            {
-                for (int x = 0 ; x <= MaxColumnIdx ; x++)
-                {
-                    Cell thisCell = clone[x, y];
-                    clone[x, y] = thisCell.Clone();
-                }
-            }
-
-            PieceManager manager = cell.wrapper.manager;
-            clone[cell.coord.x, cell.coord.y].wrapper.manager = null;
-            clone[targetCell.coord.x, targetCell.coord.y].wrapper.manager = manager;
-
-            return clone;
         }
 
         public Cell ResolveKingCell(Set set)
@@ -437,7 +338,7 @@ namespace Chess
 
         private void ResetThemes()
         {
-            foreach (PieceManager piece in EnabledPieces)
+            foreach (PieceManager piece in setManager.EnabledPieces)
             {
                 if (piece.isActiveAndEnabled)
                 {
@@ -595,7 +496,7 @@ namespace Chess
 
         private void ResetBoard()
         {
-            var enabledPieces = EnabledPieces;
+            var enabledPieces = setManager.EnabledPieces;
             onHomeEventsPending = enabledPieces.Where(p => !p.IsAddInPiece).Count();
 
             HideNotifications();
@@ -715,7 +616,7 @@ namespace Chess
             if (piece.Type == PieceType.Pawn)
             {
                 int vector = (activeSet == Set.Light) ? 1 : -1;
-                int lastRank = (vector == 1) ? MaxRowIdx : 0;
+                int lastRank = (vector == 1) ? MatrixManager.MaxRowIdx : 0;
 
                 if (piece.ActiveCell.coord.y == lastRank)
                 {
@@ -766,7 +667,7 @@ namespace Chess
             promotedPiece.MoveEventReceived += OnMoveEvent;
             promotedPiece.EventReceived += OnEvent;
 
-            matrix[cell.coord.x, cell.coord.y].wrapper.manager = promotedPiece;
+            matrixManager.Matrix[cell.coord.x, cell.coord.y].wrapper.manager = promotedPiece;
 
             promotionPiece = null;
 
@@ -878,7 +779,7 @@ namespace Chess
         }
 
 #region Events
-        private void OnEvent(PieceManager piece, FocusType focusType)
+        public void OnEvent(PieceManager piece, FocusType focusType)
         {
             switch (focusType)
             {
@@ -911,7 +812,7 @@ namespace Chess
 
         private void OnPreviewEvent(PreviewManager manager, FocusType focusType)
         {
-            if (TryGets.TryGetCell(matrix, manager.transform.localPosition, out Cell cell))
+            if (TryGets.TryGetCell(matrixManager.Matrix, manager.transform.localPosition, out Cell cell))
             {
                 string reference, moveReference;
 
@@ -954,7 +855,7 @@ namespace Chess
             }
         }
 
-        private void OnMoveEvent(PieceManager piece)
+        public void OnMoveEvent(PieceManager piece)
         {
             if (stageManager.LiveStage == Stage.Resetting)
             {
@@ -962,7 +863,7 @@ namespace Chess
 
                 if (onHomeEventsPending == 0)
                 {
-                    var enabledPieces = EnabledPieces;
+                    var enabledPieces = setManager.EnabledPieces;
                     onHomeEventsPending = enabledPieces.Count;
 
                     foreach (PieceManager thisPiece in enabledPieces)

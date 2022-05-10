@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 using UnityEngine;
 
@@ -8,6 +10,8 @@ namespace Chess
 {
     public class ChessBoardSetManager : MonoBehaviour
     {
+        private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
+
         [Header("Components")]
         [SerializeField] ChessBoardManager chessBoardManager;
         [SerializeField] GameObject lightSet;
@@ -23,6 +27,18 @@ namespace Chess
 
         [Header("Setup")]
         [SerializeField] BoardSetupScriptable boardSetup;
+
+        public List<PieceManager> EnabledPieces { get { return AllPieces().Where(p => p.isActiveAndEnabled).ToList(); } }
+
+        public List<PieceManager> ActiveEnabledPieces { get { return AllPieces().Where(p => p.isActiveAndEnabled && (p.ActiveCell != null)).ToList(); } }
+
+        public List<PieceManager> EnabledLightPieces { get { return LightPieces().Where(p => p.isActiveAndEnabled).ToList(); } }
+
+        public List<PieceManager> ActiveEnabledLightPieces { get { return LightPieces().Where(p => p.isActiveAndEnabled && (p.ActiveCell != null)).ToList(); } }
+
+        public List<PieceManager> EnabledDarkPieces { get { return DarkPieces().Where(p => p.isActiveAndEnabled).ToList(); } }
+
+        public List<PieceManager> ActiveEnabledDarkPieces { get { return DarkPieces().Where(p => p.isActiveAndEnabled && (p.ActiveCell != null)).ToList(); } }
         
         // Start is called before the first frame update
         void Start()
