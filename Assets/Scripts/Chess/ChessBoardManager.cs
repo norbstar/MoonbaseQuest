@@ -17,8 +17,9 @@ using Chess.Preview;
 namespace Chess
 {
     [RequireComponent(typeof(AudioSource))]
-    [RequireComponent(typeof(MoveManager))]
     [RequireComponent(typeof(MatrixManager))]
+    [RequireComponent(typeof(MoveManager))]
+    [RequireComponent(typeof(TimingsManager))]
     public class ChessBoardManager : BaseManager
     {
         private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
@@ -33,16 +34,11 @@ namespace Chess
         [Header("Components")]
         [SerializeField] GameObject board;
         [SerializeField] ChessBoardSetManager setManager;
-        public ChessBoardSetManager SetManager { get { return setManager; } }
         [SerializeField] PieceTransformManager pieceTransformManager;
         [SerializeField] NotificationManager notificationManager;
         
         [SerializeField] NewGameManager newGameManager;
         [SerializeField] PawnPromotionManager pawnPromotionManager;
-
-        [Header("Clocks")]
-        [SerializeField] TimerClockManager lightClock;
-        [SerializeField] TimerClockManager darkClock;
 
         [Header("Audio")]
         [SerializeField] AudioClip adjustTableHeightClip;
@@ -82,8 +78,12 @@ namespace Chess
 
         public delegate void MatrixEvent(Cell[,] matrix);
         public static event MatrixEvent MatrixEventReceived;
-
+        
+        public ChessBoardSetManager SetManager { get { return setManager; } }
         public StageManager StageManager { get { return stageManager; } }
+        public MatrixManager MatrixManager { get { return matrixManager; } }
+        public TimingsManager TimingsManager { get { return timingsManager; } }
+
         public Set ActiveSet { get { return activeSet; } }
 
         public PieceManager InFocusPiece
@@ -99,11 +99,10 @@ namespace Chess
             }
         }
 
-        public MatrixManager MatrixManager { get { return matrixManager; } }
-
         private TrackingMainCameraManager cameraManager;
         private MoveManager moveManager;
         private MatrixManager matrixManager;
+        private TimingsManager timingsManager;
         private AudioSource cameraAudioSource;
         private int onHomeEventsPending;
         private Set activeSet;
@@ -142,6 +141,7 @@ namespace Chess
 
             matrixManager = GetComponent<MatrixManager>() as MatrixManager;
             moveManager = GetComponent<MoveManager>() as MoveManager;
+            timingsManager = GetComponent<TimingsManager>() as TimingsManager;
             audioSource = GetComponent<AudioSource>() as AudioSource;
         }
 
@@ -175,7 +175,6 @@ namespace Chess
             ClockManager.OnExpiredEventReceived -= OnClockExpiredEvent;
         }
 
-#region Reset
         private void ResetGame()
         {
             ResetUI();
@@ -195,54 +194,12 @@ namespace Chess
         }
 
         private void ResetSet() => setManager.Reset();
-#endregion
 
-#region Clocks
-        private void ResetClocks()
-        {
-            lightClock.Reset();
-            darkClock.Reset();
-        }
+        private void PauseClocks() => timingsManager.PauseClocks();
 
-        private void PauseClocks()
-        {
-            lightClock.Pause();
-            darkClock.Pause();
-        }
+        private void PauseActiveClock() => timingsManager.PauseActiveClock();
 
-        private void PauseActiveClock()
-        {
-            switch (activeSet)
-            {
-                case Set.Light:
-                    lightClock.Pause();
-                    break;
-
-                case Set.Dark:
-                    darkClock.Pause();
-                    break;
-            }
-        }
-
-        public void ResumeActiveClock()
-        {
-            switch (activeSet)
-            {
-                case Set.Light:
-                    lightClock.Resume();
-                    break;
-
-                case Set.Dark:
-                    darkClock.Resume();
-                    break;
-            }
-        }
-
-        private void OnClockExpiredEvent(ClockManager instance)
-        {
-            Debug.Log($"{instance.name} has expired");
-        }
-#endregion
+        private void ResetClocks() => timingsManager.ResetClocks();
 
         private void PostMatrixUpdate() => MatrixEventReceived?.Invoke(matrixManager.Matrix);
 
@@ -290,10 +247,7 @@ namespace Chess
             AdjustChessPieceInteractableLayer(set, enabled);
         }
 
-        public Cell ResolveKingCell(Set set)
-        {
-            return ResolveKing(set).ActiveCell;
-        }
+        public Cell ResolveKingCell(Set set) => ResolveKing(set).ActiveCell;
 
         public PieceManager ResolveKing(Set set)
         {
@@ -435,7 +389,6 @@ namespace Chess
             }
         }
 
-#region Outcomes
         public void OnCheck(bool hasMoves)
         {
             AudioSource.PlayClipAtPoint(inCheckClip, transform.position, 1.0f);
@@ -482,7 +435,6 @@ namespace Chess
 
             StartCoroutine(ShowNewGameUIAfterDelayCoroutine(0.25f));
         }
-#endregion
 
         private void DestroyPreviews()
         {
@@ -719,6 +671,11 @@ namespace Chess
                     }
                     break;
             }
+        }
+
+        private void OnClockExpiredEvent(ClockManager instance)
+        {
+            Debug.Log($"{instance.name} has expired");
         }
 
 #region New Game

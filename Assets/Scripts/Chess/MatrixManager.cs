@@ -73,10 +73,7 @@ namespace Chess
             }
         }
 
-        public Cell[,] CloneMatrix()
-        {
-            return matrix.Clone() as Cell[,];
-        }
+        public Cell[,] CloneMatrix() => matrix.Clone() as Cell[,];
 
         public Cell[,] ProjectMatrix(Cell cell, Cell targetCell)
         {
