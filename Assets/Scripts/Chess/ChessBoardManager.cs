@@ -19,6 +19,7 @@ using Chess.Preview;
 namespace Chess
 {
     [RequireComponent(typeof(AudioSource))]
+    [RequireComponent(typeof(MoveManager))]
     public class ChessBoardManager : BaseManager
     {
         private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
@@ -67,16 +68,8 @@ namespace Chess
 
         [Header("Materials")]
         [SerializeField] Material outOfScopeMaterial;
-        [SerializeField] Material inFocusMaterial;
+        public Material OutOfScopeMaterial { get { return outOfScopeMaterial; } }
         [SerializeField] Material selectedMaterial;
-        [SerializeField] Material pawnPromotionMaterial;
-
-        [Header("Config")]
-        [SerializeField] MoveStyle moveStyle;
-        public MoveStyle MoveStyle { get { return moveStyle; } }
-
-        [SerializeField] MoveType moveType;
-        public MoveType MoveType { get { return moveType; } }
 
         [SerializeField] EngagementMode engagementMode;
         public EngagementMode EngagementMode { get { return engagementMode; } }
@@ -92,12 +85,30 @@ namespace Chess
         public delegate void MatrixEvent(Cell[,] matrix);
         public static event MatrixEvent MatrixEventReceived;
 
+        public Cell[,] Matrix { get { return matrix; } }
+        public StageManager StageManager { get { return stageManager; } }
+        public Set ActiveSet { get { return activeSet; } }
+
         public static int MatrixRows = 8;
         public static int MaxRowIdx = MatrixRows - 1;
         public static int MatrixColumns = 8;
         public static int MaxColumnIdx = MatrixColumns - 1;
 
+        public PieceManager InFocusPiece
+        {
+            get
+            {
+                return inFocusPiece;
+            }
+            
+            set
+            {
+                inFocusPiece = value;
+            }
+        }
+
         private TrackingMainCameraManager cameraManager;
+        private MoveManager moveManager;
         private AudioSource cameraAudioSource;
         private Cell[,] matrix;
         private int onHomeEventsPending;
@@ -107,7 +118,6 @@ namespace Chess
         private PieceManager pickedPiece;
         private PreviewManager inFocusPreview;
         private StageManager stageManager;
-        private Dictionary<PieceManager, List<Cell>> availableMoves;
         private List<GameObject> previews;
         private float defaultTableYOffset = 0f;
         private float lowerYTableBounds = -0.25f;
@@ -119,18 +129,16 @@ namespace Chess
         // private bool gameOver;
 #endregion
 
+#region Flow
         void Awake()
         {
             ResolveDependencies();
 
             matrix = new Cell[MatrixColumns, MatrixRows];
             previews = new List<GameObject>();
-            availableMoves = new Dictionary<PieceManager, List<Cell>>();
             stageManager = new StageManager();
-            
-            AttachLayerToControllers("Preview Layer");
 
-            playPieceDownClip = true;
+            AttachLayerToControllers("Preview Layer");
         }
 
         private void ResolveDependencies()
@@ -142,6 +150,7 @@ namespace Chess
                 cameraAudioSource = cameraManager.GetComponent<AudioSource>() as AudioSource;
             }
 
+            moveManager = GetComponent<MoveManager>() as MoveManager;
             audioSource = GetComponent<AudioSource>() as AudioSource;
         }
 
@@ -149,8 +158,32 @@ namespace Chess
         void Start()
         {
             MapLayout();
+            ResetGame();
             StartCoroutine(ShowNewGameUIAfterDelayCoroutine(0.25f));
         }
+
+        void OnEnable()
+        {
+            HandController.ActuationEventReceived += OnActuation;
+            ButtonEventManager.EventReceived += OnButtonEvent;
+            PreviewManager.EventReceived += OnPreviewEvent;
+            NewGameManager.EventReceived += OnNewGameEvent;
+            PawnPromotionManager.EventReceived += OnPawnPromotionEvent;
+            PieceTransformManager.CompleteEventReceived += OnPieceTransformComplete;
+            ClockManager.OnExpiredEventReceived += OnClockExpiredEvent;
+        }
+
+        void OnDisable()
+        {
+            HandController.ActuationEventReceived -= OnActuation;
+            ButtonEventManager.EventReceived -= OnButtonEvent;
+            PreviewManager.EventReceived -= OnPreviewEvent;
+            NewGameManager.EventReceived -= OnNewGameEvent;
+            PawnPromotionManager.EventReceived -= OnPawnPromotionEvent;
+            PieceTransformManager.CompleteEventReceived -= OnPieceTransformComplete;
+            ClockManager.OnExpiredEventReceived -= OnClockExpiredEvent;
+        }
+#endregion
 
 #region Mappings
         private void MapLayout()
@@ -202,100 +235,6 @@ namespace Chess
         }
 #endregion
 
-        void OnEnable()
-        {
-            HandController.ActuationEventReceived += OnActuation;
-            ButtonEventManager.EventReceived += OnButtonEvent;
-            PreviewManager.EventReceived += OnPreviewEvent;
-            NewGameManager.EventReceived += OnNewGameEvent;
-            PawnPromotionManager.EventReceived += OnPawnPromotionEvent;
-            PieceTransformManager.CompleteEventReceived += OnPieceTransformComplete;
-            ClockManager.OnExpiredEventReceived += OnClockExpiredEvent;
-        }
-
-        void OnDisable()
-        {
-            HandController.ActuationEventReceived -= OnActuation;
-            ButtonEventManager.EventReceived -= OnButtonEvent;
-            PreviewManager.EventReceived -= OnPreviewEvent;
-            NewGameManager.EventReceived -= OnNewGameEvent;
-            PawnPromotionManager.EventReceived -= OnPawnPromotionEvent;
-            PieceTransformManager.CompleteEventReceived -= OnPieceTransformComplete;
-            ClockManager.OnExpiredEventReceived -= OnClockExpiredEvent;
-        }
-
-        private void OnButtonEvent(ButtonEventManager manager, ButtonEventManager.ButtonId id, ButtonEventType eventType)
-        {
-            ReassignableButtonEventManager reassignableManager = null;
-
-            if (eventType == ButtonEventType.OnPressed)
-            {
-                switch (id)
-                {
-                    case ButtonEventManager.ButtonId.LowerTable:
-                        LowerTable();
-                        break;
-
-                    case ButtonEventManager.ButtonId.RaiseTable:
-                        RaiseTable();
-                        break;
-
-                    case ButtonEventManager.ButtonId.ResetTable:
-                        ResetTable();
-                        break;
-
-                    case ButtonEventManager.ButtonId.ResetBoard:
-                        // if (!gameOver)
-                        // {
-                        //     DeferAction(ResetBoard);
-                        // }
-                        break;
-
-                    case ButtonEventManager.ButtonId.SFXOff:
-                        EnableSFX(false);
-
-                        reassignableManager = ((ReassignableButtonEventManager) manager);
-                        reassignableManager.Id = ButtonEventManager.ButtonId.SFXOn;
-                        reassignableManager.Text = "On";
-                        break;
-
-                    case ButtonEventManager.ButtonId.SFXOn:
-                        EnableSFX(true);
-
-                        reassignableManager = ((ReassignableButtonEventManager) manager);
-                        reassignableManager.Id = ButtonEventManager.ButtonId.SFXOff;
-                        reassignableManager.Text = "Off";
-                        break;
-
-                    case ButtonEventManager.ButtonId.MusicOff:
-                        EnableMusic(false);
-
-                        reassignableManager = ((ReassignableButtonEventManager) manager);
-                        reassignableManager.Id = ButtonEventManager.ButtonId.MusicOn;
-                        reassignableManager.Text = "On";
-                        break;
-
-                    case ButtonEventManager.ButtonId.MusicOn:
-                        EnableMusic(true);
-
-                        reassignableManager = ((ReassignableButtonEventManager) manager);
-                        reassignableManager.Id = ButtonEventManager.ButtonId.MusicOff;
-                        reassignableManager.Text = "Off";
-                        break;
-                }
-            }
-            else if (eventType == ButtonEventType.OnReleased)
-            {
-                switch (id)
-                {
-                    case ButtonEventManager.ButtonId.LowerTable:
-                    case ButtonEventManager.ButtonId.RaiseTable:
-                        LockTable();
-                        break;
-                }
-            }
-        }
-
 #region Pieces
         public List<PieceManager> EnabledPieces { get { return setManager.AllPieces().Where(p => p.isActiveAndEnabled).ToList(); } }
 
@@ -326,6 +265,7 @@ namespace Chess
         {
             activeSet = Set.Light;
             // deferAction = gameOver = false;
+            playPieceDownClip = true;
         }
 
         private void ResetSet() => setManager.Reset();
@@ -358,7 +298,7 @@ namespace Chess
             }
         }
 
-        private void ResumeActiveClock()
+        public void ResumeActiveClock()
         {
             switch (activeSet)
             {
@@ -384,53 +324,12 @@ namespace Chess
 
         private bool IsMoving { get { return stageManager.LiveStage == Stage.Moving; } }
 
-        private void EvaluateOpeningMove() => EvaluateMove();
-
-        private void EvaluateMove()
-        {
-            stageManager.LiveStage = Stage.Evaluating;
-            availableMoves.Clear();
-            inFocusPiece = null;
-            
-            EnableInteractions(Set.Light, false);
-            EnableInteractions(Set.Dark, false);
-
-            bool inCheck = IsKingInCheck(activeSet, matrix);
-            bool hasMoves = CalculateMoves();
-
-            ResumeActiveClock();
-
-            if (hasMoves)
-            {
-                if (inCheck)
-                {
-                    OnCheck(hasMoves);
-                }
-
-                if (ShouldAutomate())
-                {
-                    AutomateMove();
-                }
-            }
-            else
-            {
-                if (inCheck)
-                {
-                    OnCheckmate();
-                }
-                else
-                {
-                    OnStalemate();
-                }
-            }
-        }
-
         public Cell[,] CloneMatrix()
         {
             return matrix.Clone() as Cell[,];
         }
 
-        private void AdjustChessPieceInteractableLayer(Set set, bool enabled)
+        public void AdjustChessPieceInteractableLayer(Set set, bool enabled)
         {
             string layer = null;
 
@@ -455,7 +354,7 @@ namespace Chess
             }
         }
 
-        private void EnableInteractions(Set set, bool enabled)
+        public void EnableInteractions(Set set, bool enabled)
         {
             List<PieceManager> pieces = (set == Set.Light) ? EnabledLightPieces : EnabledDarkPieces;
 
@@ -470,75 +369,7 @@ namespace Chess
             AdjustChessPieceInteractableLayer(set, enabled);
         }
 
-        public bool IsKingInCheck(Set set, Cell[,] matrix)
-        {
-            if (TryGets.TryResolveKingCell(matrix, set, out Cell kingCell))
-            {
-                if (TryGets.TryGetSetPieces(this, (activeSet == Set.Light) ? Set.Dark : Set.Light, out List<PieceManager> opposingPieces))
-                {
-                    if (TryGets.TryGetCoordReference(kingCell.coord, out string kingReference))
-                    {
-                        foreach (PieceManager opposingPiece in opposingPieces)
-                        {
-                            TryGets.TryGetCoordReference(opposingPiece.ActiveCell.coord, out string reference);
-
-                            if (opposingPiece.CanMoveTo(matrix, kingCell))
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                }
-            }
-
-            return false;
-        }
-
-        private bool CalculateMoves()
-        {
-            bool hasAnyMoves = false;
-
-            List<PieceManager> activeEnabledPieces = (activeSet == Set.Light) ? ActiveEnabledLightPieces : ActiveEnabledDarkPieces;
-
-            foreach (PieceManager piece in activeEnabledPieces)
-            {
-                List<Cell> potentialMoves = piece.CalculateMoves(matrix, (activeSet == Set.Light) ? 1 : -1);
-                bool hasMoves = potentialMoves.Count > 0;
-
-                List<Cell> legalMoves = new List<Cell>();
-
-                foreach (Cell move in potentialMoves)
-                {
-                    if (!WouldKingBeInCheck(piece, move))
-                    {
-                        legalMoves.Add(move);
-                    }
-                }
-
-                hasMoves = legalMoves.Count > 0;
-
-                piece.EnableInteractions(hasMoves);
-
-                if (hasMoves)
-                {    
-                    this.availableMoves.Add(piece, legalMoves);
-                    hasAnyMoves = true;
-                }
-                else
-                {
-                    piece.ApplyMaterial(outOfScopeMaterial);
-                }
-            }
-
-            stageManager.LiveStage = Stage.PendingSelect;
-            
-            AdjustChessPieceInteractableLayer(Set.Light, (activeSet == Set.Light));
-            AdjustChessPieceInteractableLayer(Set.Dark, (activeSet == Set.Dark));
-
-            return hasAnyMoves;
-        }
-
-        private Cell[,] ProjectMatrix(Cell cell, Cell targetCell)
+        public Cell[,] ProjectMatrix(Cell cell, Cell targetCell)
         {
             Cell[,] clone = CloneMatrix();
 
@@ -558,12 +389,6 @@ namespace Chess
             return clone;
         }
 
-        public bool WouldKingBeInCheck(PieceManager piece, Cell targetCell)
-        {
-            Cell[,] projectedMatrix = ProjectMatrix(piece.ActiveCell, targetCell);
-            return IsKingInCheck(activeSet, projectedMatrix);
-        }
-
         public Cell ResolveKingCell(Set set)
         {
             return ResolveKing(set).ActiveCell;
@@ -579,7 +404,7 @@ namespace Chess
             return null;
         }
 
-        private bool ShouldAutomate()
+        public bool ShouldAutomate()
         {
             bool result = false;
 
@@ -597,20 +422,6 @@ namespace Chess
             return result;
         }
 
-        private void AutomateMove() => PlayRandomMove();
-
-        private void PlayRandomMove()
-        {
-            if (availableMoves.Count == 0) return;
-
-            int idx = Random.Range(0, availableMoves.Count);
-            KeyValuePair<PieceManager, List<Cell>> availableCells = availableMoves.ElementAt(idx);
-            int cellIdx = Random.Range(0, availableCells.Value.Count);
-            inFocusPiece = availableCells.Key;
-            Cell cell = availableCells.Value[cellIdx];
-            CommitToMove(cell);
-        }
-
         private void CompleteTurn()
         {
             stageManager.LiveStage = Stage.MoveComplete;
@@ -621,7 +432,7 @@ namespace Chess
             ((KingManager) manager).KingState = KingManager.State.Nominal;
 
             activeSet = (activeSet == Set.Light) ? Set.Dark : Set.Light;
-            EvaluateMove();
+            moveManager.EvaluateMove();
         }
 
         private void ResetThemes()
@@ -661,6 +472,8 @@ namespace Chess
                 stageManager.LiveStage = Stage.Selected;
                 inFocusPiece.ApplyMaterial(selectedMaterial);
 
+                Dictionary<PieceManager, List<Cell>> availableMoves = moveManager.AvailableMoves;
+
                 foreach (KeyValuePair<PieceManager, List<Cell>> element in availableMoves)
                 {
                     element.Key.EnableInteractions(false);
@@ -688,7 +501,7 @@ namespace Chess
             }
         }
 
-        private void CommitToMove(Cell cell)
+        public void CommitToMove(Cell cell)
         {
             DestroyPreviews();
             ResetThemes();
@@ -696,7 +509,7 @@ namespace Chess
             coordReferenceCanvas.TextUI = string.Empty;
 
             stageManager.LiveStage = Stage.Moving;
-            inFocusPiece.GoToCell(cell, moveType, moveStyle);
+            inFocusPiece.GoToCell(cell, moveManager.MoveType, moveManager.MoveStyle);
         }
 
         private void CancelIntent()
@@ -705,6 +518,8 @@ namespace Chess
             inFocusPiece?.UseDefaultMaterial();
             inFocusPiece.HideOutline();
             DestroyPreviews();
+
+            Dictionary<PieceManager, List<Cell>> availableMoves = moveManager.AvailableMoves;
 
             foreach (KeyValuePair<PieceManager, List<Cell>> element in availableMoves)
             {
@@ -720,7 +535,7 @@ namespace Chess
         }
 
 #region Outcomes
-        private void OnCheck(bool hasMoves)
+        public void OnCheck(bool hasMoves)
         {
             AudioSource.PlayClipAtPoint(inCheckClip, transform.position, 1.0f);
             
@@ -731,7 +546,7 @@ namespace Chess
             ((KingManager) manager).KingState = KingManager.State.Check;
         }
 
-        private void OnCheckmate()
+        public void OnCheckmate()
         {
             AudioSource.PlayClipAtPoint(checkmateClip, transform.position, 1.0f);
 
@@ -749,7 +564,7 @@ namespace Chess
             StartCoroutine(ShowNewGameUIAfterDelayCoroutine(0.25f));
         }
 
-        private void OnStalemate()
+        public void OnStalemate()
         {
             AudioSource.PlayClipAtPoint(stalemateClip, transform.position, 1.0f);
 
@@ -803,7 +618,7 @@ namespace Chess
                 {
                     ++originalPieces;
                     piece.Reset();
-                    piece.GoHome(moveType, moveStyle);
+                    piece.GoHome(moveManager.MoveType, moveManager.MoveStyle);
                 }
             }
         }
@@ -1028,7 +843,7 @@ namespace Chess
                     break;
             }
 
-            EvaluateOpeningMove();
+            moveManager.EvaluateOpeningMove();
         }
 
         private IEnumerator ShowNewGameUIAfterDelayCoroutine(float seconds)
@@ -1172,6 +987,78 @@ namespace Chess
                 if (!DeferTurnCompletion(piece))
                 {
                     CompleteTurn();
+                }
+            }
+        }
+
+        private void OnButtonEvent(ButtonEventManager manager, ButtonEventManager.ButtonId id, ButtonEventType eventType)
+        {
+            ReassignableButtonEventManager reassignableManager = null;
+
+            if (eventType == ButtonEventType.OnPressed)
+            {
+                switch (id)
+                {
+                    case ButtonEventManager.ButtonId.LowerTable:
+                        LowerTable();
+                        break;
+
+                    case ButtonEventManager.ButtonId.RaiseTable:
+                        RaiseTable();
+                        break;
+
+                    case ButtonEventManager.ButtonId.ResetTable:
+                        ResetTable();
+                        break;
+
+                    case ButtonEventManager.ButtonId.ResetBoard:
+                        // if (!gameOver)
+                        // {
+                        //     DeferAction(ResetBoard);
+                        // }
+                        break;
+
+                    case ButtonEventManager.ButtonId.SFXOff:
+                        EnableSFX(false);
+
+                        reassignableManager = ((ReassignableButtonEventManager) manager);
+                        reassignableManager.Id = ButtonEventManager.ButtonId.SFXOn;
+                        reassignableManager.Text = "On";
+                        break;
+
+                    case ButtonEventManager.ButtonId.SFXOn:
+                        EnableSFX(true);
+
+                        reassignableManager = ((ReassignableButtonEventManager) manager);
+                        reassignableManager.Id = ButtonEventManager.ButtonId.SFXOff;
+                        reassignableManager.Text = "Off";
+                        break;
+
+                    case ButtonEventManager.ButtonId.MusicOff:
+                        EnableMusic(false);
+
+                        reassignableManager = ((ReassignableButtonEventManager) manager);
+                        reassignableManager.Id = ButtonEventManager.ButtonId.MusicOn;
+                        reassignableManager.Text = "On";
+                        break;
+
+                    case ButtonEventManager.ButtonId.MusicOn:
+                        EnableMusic(true);
+
+                        reassignableManager = ((ReassignableButtonEventManager) manager);
+                        reassignableManager.Id = ButtonEventManager.ButtonId.MusicOff;
+                        reassignableManager.Text = "Off";
+                        break;
+                }
+            }
+            else if (eventType == ButtonEventType.OnReleased)
+            {
+                switch (id)
+                {
+                    case ButtonEventManager.ButtonId.LowerTable:
+                    case ButtonEventManager.ButtonId.RaiseTable:
+                        LockTable();
+                        break;
                 }
             }
         }
