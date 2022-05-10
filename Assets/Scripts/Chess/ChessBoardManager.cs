@@ -23,6 +23,7 @@ namespace Chess
     {
         private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
+#region Variables
         [Header("Camera")]
         [SerializeField] new Camera camera;
 
@@ -36,7 +37,6 @@ namespace Chess
         public ChessBoardSetManager SetManager { get { return setManager; } }
         [SerializeField] PieceTransformManager pieceTransformManager;
         [SerializeField] NotificationManager notificationManager;
-        // [SerializeField] PiecePickerManager piecePickerManager;
         
         [SerializeField] NewGameManager newGameManager;
         [SerializeField] PawnPromotionManager pawnPromotionManager;
@@ -59,9 +59,11 @@ namespace Chess
         [Header("Pieces")]
         [Range(15f, 35f)]
         [SerializeField] float pieceRotationSpeed = 25f;
+        public float PieceRotationSpeed { get { return pieceRotationSpeed; } }
 
         [Range(0.1f, 25f)]
         [SerializeField] float pieceMoveSpeed = 5f;
+        public float PieceMoveSpeed { get { return pieceMoveSpeed; } }
 
         [Header("Materials")]
         [SerializeField] Material outOfScopeMaterial;
@@ -91,7 +93,9 @@ namespace Chess
         public static event MatrixEvent MatrixEventReceived;
 
         public static int MatrixRows = 8;
+        public static int MaxRowIdx = MatrixRows - 1;
         public static int MatrixColumns = 8;
+        public static int MaxColumnIdx = MatrixColumns - 1;
 
         private TrackingMainCameraManager cameraManager;
         private AudioSource cameraAudioSource;
@@ -104,8 +108,6 @@ namespace Chess
         private PreviewManager inFocusPreview;
         private StageManager stageManager;
         private Dictionary<PieceManager, List<Cell>> availableMoves;
-        private int maxRowIdx = MatrixRows - 1;
-        private int maxColumnIdx = MatrixColumns - 1;
         private List<GameObject> previews;
         private float defaultTableYOffset = 0f;
         private float lowerYTableBounds = -0.25f;
@@ -114,9 +116,8 @@ namespace Chess
         private Coroutine coroutine;
         private AudioSource audioSource;
         private bool playPieceDownClip;
-        private Action onParkAction;
-        private bool parkRequest;
-        private bool gameOver;
+        // private bool gameOver;
+#endregion
 
         void Awake()
         {
@@ -127,9 +128,7 @@ namespace Chess
             availableMoves = new Dictionary<PieceManager, List<Cell>>();
             stageManager = new StageManager();
             
-            cameraManager.IncludeInteractableLayer("Preview Layer");
-            leftController.IncludeInteractableLayer("Preview Layer");
-            rightController.IncludeInteractableLayer("Preview Layer");
+            AttachLayerToControllers("Preview Layer");
 
             playPieceDownClip = true;
         }
@@ -149,24 +148,65 @@ namespace Chess
         // Start is called before the first frame update
         void Start()
         {
-            StartCoroutine(StartCoroutine());
+            MapLayout();
+            StartCoroutine(ShowNewGameUIAfterDelayCoroutine(0.25f));
         }
 
-        private IEnumerator StartCoroutine()
+#region Mappings
+        private void MapLayout()
         {
             MapMatrix();
             MapPieces();
-
-            yield return new WaitForSeconds(0.1f);
-            ShowNewGameUI();
         }
+
+        private void MapMatrix()
+        {
+            for (int y = 0 ; y <= MaxRowIdx ; y++)
+            {
+                for (int x = 0 ; x <= MaxColumnIdx ; x++)
+                {
+                    Coord coord = new Coord
+                    {
+                        x = x,
+                        y = y
+                    };
+
+                    Vector3 surface = setManager.transform.localPosition;
+
+                    if (TryGets.TryGetCoordToPosition(coord, surface.y, out Vector3 localPosition))
+                    {
+                        matrix[x, y] = new Cell
+                        {
+                            coord = coord,
+                            localPosition = localPosition,
+                            wrapper = new PieceManagerWrapper()
+                        };
+                    }
+                }
+            }
+        }
+
+        private void MapPieces()
+        {
+            foreach (PieceManager pieceManager in EnabledPieces)
+            {
+                if ((pieceManager.isActiveAndEnabled) && (TryGets.TryGetPieceToCell(matrix, pieceManager, out Cell cell)))
+                {
+                    pieceManager.HomeCell = cell;
+                    pieceManager.MoveEventReceived += OnMoveEvent;
+                    pieceManager.EventReceived += OnEvent;
+
+                    matrix[cell.coord.x, cell.coord.y].wrapper.manager = pieceManager;
+                }
+            }
+        }
+#endregion
 
         void OnEnable()
         {
             HandController.ActuationEventReceived += OnActuation;
             ButtonEventManager.EventReceived += OnButtonEvent;
             PreviewManager.EventReceived += OnPreviewEvent;
-            // PiecePickerManager.EventReceived += OnPiecePickerEvent;
             NewGameManager.EventReceived += OnNewGameEvent;
             PawnPromotionManager.EventReceived += OnPawnPromotionEvent;
             PieceTransformManager.CompleteEventReceived += OnPieceTransformComplete;
@@ -178,7 +218,6 @@ namespace Chess
             HandController.ActuationEventReceived -= OnActuation;
             ButtonEventManager.EventReceived -= OnButtonEvent;
             PreviewManager.EventReceived -= OnPreviewEvent;
-            // PiecePickerManager.EventReceived -= OnPiecePickerEvent;
             NewGameManager.EventReceived -= OnNewGameEvent;
             PawnPromotionManager.EventReceived -= OnPawnPromotionEvent;
             PieceTransformManager.CompleteEventReceived -= OnPieceTransformComplete;
@@ -206,14 +245,10 @@ namespace Chess
                         break;
 
                     case ButtonEventManager.ButtonId.ResetBoard:
-                        if (gameOver)
-                        {
-                            ResetBoard();
-                        }
-                        else
-                        {
-                            ParkBoard(ResetBoard);
-                        }
+                        // if (!gameOver)
+                        // {
+                        //     DeferAction(ResetBoard);
+                        // }
                         break;
 
                     case ButtonEventManager.ButtonId.SFXOff:
@@ -261,50 +296,98 @@ namespace Chess
             }
         }
 
-        private List<PieceManager> EnabledPieces { get { return setManager.AllPieces().Where(p => p.isActiveAndEnabled).ToList(); } }
+#region Pieces
+        public List<PieceManager> EnabledPieces { get { return setManager.AllPieces().Where(p => p.isActiveAndEnabled).ToList(); } }
 
-        private List<PieceManager> ActiveEnabledPieces { get { return setManager.AllPieces().Where(p => p.isActiveAndEnabled && (p.ActiveCell != null)).ToList(); } }
+        public List<PieceManager> ActiveEnabledPieces { get { return setManager.AllPieces().Where(p => p.isActiveAndEnabled && (p.ActiveCell != null)).ToList(); } }
 
-        private List<PieceManager> EnabledLightPieces { get { return setManager.LightPieces().Where(p => p.isActiveAndEnabled).ToList(); } }
+        public List<PieceManager> EnabledLightPieces { get { return setManager.LightPieces().Where(p => p.isActiveAndEnabled).ToList(); } }
 
-        private List<PieceManager> ActiveEnabledLightPieces { get { return setManager.LightPieces().Where(p => p.isActiveAndEnabled && (p.ActiveCell != null)).ToList(); } }
+        public List<PieceManager> ActiveEnabledLightPieces { get { return setManager.LightPieces().Where(p => p.isActiveAndEnabled && (p.ActiveCell != null)).ToList(); } }
 
-        private List<PieceManager> EnabledDarkPieces { get { return setManager.DarkPieces().Where(p => p.isActiveAndEnabled).ToList(); } }
+        public List<PieceManager> EnabledDarkPieces { get { return setManager.DarkPieces().Where(p => p.isActiveAndEnabled).ToList(); } }
 
-        private List<PieceManager> ActiveEnabledDarkPieces { get { return setManager.DarkPieces().Where(p => p.isActiveAndEnabled && (p.ActiveCell != null)).ToList(); } }
+        public List<PieceManager> ActiveEnabledDarkPieces { get { return setManager.DarkPieces().Where(p => p.isActiveAndEnabled && (p.ActiveCell != null)).ToList(); } }
+#endregion
 
+#region Reset
         private void ResetGame()
         {
             ResetUI();
             ResetGameState();
             ResetSet();
             ResetClocks();
-            
-            MatrixEventReceived?.Invoke(matrix);
+            PostMatrixUpdate();
         }
 
+        private void ResetUI() => coordReferenceCanvas.TextUI = String.Empty;
+        
         private void ResetGameState()
         {
             activeSet = Set.Light;
-            parkRequest = gameOver = false;
+            // deferAction = gameOver = false;
         }
 
         private void ResetSet() => setManager.Reset();
+#endregion
+
+#region Clocks
+        private void ResetClocks()
+        {
+            lightClock.Reset();
+            darkClock.Reset();
+        }
+
+        private void PauseClocks()
+        {
+            lightClock.Pause();
+            darkClock.Pause();
+        }
+
+        private void PauseActiveClock()
+        {
+            switch (activeSet)
+            {
+                case Set.Light:
+                    lightClock.Pause();
+                    break;
+
+                case Set.Dark:
+                    darkClock.Pause();
+                    break;
+            }
+        }
+
+        private void ResumeActiveClock()
+        {
+            switch (activeSet)
+            {
+                case Set.Light:
+                    lightClock.Resume();
+                    break;
+
+                case Set.Dark:
+                    darkClock.Resume();
+                    break;
+            }
+        }
+
+        private void OnClockExpiredEvent(ClockManager instance)
+        {
+            Debug.Log($"{instance.name} has expired");
+        }
+#endregion
+
+        private void PostMatrixUpdate() => MatrixEventReceived?.Invoke(matrix);
 
         private void HideNotifications() => notificationManager.Hide();
 
-        private void ResetUI() => coordReferenceCanvas.TextUI = String.Empty;
+        private bool IsMoving { get { return stageManager.LiveStage == Stage.Moving; } }
 
-        private void ManageTurn()
+        private void EvaluateOpeningMove() => EvaluateMove();
+
+        private void EvaluateMove()
         {
-            if (parkRequest)
-            {
-                onParkAction?.Invoke();
-                return;
-            }
-
-            MatrixEventReceived?.Invoke(matrix);
-
             stageManager.LiveStage = Stage.Evaluating;
             availableMoves.Clear();
             inFocusPiece = null;
@@ -315,16 +398,7 @@ namespace Chess
             bool inCheck = IsKingInCheck(activeSet, matrix);
             bool hasMoves = CalculateMoves();
 
-            switch (activeSet)
-            {
-                case Set.Light:
-                    lightClock.Run();
-                    break;
-
-                case Set.Dark:
-                    darkClock.Run();
-                    break;
-            }
+            ResumeActiveClock();
 
             if (hasMoves)
             {
@@ -373,15 +447,11 @@ namespace Chess
             
             if (enabled)
             {
-                cameraManager.IncludeInteractableLayer(layer);
-                leftController.IncludeInteractableLayer(layer);
-                rightController.IncludeInteractableLayer(layer);
+                AttachLayerToControllers(layer);
             }
             else
             {
-                cameraManager.ExcludeInteractableLayer(layer);
-                leftController.ExcludeInteractableLayer(layer);
-                rightController.ExcludeInteractableLayer(layer);
+                DetachLayerFromContollers(layer);
             }
         }
 
@@ -402,45 +472,25 @@ namespace Chess
 
         public bool IsKingInCheck(Set set, Cell[,] matrix)
         {
-            if (TryResolveKingCell(matrix, set, out Cell kingCell))
+            if (TryGets.TryResolveKingCell(matrix, set, out Cell kingCell))
             {
-                List<PieceManager> opposingPieces = GetSetPieces((activeSet == Set.Light) ? Set.Dark : Set.Light);
-
-                TryGets.TryGetCoordReference(kingCell.coord, out string kingReference);
-
-                foreach (PieceManager opposingPiece in opposingPieces)
+                if (TryGets.TryGetSetPieces(this, (activeSet == Set.Light) ? Set.Dark : Set.Light, out List<PieceManager> opposingPieces))
                 {
-                    TryGets.TryGetCoordReference(opposingPiece.ActiveCell.coord, out string reference);
-
-                    if (opposingPiece.CanMoveTo(matrix, kingCell))
+                    if (TryGets.TryGetCoordReference(kingCell.coord, out string kingReference))
                     {
-                        return true;
+                        foreach (PieceManager opposingPiece in opposingPieces)
+                        {
+                            TryGets.TryGetCoordReference(opposingPiece.ActiveCell.coord, out string reference);
+
+                            if (opposingPiece.CanMoveTo(matrix, kingCell))
+                            {
+                                return true;
+                            }
+                        }
                     }
                 }
             }
 
-            return false;
-        }
-
-        private bool TryResolveKingCell(Cell[,] matrix, Set set, out Cell cell)
-        {
-            for (int y = 0 ; y <= maxRowIdx ; y++)
-            {
-                for (int x = 0 ; x <= maxColumnIdx ; x++)
-                {
-                    Cell thisCell = matrix[x, y];
-                    if (!thisCell.IsOccupied) continue;
-                    PieceManager piece = thisCell.wrapper.manager;
-                    
-                    if (piece.Set == set && piece.Type == PieceType.King)
-                    {
-                        cell = thisCell;
-                        return true;
-                    }
-                }
-            }
-
-            cell = default(Cell);
             return false;
         }
 
@@ -492,9 +542,9 @@ namespace Chess
         {
             Cell[,] clone = CloneMatrix();
 
-            for (int y = 0 ; y <= maxRowIdx ; y++)
+            for (int y = 0 ; y <= MaxRowIdx ; y++)
             {
-                for (int x = 0 ; x <= maxColumnIdx ; x++)
+                for (int x = 0 ; x <= MaxColumnIdx ; x++)
                 {
                     Cell thisCell = clone[x, y];
                     clone[x, y] = thisCell.Clone();
@@ -521,7 +571,7 @@ namespace Chess
 
         public PieceManager ResolveKing(Set set)
         {
-            if (TryGetSingleSetPieceByType(set, PieceType.King, out PieceManager piece))
+            if (TryGets.TryGetSingleSetPieceByType(this, set, PieceType.King, out PieceManager piece))
             {
                 return piece;
             }
@@ -563,22 +613,15 @@ namespace Chess
 
         private void CompleteTurn()
         {
-            switch (activeSet)
-            {
-                case Set.Light:
-                    lightClock.Pause();
-                    break;
+            stageManager.LiveStage = Stage.MoveComplete;
 
-                case Set.Dark:
-                    darkClock.Pause();
-                    break;
-            }
+            PauseActiveClock();
 
             PieceManager manager = ResolveKing(activeSet);
             ((KingManager) manager).KingState = KingManager.State.Nominal;
 
             activeSet = (activeSet == Set.Light) ? Set.Dark : Set.Light;
-            ManageTurn();
+            EvaluateMove();
         }
 
         private void ResetThemes()
@@ -645,9 +688,6 @@ namespace Chess
             }
         }
 
-        public float PieceRotationSpeed { get { return pieceRotationSpeed; } }
-        public float PieceMoveSpeed { get { return pieceMoveSpeed; } }
-
         private void CommitToMove(Cell cell)
         {
             DestroyPreviews();
@@ -679,6 +719,7 @@ namespace Chess
             }
         }
 
+#region Outcomes
         private void OnCheck(bool hasMoves)
         {
             AudioSource.PlayClipAtPoint(inCheckClip, transform.position, 1.0f);
@@ -688,8 +729,6 @@ namespace Chess
 
             PieceManager manager = ResolveKing(activeSet);
             ((KingManager) manager).KingState = KingManager.State.Check;
-
-            Log($"{Time.time} {gameObject.name} {className} OnInCheck:Set : {activeSet} Has Moves :{hasMoves}");
         }
 
         private void OnCheckmate()
@@ -703,11 +742,11 @@ namespace Chess
             ((KingManager) manager).KingState = KingManager.State.Checkmate;
 
             PauseClocks();
-            gameOver = true;
+            ResetGame();
 
-            Set winner = (activeSet == Set.Light) ? Set.Dark : Set.Light;
+            // gameOver = true;
 
-            Log($"{Time.time} {gameObject.name} {className} OnCheckmate:{activeSet} has LOST, {winner} WINS");
+            StartCoroutine(ShowNewGameUIAfterDelayCoroutine(0.25f));
         }
 
         private void OnStalemate()
@@ -721,10 +760,13 @@ namespace Chess
             ((KingManager) manager).KingState = KingManager.State.Stalemate;
 
             PauseClocks();
-            gameOver = true;
+            ResetGame();
+            
+            // gameOver = true;
 
-            Log($"{Time.time} {gameObject.name} {className} OnStalemate:Nobody WINS");
+            StartCoroutine(ShowNewGameUIAfterDelayCoroutine(0.25f));
         }
+#endregion
 
         private void DestroyPreviews()
         {
@@ -734,12 +776,6 @@ namespace Chess
             }
             
             inFocusPreview = null;
-        }
-
-        private void ParkBoard(Action action)
-        {
-            onParkAction = action;
-            parkRequest = true;
         }
 
         private void ResetBoard()
@@ -770,18 +806,6 @@ namespace Chess
                     piece.GoHome(moveType, moveStyle);
                 }
             }
-        }
-
-        private void PauseClocks()
-        {
-            lightClock.Pause();
-            darkClock.Pause();
-        }
-
-        private void ResetClocks()
-        {
-            lightClock.Reset();
-            darkClock.Reset();
         }
 
         private void LowerTable() => coroutine = StartCoroutine(LowerTableCoroutine(adjustTableSpeed));
@@ -852,41 +876,6 @@ namespace Chess
             audioSource.Stop();
         }
 
-        private void OnMoveEvent(PieceManager piece)
-        {
-            if (stageManager.LiveStage == Stage.Resetting)
-            {
-                --onHomeEventsPending;
-
-                if (onHomeEventsPending == 0)
-                {
-                    var enabledPieces = EnabledPieces;
-                    onHomeEventsPending = enabledPieces.Count;
-
-                    foreach (PieceManager thisPiece in enabledPieces)
-                    {
-                        thisPiece.EnablePhysics(false);
-                    }
-
-                    ShowNewGameUI();
-                }
-            }
-            else if (stageManager.LiveStage == Stage.Moving)
-            {
-                if (playPieceDownClip)
-                {
-                    AudioSource.PlayClipAtPoint(pieceDownClip, transform.position, 1.0f);
-                }
-
-                MatrixEventReceived?.Invoke(matrix);
-                
-                if (!DeferTurnCompletion(piece))
-                {
-                    CompleteTurn();
-                }
-            }
-        }
-
         private bool DeferTurnCompletion(PieceManager piece)
         {
             if (piece.Type == PieceType.Pawn && ShouldPawnBePromoted(piece))
@@ -897,12 +886,21 @@ namespace Chess
             return false;
         }
 
+        private void SetPickedPiece(PieceManager piece)
+        {
+            pickedPiece = piece;
+
+            pieceTransformManager.SetPiece(activeSet, piece.Type);
+            pieceTransformManager.LowerAndHidePiece();
+        }
+
+#region Pawn Promotion
         private bool ShouldPawnBePromoted(PieceManager piece)
         {
             if (piece.Type == PieceType.Pawn)
             {
                 int vector = (activeSet == Set.Light) ? 1 : -1;
-                int lastRank = (vector == 1) ? maxRowIdx : 0;
+                int lastRank = (vector == 1) ? MaxRowIdx : 0;
 
                 if (piece.ActiveCell.coord.y == lastRank)
                 {
@@ -923,85 +921,6 @@ namespace Chess
             piece.gameObject.SetActive(false);
             pieceTransformManager.ShowAndRaisePiece(activeSet, piece.transform.position);
         }
-
-        private void OnPieceTransformComplete(PieceTransformManager.Action action)
-        {
-            switch (action)
-            {
-                case PieceTransformManager.Action.Raise:
-                    if (stageManager.LiveStage == Stage.Promoting)
-                    {
-                        if (ShouldAutomate())
-                        {
-                            // PieceManager piece = piecePickerManager.ResolvePieceBySet(activeSet, piecePickerManager.PickRandomType());
-                            PieceManager piece = pawnPromotionManager.ResolvePieceBySet(activeSet, pawnPromotionManager.PickRandomType());
-                            SetPickedPiece(piece);
-                        }
-                        else
-                        {
-                            ShowPawnPromotionUI();
-                            // ShowPiecePicker();
-                        }
-                    }
-                    break;
-
-                case PieceTransformManager.Action.Lower:
-                    if (stageManager.LiveStage == Stage.Promoting)
-                    {
-                        PromotePiece();
-                    }
-                    break;
-            }
-        }
-
-        private void OnClockExpiredEvent(ClockManager instance)
-        {
-            Debug.Log($"{instance.name} has expired");
-        }
-
-        private void ShowPawnPromotionUI()
-        {
-            leftController.IncludeInteractableLayer("Pawn Promotion Layer");
-            rightController.IncludeInteractableLayer("Pawn Promotion Layer");
-            pawnPromotionManager.ConfigureAndShow(activeSet);
-        }
-
-        private void ShowNewGameUI()
-        {
-            MatrixEventReceived?.Invoke(matrix);
-
-            leftController.IncludeInteractableLayer("UI Input Layer");
-            rightController.IncludeInteractableLayer("UI Input Layer");
-            newGameManager.Show();
-        }
-
-        // private void ShowPiecePicker()
-        // {
-        //     leftController.IncludeInteractableLayer("Piece Picker Layer");
-        //     rightController.IncludeInteractableLayer("Piece Picker Layer");
-        //     piecePickerManager.ConfigureAndShow(activeSet);
-        // }
-
-        private void HidePawnPromotionUI()
-        {
-            pawnPromotionManager.Hide();
-            leftController.ExcludeInteractableLayer("Pawn Promotion Layer");
-            rightController.ExcludeInteractableLayer("Pawn Promotion Layer");
-        }
-
-        private void HideNewGameUI()
-        {
-            newGameManager.Hide();
-            leftController.ExcludeInteractableLayer("UI Input Layer");
-            rightController.ExcludeInteractableLayer("UI Input Layer");
-        }
-
-        // private void HidePiecePicker()
-        // {
-        //     piecePickerManager.Hide();
-        //     leftController.ExcludeInteractableLayer("Piece Picker Layer");
-        //     rightController.ExcludeInteractableLayer("Piece Picker Layer");
-        // }
 
         private void PromotePiece()
         {
@@ -1039,6 +958,111 @@ namespace Chess
             CompleteTurn();
         }
 
+        private void OnPawnPromotionEvent(PieceManager piece)
+        {
+            HidePawnPromotionUI();
+            SetPickedPiece(piece);
+        }
+        
+        private void ShowPawnPromotionUI()
+        {
+            AttachLayerToControllers("Pawn Promotion Layer");
+            pawnPromotionManager.ConfigureAndShow(activeSet);
+        }
+
+        private void HidePawnPromotionUI()
+        {
+            pawnPromotionManager.Hide();
+            DetachLayerFromContollers("Pawn Promotion Layer");
+        }
+#endregion
+
+        private void OnPieceTransformComplete(PieceTransformManager.Action action)
+        {
+            switch (action)
+            {
+                case PieceTransformManager.Action.Raise:
+                    if (stageManager.LiveStage == Stage.Promoting)
+                    {
+                        if (ShouldAutomate())
+                        {
+                            PieceManager piece = pawnPromotionManager.ResolvePieceBySet(activeSet, pawnPromotionManager.PickRandomType());
+                            SetPickedPiece(piece);
+                        }
+                        else
+                        {
+                            ShowPawnPromotionUI();
+                        }
+                    }
+                    break;
+
+                case PieceTransformManager.Action.Lower:
+                    if (stageManager.LiveStage == Stage.Promoting)
+                    {
+                        PromotePiece();
+                    }
+                    break;
+            }
+        }
+
+#region New Game
+        private void OnNewGameEvent(NewGameManager.Mode mode)
+        {
+            HideNewGameUI();
+            
+            switch (mode)
+            {
+                case NewGameManager.Mode.PVP:
+                    lightPlayer = PlayerMode.Human;
+                    darkPlayer = PlayerMode.Human;
+                    break;
+
+                case NewGameManager.Mode.PVB:
+                    lightPlayer = PlayerMode.Human;
+                    darkPlayer = PlayerMode.Bot;
+                    break;
+
+                case NewGameManager.Mode.BVB:
+                    lightPlayer = PlayerMode.Bot;
+                    darkPlayer = PlayerMode.Bot;
+                    break;
+            }
+
+            EvaluateOpeningMove();
+        }
+
+        private IEnumerator ShowNewGameUIAfterDelayCoroutine(float seconds)
+        {
+            yield return new WaitForSeconds(seconds);
+            ShowNewGameUI();
+        }
+
+        private void ShowNewGameUI()
+        {
+            AttachLayerToControllers("UI Input Layer");
+            newGameManager.Show();
+        }
+
+        private void HideNewGameUI()
+        {
+            newGameManager.Hide();
+            DetachLayerFromContollers("UI Input Layer");
+        }
+#endregion
+
+        private void AttachLayerToControllers(string layer)
+        {
+            leftController.AttachLayer(layer);
+            rightController.AttachLayer(layer);
+        }
+
+        private void DetachLayerFromContollers(string layer)
+        {
+            leftController.DetachLayer(layer);
+            rightController.DetachLayer(layer);
+        }
+
+#region Events
         private void OnEvent(PieceManager piece, FocusType focusType)
         {
             switch (focusType)
@@ -1072,7 +1096,7 @@ namespace Chess
 
         private void OnPreviewEvent(PreviewManager manager, FocusType focusType)
         {
-            if (TryGetCell(manager.transform.localPosition, out Cell cell))
+            if (TryGets.TryGetCell(matrix, manager.transform.localPosition, out Cell cell))
             {
                 string reference, moveReference;
 
@@ -1115,313 +1139,42 @@ namespace Chess
             }
         }
 
-        // private void OnPiecePickerEvent(PieceManager piece)
-        // {
-        //     HidePiecePicker();
-        //     SetPickedPiece(piece);
-        // }
-
-        private void OnNewGameEvent(NewGameManager.Mode mode)
+        private void OnMoveEvent(PieceManager piece)
         {
-            HideNewGameUI();
-            ResetGame();
-            
-            switch (mode)
+            if (stageManager.LiveStage == Stage.Resetting)
             {
-                case NewGameManager.Mode.PVP:
-                    lightPlayer = PlayerMode.Human;
-                    darkPlayer = PlayerMode.Human;
-                    break;
+                --onHomeEventsPending;
 
-                case NewGameManager.Mode.PVB:
-                    lightPlayer = PlayerMode.Human;
-                    darkPlayer = PlayerMode.Bot;
-                    break;
-
-                case NewGameManager.Mode.BVB:
-                    lightPlayer = PlayerMode.Bot;
-                    darkPlayer = PlayerMode.Bot;
-                    break;
-            }
-
-            ManageTurn();
-        }
-
-        private void OnPawnPromotionEvent(PieceManager piece)
-        {
-            HidePawnPromotionUI();
-            SetPickedPiece(piece);
-        }
-
-        private void SetPickedPiece(PieceManager piece)
-        {
-            pickedPiece = piece;
-
-            pieceTransformManager.SetPiece(activeSet, piece.Type);
-            pieceTransformManager.LowerAndHidePiece();
-        }
-
-#region Matrix
-    private void MapMatrix()
-    {
-        for (int y = 0 ; y <= maxRowIdx ; y++)
-        {
-            for (int x = 0 ; x <= maxColumnIdx ; x++)
-            {
-                Coord coord = new Coord
+                if (onHomeEventsPending == 0)
                 {
-                    x = x,
-                    y = y
-                };
+                    var enabledPieces = EnabledPieces;
+                    onHomeEventsPending = enabledPieces.Count;
 
-                if (TryGetCoordToPosition(coord, out Vector3 localPosition))
-                {
-                    matrix[x, y] = new Cell
+                    foreach (PieceManager thisPiece in enabledPieces)
                     {
-                        coord = coord,
-                        localPosition = localPosition,
-                        wrapper = new PieceManagerWrapper()
-                    };
+                        thisPiece.EnablePhysics(false);
+                    }
+
+                    PauseClocks();
+                    ResetGame();
+                    ShowNewGameUI();
                 }
             }
-        }
-    }
-
-    public void ReportCells(Cell[,] matrix, bool includeEmptyCells = false)
-    {
-        List<Cell> cells = ExtractCells(matrix);
-        ReportCells(cells, includeEmptyCells);
-    }
-
-    public void ReportCells(List<Cell> cells, bool includeEmptyCells = false)
-    {
-        foreach (Cell cell in cells)
-        {
-            if (cell != null)
+            else if (stageManager.LiveStage == Stage.Moving)
             {
-                TryGets.TryGetCoordReference(cell.coord, out string reference);
-
-                if (cell.IsOccupied)
+                if (playPieceDownClip)
                 {
-                    Debug.Log($"ReportMatrix Piece : {cell.wrapper.manager.name} Coord : [{cell.coord.x}, {cell.coord.y}] Reference : {reference} Position : [{cell.localPosition.x}, {cell.localPosition.y}, {cell.localPosition.z}]");
+                    AudioSource.PlayClipAtPoint(pieceDownClip, transform.position, 1.0f);
                 }
-                else if (includeEmptyCells)
+
+                PostMatrixUpdate();
+                
+                if (!DeferTurnCompletion(piece))
                 {
-                    Debug.Log($"ReportMatrix EMPTY Coord : [{cell.coord.x} {cell.coord.y}] Reference : {reference} Position : [{cell.localPosition.x}, {cell.localPosition.y}, {cell.localPosition.z}]");
+                    CompleteTurn();
                 }
             }
         }
-    }
-
-    public List<Cell> ExtractCells(Cell[,] matrix)
-    {
-        List<Cell> cells = new List<Cell>();
-
-        for (int y = 0 ; y <= maxRowIdx ; y++)
-        {
-            for (int x = 0 ; x <= maxColumnIdx ; x++)
-            {
-                cells.Add(matrix[x, y]);
-            }
-        }
-
-        return cells;
-    }
-
-    public List<Cell> AllCells
-    {
-        get
-        {
-            return ExtractCells(matrix);
-        }
-    }
-
-    public List<Coord> AllCoords
-    {
-        get
-        {
-            List<Coord> coords = new List<Coord>();
-
-            for (int y = 0 ; y <= maxRowIdx ; y++)
-            {
-                for (int x = 0 ; x <= maxColumnIdx ; x++)
-                {
-                    coords.Add(new Coord
-                    {
-                        x = x,
-                        y = y
-                    });
-                }
-            }
-
-            return coords;
-        }
-    }
-#endregion
-
-#region Pieces
-    private void MapPieces()
-    {
-        foreach (PieceManager pieceManager in EnabledPieces)
-        {
-            if ((pieceManager.isActiveAndEnabled) && (TryGetPieceToCell(pieceManager, out Cell cell)))
-            {
-                pieceManager.HomeCell = cell;
-                pieceManager.MoveEventReceived += OnMoveEvent;
-                pieceManager.EventReceived += OnEvent;
-
-                matrix[cell.coord.x, cell.coord.y].wrapper.manager = pieceManager;
-            }
-        }
-    }
-
-    public void ReportPieces()
-    {
-        foreach (PieceManager piece in EnabledPieces)
-        {
-            TryGets.TryGetCoordReference(piece.ActiveCell.coord, out string reference);
-
-            Debug.Log($"ReportPieces {piece.name} Cell : {reference} Coord : [{piece.ActiveCell.coord.x}, {piece.ActiveCell.coord.y}] Position : [{piece.ActiveCell.localPosition.x}, {piece.ActiveCell.localPosition.y}, {piece.ActiveCell.localPosition.z}]");
-        }
-    }
-#endregion
-
-#region TryGets
-    public List<PieceManager> GetSetPieces(Set set)
-    {
-        return (set == Set.Light) ? ActiveEnabledLightPieces : ActiveEnabledDarkPieces;
-    }
-
-    public bool TryGetSingleSetPieceByType(Set set, PieceType type, out PieceManager pieceManager)
-    {
-        List<PieceManager> activeEnabledPieces = GetSetPieces(set);
-        List<Cell> matchingCells = activeEnabledPieces.Where(p => p.Type == type).Select(p => p.ActiveCell).ToList();
-
-        if (matchingCells.Count > 0)
-        {
-            pieceManager = matchingCells.First().wrapper.manager;
-            return true;
-        }
-        
-        pieceManager = default(PieceManager);
-        return false;
-    }
-
-
-    public bool TryGetSetPiecesByType(Set set, PieceType type, out List<PieceManager> pieces)
-    {
-        List<PieceManager> activeEnabledPieces = GetSetPieces(set);
-        pieces = activeEnabledPieces.Where(p => p.Type == type).ToList();
-
-        return (pieces.Count > 0);
-    }
-
-    public bool TryGetPiecesByType(PieceType type, out List<PieceManager> pieces)
-    {
-        pieces = ActiveEnabledPieces.Where(p => p.Type == type).ToList();
-        return (pieces.Count > 0);
-    }
-
-    public bool TryGetPieceToCell(PieceManager piece, out Cell cell)
-    {
-        var localPosition = ChessMath.RoundPosition(piece.transform.localPosition);
-        
-        if (TryGetCoord(localPosition, out Coord coord))
-        {
-            cell = matrix[coord.x, coord.y];
-            return true;
-        }
-
-        cell = default(Cell);
-        return false;
-    }
-
-    public bool TryGetCoord(Vector3 localPosition, out Coord coord)
-    {
-        var normX = ChessMath.Normalize(localPosition.x, -0.35f, 0.35f);
-        int x = (int) Mathf.Round(maxColumnIdx * (float) normX);
-
-        var normZ = ChessMath.Normalize(localPosition.z, -0.35f, 0.35f);
-        int z = (int) Mathf.Round(maxRowIdx * (float) normZ);
-
-        if ((x >= 0 && x <= maxColumnIdx) && (z >= 0 && z <= maxRowIdx))
-        {
-            coord = new Coord
-            {
-                x = x,
-                y = z
-            };
-
-            return true;
-        }
-
-        coord = default(Coord);
-        return false;
-    }
-
-    public bool TryGetCoordToPosition(Coord coord, out Vector3 localPosition)
-    {
-        Vector3 surface = setManager.transform.localPosition;
-
-        if ((coord.x >= 0 && coord.x <= maxColumnIdx) && (coord.y >= 0 && coord.y <= maxRowIdx))
-        {
-            float x = ChessMath.RoundFloat(-0.35f + (coord.x * 0.1f));
-            float y = ChessMath.RoundFloat(-0.35f + (coord.y * 0.1f));
-
-            localPosition = new Vector3(x, surface.y, y);
-            return true;
-        }
-
-        localPosition = default(Vector3);
-        return false;
-    }
-
-    public bool TryGetCell(Vector3 localPosition, out Cell cell)
-    {
-        for (int y = 0 ; y <= maxRowIdx ; y++)
-        {
-            for (int x = 0 ; x <= maxColumnIdx ; x++)
-            {
-                cell = matrix[x, y];
-                Vector3 cellPosition = ChessMath.RoundVector3(cell.localPosition);
-                Vector3 queryPosition = ChessMath.RoundVector3(localPosition);
-
-                if ((cellPosition.x == queryPosition.x) && (cellPosition.z == queryPosition.z))
-                {
-                    return true;
-                }
-            }
-        }
-
-        cell = default(Cell);
-        return false;
-    }
-
-    public bool TryGetPiecesAlongVector(Cell[,] projectedMatrix, Cell origin, Vector2 vector, out List<PieceManager> pieceManagers)
-    {
-        pieceManagers = new List<PieceManager>();
-
-        int x = origin.coord.x;
-        int y = origin.coord.y;
-
-        do
-        {
-            x += (int) vector.x;
-            y += (int) vector.y;
-
-            if ((x >= 0 && x <= maxColumnIdx) && (y >= 0 && y <= maxRowIdx))
-            {
-                Cell cell = projectedMatrix[x, y];
-
-                if (cell.wrapper.manager != null)
-                {
-                    pieceManagers.Add(cell.wrapper.manager);
-                }
-            }
-        } while ((x >= 0 && x <= maxColumnIdx) && (y >= 0 && y <= maxRowIdx));
-
-        return false;
-    }
 #endregion
     }
 }

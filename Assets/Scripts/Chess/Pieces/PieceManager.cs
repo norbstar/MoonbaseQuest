@@ -305,7 +305,7 @@ namespace Chess.Pieces
         private List<Cell> ResolveAllAvailableCells(Cell[,] matrix)
         {
             List<Cell> cells = new List<Cell>();
-            List<Coord> coords = chessBoardManager.AllCoords;
+            List<Coord> coords = AllCoords;
 
             if (TryGetPotentialCoords(ActiveCell.coord, coords, out List<Coord> potentialCoords))
             {
@@ -321,6 +321,28 @@ namespace Chess.Pieces
             }
 
             return cells;
+        }
+
+        private List<Coord> AllCoords
+        {
+            get
+            {
+                List<Coord> coords = new List<Coord>();
+
+                for (int y = 0 ; y <= ChessBoardManager.MaxRowIdx ; y++)
+                {
+                    for (int x = 0 ; x <= ChessBoardManager.MaxColumnIdx ; x++)
+                    {
+                        coords.Add(new Coord
+                        {
+                            x = x,
+                            y = y
+                        });
+                    }
+                }
+
+                return coords;
+            }
         }
 
         protected List<CoordBundle> TryOneTimeVector(int stepX, int stepY, List<CoordBundle> bundles, CoordSpec coordSpec = null)

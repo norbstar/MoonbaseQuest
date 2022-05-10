@@ -56,10 +56,9 @@ public class HybridHandController : HandController
         }
     }
 
-    public void IncludeInteractableLayer(string interactableLayer) => interactableLayerMask |= LayerMask.GetMask(interactableLayer);
+    public void AttachLayer(string interactableLayer) => interactableLayerMask |= LayerMask.GetMask(interactableLayer);
 
-    public void ExcludeInteractableLayer(string interactableLayer) => interactableLayerMask &= ~LayerMask.GetMask(interactableLayer);
-
+    public void DetachLayer(string interactableLayer) => interactableLayerMask &= ~LayerMask.GetMask(interactableLayer);
 
     void OnEnable()
     {

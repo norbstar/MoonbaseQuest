@@ -23,7 +23,7 @@ namespace Chess
                     }
                     else
                     {
-                        stopwatch.Run();
+                        stopwatch.Resume();
                     }
                 }
 
@@ -35,7 +35,7 @@ namespace Chess
                     }
                     else
                     {
-                        timer.Run();
+                        timer.Resume();
                     }
                 }
             }

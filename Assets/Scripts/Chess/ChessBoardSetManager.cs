@@ -43,7 +43,7 @@ namespace Chess
 
         public PieceManager AddPiece(Set set, PieceManager piece, Coord coord, bool isAddInPiece = false)
         {
-            if (chessBoardManager.TryGetCoordToPosition(coord, out Vector3 localPosition))
+            if (TryGets.TryGetCoordToPosition(coord, transform.localPosition.y, out Vector3 localPosition))
             {
                 var instance = GameObject.Instantiate(piece.gameObject);
                 instance.transform.parent = (set == Set.Light) ? lightSet.transform : darkSet.transform;

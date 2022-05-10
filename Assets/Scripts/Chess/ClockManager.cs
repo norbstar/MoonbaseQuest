@@ -47,7 +47,7 @@ namespace Chess
             duration = TimeSpan.FromSeconds((minutes * 60) + seconds);
         }
 
-        public void Run()
+        public void Resume()
         {
             startTurnTicks = DateTime.Now.Ticks;
             running = true;
