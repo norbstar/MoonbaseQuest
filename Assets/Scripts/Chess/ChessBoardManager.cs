@@ -17,6 +17,7 @@ using Chess.Preview;
 namespace Chess
 {
     [RequireComponent(typeof(AudioSource))]
+    [RequireComponent(typeof(BoardManager))]
     [RequireComponent(typeof(MatrixManager))]
     [RequireComponent(typeof(MoveManager))]
     [RequireComponent(typeof(TimingsManager))]
@@ -33,15 +34,14 @@ namespace Chess
 
         [Header("Components")]
         [SerializeField] GameObject board;
+        public GameObject Board { get { return board; } }
         [SerializeField] ChessBoardSetManager setManager;
         [SerializeField] PieceTransformManager pieceTransformManager;
         [SerializeField] NotificationManager notificationManager;
-        
         [SerializeField] NewGameManager newGameManager;
         [SerializeField] PawnPromotionManager pawnPromotionManager;
 
         [Header("Audio")]
-        [SerializeField] AudioClip adjustTableHeightClip;
         [SerializeField] AudioClip pieceDownClip;
         [SerializeField] AudioClip inCheckClip;
         [SerializeField] AudioClip checkmateClip;
@@ -74,7 +74,6 @@ namespace Chess
         public PlayerMode DarkPlayer { get { return darkPlayer; } }
 
         [SerializeField] GameObject previewPrefab;
-        [SerializeField] float adjustTableSpeed = 0.5f;
 
         public delegate void MatrixEvent(Cell[,] matrix);
         public static event MatrixEvent MatrixEventReceived;
@@ -83,6 +82,7 @@ namespace Chess
         public StageManager StageManager { get { return stageManager; } }
         public MatrixManager MatrixManager { get { return matrixManager; } }
         public TimingsManager TimingsManager { get { return timingsManager; } }
+        public BoardManager BoardManager { get { return boardManager; } }
 
         public Set ActiveSet { get { return activeSet; } }
 
@@ -103,6 +103,7 @@ namespace Chess
         private MoveManager moveManager;
         private MatrixManager matrixManager;
         private TimingsManager timingsManager;
+        private BoardManager boardManager;
         private AudioSource cameraAudioSource;
         private int onHomeEventsPending;
         private Set activeSet;
@@ -112,13 +113,10 @@ namespace Chess
         private PreviewManager inFocusPreview;
         private StageManager stageManager;
         private List<GameObject> previews;
-        private float defaultTableYOffset = 0f;
-        private float lowerYTableBounds = -0.25f;
-        private float upperYTableBounds = 0.25f;
         private float inCheckNotificationDelay = 1f;
         private Coroutine coroutine;
         private AudioSource audioSource;
-        private bool playPieceDownClip;
+        private bool enablePieceDownSFX;
         // private bool gameOver;
 
         void Awake()
@@ -142,6 +140,7 @@ namespace Chess
             matrixManager = GetComponent<MatrixManager>() as MatrixManager;
             moveManager = GetComponent<MoveManager>() as MoveManager;
             timingsManager = GetComponent<TimingsManager>() as TimingsManager;
+            boardManager = GetComponent<BoardManager>() as BoardManager; 
             audioSource = GetComponent<AudioSource>() as AudioSource;
         }
 
@@ -190,7 +189,7 @@ namespace Chess
         {
             activeSet = Set.Light;
             // deferAction = gameOver = false;
-            playPieceDownClip = true;
+            enablePieceDownSFX = true;
         }
 
         private void ResetSet() => setManager.Reset();
@@ -476,73 +475,9 @@ namespace Chess
             }
         }
 
-        private void LowerTable() => coroutine = StartCoroutine(LowerTableCoroutine(adjustTableSpeed));
-
-        private IEnumerator LowerTableCoroutine(float movementSpeed)
-        {
-            Vector3 targetPosition = new Vector3(board.transform.localPosition.x, lowerYTableBounds, board.transform.localPosition.z);
-            
-            audioSource.clip = adjustTableHeightClip;
-            audioSource.Play();
-
-            while (board.transform.localPosition != targetPosition)
-            {
-                board.transform.localPosition = Vector3.MoveTowards(board.transform.localPosition, targetPosition, movementSpeed * Time.deltaTime);
-                yield return null;
-            }
-
-            audioSource.Stop();
-        }
-
-        private void RaiseTable() => coroutine = StartCoroutine(RaiseTableCoroutine(adjustTableSpeed));
-
-        private IEnumerator RaiseTableCoroutine(float movementSpeed)
-        {
-            Vector3 targetPosition = new Vector3(board.transform.localPosition.x, upperYTableBounds, board.transform.localPosition.z);
-            
-            audioSource.clip = adjustTableHeightClip;
-            audioSource.Play();
-
-            while (board.transform.localPosition != targetPosition)
-            {
-                board.transform.localPosition = Vector3.MoveTowards(board.transform.localPosition, targetPosition, movementSpeed * Time.deltaTime);
-                yield return null;
-            }
-
-            audioSource.Stop();
-        }
-
-        private void ResetTable() => coroutine = StartCoroutine(ResetTableCoroutine(adjustTableSpeed));
-
-        private IEnumerator ResetTableCoroutine(float movementSpeed)
-        {
-            Vector3 targetPosition = new Vector3(board.transform.localPosition.x, defaultTableYOffset, board.transform.localPosition.z);
-            
-            audioSource.clip = adjustTableHeightClip;
-            audioSource.Play();
-
-            while (board.transform.localPosition != targetPosition)
-            {
-                board.transform.localPosition = Vector3.MoveTowards(board.transform.localPosition, targetPosition, movementSpeed * Time.deltaTime);
-                yield return null;
-            }
-
-            audioSource.Stop();
-        }
-
-        private void EnableSFX(bool enabled) => playPieceDownClip = enabled;
+        private void EnableSFX(bool enabled) => enablePieceDownSFX = enabled;
 
         private void EnableMusic(bool enabled) => cameraAudioSource.enabled = enabled;
-
-        private void LockTable()
-        {
-            if (coroutine != null)
-            {
-                StopCoroutine(coroutine);
-            }
-
-            audioSource.Stop();
-        }
 
         private bool DeferTurnCompletion(PieceManager piece)
         {
@@ -835,7 +770,7 @@ namespace Chess
             }
             else if (stageManager.LiveStage == Stage.Moving)
             {
-                if (playPieceDownClip)
+                if (enablePieceDownSFX)
                 {
                     AudioSource.PlayClipAtPoint(pieceDownClip, transform.position, 1.0f);
                 }
@@ -858,15 +793,15 @@ namespace Chess
                 switch (id)
                 {
                     case ButtonEventManager.ButtonId.LowerTable:
-                        LowerTable();
+                        boardManager.MoveTable(BoardManager.MoveType.Lower);
                         break;
 
                     case ButtonEventManager.ButtonId.RaiseTable:
-                        RaiseTable();
+                        boardManager.MoveTable(BoardManager.MoveType.Raise);
                         break;
 
                     case ButtonEventManager.ButtonId.ResetTable:
-                        ResetTable();
+                        boardManager.MoveTable(BoardManager.MoveType.Reset);
                         break;
 
                     case ButtonEventManager.ButtonId.ResetBoard:
@@ -915,7 +850,7 @@ namespace Chess
                 {
                     case ButtonEventManager.ButtonId.LowerTable:
                     case ButtonEventManager.ButtonId.RaiseTable:
-                        LockTable();
+                        boardManager.LockTable();
                         break;
                 }
             }

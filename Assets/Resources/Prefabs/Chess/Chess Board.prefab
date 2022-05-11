@@ -3440,8 +3440,10 @@ GameObject:
   - component: {fileID: 1813446090752762580}
   - component: {fileID: 977773413843787131}
   - component: {fileID: 1813446090752762579}
+  - component: {fileID: 7733727170971491300}
   - component: {fileID: 3242561044147704076}
   - component: {fileID: 408169768}
+  - component: {fileID: 288793725996376379}
   m_Layer: 0
   m_Name: Chess Board
   m_TagString: Untagged
@@ -3498,7 +3500,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: d0356615f5d7e714188d2dbbe98154b3, type: 3}
+  m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -3606,7 +3608,6 @@ MonoBehaviour:
   notificationManager: {fileID: 1800886651}
   newGameManager: {fileID: 0}
   pawnPromotionManager: {fileID: 0}
-  adjustTableHeightClip: {fileID: 8300000, guid: 2fa69da0e4419564d83c8b70d0b5eb90, type: 3}
   pieceDownClip: {fileID: 8300000, guid: 671837d3482e9974a9110f9293109bc6, type: 3}
   inCheckClip: {fileID: 8300000, guid: c1d9a296f9b7cc7478edece68d4ca7f1, type: 3}
   checkmateClip: {fileID: 8300000, guid: 11f2eab32835e2147ace91d723d7f7ba, type: 3}
@@ -3621,6 +3622,19 @@ MonoBehaviour:
   lightPlayer: 0
   darkPlayer: 1
   previewPrefab: {fileID: 2344250377201869969, guid: 8a6d4d5b851407547b182d37c68a08a9, type: 3}
+--- !u!114 &7733727170971491300
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1813446090752762582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8eccd76c1dc432f47ab796675b15f765, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  adjustTableHeightClip: {fileID: 8300000, guid: d0356615f5d7e714188d2dbbe98154b3, type: 3}
   adjustTableSpeed: 0.5
 --- !u!114 &3242561044147704076
 MonoBehaviour:
@@ -3648,6 +3662,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveStyle: 1
   moveType: 1
+--- !u!114 &288793725996376379
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1813446090752762582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d197f1b685b50be4fa3380b84f2254ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lightClock: {fileID: 0}
+  darkClock: {fileID: 0}
 --- !u!1 &2392337551839805885
 GameObject:
   m_ObjectHideFlags: 0
