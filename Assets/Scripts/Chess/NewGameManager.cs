@@ -1,17 +1,15 @@
-using System;
-using System.Collections.Generic;
+using System.Collections;
+using System.Reflection;
 
 using UnityEngine;
-using UnityEngine.XR;
-
-using TMPro;
-
-using static Enum.ControllerEnums;
 
 namespace Chess
 {
+    [RequireComponent(typeof(ChessBoardManager))]
     public class NewGameManager : MonoBehaviour
     {
+        private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
+
         public enum Mode
         {
             PVP,
@@ -19,104 +17,49 @@ namespace Chess
             BVB
         }
 
-        [Serializable]
-        public class Element
-        {
-            public FocusableManager manager;
-            public Mode mode;
-        }
-
         [Header("Components")]
-        [SerializeField] List<Element> elements;
-        [SerializeField] TextMeshProUGUI modeTextUI;
-
-        [Header("Config")]
-        [SerializeField] AudioClip inFocusAudioClip;
-        [SerializeField] AudioClip onSelectAudioClip;
+        [SerializeField] NewGameUIManager uiManager;
 
         public delegate void Event(Mode mode);
         public static event Event EventReceived;
 
-        private Element inFocusElement;
+        private ChessBoardManager chessBoardManager;
 
-        void OnEnable()
+        void Awake() => ResolveDependencies();
+
+        private void ResolveDependencies() => chessBoardManager = GetComponent<ChessBoardManager>() as ChessBoardManager;
+
+        void OnEnable() => NewGameUIManager.EventReceived += OnEvent;
+
+        void OnDisable() => NewGameUIManager.EventReceived -= OnEvent;
+
+        public void ShowAfterDelay(float seconds)
         {
-            HandController.ActuationEventReceived += OnActuation;
-
-            foreach (Element element in elements)
-            {
-                element.manager.EventReceived += OnEvent;
-            }
+            StartCoroutine(ShowNewGameUIAfterDelayCoroutine(seconds));
         }
 
-        void OnDisable()
+        private IEnumerator ShowNewGameUIAfterDelayCoroutine(float seconds)
         {
-            HandController.ActuationEventReceived -= OnActuation;
-
-            foreach (Element element in elements)
-            {
-                element.manager.EventReceived -= OnEvent;
-            }
+            yield return new WaitForSeconds(seconds);
+            Show();
         }
 
-        public void Show() => gameObject.SetActive(true);
-
-        public void Hide() => gameObject.SetActive(false);
-
-         private void OnEvent(FocusableManager manager, FocusType focusType)
+        public void Show()
         {
-            switch (focusType)
-            {
-                case FocusType.OnFocusGained:
-                    AudioSource.PlayClipAtPoint(inFocusAudioClip, transform.position, 1.0f);
+            chessBoardManager.AttachLayerToControllers("UI Input Layer");
+            uiManager.Show();
+        }
 
-                    inFocusElement = ResolveElement(manager);
-
-                    switch (inFocusElement.mode)
-                    {
-                        case Mode.PVP:
-                            modeTextUI.text = "Player v Player";
-                            break;
-
-                        case Mode.PVB:
-                            modeTextUI.text = "Player v Bot";
-                            break;
-
-                        case Mode.BVB:
-                            modeTextUI.text = "Bot v Bot";
-                            break;
-                    }
-                    break;
-
-                case FocusType.OnFocusLost:
-                    inFocusElement = null;
-                    modeTextUI.text = String.Empty;
-                    break;
-            }
+        private void HideNewGameUI()
+        {
+            uiManager.Hide();
+            chessBoardManager.DetachLayerFromContollers("UI Input Layer");
         }
         
-        public void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics)
+        public void OnEvent(NewGameManager.Mode mode)
         {
-            if (inFocusElement == null) return;
-
-            if (actuation.HasFlag(Actuation.Trigger))
-            {
-                AudioSource.PlayClipAtPoint(onSelectAudioClip, transform.position, 1.0f);
-                EventReceived?.Invoke(inFocusElement.mode);
-            }
-        }
-
-        private Element ResolveElement(FocusableManager manager)
-        {
-            foreach (Element element in elements)
-            {
-                if (element.manager.GetInstanceID() == manager.GetInstanceID())
-                {
-                    return element;
-                }
-            }
-
-            return null;
+            uiManager.Hide();
+            EventReceived?.Invoke(mode);
         }
     }
 }

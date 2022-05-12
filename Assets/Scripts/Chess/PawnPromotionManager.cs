@@ -1,147 +1,116 @@
-using System;
-using System.Collections.Generic;
+using System.Reflection;
 
 using UnityEngine;
-using UnityEngine.XR;
-
-using static Enum.ControllerEnums;
 
 using Chess.Pieces;
 
 namespace Chess
 {
+    [RequireComponent(typeof(ChessBoardManager))]
     public class PawnPromotionManager : MonoBehaviour
     {
-        [Serializable]
-        public class Element
-        {
-            public FocusableManager manager;
-            public PieceType type;
-        }
+        private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
         [Header("Components")]
-        [SerializeField] List<Element> elements;
+        [SerializeField] PawnPromotionUIManager uiManager;
 
-        [Header("Prefabs")]
-        [SerializeField] PieceManager lightQueen;
-        [SerializeField] PieceManager darkQueen;
-        [SerializeField] PieceManager lightKnight;
-        [SerializeField] PieceManager darkKnight;
-        [SerializeField] PieceManager lightRook;
-        [SerializeField] PieceManager darkRook;
-        [SerializeField] PieceManager lightBishop;
-        [SerializeField] PieceManager darkBishop;
+        [Header("Audio")]
+        [SerializeField] protected AudioClip promotionClip;
 
-        [Header("Config")]
-        [SerializeField] AudioClip inFocusAudioClip;
-        [SerializeField] AudioClip onSelectAudioClip;
+        private ChessBoardManager chessBoardManager;
+        private PieceManager promotionPiece;
+        private PieceManager pickedPiece;
 
-        public delegate void Event(PieceManager piece);
-        public static event Event EventReceived;
+        void Awake() => ResolveDependencies();
 
-        private Element inFocusElement;
-        private Set set;
+        private void ResolveDependencies() => chessBoardManager = GetComponent<ChessBoardManager>() as ChessBoardManager;
 
-        void OnEnable()
+        void OnEnable() => PawnPromotionUIManager.EventReceived += OnEvent;
+
+        void OnDisable() => PawnPromotionUIManager.EventReceived -= OnEvent;
+
+        public bool ShouldPawnBePromoted(Set set, PieceManager piece)
         {
-            HandController.ActuationEventReceived += OnActuation;
-
-            foreach (Element element in elements)
+            if (piece.Type == PieceType.Pawn)
             {
-                element.manager.EventReceived += OnEvent;
-            }
-        }
+                int vector = (set == Set.Light) ? 1 : -1;
+                int lastRank = (vector == 1) ? MatrixManager.MaxRowIdx : 0;
 
-        void OnDisable()
-        {
-            HandController.ActuationEventReceived -= OnActuation;
-
-            foreach (Element element in elements)
-            {
-                element.manager.EventReceived -= OnEvent;
-            }
-        }
-
-        public void ConfigureAndShow(Set set)
-        {
-            this.set = set;
-            Show();
-        }
-
-        public void Show() => gameObject.SetActive(true);
-
-        public void Hide() => gameObject.SetActive(false);
-
-        private void OnEvent(FocusableManager manager, FocusType focusType)
-        {
-            switch (focusType)
-            {
-                case FocusType.OnFocusGained:
-                    AudioSource.PlayClipAtPoint(inFocusAudioClip, transform.position, 1.0f);
-                    inFocusElement = ResolveElement(manager);
-                    break;
-
-                case FocusType.OnFocusLost:
-                    inFocusElement = null;
-                    break;
-            }
-        }
-
-        public void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics)
-        {
-            if (inFocusElement == null) return;
-
-            if (actuation.HasFlag(Actuation.Trigger))
-            {
-                AudioSource.PlayClipAtPoint(onSelectAudioClip, transform.position, 1.0f);
-                PieceManager piece = ResolvePieceBySet(set, inFocusElement.type);
-                EventReceived?.Invoke(piece);
-            }
-        }
-
-        private Element ResolveElement(FocusableManager manager)
-        {
-            foreach (Element element in elements)
-            {
-                if (element.manager.GetInstanceID() == manager.GetInstanceID())
+                if (piece.ActiveCell.coord.y == lastRank)
                 {
-                    return element;
+                    return true;
                 }
             }
 
-            return null;
+            return false;
         }
 
-        public PieceManager ResolvePieceBySet(Set set, PieceType type)
+        public PieceManager ResolvePieceBySet(Set set, PieceType type) => uiManager.ResolvePieceBySet(set, type);
+
+        public void Show(Set set) => uiManager.Show(set);
+
+        public void PreparePawnForPromotion(Set set, PieceManager piece)
         {
-            PieceManager piece = null;
+            chessBoardManager.Stage = StageManager.Stage.Promoting;
+            AudioSource.PlayClipAtPoint(promotionClip, transform.position, 1.0f);
 
-            switch(type)
+            promotionPiece = piece;
+            piece.gameObject.SetActive(false);
+            chessBoardManager.PieceTransformManager.ShowAndRaisePiece(set, piece.transform.position);
+        }
+
+        public PieceType PickRandomType() => uiManager.PickRandomType();
+
+        public void PromotePiece(Set set)
+        {
+            Cell cell = promotionPiece.ActiveCell;
+            ChessBoardSetManager setManager = chessBoardManager.SetManager;
+
+            if (promotionPiece.IsAddInPiece)
             {
-                case PieceType.Queen:
-                    piece = (set == Set.Light) ? lightQueen : darkQueen;
-                    break;
-                
-                case PieceType.Knight:
-                    piece = (set == Set.Light) ? lightKnight : darkKnight;
-                    break;
+                setManager.RemovePiece(promotionPiece);
+            }
+            else
+            {
+                promotionPiece.gameObject.SetActive(true);
 
-                case PieceType.Rook:
-                    piece = (set == Set.Light) ? lightRook : darkRook;
-                    break;
-
-                case PieceType.Bishop:
-                    piece = (set == Set.Light) ? lightBishop : darkBishop;
-                    break;
+                if (setManager.TryReserveSlot(cell.wrapper.manager, out Vector3 localPosition))
+                {
+                    cell.wrapper.manager.transform.localPosition = localPosition;
+                    cell.wrapper.manager.EnableInteractions(false);
+                    cell.wrapper.manager.ActiveCell = null;
+                    cell.wrapper.manager.ShowMesh();
+                    cell.wrapper.manager = null;
+                }
             }
 
-            return piece;
+            PieceManager promotedPiece = setManager.AddPiece(set, pickedPiece, cell.coord, true);
+            cell.wrapper.manager = promotedPiece;
+
+            promotedPiece.ActiveCell = cell;
+            promotedPiece.MoveEventReceived += chessBoardManager.OnMoveEvent;
+            promotedPiece.EventReceived += chessBoardManager.OnEvent;
+
+            chessBoardManager.MatrixManager.Matrix[cell.coord.x, cell.coord.y].wrapper.manager = promotedPiece;
+            promotionPiece = null;
+
+            chessBoardManager.CompleteTurn();
         }
 
-        public PieceType PickRandomType()
+        public void SetPickedPiece(Set set, PieceManager piece)
         {
-            int pieceIdx = UnityEngine.Random.Range(0, elements.Count);
-            return elements[pieceIdx].type;
+            PieceTransformManager manager = chessBoardManager.PieceTransformManager;
+
+            pickedPiece = piece;
+
+            manager.SetPiece(set, piece.Type);
+            manager.LowerAndHidePiece();
+        }
+
+        public void OnEvent(Set set, PieceManager piece)
+        {
+            uiManager.Hide();
+            SetPickedPiece(set, piece);
         }
     }
 }

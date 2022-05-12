@@ -49,7 +49,7 @@ namespace Chess
             bool inCheck = IsKingInCheck(activeSet, chessBoardManager.MatrixManager.Matrix);
             bool hasMoves = CalculateMoves(out availableMoves);
 
-            chessBoardManager.TimingsManager.ResumeActiveClock();
+            chessBoardManager.ClocksManager.ResumeActiveClock();
 
             if (hasMoves)
             {

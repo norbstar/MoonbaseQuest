@@ -13809,17 +13809,13 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 737322306}
     - target: {fileID: 1813446090752762579, guid: 171924c1571199441855e30650381e00, type: 3}
-      propertyPath: newGameManager
-      value: 
-      objectReference: {fileID: 4640405319936226621}
-    - target: {fileID: 1813446090752762579, guid: 171924c1571199441855e30650381e00, type: 3}
       propertyPath: rightController
       value: 
       objectReference: {fileID: 817022678}
     - target: {fileID: 1813446090752762579, guid: 171924c1571199441855e30650381e00, type: 3}
-      propertyPath: pawnPromotionManager
+      propertyPath: newGameUIManager
       value: 
-      objectReference: {fileID: 202932434}
+      objectReference: {fileID: 4640405319936226621}
     - target: {fileID: 1813446090752762581, guid: 171924c1571199441855e30650381e00, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -13880,6 +13876,10 @@ PrefabInstance:
       propertyPath: target
       value: 
       objectReference: {fileID: 703799288}
+    - target: {fileID: 4560753018113122466, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: uiManager
+      value: 
+      objectReference: {fileID: 4640405319936226621}
     - target: {fileID: 6004237269265523477, guid: 171924c1571199441855e30650381e00, type: 3}
       propertyPath: interactables.Array.data[0]
       value: 
@@ -13888,6 +13888,14 @@ PrefabInstance:
       propertyPath: interactables.Array.data[1]
       value: 
       objectReference: {fileID: 1352412133}
+    - target: {fileID: 8210499795435960073, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: uiManager
+      value: 
+      objectReference: {fileID: 202932434}
+    - target: {fileID: 8210499795435960073, guid: 171924c1571199441855e30650381e00, type: 3}
+      propertyPath: promotionClip
+      value: 
+      objectReference: {fileID: 8300000, guid: b4495c80172f4544caabb7ea6156435d, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 171924c1571199441855e30650381e00, type: 3}
 --- !u!4 &1901537889337081336
@@ -16734,6 +16742,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 278759186, guid: bd67b09167bf1d94ba487da033df61e3, type: 3}
+      propertyPath: m_Name
+      value: New Game UI
+      objectReference: {fileID: 0}
     - target: {fileID: 4640405318089945785, guid: bd67b09167bf1d94ba487da033df61e3, type: 3}
       propertyPath: m_Name
       value: UI
@@ -16785,6 +16797,10 @@ PrefabInstance:
     - target: {fileID: 4640405318089945787, guid: bd67b09167bf1d94ba487da033df61e3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4640405320004875756, guid: bd67b09167bf1d94ba487da033df61e3, type: 3}
+      propertyPath: m_Name
+      value: Pawn Promotion UI
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bd67b09167bf1d94ba487da033df61e3, type: 3}

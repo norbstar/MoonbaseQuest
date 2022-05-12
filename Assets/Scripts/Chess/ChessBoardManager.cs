@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
@@ -16,75 +15,9 @@ using Chess.Preview;
 
 namespace Chess
 {
-    [RequireComponent(typeof(AudioSource))]
-    [RequireComponent(typeof(BoardManager))]
-    [RequireComponent(typeof(MatrixManager))]
-    [RequireComponent(typeof(MoveManager))]
-    [RequireComponent(typeof(TimingsManager))]
-    public class ChessBoardManager : BaseManager
+    public class ChessBoardManager : ChessBoardCoreManager
     {
         private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
-
-        [Header("Camera")]
-        [SerializeField] new Camera camera;
-
-        [Header("Controllers")]
-        [SerializeField] HybridHandController leftController;
-        [SerializeField] HybridHandController rightController;
-
-        [Header("Components")]
-        [SerializeField] GameObject board;
-        public GameObject Board { get { return board; } }
-        [SerializeField] ChessBoardSetManager setManager;
-        [SerializeField] PieceTransformManager pieceTransformManager;
-        [SerializeField] NotificationManager notificationManager;
-        [SerializeField] NewGameManager newGameManager;
-        [SerializeField] PawnPromotionManager pawnPromotionManager;
-
-        [Header("Audio")]
-        [SerializeField] AudioClip pieceDownClip;
-        [SerializeField] AudioClip inCheckClip;
-        [SerializeField] AudioClip checkmateClip;
-        [SerializeField] AudioClip stalemateClip;
-        [SerializeField] AudioClip pawnPromotionClip;
-
-        [Header("Canvases")]
-        [SerializeField] CoordReferenceCanvas coordReferenceCanvas;
-
-        [Header("Pieces")]
-        [Range(15f, 35f)]
-        [SerializeField] float pieceRotationSpeed = 25f;
-        public float PieceRotationSpeed { get { return pieceRotationSpeed; } }
-
-        [Range(0.1f, 25f)]
-        [SerializeField] float pieceMoveSpeed = 5f;
-        public float PieceMoveSpeed { get { return pieceMoveSpeed; } }
-
-        [Header("Materials")]
-        [SerializeField] Material outOfScopeMaterial;
-        public Material OutOfScopeMaterial { get { return outOfScopeMaterial; } }
-        [SerializeField] Material selectedMaterial;
-
-        [SerializeField] EngagementMode engagementMode;
-        public EngagementMode EngagementMode { get { return engagementMode; } }
-
-        [SerializeField] PlayerMode lightPlayer;
-        public PlayerMode LightPlayer { get { return lightPlayer; } }
-        [SerializeField] PlayerMode darkPlayer;
-        public PlayerMode DarkPlayer { get { return darkPlayer; } }
-
-        [SerializeField] GameObject previewPrefab;
-
-        public delegate void MatrixEvent(Cell[,] matrix);
-        public static event MatrixEvent MatrixEventReceived;
-        
-        public ChessBoardSetManager SetManager { get { return setManager; } }
-        public StageManager StageManager { get { return stageManager; } }
-        public MatrixManager MatrixManager { get { return matrixManager; } }
-        public TimingsManager TimingsManager { get { return timingsManager; } }
-        public BoardManager BoardManager { get { return boardManager; } }
-
-        public Set ActiveSet { get { return activeSet; } }
 
         public PieceManager InFocusPiece
         {
@@ -99,49 +32,34 @@ namespace Chess
             }
         }
 
-        private TrackingMainCameraManager cameraManager;
-        private MoveManager moveManager;
-        private MatrixManager matrixManager;
-        private TimingsManager timingsManager;
-        private BoardManager boardManager;
-        private AudioSource cameraAudioSource;
+        public StageManager.Stage Stage
+        {
+            get
+            {
+                return stageManager.LiveStage;
+            }
+
+            set
+            {
+                stageManager.LiveStage = value;
+            }
+        }
+
         private int onHomeEventsPending;
-        private Set activeSet;
         private PieceManager inFocusPiece;
-        private PieceManager promotionPiece;
-        private PieceManager pickedPiece;
         private PreviewManager inFocusPreview;
-        private StageManager stageManager;
         private List<GameObject> previews;
         private float inCheckNotificationDelay = 1f;
         private Coroutine coroutine;
-        private AudioSource audioSource;
         private bool enablePieceDownSFX;
         // private bool gameOver;
 
-        void Awake()
+        public override void Awake()
         {
-            ResolveDependencies();
+            base.Awake();
+
             previews = new List<GameObject>();
-            stageManager = new StageManager();
-
             AttachLayerToControllers("Preview Layer");
-        }
-
-        private void ResolveDependencies()
-        {
-            cameraManager = camera.GetComponent<TrackingMainCameraManager>() as TrackingMainCameraManager;
-
-            if (cameraManager != null)
-            {
-                cameraAudioSource = cameraManager.GetComponent<AudioSource>() as AudioSource;
-            }
-
-            matrixManager = GetComponent<MatrixManager>() as MatrixManager;
-            moveManager = GetComponent<MoveManager>() as MoveManager;
-            timingsManager = GetComponent<TimingsManager>() as TimingsManager;
-            boardManager = GetComponent<BoardManager>() as BoardManager; 
-            audioSource = GetComponent<AudioSource>() as AudioSource;
         }
 
         // Start is called before the first frame update
@@ -149,7 +67,7 @@ namespace Chess
         {
             matrixManager.MapLayout();
             ResetGame();
-            StartCoroutine(ShowNewGameUIAfterDelayCoroutine(0.25f));
+            newGameManager.ShowAfterDelay(0.25f);
         }
 
         void OnEnable()
@@ -158,7 +76,6 @@ namespace Chess
             ButtonEventManager.EventReceived += OnButtonEvent;
             PreviewManager.EventReceived += OnPreviewEvent;
             NewGameManager.EventReceived += OnNewGameEvent;
-            PawnPromotionManager.EventReceived += OnPawnPromotionEvent;
             PieceTransformManager.CompleteEventReceived += OnPieceTransformComplete;
             ClockManager.OnExpiredEventReceived += OnClockExpiredEvent;
         }
@@ -169,7 +86,6 @@ namespace Chess
             ButtonEventManager.EventReceived -= OnButtonEvent;
             PreviewManager.EventReceived -= OnPreviewEvent;
             NewGameManager.EventReceived -= OnNewGameEvent;
-            PawnPromotionManager.EventReceived -= OnPawnPromotionEvent;
             PieceTransformManager.CompleteEventReceived -= OnPieceTransformComplete;
             ClockManager.OnExpiredEventReceived -= OnClockExpiredEvent;
         }
@@ -192,19 +108,7 @@ namespace Chess
             enablePieceDownSFX = true;
         }
 
-        private void ResetSet() => setManager.Reset();
-
-        private void PauseClocks() => timingsManager.PauseClocks();
-
-        private void PauseActiveClock() => timingsManager.PauseActiveClock();
-
-        private void ResetClocks() => timingsManager.ResetClocks();
-
-        private void PostMatrixUpdate() => MatrixEventReceived?.Invoke(matrixManager.Matrix);
-
         private void HideNotifications() => notificationManager.Hide();
-
-        private bool IsMoving { get { return stageManager.LiveStage == Stage.Moving; } }
 
         public void AdjustChessPieceInteractableLayer(Set set, bool enabled)
         {
@@ -276,9 +180,9 @@ namespace Chess
             return result;
         }
 
-        private void CompleteTurn()
+        public void CompleteTurn()
         {
-            stageManager.LiveStage = Stage.MoveComplete;
+            Stage = Stage.MoveComplete;
 
             PauseActiveClock();
 
@@ -302,7 +206,7 @@ namespace Chess
 
         public void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics)
         {
-            if ((stageManager.LiveStage == Stage.Evaluating) || (inFocusPiece == null)) return;
+            if ((Stage == Stage.Evaluating) || (inFocusPiece == null)) return;
 
             if (actuation.HasFlag(Actuation.Button_AX))
             {
@@ -310,7 +214,7 @@ namespace Chess
             }
             else if (actuation.HasFlag(Actuation.Button_BY))
             {
-                if (stageManager.LiveStage == Stage.Selected)
+                if (Stage == Stage.Selected)
                 {
                     CancelIntent();
                 }
@@ -319,11 +223,11 @@ namespace Chess
 
         private void ProcessIntent()
         {
-            if (stageManager.LiveStage == Stage.PendingSelect)
+            if (Stage == Stage.PendingSelect)
             {
                 if (inFocusPiece == null) return;
 
-                stageManager.LiveStage = Stage.Selected;
+                Stage = Stage.Selected;
                 inFocusPiece.ApplyMaterial(selectedMaterial);
 
                 Dictionary<PieceManager, List<Cell>> availableMoves = moveManager.AvailableMoves;
@@ -346,7 +250,7 @@ namespace Chess
                     }
                 }
             }
-            else if (stageManager.LiveStage == Stage.Selected)
+            else if (Stage == Stage.Selected)
             {
                 if (inFocusPreview == null) return;
 
@@ -362,13 +266,13 @@ namespace Chess
             
             coordReferenceCanvas.TextUI = string.Empty;
 
-            stageManager.LiveStage = Stage.Moving;
+            Stage = Stage.Moving;
             inFocusPiece.GoToCell(cell, moveManager.MoveType, moveManager.MoveStyle);
         }
 
         private void CancelIntent()
         {
-            stageManager.LiveStage = Stage.PendingSelect;
+            Stage = Stage.PendingSelect;
             inFocusPiece?.UseDefaultMaterial();
             inFocusPiece.HideOutline();
             DestroyPreviews();
@@ -414,7 +318,7 @@ namespace Chess
 
             // gameOver = true;
 
-            StartCoroutine(ShowNewGameUIAfterDelayCoroutine(0.25f));
+            newGameManager.ShowAfterDelay(0.25f);
         }
 
         public void OnStalemate()
@@ -432,7 +336,7 @@ namespace Chess
             
             // gameOver = true;
 
-            StartCoroutine(ShowNewGameUIAfterDelayCoroutine(0.25f));
+            newGameManager.ShowAfterDelay(0.25f);
         }
 
         private void DestroyPreviews()
@@ -452,7 +356,7 @@ namespace Chess
 
             HideNotifications();
 
-            stageManager.LiveStage = Stage.Resetting;
+            Stage = Stage.Resetting;
             
             int addInPieces = 0;
             int originalPieces = 0;
@@ -481,128 +385,38 @@ namespace Chess
 
         private bool DeferTurnCompletion(PieceManager piece)
         {
-            if (piece.Type == PieceType.Pawn && ShouldPawnBePromoted(piece))
+            if (piece.Type == PieceType.Pawn && pawnPromotionManager.ShouldPawnBePromoted(activeSet, piece))
             {
+                pawnPromotionManager.PreparePawnForPromotion(activeSet, piece);
                 return true;
             }
 
             return false;
         }
 
-        private void SetPickedPiece(PieceManager piece)
-        {
-            pickedPiece = piece;
-
-            pieceTransformManager.SetPiece(activeSet, piece.Type);
-            pieceTransformManager.LowerAndHidePiece();
-        }
-
-#region Pawn Promotion
-        private bool ShouldPawnBePromoted(PieceManager piece)
-        {
-            if (piece.Type == PieceType.Pawn)
-            {
-                int vector = (activeSet == Set.Light) ? 1 : -1;
-                int lastRank = (vector == 1) ? MatrixManager.MaxRowIdx : 0;
-
-                if (piece.ActiveCell.coord.y == lastRank)
-                {
-                    PreparePawnForPromotion(piece);
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        private void PreparePawnForPromotion(PieceManager piece)
-        {
-            stageManager.LiveStage = Stage.Promoting;
-            AudioSource.PlayClipAtPoint(pawnPromotionClip, transform.position, 1.0f);
-
-            promotionPiece = piece;
-            piece.gameObject.SetActive(false);
-            pieceTransformManager.ShowAndRaisePiece(activeSet, piece.transform.position);
-        }
-
-        private void PromotePiece()
-        {
-            Cell cell = promotionPiece.ActiveCell;
-
-            if (promotionPiece.IsAddInPiece)
-            {
-                setManager.RemovePiece(promotionPiece);
-            }
-            else
-            {
-                promotionPiece.gameObject.SetActive(true);
-
-                if (setManager.TryReserveSlot(cell.wrapper.manager, out Vector3 localPosition))
-                {
-                    cell.wrapper.manager.transform.localPosition = localPosition;
-                    cell.wrapper.manager.EnableInteractions(false);
-                    cell.wrapper.manager.ActiveCell = null;
-                    cell.wrapper.manager.ShowMesh();
-                    cell.wrapper.manager = null;
-                }
-            }
-
-            PieceManager promotedPiece = setManager.AddPiece(activeSet, pickedPiece, cell.coord, true);
-            cell.wrapper.manager = promotedPiece;
-
-            promotedPiece.ActiveCell = cell;
-            promotedPiece.MoveEventReceived += OnMoveEvent;
-            promotedPiece.EventReceived += OnEvent;
-
-            matrixManager.Matrix[cell.coord.x, cell.coord.y].wrapper.manager = promotedPiece;
-
-            promotionPiece = null;
-
-            CompleteTurn();
-        }
-
-        private void OnPawnPromotionEvent(PieceManager piece)
-        {
-            HidePawnPromotionUI();
-            SetPickedPiece(piece);
-        }
-        
-        private void ShowPawnPromotionUI()
-        {
-            AttachLayerToControllers("Pawn Promotion Layer");
-            pawnPromotionManager.ConfigureAndShow(activeSet);
-        }
-
-        private void HidePawnPromotionUI()
-        {
-            pawnPromotionManager.Hide();
-            DetachLayerFromContollers("Pawn Promotion Layer");
-        }
-#endregion
-
         private void OnPieceTransformComplete(PieceTransformManager.Action action)
         {
             switch (action)
             {
                 case PieceTransformManager.Action.Raise:
-                    if (stageManager.LiveStage == Stage.Promoting)
+                    if (Stage == Stage.Promoting)
                     {
                         if (ShouldAutomate())
                         {
                             PieceManager piece = pawnPromotionManager.ResolvePieceBySet(activeSet, pawnPromotionManager.PickRandomType());
-                            SetPickedPiece(piece);
+                            pawnPromotionManager.SetPickedPiece(activeSet, piece);
                         }
                         else
                         {
-                            ShowPawnPromotionUI();
+                            pawnPromotionManager.Show(activeSet);
                         }
                     }
                     break;
 
                 case PieceTransformManager.Action.Lower:
-                    if (stageManager.LiveStage == Stage.Promoting)
+                    if (Stage == Stage.Promoting)
                     {
-                        PromotePiece();
+                        pawnPromotionManager.PromotePiece(activeSet);
                     }
                     break;
             }
@@ -613,11 +427,8 @@ namespace Chess
             Debug.Log($"{instance.name} has expired");
         }
 
-#region New Game
         private void OnNewGameEvent(NewGameManager.Mode mode)
         {
-            HideNewGameUI();
-            
             switch (mode)
             {
                 case NewGameManager.Mode.PVP:
@@ -639,38 +450,6 @@ namespace Chess
             moveManager.EvaluateOpeningMove();
         }
 
-        private IEnumerator ShowNewGameUIAfterDelayCoroutine(float seconds)
-        {
-            yield return new WaitForSeconds(seconds);
-            ShowNewGameUI();
-        }
-
-        private void ShowNewGameUI()
-        {
-            AttachLayerToControllers("UI Input Layer");
-            newGameManager.Show();
-        }
-
-        private void HideNewGameUI()
-        {
-            newGameManager.Hide();
-            DetachLayerFromContollers("UI Input Layer");
-        }
-#endregion
-
-        private void AttachLayerToControllers(string layer)
-        {
-            leftController.AttachLayer(layer);
-            rightController.AttachLayer(layer);
-        }
-
-        private void DetachLayerFromContollers(string layer)
-        {
-            leftController.DetachLayer(layer);
-            rightController.DetachLayer(layer);
-        }
-
-#region Events
         public void OnEvent(PieceManager piece, FocusType focusType)
         {
             switch (focusType)
@@ -691,7 +470,7 @@ namespace Chess
                 case FocusType.OnFocusLost:
                     if (piece.Set != activeSet) return;
 
-                    if (stageManager.LiveStage == Stage.Selected) return;
+                    if (Stage == Stage.Selected) return;
                     
                     piece.UseDefaultMaterial();
                     piece.HideOutline();
@@ -749,7 +528,7 @@ namespace Chess
 
         public void OnMoveEvent(PieceManager piece)
         {
-            if (stageManager.LiveStage == Stage.Resetting)
+            if (Stage == Stage.Resetting)
             {
                 --onHomeEventsPending;
 
@@ -765,10 +544,10 @@ namespace Chess
 
                     PauseClocks();
                     ResetGame();
-                    ShowNewGameUI();
+                    newGameManager.Show();
                 }
             }
-            else if (stageManager.LiveStage == Stage.Moving)
+            else if (Stage == Stage.Moving)
             {
                 if (enablePieceDownSFX)
                 {
@@ -855,6 +634,5 @@ namespace Chess
                 }
             }
         }
-#endregion
     }
 }

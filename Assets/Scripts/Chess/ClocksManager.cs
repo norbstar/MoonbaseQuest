@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Chess
 {
     [RequireComponent(typeof(ChessBoardManager))]
-    public class TimingsManager : MonoBehaviour
+    public class ClocksManager : MonoBehaviour
     {
         [Header("Clocks")]
         [SerializeField] TimerClockManager lightClock;
