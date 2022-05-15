@@ -30,11 +30,12 @@ namespace Chess
 
         private void ResolveDependencies() => chessBoardManager = GetComponent<ChessBoardManager>() as ChessBoardManager;
 
-        public void EvaluateOpeningMove() => EvaluateMove();
         public Dictionary<PieceManager, List<Cell>> AvailableMoves { get { return availableMoves; } }
 
         private Dictionary<PieceManager, List<Cell>> availableMoves;
 
+        public void EvaluateOpeningMove() => EvaluateMove();
+        
         public void EvaluateMove()
         {
             Set activeSet = chessBoardManager.ActiveSet;
@@ -164,8 +165,8 @@ namespace Chess
 
             chessBoardManager.StageManager.LiveStage = StageManager.Stage.PendingSelect;
             
-            chessBoardManager.AdjustChessPieceInteractableLayer(Set.Light, (activeSet == Set.Light));
-            chessBoardManager.AdjustChessPieceInteractableLayer(Set.Dark, (activeSet == Set.Dark));
+            chessBoardManager.ConfigureChessPieceInteractableLayer(Set.Light, (activeSet == Set.Light));
+            chessBoardManager.ConfigureChessPieceInteractableLayer(Set.Dark, (activeSet == Set.Dark));
 
             return hasAnyMoves;
         }

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 using UnityEngine;
 
 using Chess.Pieces;
@@ -25,7 +27,7 @@ namespace Chess
 
         private void ResolveDependencies() => chessBoardManager = GetComponent<ChessBoardManager>() as ChessBoardManager;
 
-        public void MapLayout()
+        public void MapConstruct()
         {
             MapMatrix();
             MapPieces();
@@ -58,6 +60,57 @@ namespace Chess
             }
         }
 
+        public List<Coord> AllCoords
+        {
+            get
+            {
+                List<Coord> coords = new List<Coord>();
+
+                for (int y = 0 ; y <= MatrixManager.MaxRowIdx ; y++)
+                {
+                    for (int x = 0 ; x <= MatrixManager.MaxColumnIdx ; x++)
+                    {
+                        coords.Add(new Coord
+                        {
+                            x = x,
+                            y = y
+                        });
+                    }
+                }
+
+                return coords;
+            }
+        }
+
+        public bool TryGetPotentialCoord(Coord coord, int x, int y, out Coord potentialCoord)
+        {
+            if ((x >= 0 && x <= MaxColumnIdx) && (y >= 0 && y <= MaxRowIdx))
+            {
+                potentialCoord = new Coord
+                {
+                    x = x,
+                    y = y
+                };
+
+                return true;
+            }
+
+            potentialCoord = default(Coord);
+            return false;
+        }
+
+        public Coord GetCoordByOffset(Coord coord, int xOffset, int yOffset)
+        {
+            int offsetX = coord.x + xOffset;
+            int offsetY = coord.y + yOffset;
+
+            return new Coord
+            {
+                x = offsetX,
+                y = offsetY
+            };
+        }
+
         private void MapPieces()
         {
             foreach (PieceManager pieceManager in chessBoardManager.SetManager.EnabledPieces)
@@ -66,11 +119,34 @@ namespace Chess
                 {
                     pieceManager.HomeCell = cell;
                     pieceManager.MoveEventReceived += chessBoardManager.OnMoveEvent;
-                    pieceManager.EventReceived += chessBoardManager.OnEvent;
+                    pieceManager.EventReceived += chessBoardManager.OnPieceEvent;
 
                     matrix[cell.coord.x, cell.coord.y].wrapper.manager = pieceManager;
                 }
             }
+        }
+
+        public void ResetThemes()
+        {
+            foreach (PieceManager piece in chessBoardManager.SetManager.EnabledPieces)
+            {
+                if (piece.isActiveAndEnabled)
+                {
+                    piece.ResetTheme();
+                }
+            }
+        }
+
+        public Cell ResolveKingCell(Set set) => ResolveKing(set).ActiveCell;
+
+        public PieceManager ResolveKing(Set set)
+        {
+            if (TryGets.TryGetSingleSetPieceByType(chessBoardManager, set, PieceType.King, out PieceManager piece))
+            {
+                return piece;
+            }
+
+            return null;
         }
 
         public Cell[,] CloneMatrix() => matrix.Clone() as Cell[,];

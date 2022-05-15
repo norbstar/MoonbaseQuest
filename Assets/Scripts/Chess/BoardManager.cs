@@ -37,11 +37,11 @@ namespace Chess
             audioSource = GetComponent<AudioSource>() as AudioSource;
         }
 
-        public void MoveTable(MoveType moveType) => coroutine = StartCoroutine(MoveTableCoroutine(moveType, adjustTableSpeed));
+        public void Move(MoveType moveType) => coroutine = StartCoroutine(MoveTableCoroutine(moveType, adjustTableSpeed));
 
         private IEnumerator MoveTableCoroutine(MoveType moveType, float movementSpeed)
         {
-            GameObject board = chessBoardManager.Board;
+            GameObject board = chessBoardManager.gameObject;
             float yPosition = 0;
 
             switch (moveType)

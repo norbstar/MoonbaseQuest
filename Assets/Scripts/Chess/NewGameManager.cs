@@ -20,7 +20,7 @@ namespace Chess
         [Header("Components")]
         [SerializeField] NewGameUIManager uiManager;
 
-        public delegate void Event(Mode mode);
+        public delegate void Event(Mode mode, PlayerMode lightPlayer, PlayerMode darkPlayer);
         public static event Event EventReceived;
 
         private ChessBoardManager chessBoardManager;
@@ -35,10 +35,10 @@ namespace Chess
 
         public void ShowAfterDelay(float seconds)
         {
-            StartCoroutine(ShowNewGameUIAfterDelayCoroutine(seconds));
+            StartCoroutine(ShowAfterDelayCoroutine(seconds));
         }
 
-        private IEnumerator ShowNewGameUIAfterDelayCoroutine(float seconds)
+        private IEnumerator ShowAfterDelayCoroutine(float seconds)
         {
             yield return new WaitForSeconds(seconds);
             Show();
@@ -46,12 +46,16 @@ namespace Chess
 
         public void Show()
         {
+            chessBoardManager.NewGameUI.SetActive(true);
+
             chessBoardManager.AttachLayerToControllers("UI Input Layer");
             uiManager.Show();
         }
 
-        private void HideNewGameUI()
+        private void Hide()
         {
+            chessBoardManager.NewGameUI.SetActive(false);
+
             uiManager.Hide();
             chessBoardManager.DetachLayerFromContollers("UI Input Layer");
         }
@@ -59,7 +63,21 @@ namespace Chess
         public void OnEvent(NewGameManager.Mode mode)
         {
             uiManager.Hide();
-            EventReceived?.Invoke(mode);
+
+            switch (mode)
+            {
+                case NewGameManager.Mode.PVP:
+                    EventReceived?.Invoke(mode, PlayerMode.Human, PlayerMode.Human);
+                    break;
+
+                case NewGameManager.Mode.PVB:
+                    EventReceived?.Invoke(mode, PlayerMode.Human, PlayerMode.Bot);
+                    break;
+
+                case NewGameManager.Mode.BVB:
+                    EventReceived?.Invoke(mode, PlayerMode.Bot, PlayerMode.Bot);
+                    break;
+            }   
         }
     }
 }

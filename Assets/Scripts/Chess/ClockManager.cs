@@ -34,7 +34,7 @@ namespace Chess
 
         public bool IsRunning { get { return running; } }
 
-        public delegate void OnExpiredEvent(ClockManager instance);
+        public delegate void OnExpiredEvent(ClockManager manager);
         public static event OnExpiredEvent OnExpiredEventReceived;
 
         protected bool running, expired;

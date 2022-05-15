@@ -1,6 +1,9 @@
+using System;
 using System.Reflection;
 
 using UnityEngine;
+
+using Chess.Pieces;
 
 namespace Chess
 {
@@ -10,6 +13,7 @@ namespace Chess
     [RequireComponent(typeof(MoveManager))]
     [RequireComponent(typeof(ClocksManager))]
     [RequireComponent(typeof(NewGameManager))]
+    [RequireComponent(typeof(GameSessionManager))]
     [RequireComponent(typeof(PawnPromotionManager))]
     public class ChessBoardCoreManager : BaseManager
     {
@@ -79,6 +83,8 @@ namespace Chess
         public StageManager StageManager { get { return stageManager; } }
         protected PawnPromotionManager pawnPromotionManager;
         public PawnPromotionManager PawnPromotionManager { get { return pawnPromotionManager; } }
+        protected GameSessionManager gameSessionManager;
+        public GameSessionManager GameSessionManager { get { return gameSessionManager; } }
         protected Set activeSet;
         public Set ActiveSet { get { return activeSet; } }
 
@@ -106,10 +112,63 @@ namespace Chess
             boardManager = GetComponent<BoardManager>() as BoardManager;
             newGameManager = GetComponent<NewGameManager>() as NewGameManager;
             pawnPromotionManager = GetComponent<PawnPromotionManager>() as PawnPromotionManager;
+            gameSessionManager = GetComponent<GameSessionManager>() as GameSessionManager;
             audioSource = GetComponent<AudioSource>() as AudioSource;
         }
 
-        protected void PostMatrixUpdate() => MatrixEventReceived?.Invoke(matrixManager.Matrix);
+        protected void RegisterMatrixChanges()
+        {
+            MatrixEventReceived?.Invoke(matrixManager.Matrix);
+            SnapshotMatrix();
+        }
+
+        private void SnapshotMatrix()
+        {
+            GameSessionScriptable.Snapshot snapshot = new GameSessionScriptable.Snapshot();
+
+            for (int y = 0 ; y <= MatrixManager.MaxRowIdx ; y++)
+            {
+                for (int x = 0 ; x <= MatrixManager.MaxColumnIdx ; x++)
+                {
+                    Cell cell = matrixManager.Matrix[x, y];
+                    if (!cell.IsOccupied) continue;
+
+                    PieceManager manager = cell.wrapper.manager;
+
+                    var piece = new GameSessionScriptable.Piece
+                    {
+                        type = manager.Type,
+                        coord = new Coord
+                        {
+                            x = x,
+                            y = y
+                        }
+                    };
+
+                    KingManager.State state = KingManager.State.Nominal;
+
+                    if (manager.Type == PieceType.King)
+                    {
+                        state = ((KingManager) manager).KingState;
+                    }
+
+                    switch (manager.Set)
+                    {
+                        case Set.Light:
+                            snapshot.lightSet.pieces.Add(piece);
+                            snapshot.lightSet.state = state;
+                            break;
+
+                        case Set.Dark:
+                            snapshot.darkSet.pieces.Add(piece);
+                            snapshot.darkSet.state = state;
+                            break;
+                    }
+                }
+            }
+
+            gameSessionManager.SubmitSnapshot(snapshot);
+        }
         
         public void AttachLayerToControllers(string layer)
         {
@@ -123,12 +182,14 @@ namespace Chess
             rightController.DetachLayer(layer);
         }
     
-        protected void ResetSet() => setManager.Reset();
+        protected void InitUI() => coordReferenceCanvas.TextUI = String.Empty;
+
+        protected void InitSet() => setManager.Reset();
 
         protected void PauseClocks() => clocksManager.PauseClocks();
 
         protected void PauseActiveClock() => clocksManager.PauseActiveClock();
 
-        protected void ResetClocks() => clocksManager.ResetClocks();
+        protected void InitClocks() => clocksManager.ResetClocks();
     }
 }

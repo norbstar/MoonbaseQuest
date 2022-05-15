@@ -89,7 +89,7 @@ namespace Chess
 
             promotedPiece.ActiveCell = cell;
             promotedPiece.MoveEventReceived += chessBoardManager.OnMoveEvent;
-            promotedPiece.EventReceived += chessBoardManager.OnEvent;
+            promotedPiece.EventReceived += chessBoardManager.OnPieceEvent;
 
             chessBoardManager.MatrixManager.Matrix[cell.coord.x, cell.coord.y].wrapper.manager = promotedPiece;
             promotionPiece = null;

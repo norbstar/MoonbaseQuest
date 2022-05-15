@@ -8,9 +8,9 @@ namespace Chess.Button
         
         public enum ButtonId
         {
-            LowerTable,
-            RaiseTable,
-            ResetTable,
+            LowerBoardLevel,
+            RaiseBoardLevel,
+            ResetBoardLevel,
             ResetBoard,
             MusicOn,
             MusicOff,

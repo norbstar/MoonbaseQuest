@@ -174,7 +174,7 @@ namespace Chess.Pieces
 
         private bool TryGetRealtiveKingVector(Set set, out VectorPackage package)
         {
-            Cell kingCell = chessBoardManager.ResolveKingCell(set);
+            Cell kingCell = chessBoardManager.MatrixManager.ResolveKingCell(set);
             return TryGetRealtiveVector(kingCell, out package);
         }
 
@@ -199,35 +199,6 @@ namespace Chess.Pieces
         public Material Material { get { return renderer.material; } }
 
         public virtual void UseDefaultMaterial() => ApplyMaterial(defaultMaterial);
-
-        protected bool TryGetPotentialCoord(Coord coord, int x, int y, out Coord potentialCoord)
-        {
-            if ((x >= 0 && x <= maxColumnIdx) && (y >= 0 && y <= maxRowIdx))
-            {
-                potentialCoord = new Coord
-                {
-                    x = x,
-                    y = y
-                };
-
-                return true;
-            }
-
-            potentialCoord = default(Coord);
-            return false;
-        }
-
-        protected Coord GetCoordByOffset(Coord coord, int xOffset, int yOffset)
-        {
-            int offsetX = coord.x + xOffset;
-            int offsetY = coord.y + yOffset;
-
-            return new Coord
-            {
-                x = offsetX,
-                y = offsetY
-            };
-        }
 
         private Vector2 GetNormalizedVector(Vector2 origin, Vector2 target)
         {
@@ -305,7 +276,7 @@ namespace Chess.Pieces
         private List<Cell> ResolveAllAvailableCells(Cell[,] matrix)
         {
             List<Cell> cells = new List<Cell>();
-            List<Coord> coords = AllCoords;
+            List<Coord> coords = chessBoardManager.MatrixManager.AllCoords;
 
             if (TryGetPotentialCoords(ActiveCell.coord, coords, out List<Coord> potentialCoords))
             {
@@ -321,28 +292,6 @@ namespace Chess.Pieces
             }
 
             return cells;
-        }
-
-        private List<Coord> AllCoords
-        {
-            get
-            {
-                List<Coord> coords = new List<Coord>();
-
-                for (int y = 0 ; y <= MatrixManager.MaxRowIdx ; y++)
-                {
-                    for (int x = 0 ; x <= MatrixManager.MaxColumnIdx ; x++)
-                    {
-                        coords.Add(new Coord
-                        {
-                            x = x,
-                            y = y
-                        });
-                    }
-                }
-
-                return coords;
-            }
         }
 
         protected List<CoordBundle> TryOneTimeVector(int stepX, int stepY, List<CoordBundle> bundles, CoordSpec coordSpec = null)
@@ -425,7 +374,7 @@ namespace Chess.Pieces
 
             foreach (Coord thisCoord in coords)
             {
-                if (TryGetPotentialCoord(coord, thisCoord.x, thisCoord.y, out Coord offsetCoord))
+                if (chessBoardManager.MatrixManager.TryGetPotentialCoord(coord, thisCoord.x, thisCoord.y, out Coord offsetCoord))
                 {
                     potentialCoords.Add(offsetCoord);
                 }
@@ -440,9 +389,9 @@ namespace Chess.Pieces
 
             foreach (Coord offset in offsets)
             {
-                Coord trueCoord = GetCoordByOffset(coord, offset.x, offset.y);
+                Coord trueCoord = chessBoardManager.MatrixManager.GetCoordByOffset(coord, offset.x, offset.y);
 
-                if (TryGetPotentialCoord(coord, trueCoord.x, trueCoord.y, out Coord offsetCoord))
+                if (chessBoardManager.MatrixManager.TryGetPotentialCoord(coord, trueCoord.x, trueCoord.y, out Coord offsetCoord))
                 {
                     potentialCoords.Add(offsetCoord);
                 }

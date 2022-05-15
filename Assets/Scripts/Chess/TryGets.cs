@@ -136,7 +136,6 @@ namespace Chess
         {
             if (TryGets.TryGetSetPieces(manager, set, out List<PieceManager> activeEnabledPieces))
             {
-
                 List<Cell> matchingCells = activeEnabledPieces.Where(p => p.Type == type).Select(p => p.ActiveCell).ToList();
 
                 if (matchingCells.Count > 0)
@@ -145,8 +144,7 @@ namespace Chess
                     return true;
                 }
 
-                Debug.Log($"TryGetSingleSetPieceByType Stats:");
-                Debug.Log($"TryGetSingleSetPieceByType Set : {set}");
+                Debug.Log($"TryGetSingleSetPieceByType Set : {set} Type : {type} Matching Cell Count : {matchingCells.Count}");
 
                 if (activeEnabledPieces != null)
                 {
