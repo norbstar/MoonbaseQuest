@@ -20,11 +20,9 @@ namespace Chess
             public Set lightSet;
             public Set darkSet;
 
-            public Snapshot()
-            {
-                lightSet = new Set();
-                darkSet = new Set();
-            }
+            public string Serialize(Set set) => JsonUtility.ToJson(set);
+
+            public Set Deserialize(string json) => JsonUtility.FromJson<Set>(json);
         }
 
         [Serializable]
