@@ -8,6 +8,7 @@ using UnityEngine;
 namespace Chess.Pieces
 {
     [RequireComponent(typeof(Outline))]
+    [RequireComponent(typeof(Animator))]
     public abstract class PieceManager : MonoBehaviour, IFocus
     {
         private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
@@ -113,6 +114,7 @@ namespace Chess.Pieces
         private Cell homeCell;
         private Cell activeCell;
         private Outline outline;
+        private Animator animator;
         
         void Awake()
         {
@@ -131,6 +133,7 @@ namespace Chess.Pieces
             rigidbody = GetComponent<Rigidbody>() as Rigidbody;
             collider = GetComponent<Collider>() as Collider;
             outline = GetComponent<Outline>() as Outline;
+            animator = GetComponent<Animator>() as Animator;
         }
 
         private bool TryGetRealtiveVector(Cell cell, out VectorPackage package)

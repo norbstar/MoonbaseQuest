@@ -23,6 +23,12 @@ namespace Chess
             public string Serialize(Set set) => JsonUtility.ToJson(set);
 
             public Set Deserialize(string json) => JsonUtility.FromJson<Set>(json);
+
+            public Snapshot()
+            {
+                lightSet = new Set();
+                darkSet = new Set();
+            }
         }
 
         [Serializable]

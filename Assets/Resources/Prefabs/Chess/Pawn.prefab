@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: -1062932088879808685}
   - component: {fileID: -5918048164545623395}
   - component: {fileID: 2183248541898524438}
+  - component: {fileID: -3861082243866276020}
   m_Layer: 13
   m_Name: Pawn
   m_TagString: Chess Piece
@@ -134,9 +135,6 @@ MonoBehaviour:
   canvasManager: {fileID: 7610918793551304898}
   set: 0
   type: 5
-  rotationSpeed: 25
-  classicMovementSpeed: 25
-  parabolaMovementSpeed: 0.5
 --- !u!114 &-5918048164545623395
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -271,6 +269,25 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
+--- !u!95 &-3861082243866276020
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8120416441908915524}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 67af61c982879454b9d9613d22c08b52, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1001 &1966333347378736299
 PrefabInstance:
   m_ObjectHideFlags: 0

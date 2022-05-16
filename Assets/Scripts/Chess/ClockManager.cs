@@ -31,6 +31,7 @@ namespace Chess
         public int Minutes { get { return minutes; } }
         [SerializeField] int seconds;
         public int Seconds { get { return seconds; } }
+        [SerializeField] bool autoStart;
 
         public bool IsRunning { get { return running; } }
 
@@ -45,6 +46,12 @@ namespace Chess
         public virtual void Awake()
         {
             duration = TimeSpan.FromSeconds((minutes * 60) + seconds);
+        }
+
+        // Start is called before the first frame update
+        void Start()
+        {
+            if (autoStart) Resume();
         }
 
         public void Resume()

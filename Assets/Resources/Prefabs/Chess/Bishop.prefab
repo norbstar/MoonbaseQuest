@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 5082268601012156298}
   - component: {fileID: -3858491675452871165}
   - component: {fileID: 537278664329590733}
+  - component: {fileID: 420161184713468458}
   m_Layer: 13
   m_Name: Bishop
   m_TagString: Chess Piece
@@ -134,9 +135,6 @@ MonoBehaviour:
   canvasManager: {fileID: 3123098350608249125}
   set: 0
   type: 2
-  rotationSpeed: 25
-  classicMovementSpeed: 25
-  parabolaMovementSpeed: 0.5
 --- !u!114 &-3858491675452871165
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -271,6 +269,25 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
+--- !u!95 &420161184713468458
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3066927553532167346}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 67af61c982879454b9d9613d22c08b52, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1001 &2471027273517195162
 PrefabInstance:
   m_ObjectHideFlags: 0

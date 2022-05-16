@@ -145,23 +145,24 @@ namespace Chess
                         }
                     };
 
-                    KingManager.State state = KingManager.State.Nominal;
-
-                    if (manager.Type == PieceType.King)
-                    {
-                        state = ((KingManager) manager).KingState;
-                    }
-
                     switch (manager.Set)
                     {
                         case Set.Light:
                             snapshot.lightSet.pieces.Add(piece);
-                            snapshot.lightSet.state = state;
+
+                            if (manager.Type == PieceType.King)
+                            {
+                                snapshot.lightSet.state =  ((KingManager) manager).KingState;
+                            }
                             break;
 
                         case Set.Dark:
                             snapshot.darkSet.pieces.Add(piece);
-                            snapshot.darkSet.state = state;
+                            
+                            if (manager.Type == PieceType.King)
+                            {
+                                snapshot.darkSet.state =  ((KingManager) manager).KingState;
+                            }
                             break;
                     }
                 }
