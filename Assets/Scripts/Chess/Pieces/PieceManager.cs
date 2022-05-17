@@ -19,6 +19,10 @@ namespace Chess.Pieces
 
         [SerializeField] PieceCanvasManager canvasManager;
 
+        [Header("Animations")]
+        [SerializeField] RuntimeAnimatorController shrinkAnimator;
+        [SerializeField] RuntimeAnimatorController growAnimator;
+
         [Header("Config")]
         [SerializeField] Set set;
         public Set Set { get { return set; } set { set = value; } }
@@ -42,6 +46,7 @@ namespace Chess.Pieces
         private float moveSpeed = 25f;
         private float parabolaApexHeight = 0.25f;
         private bool isAddInPiece = false;
+        private Vector3 originalScale;
 
         protected class CoordSpec
         {
@@ -124,6 +129,7 @@ namespace Chess.Pieces
             maxRowIdx = MatrixManager.MatrixRows - 1;
             
             defaultMaterial = renderer.material;
+            originalScale = transform.localScale;
         }
 
         private void ResolveDependencies()
@@ -134,6 +140,18 @@ namespace Chess.Pieces
             collider = GetComponent<Collider>() as Collider;
             outline = GetComponent<Outline>() as Outline;
             animator = GetComponent<Animator>() as Animator;
+        }
+
+        public void AnimateOut()
+        {
+            animator.runtimeAnimatorController = shrinkAnimator;
+            animator.SetTrigger("transform");
+        }
+        
+        public void AnimateIn()
+        {
+            animator.runtimeAnimatorController = growAnimator;
+            animator.SetTrigger("transform");
         }
 
         private bool TryGetRealtiveVector(Cell cell, out VectorPackage package)
@@ -409,7 +427,13 @@ namespace Chess.Pieces
             HideOutline();
         }
 
-        public virtual void Reset() => ResetTheme();
+        private void ResetScale() => transform.localScale = originalScale;
+
+        public virtual void Reset()
+        {
+            ResetTheme();
+            ResetScale();
+        }
 
         public void EnablePhysics(bool enabled) => rigidbody.isKinematic = !enabled;
 
@@ -437,6 +461,20 @@ namespace Chess.Pieces
 
         protected virtual void OnMove(Cell fromCell, Cell toCell, bool resetting) { }
 
+        public void MoveToSlot(Cell cell)
+        {
+            PieceManager piece = cell.wrapper.manager;
+
+            if (chessBoardManager.SetManager.TryReserveSlot(piece, out Vector3 localPosition))
+            {
+                cell.wrapper.manager.transform.localPosition = localPosition;
+                cell.wrapper.manager.EnableInteractions(false);
+                cell.wrapper.manager.ActiveCell = null;
+                cell.wrapper.manager.ShowMesh();
+                cell.wrapper.manager = null;
+            }
+        }
+
         private IEnumerator GoToCellCoroutine(Cell cell, MoveType moveType, MoveStyle moveStyle)
         {
             EnableInteractions(false);
@@ -444,24 +482,19 @@ namespace Chess.Pieces
             bool isResetting = (cell == HomeCell);
             bool doMove = (cell != ActiveCell);
 
-            if (cell.IsOccupied)
-            {
-                if (cell.wrapper.manager.IsAddInPiece)
-                {
-                    chessBoardManager.SetManager.RemovePiece(cell.wrapper.manager);
-                }
-                else if (!isResetting)
-                {
-                    if (chessBoardManager.SetManager.TryReserveSlot(cell.wrapper.manager, out Vector3 localPosition))
-                    {
-                        cell.wrapper.manager.transform.localPosition = localPosition;
-                        cell.wrapper.manager.EnableInteractions(false);
-                        cell.wrapper.manager.ActiveCell = null;
-                        cell.wrapper.manager.ShowMesh();
-                        cell.wrapper.manager = null;
-                    }
-                }
-            }
+            // if (cell.IsOccupied)
+            // {
+            //     PieceManager piece = cell.wrapper.manager;
+
+            //     if (piece.IsAddInPiece)
+            //     {
+            //         chessBoardManager.SetManager.RemovePiece(piece);
+            //     }
+            //     else if (!isResetting)
+            //     {
+            //         MoveToSlot(cell);
+            //     }
+            // }
 
             if (doMove)
             {

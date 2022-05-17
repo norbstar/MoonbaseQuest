@@ -42,13 +42,9 @@ namespace Chess
         [SerializeField] AudioClip inFocusAudioClip;
         [SerializeField] AudioClip onSelectAudioClip;
 
-        private ChessBoardManager chessBoardManager;
+        // private ChessBoardManager chessBoardManager;
         private Element inFocusElement;
         private Set set;
-
-        void Awake() => ResolveDependencies();
-
-        private void ResolveDependencies() => chessBoardManager = GetComponent<ChessBoardManager>() as ChessBoardManager;
 
         void OnEnable()
         {
@@ -70,11 +66,7 @@ namespace Chess
             }
         }
 
-        public void Show(Set set)
-        {
-            chessBoardManager.AttachLayerToControllers("Pawn Promotion Layer");
-            ConfigureAndActivate(set);
-        }
+        public void Show(Set set) => ConfigureAndActivate(set);
 
         public void Activate() => gameObject.SetActive(true);
 
@@ -84,11 +76,7 @@ namespace Chess
             Activate();
         }
 
-        public void Hide()
-        {
-            Deactivate();
-            chessBoardManager.DetachLayerFromContollers("Pawn Promotion Layer");
-        }
+        public void Hide() => Deactivate();
 
         public void Deactivate() => gameObject.SetActive(false);
 

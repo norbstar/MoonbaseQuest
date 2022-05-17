@@ -83,7 +83,7 @@ namespace Chess
         {
             List<PieceManager> list = (piece.Set == Set.Light) ? lightPieces : darkPieces;
             list.Remove(piece);
-            
+
             GameObject.Destroy(piece.gameObject);
         }
 

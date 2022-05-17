@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections;
 using System.Reflection;
 using System.Linq;
 
@@ -195,12 +196,44 @@ namespace Chess
             inFocusPreview = null;
         }
 
-        public void CommitToMove(Cell cell)
+        private IEnumerator TakePieceAtCellCoroutine(Cell cell)
+        {
+            PieceManager piece = cell.wrapper.manager;
+
+            if (animatePieceWhenTaken)
+            {
+                piece.AnimateOut();
+                yield return new WaitForSeconds(0.25f);
+            }
+
+            if (piece.IsAddInPiece)
+            {
+                setManager.RemovePiece(piece);
+            }
+            else
+            {
+                piece.MoveToSlot(cell);
+
+                if (animatePieceWhenTaken)
+                {
+                    piece.AnimateIn();
+                }
+            }
+        }
+
+        public void CommitToMove(Cell cell) => StartCoroutine(CommitToMoveCoroutine(cell));
+
+        private IEnumerator CommitToMoveCoroutine(Cell cell)
         {
             DestroyPreviews();
             matrixManager.ResetThemes();
             
             coordReferenceCanvas.TextUI = string.Empty;
+            
+            if (cell.IsOccupied)
+            {
+                yield return StartCoroutine(TakePieceAtCellCoroutine(cell));
+            }
 
             Stage = Stage.Moving;
             inFocusPiece.GoToCell(cell, moveManager.MoveType, moveManager.MoveStyle);
@@ -309,7 +342,7 @@ namespace Chess
             newGameManager.ShowAfterDelay(0.25f);
         }
 
-        private void SaveGameSession() => gameSessionManager.Save("session");
+        private void SaveGameSession() => gameSessionManager.SaveAsset("session", true);
 
         private void ClearGameSession() => gameSessionManager.Clear();
 
@@ -445,6 +478,7 @@ namespace Chess
         {
             if (TryGets.TryGetCell(matrixManager.Matrix, manager.transform.localPosition, out Cell cell))
             {
+                PieceManager piece = cell.wrapper.manager;
                 string reference, moveReference;
 
                 switch (focusType)
@@ -452,7 +486,7 @@ namespace Chess
                     case FocusType.OnFocusGained:
                         if (cell.IsOccupied)
                         {
-                            cell.wrapper.manager.HideMesh();
+                            piece.HideMesh();
                         }
 
                         manager.SetCustomMesh(inFocusPiece.Mesh, inFocusPiece.transform.localRotation, inFocusPiece.DefaultMaterial);
@@ -471,7 +505,7 @@ namespace Chess
                     case FocusType.OnFocusLost:
                         if (cell.IsOccupied)
                         {
-                            cell.wrapper.manager.ShowMesh();
+                            piece.ShowMesh();
                         }
 
                         manager.HideMesh();

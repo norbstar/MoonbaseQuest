@@ -11,7 +11,21 @@ namespace Chess
             scriptable = new GameSessionScriptable();
         }
 
-        public void Save(string filename) => scriptable.SaveAsset(filename);
+        public void DeleteAssetIfExists(string filename)
+        {
+            if (AssetExists("session"))
+            {
+                DeleteAsset("session");
+            }
+        }
+
+        public bool AssetExists(string filename) => scriptable.AssetExists(filename);
+
+        public object LoadAsset(string filename, System.Type type) => scriptable.LoadAsset(filename, type);
+        
+        public void SaveAsset(string filename, bool deleteExisting = false) => scriptable.SaveAsset(filename, deleteExisting);
+
+        public void DeleteAsset(string filename) => scriptable.DeleteAsset(filename);
 
         public void Clear() => scriptable.Clear();
 

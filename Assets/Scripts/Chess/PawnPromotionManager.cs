@@ -47,7 +47,11 @@ namespace Chess
 
         public PieceManager ResolvePieceBySet(Set set, PieceType type) => uiManager.ResolvePieceBySet(set, type);
 
-        public void Show(Set set) => uiManager.Show(set);
+        public void Show(Set set)
+        {
+            chessBoardManager.AttachLayerToControllers("Pawn Promotion Layer");
+            uiManager.Show(set);
+        }
 
         public void PreparePawnForPromotion(Set set, PieceManager piece)
         {
@@ -110,6 +114,7 @@ namespace Chess
         public void OnEvent(Set set, PieceManager piece)
         {
             uiManager.Hide();
+            chessBoardManager.DetachLayerFromContollers("Pawn Promotion Layer");
             SetPickedPiece(set, piece);
         }
     }

@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 
+using System.IO;
+
+using UnityEngine;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-
-using UnityEngine;
 
 using Chess.Pieces;
 
@@ -57,16 +59,30 @@ namespace Chess
         public List<Snapshot> snapshots = new List<Snapshot>();
         public List<Move> moves = new List<Move>();
 
-        public void SaveAsset(string filename)
+        public void DeleteAssetIfExists(string filename)
         {
+            if (AssetExists(filename))
+            {
+                DeleteAsset(filename);
+            }
+        }
+
+        public bool AssetExists(string filename) => File.Exists(AssetFunctions.BuildPath(AssetFunctions.Path.Resources, $"{filename}.gs"));
+
+        public object LoadAsset(string filename, System.Type type) => AssetDatabase.LoadAssetAtPath(filename, type);
+        
+        public void SaveAsset(string filename, bool deleteExisting = false)
+        {
+            if (deleteExisting)
+            {
+                DeleteAssetIfExists(filename);
+            }
+
             AssetDatabase.CreateAsset(this, AssetFunctions.BuildPath(AssetFunctions.Path.Resources, $"{filename}.gs"));
             AssetDatabase.SaveAssets();
         }
 
-        public object LoadAsset(string filename, Type type)
-        {
-            return AssetDatabase.LoadAssetAtPath(filename, type);
-        }
+        public void DeleteAsset(string filename) => AssetDatabase.DeleteAsset(AssetFunctions.BuildPath(AssetFunctions.Path.Resources, $"{filename}.gs"));
 
         public void Clear()
         {

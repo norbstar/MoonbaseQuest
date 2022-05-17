@@ -120,7 +120,7 @@ namespace Chess
                     pieceManager.HomeCell = cell;
                     pieceManager.MoveEventReceived += chessBoardManager.OnMoveEvent;
                     pieceManager.EventReceived += chessBoardManager.OnPieceEvent;
-
+                    
                     matrix[cell.coord.x, cell.coord.y].wrapper.manager = pieceManager;
                 }
             }

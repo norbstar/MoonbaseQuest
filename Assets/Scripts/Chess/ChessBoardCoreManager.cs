@@ -58,6 +58,8 @@ namespace Chess
         [SerializeField] float pieceMoveSpeed = 5f;
         public float PieceMoveSpeed { get { return pieceMoveSpeed; } }
 
+        [SerializeField] protected bool animatePieceWhenTaken;
+
         [Header("Audio")]
         [SerializeField] protected AudioClip pieceDownClip;
         [SerializeField] protected AudioClip inCheckClip;
