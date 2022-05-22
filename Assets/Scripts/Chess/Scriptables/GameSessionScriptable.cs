@@ -11,13 +11,13 @@ using UnityEditor;
 
 using Chess.Pieces;
 
-namespace Chess
+namespace Chess.Scriptable
 {
     [CreateAssetMenu(fileName = "Data", menuName = "Holo Chess/Game Session", order = 2)]
     public class GameSessionScriptable : ScriptableObject
     {
         [Serializable]
-        public class Snapshot
+        public class BoardLayout
         {
             public Set lightSet;
             public Set darkSet;
@@ -26,7 +26,7 @@ namespace Chess
 
             public Set Deserialize(string json) => JsonUtility.FromJson<Set>(json);
 
-            public Snapshot()
+            public BoardLayout()
             {
                 lightSet = new Set();
                 darkSet = new Set();
@@ -50,14 +50,25 @@ namespace Chess
         }
 
         [Serializable]
+        public class KingStates
+        {
+            public KingManager.State lightKingState;
+            public KingManager.State darkKingState;
+        }
+
+        [Serializable]
         public class Move
         {
             public Piece piece;
             public Coord to;
+            public KingStates kingStates;
         }
 
-        public List<Snapshot> snapshots = new List<Snapshot>();
-        public List<Move> moves = new List<Move>();
+        private BoardLayout layout = new BoardLayout();
+        private List<Move> moves = new List<Move>();
+        public List<Move> Moves { get { return moves; } }
+
+        public void SetLayout(BoardLayout layout) => this.layout = layout;
 
         public void DeleteAssetIfExists(string filename)
         {
@@ -84,9 +95,9 @@ namespace Chess
 
         public void DeleteAsset(string filename) => AssetDatabase.DeleteAsset(AssetFunctions.BuildPath(AssetFunctions.Path.Resources, $"{filename}.gs"));
 
-        public void Clear()
+        public void Reset()
         {
-            snapshots.Clear();
+            layout = new BoardLayout();
             moves.Clear();
         }
     }

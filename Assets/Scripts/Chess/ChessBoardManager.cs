@@ -56,6 +56,8 @@ namespace Chess
         private float inCheckNotificationDelay = 1f;
         private bool enablePieceDownSFX = true;
         private bool resetRequested;
+        private int stepId;
+        public int StepId { get { return stepId; } }
 
         public override void Awake()
         {
@@ -186,6 +188,17 @@ namespace Chess
             }
         }
 
+        public void ResetThemes()
+        {
+            foreach (PieceManager piece in setManager.EnabledPieces)
+            {
+                if (piece.isActiveAndEnabled)
+                {
+                    piece.ResetTheme();
+                }
+            }
+        }
+
         private void DestroyPreviews()
         {
             foreach (GameObject preview in previews)
@@ -212,7 +225,7 @@ namespace Chess
             }
             else
             {
-                piece.MoveToSlot(cell);
+                piece.MoveToSlot();
 
                 if (animatePieceWhenTaken)
                 {
@@ -221,12 +234,16 @@ namespace Chess
             }
         }
 
-        public void CommitToMove(Cell cell) => StartCoroutine(CommitToMoveCoroutine(cell));
+        public void CommitToMove(PieceManager piece, Cell cell)
+        {
+            // gameSessionManager.AddMoveToSession(piece, cell);
+            StartCoroutine(CommitToMoveCoroutine(cell));
+        }
 
         private IEnumerator CommitToMoveCoroutine(Cell cell)
         {
             DestroyPreviews();
-            matrixManager.ResetThemes();
+            ResetThemes();
             
             coordReferenceCanvas.TextUI = string.Empty;
             
@@ -273,7 +290,7 @@ namespace Chess
                 if (inFocusPreview == null) return;
 
                 Cell cell = inFocusPreview.Cell;
-                CommitToMove(cell);
+                CommitToMove(inFocusPiece, cell);
             }
         }
 
@@ -322,7 +339,7 @@ namespace Chess
 
             PauseClocks();
             RegisterMatrixChanges();
-            SaveGameSession();
+            // SaveGameSession();
             newGameManager.ShowAfterDelay(0.25f);
         }
 
@@ -338,13 +355,15 @@ namespace Chess
 
             PauseClocks();
             RegisterMatrixChanges();
-            SaveGameSession();
+            // SaveGameSession();
             newGameManager.ShowAfterDelay(0.25f);
         }
 
-        private void SaveGameSession() => gameSessionManager.SaveAsset("session", true);
+        // private void SaveGameSession() => gameSessionManager.SaveAsset("session", true);
 
-        private void ClearGameSession() => gameSessionManager.Clear();
+        // private void ClearGameSession() => gameSessionManager.Reset();
+
+        // private void CaptureGameSessionLayout() => gameSessionManager.CaptureGameSessionLayout();
 
         private void Reset()
         {
@@ -534,6 +553,7 @@ namespace Chess
         public void CompleteTurn()
         {
             Stage = Stage.MoveComplete;
+            ++stepId;
 
             PauseActiveClock();
             RegisterMatrixChanges();
@@ -569,7 +589,8 @@ namespace Chess
                     }
 
                     InitGame();
-                    ClearGameSession();
+                    // ClearGameSession();
+                    // AddLayoutToSession();
                     RegisterMatrixChanges();
                     moveManager.EvaluateOpeningMove();
                 }

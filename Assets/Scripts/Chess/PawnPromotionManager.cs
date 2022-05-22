@@ -77,15 +77,7 @@ namespace Chess
             else
             {
                 promotionPiece.gameObject.SetActive(true);
-
-                if (setManager.TryReserveSlot(cell.wrapper.manager, out Vector3 localPosition))
-                {
-                    cell.wrapper.manager.transform.localPosition = localPosition;
-                    cell.wrapper.manager.EnableInteractions(false);
-                    cell.wrapper.manager.ActiveCell = null;
-                    cell.wrapper.manager.ShowMesh();
-                    cell.wrapper.manager = null;
-                }
+                cell.wrapper.manager.MoveToSlot();
             }
 
             PieceManager promotedPiece = setManager.AddPiece(set, pickedPiece, cell.coord, true);

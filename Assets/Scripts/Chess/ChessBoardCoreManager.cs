@@ -3,7 +3,7 @@ using System.Reflection;
 
 using UnityEngine;
 
-using Chess.Pieces;
+// using Chess.Pieces;
 
 namespace Chess
 {
@@ -118,61 +118,8 @@ namespace Chess
             audioSource = GetComponent<AudioSource>() as AudioSource;
         }
 
-        protected void RegisterMatrixChanges()
-        {
-            MatrixEventReceived?.Invoke(matrixManager.Matrix);
-            SnapshotMatrix();
-        }
+        protected void RegisterMatrixChanges() => MatrixEventReceived?.Invoke(matrixManager.Matrix);
 
-        private void SnapshotMatrix()
-        {
-            GameSessionScriptable.Snapshot snapshot = new GameSessionScriptable.Snapshot();
-
-            for (int y = 0 ; y <= MatrixManager.MaxRowIdx ; y++)
-            {
-                for (int x = 0 ; x <= MatrixManager.MaxColumnIdx ; x++)
-                {
-                    Cell cell = matrixManager.Matrix[x, y];
-                    if (!cell.IsOccupied) continue;
-
-                    PieceManager manager = cell.wrapper.manager;
-
-                    var piece = new GameSessionScriptable.Piece
-                    {
-                        type = manager.Type,
-                        coord = new Coord
-                        {
-                            x = x,
-                            y = y
-                        }
-                    };
-
-                    switch (manager.Set)
-                    {
-                        case Set.Light:
-                            snapshot.lightSet.pieces.Add(piece);
-
-                            if (manager.Type == PieceType.King)
-                            {
-                                snapshot.lightSet.state =  ((KingManager) manager).KingState;
-                            }
-                            break;
-
-                        case Set.Dark:
-                            snapshot.darkSet.pieces.Add(piece);
-                            
-                            if (manager.Type == PieceType.King)
-                            {
-                                snapshot.darkSet.state =  ((KingManager) manager).KingState;
-                            }
-                            break;
-                    }
-                }
-            }
-
-            gameSessionManager.SubmitSnapshot(snapshot);
-        }
-        
         public void AttachLayerToControllers(string layer)
         {
             leftController.AttachLayer(layer);

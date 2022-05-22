@@ -20,7 +20,7 @@ namespace Chess.Pieces
         }
 
         private State state;
-        
+
         protected override List<CoordBundle> GenerateCoordBundles(Cell[,] matrix, int vector)
         {
             List<CoordBundle> bundles = new List<CoordBundle>();
@@ -33,6 +33,30 @@ namespace Chess.Pieces
             TryOneTimeVector(-1, -1, bundles);
             TryOneTimeVector(0, 1, bundles);
             TryOneTimeVector(1, -1, bundles);
+
+            // In order to castle, the King needs to not have hsitory and have line of sight 2 places to it's left or right.
+            // It also can not move through to a position that would place it in check and the rook to it's left/right
+            // also can not have history. If these conditions are met, then the Rook can move to the oppositing side
+            // of the King to complete the castling.
+
+            // List<PieceManager> rooks = new List<PieceManager>();
+
+            // if (TryGets.TryGetSetPiecesByType(chessBoardManager, Set, PieceType.Rook, out List<PieceManager> pieces))
+            // {
+            //     foreach(PieceManager piece in pieces)
+            //     {
+            //         if (!piece.HasHistory)
+            //         {
+            //             rooks.Add(piece);
+            //         }
+            //     }
+            // }
+
+            // if (!hasHistory)
+            // {
+            //     TryOneTimeVector(-2, 0, bundles);
+            //     TryOneTimeVector(2, 0, bundles);
+            // }
 
             return bundles;
         }

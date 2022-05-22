@@ -126,17 +126,6 @@ namespace Chess
             }
         }
 
-        public void ResetThemes()
-        {
-            foreach (PieceManager piece in chessBoardManager.SetManager.EnabledPieces)
-            {
-                if (piece.isActiveAndEnabled)
-                {
-                    piece.ResetTheme();
-                }
-            }
-        }
-
         public Cell ResolveKingCell(Set set) => ResolveKing(set).ActiveCell;
 
         public PieceManager ResolveKing(Set set)

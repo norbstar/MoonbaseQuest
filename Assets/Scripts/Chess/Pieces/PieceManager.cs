@@ -9,6 +9,7 @@ namespace Chess.Pieces
 {
     [RequireComponent(typeof(Outline))]
     [RequireComponent(typeof(Animator))]
+    [RequireComponent(typeof(PieceSessionManager))]
     public abstract class PieceManager : MonoBehaviour, IFocus
     {
         private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
@@ -41,6 +42,19 @@ namespace Chess.Pieces
                 isAddInPiece = value;
             }
         }
+
+        public enum WhereAt
+        {
+            None,
+            Cell,
+            Slot
+        }
+
+        protected PieceSessionManager pieceSessionManager;
+        public PieceSessionManager PieceSessionManager { get { return pieceSessionManager; } }
+
+        protected bool hasHistory;
+        public bool HasHistory { get { return hasHistory; } }
 
         private float rotationSpeed = 25f;
         private float moveSpeed = 25f;
@@ -75,7 +89,7 @@ namespace Chess.Pieces
             
             set
             {
-                ActiveCell = homeCell = value;
+                activeCell = homeCell = value;
             }
         }
 
@@ -118,9 +132,11 @@ namespace Chess.Pieces
         protected Material defaultMaterial;
         private Cell homeCell;
         private Cell activeCell;
+        private Vector3? slot;
         private Outline outline;
         private Animator animator;
-        
+        private WhereAt whereAt;
+                
         void Awake()
         {
             ResolveDependencies();
@@ -429,10 +445,19 @@ namespace Chess.Pieces
 
         private void ResetScale() => transform.localScale = originalScale;
 
+        private void ResetState()
+        {
+            hasHistory = false;
+            activeCell = homeCell;
+            slot = null;
+            whereAt = WhereAt.None;
+        }
+
         public virtual void Reset()
         {
             ResetTheme();
             ResetScale();
+            ResetState();
         }
 
         public void EnablePhysics(bool enabled) => rigidbody.isKinematic = !enabled;
@@ -459,19 +484,26 @@ namespace Chess.Pieces
 
         public void GoToCell(Cell cell, MoveType moveType, MoveStyle moveStyle) => StartCoroutine(GoToCellCoroutine(cell, moveType, moveStyle));
 
-        protected virtual void OnMove(Cell fromCell, Cell toCell, bool resetting) { }
-
-        public void MoveToSlot(Cell cell)
+        protected virtual void OnMove(Cell fromCell, Cell toCell, bool resetting)
         {
-            PieceManager piece = cell.wrapper.manager;
-
-            if (chessBoardManager.SetManager.TryReserveSlot(piece, out Vector3 localPosition))
+            if (!resetting)
             {
-                cell.wrapper.manager.transform.localPosition = localPosition;
-                cell.wrapper.manager.EnableInteractions(false);
-                cell.wrapper.manager.ActiveCell = null;
-                cell.wrapper.manager.ShowMesh();
-                cell.wrapper.manager = null;
+                hasHistory = true;
+            }
+        }
+
+        public void MoveToSlot()
+        {
+            if (chessBoardManager.SetManager.TryReserveSlot(this, out Vector3 localPosition))
+            {
+                EnableInteractions(false);
+                slot = localPosition;
+                transform.localPosition = slot.Value;
+                activeCell.wrapper.manager = null;
+                activeCell = null;
+                ShowMesh();
+
+                whereAt = WhereAt.Slot;
             }
         }
 
@@ -479,8 +511,7 @@ namespace Chess.Pieces
         {
             EnableInteractions(false);
 
-            bool isResetting = (cell == HomeCell);
-            bool doMove = (cell != ActiveCell);
+            // bool isResetting = (cell == homeCell);
 
             // if (cell.IsOccupied)
             // {
@@ -495,6 +526,8 @@ namespace Chess.Pieces
             //         MoveToSlot(cell);
             //     }
             // }
+
+            bool doMove = (cell != activeCell);
 
             if (doMove)
             {
@@ -516,15 +549,16 @@ namespace Chess.Pieces
                 }
             }
 
-            if (ActiveCell != null)
+            if (activeCell != null)
             {
-                ActiveCell.wrapper.manager = null;
+                activeCell.wrapper.manager = null;
             }
 
-            OnMove(ActiveCell, cell, cell == HomeCell);
+            OnMove(activeCell, cell, cell == homeCell);
 
-            ActiveCell = cell;
-            ActiveCell.wrapper.manager = this;
+            activeCell = cell;
+            activeCell.wrapper.manager = this;
+            whereAt = WhereAt.Cell;
 
             MoveEventReceived?.Invoke(this);
         }

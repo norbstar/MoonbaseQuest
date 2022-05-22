@@ -140,30 +140,8 @@ namespace Chess
 
                 if (matchingCells.Count > 0)
                 {
-                    pieceManager = matchingCells.First().wrapper.manager;
-                    return true;
-                }
-
-                Debug.Log($"TryGetSingleSetPieceByType Set : {set} Type : {type} Matching Cell Count : {matchingCells.Count}");
-
-                if (activeEnabledPieces != null)
-                {
-                    Debug.Log($"TryGetSingleSetPieceByType Active Enabled Pieces : {activeEnabledPieces.Count}");
-                
-                    foreach (PieceManager piece in activeEnabledPieces)
-                    {
-                        Debug.Log($"TryGetSingleSetPieceByType Piece : {piece.name} Type : {piece.Type}");
-                    }
-                }
-
-                if (matchingCells != null)
-                {
-                    Debug.Log($"TryGetSingleSetPieceByType Matching Cells : {matchingCells.Count}");
-
-                    foreach (Cell cell in matchingCells)
-                    {
-                        Debug.Log($"TryGetSingleSetPieceByType Cell : Coord : {cell.coord} Position : {cell.localPosition} Is Occupied : {cell.IsOccupied}");
-                    }
+                    pieceManager = matchingCells.First().wrapper.manager;                    
+                    return (pieceManager != null);
                 }
             }
             

@@ -4,8 +4,6 @@ namespace Chess.Pieces
 {
     public class PawnManager : PieceManager
     {
-        private bool hasHistory;
-
         protected override List<CoordBundle> GenerateCoordBundles(Cell[,] matrix, int vector)
         {
             List<CoordBundle> bundles = new List<CoordBundle>();
@@ -29,20 +27,6 @@ namespace Chess.Pieces
             });
 
             return bundles;
-        }
-
-        protected override void OnMove(Cell fromCell, Cell toCell, bool resetting)
-        {
-            if (!resetting)
-            {
-                hasHistory = true;
-            }
-        }
-
-        public override void Reset()
-        {
-            base.Reset();
-            hasHistory = false;
         }
     }
 }

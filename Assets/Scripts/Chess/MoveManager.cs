@@ -88,7 +88,7 @@ namespace Chess
             int cellIdx = Random.Range(0, availableCells.Value.Count);
             chessBoardManager.InFocusPiece = availableCells.Key;
             Cell cell = availableCells.Value[cellIdx];
-            chessBoardManager.CommitToMove(cell);
+            chessBoardManager.CommitToMove(chessBoardManager.InFocusPiece, cell);
         }
 
         public bool WouldKingBeInCheck(PieceManager piece, Cell targetCell)

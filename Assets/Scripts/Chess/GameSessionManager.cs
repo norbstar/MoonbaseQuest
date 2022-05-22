@@ -1,36 +1,29 @@
+using System;
+using System.Collections.Generic;
+
 using UnityEngine;
+
+using Chess.Pieces;
 
 namespace Chess
 {
     public class GameSessionManager : MonoBehaviour
     {
-        [SerializeField] GameSessionScriptable scriptable;
-
-        void Awake()
+        [Serializable]
+        public class Data
         {
-            scriptable = new GameSessionScriptable();
-        }
+            public List<PieceSessionManager.Data> pieces;
 
-        public void DeleteAssetIfExists(string filename)
-        {
-            if (AssetExists("session"))
+            public Data()
             {
-                DeleteAsset("session");
+                pieces = new List<PieceSessionManager.Data>();
             }
         }
 
-        public bool AssetExists(string filename) => scriptable.AssetExists(filename);
-
-        public object LoadAsset(string filename, System.Type type) => scriptable.LoadAsset(filename, type);
-        
-        public void SaveAsset(string filename, bool deleteExisting = false) => scriptable.SaveAsset(filename, deleteExisting);
-
-        public void DeleteAsset(string filename) => scriptable.DeleteAsset(filename);
-
-        public void Clear() => scriptable.Clear();
-
-        public void SubmitSnapshot(GameSessionScriptable.Snapshot map) => scriptable.snapshots.Add(map);
-
-        public void SubmitMove(GameSessionScriptable.Move move) => scriptable.moves.Add(move);
+        // Start is called before the first frame update
+        void Start()
+        {
+            
+        }
     }
 }

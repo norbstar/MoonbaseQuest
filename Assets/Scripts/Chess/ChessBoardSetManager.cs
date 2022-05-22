@@ -5,6 +5,7 @@ using System.Reflection;
 using UnityEngine;
 
 using Chess.Pieces;
+using Chess.Scriptable;
 
 namespace Chess
 {
