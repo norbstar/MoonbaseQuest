@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Globalization;
 
 using UnityEngine;
 
@@ -10,10 +9,34 @@ namespace Tests
     {
         public void OnLoad()
         {
-            string json = Load("test");
+            PersistenceTestScriptable scriptable = LoadData("test");
+            Apply(scriptable);
+        }
+
+        public PersistenceTestScriptable LoadData(string filename)
+        {
+            string json = Load(filename);
             PersistenceTestScriptable._Data data = Deserialize(json);
 
-            foreach (PersistenceObjectScriptable.ObjectData objectData in data.objectData)
+            var scriptable = new PersistenceTestScriptable();
+            scriptable.Data = data;
+            
+            // foreach (PersistenceObjectScriptable.ObjectData objectData in data.collection)
+            // {
+            //     GameObject gameObject = GameObject.Find(objectData.name);
+
+            //     if (gameObject != null)
+            //     {
+            //         gameObject.transform.localPosition = objectData.localPosition;
+            //     }
+            // }
+
+            return scriptable;
+        }
+
+        public void Apply(PersistenceTestScriptable scriptable)
+        {
+            foreach (PersistenceObjectScriptable.ObjectData objectData in scriptable.Data.collection)
             {
                 GameObject gameObject = GameObject.Find(objectData.name);
 
