@@ -4,7 +4,7 @@ namespace Tests
 {
     public class PersistenceObjectManager : MonoBehaviour
     {
-        public PersistenceObjectScriptable.ObjectData GetObjectData()
+        public PersistenceObjectScriptable.ObjectData GetData()
         {
             return new PersistenceObjectScriptable.ObjectData
             {

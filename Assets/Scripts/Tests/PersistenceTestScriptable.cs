@@ -18,10 +18,18 @@ namespace Tests
 
         private _Data data;
 
-        void Awake() => data = new _Data();
+        public _Data Data { get { return data; } }
 
-        public _Data Data { get { return data;  } set { data = value; } }
+        public void SetData(_Data data) => this.data = data;
 
-        public void AddData(PersistenceObjectScriptable.ObjectData collection) => this.data.collection.Add(collection);
+        public void AddData(PersistenceObjectScriptable.ObjectData collection)
+        {
+            if (data == null)
+            {
+                data = new _Data();
+            }
+
+            data.collection.Add(collection);
+        }
     }
 }

@@ -7,34 +7,27 @@ namespace Tests
 {
     public class PersistenceTestManager : MonoBehaviour
     {
-        public void OnLoad()
+        void Awake()
         {
-            PersistenceTestScriptable scriptable = LoadData("test");
-            Apply(scriptable);
+            string path = ConfigureNamedPath("test");
+            ConfigurePath(path);
         }
 
-        public PersistenceTestScriptable LoadData(string filename)
+#region Load
+        private PersistenceTestScriptable._Data Deserialize(string json) => JsonUtility.FromJson<PersistenceTestScriptable._Data>(json);
+
+        public PersistenceTestScriptable LoadData(string path)
         {
-            string json = Load(filename);
+            string json = Load(path);
             PersistenceTestScriptable._Data data = Deserialize(json);
 
             var scriptable = new PersistenceTestScriptable();
-            scriptable.Data = data;
+            scriptable.SetData(data);
             
-            // foreach (PersistenceObjectScriptable.ObjectData objectData in data.collection)
-            // {
-            //     GameObject gameObject = GameObject.Find(objectData.name);
-
-            //     if (gameObject != null)
-            //     {
-            //         gameObject.transform.localPosition = objectData.localPosition;
-            //     }
-            // }
-
             return scriptable;
         }
 
-        public void Apply(PersistenceTestScriptable scriptable)
+        private void ApplyScriptable(PersistenceTestScriptable scriptable)
         {
             foreach (PersistenceObjectScriptable.ObjectData objectData in scriptable.Data.collection)
             {
@@ -47,29 +40,47 @@ namespace Tests
             }
         }
 
-        public void OnSave()
+        private string path;
+
+        public void ConfigurePath(string path) => this.path = path;
+
+        public void OnLoad()
+        {
+            PersistenceTestScriptable scriptable = LoadData(path);
+            ApplyScriptable(scriptable);
+        }
+
+        private string Load(string path)
+        {
+            byte[] bytes = File.ReadAllBytes(path);
+            return System.Text.Encoding.Default.GetString(bytes);
+        }
+#endregion
+
+#region Save
+        private string Serialize(PersistenceTestScriptable._Data data) => JsonUtility.ToJson(data);
+
+        public string SaveData(string filename)
         {
             var managers = transform.GetComponentsInChildren<PersistenceObjectManager>() as PersistenceObjectManager[];
             PersistenceTestScriptable scriptable = new PersistenceTestScriptable();
 
             foreach (PersistenceObjectManager manager in managers)
             {
-                scriptable.AddData(manager.GetObjectData());
+                scriptable.AddData(manager.GetData());
             }
 
             string json = Serialize(scriptable.Data);
-            Save("test", json, true);
+            return Save(filename, json, true);
         }
 
-        public string Serialize(PersistenceTestScriptable._Data data) => JsonUtility.ToJson(data);
+        public void OnSave() => SaveData("test");
 
-        public PersistenceTestScriptable._Data Deserialize(string json) => JsonUtility.FromJson<PersistenceTestScriptable._Data>(json);
+        private bool Exists(string path) => File.Exists(path);
+        
+        private void Delete(string path) => File.Delete(path);
 
-        public bool Exists(string filename) => File.Exists($"{Application.persistentDataPath}/{filename}.json");
-
-        public void Delete(string filename) => File.Delete($"{Application.persistentDataPath}/{filename}.json");
-
-        public void DeleteIfExists(string filename)
+        private void DeleteIfExists(string filename)
         {
             if (Exists(filename))
             {
@@ -77,23 +88,27 @@ namespace Tests
             }
         }
 
-        public string Load(string filename)
+        private string ConfigureNamedPath(string filename) => $"{Application.persistentDataPath}/{filename}.json";
+
+        private string ConstructPath(string filename)
         {
-            string path = $"{Application.persistentDataPath}/{filename}.json";
-            byte[] bytes = File.ReadAllBytes(path);
-            return System.Text.Encoding.Default.GetString(bytes);
+            var dateTime = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH'-'mm'-'ss");
+            return $"{Application.persistentDataPath}/{filename}-{dateTime}.json";
         }
-        
-        public void Save(string filename, string json, bool deleteExisting = false)
+
+        private string Save(string filename, string json, bool deleteExisting = false)
         {
             if (deleteExisting)
             {
                 DeleteIfExists(filename);
             }
 
-            var dateTime = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH'-'mm'-'ss");
-            string path = $"{Application.persistentDataPath}/{filename}-{dateTime}.json";
+            string path = ConstructPath(filename);
+            Debug.Log($"Saving to {path}");
             File.WriteAllText(path, json);
+
+            return path;
         }
+#endregion
     }
 }

@@ -18550,7 +18550,8 @@ PrefabInstance:
       propertyPath: m_fontColor32.rgba
       value: 4283251735
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 7308461710687614521, guid: 171924c1571199441855e30650381e00, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 171924c1571199441855e30650381e00, type: 3}
 --- !u!4 &1901537889337081336
 Transform:
@@ -22545,6 +22546,7 @@ GameObject:
   - component: {fileID: 4177828953189782973}
   - component: {fileID: 6905599795612347624}
   - component: {fileID: 6483218490525705879}
+  - component: {fileID: 6483218490525705880}
   m_Layer: 13
   m_Name: Queen Light
   m_TagString: Chess Piece
@@ -22571,6 +22573,18 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &6483218490525705880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6483218490525705878}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e04464c75870324fbb99147834e0da4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &6493282610647877496
 Transform:
   m_ObjectHideFlags: 0
@@ -23253,6 +23267,7 @@ GameObject:
   - component: {fileID: 2891977860595757570}
   - component: {fileID: 1995364003995582345}
   - component: {fileID: 8452416185722033628}
+  - component: {fileID: 8452416185722033629}
   m_Layer: 13
   m_Name: Pawn Light
   m_TagString: Chess Piece
@@ -23279,6 +23294,18 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &8452416185722033629
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8452416185722033627}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e04464c75870324fbb99147834e0da4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8548726280803552404
 GameObject:
   m_ObjectHideFlags: 0
