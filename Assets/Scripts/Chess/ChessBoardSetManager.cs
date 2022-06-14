@@ -5,7 +5,6 @@ using System.Reflection;
 using UnityEngine;
 
 using Chess.Pieces;
-using Chess.Scriptable;
 
 namespace Chess
 {
@@ -27,7 +26,7 @@ namespace Chess
         [SerializeField] CaptureZoneManager darkCaptureZone;
 
         [Header("Setup")]
-        [SerializeField] BoardSetupScriptable boardSetup;
+        [SerializeField] BoardScriptable boardSetup;
 
         public List<PieceManager> EnabledPieces { get { return AllPieces().Where(p => p.isActiveAndEnabled).ToList(); } }
 
@@ -46,13 +45,40 @@ namespace Chess
         {
             if (boardSetup == null) return;
 
-            AddPieces(Set.Light, boardSetup.LightPieces);
-            AddPieces(Set.Dark, boardSetup.DarkPieces);
+            if (boardSetup.GetType().IsAssignableFrom(typeof(BoardSetupScriptable)))
+            {
+                var scriptable = ((BoardSetupScriptable) boardSetup);
+                ConfigureBoard(scriptable.data.setup);
+            }
+            else if (boardSetup.GetType().IsAssignableFrom(typeof(BoardTrackingScriptable)))
+            {
+                var scriptable = ((BoardTrackingScriptable) boardSetup);
+                ConfigureBoard(scriptable.data.setup, scriptable.data.tracking);
+            }
         }
 
-        private void AddPieces(Set set, List<Chess.BoardSetupScriptable.Piece> pieces)
+        private void ConfigureBoard(BoardSetupObject.Setup setup, BoardTrackingObject.Tracking tracking = null)
         {
-            foreach (Chess.BoardSetupScriptable.Piece piece in pieces)
+            AddPieces(Set.Light, setup.LightPieces);
+            AddPieces(Set.Dark, setup.DarkPieces);
+
+            if (tracking == null) return;
+            ConfigureTracking(tracking);
+        }
+
+        private void ConfigureTracking(BoardTrackingObject.Tracking tracking)
+        {
+            Debug.Log($"Tracking Count : {tracking.sequences.Count}");
+
+            foreach (BoardTrackingObject.Sequence sequence in tracking.sequences)
+            {
+                // TODO
+            }
+        }
+
+        private void AddPieces(Set set, List<Chess.BoardSetupObject.Piece> pieces)
+        {
+            foreach (Chess.BoardSetupObject.Piece piece in pieces)
             {
                 AddPiece(set, piece.manager, piece.coord);
             }

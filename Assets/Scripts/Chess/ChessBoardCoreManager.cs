@@ -38,9 +38,7 @@ namespace Chess
         public PieceTransformManager PieceTransformManager { get { return pieceTransformManager; } }
         [SerializeField] protected NotificationManager notificationManager;
         public NotificationManager NotificationManager { get { return notificationManager; } }
-        [SerializeField] protected NewGameUIManager newGameUIManager;
-        public NewGameUIManager NewGameUIManager { get { return newGameUIManager; } }
-
+        
         [Header("Canvases")]
         [SerializeField] protected CoordReferenceCanvas coordReferenceCanvas;
 

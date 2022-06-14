@@ -511,22 +511,6 @@ namespace Chess.Pieces
         {
             EnableInteractions(false);
 
-            // bool isResetting = (cell == homeCell);
-
-            // if (cell.IsOccupied)
-            // {
-            //     PieceManager piece = cell.wrapper.manager;
-
-            //     if (piece.IsAddInPiece)
-            //     {
-            //         chessBoardManager.SetManager.RemovePiece(piece);
-            //     }
-            //     else if (!isResetting)
-            //     {
-            //         MoveToSlot(cell);
-            //     }
-            // }
-
             bool doMove = (cell != activeCell);
 
             if (doMove)

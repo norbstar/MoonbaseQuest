@@ -56,8 +56,8 @@ namespace Chess
         private float inCheckNotificationDelay = 1f;
         private bool enablePieceDownSFX = true;
         private bool resetRequested;
-        private int stepId;
-        public int StepId { get { return stepId; } }
+        // private int stepId;
+        // public int StepId { get { return stepId; } }
 
         public override void Awake()
         {
@@ -108,7 +108,6 @@ namespace Chess
         private void InitVariables()
         {
             activeSet = Set.Light;
-            // deferAction = gameOver = false;
             resetRequested = false;
             AttachLayerToControllers("Preview Layer");
         }
@@ -553,7 +552,7 @@ namespace Chess
         public void CompleteTurn()
         {
             Stage = Stage.MoveComplete;
-            ++stepId;
+            // ++stepId;
 
             PauseActiveClock();
             RegisterMatrixChanges();
@@ -563,7 +562,7 @@ namespace Chess
 
             if (resetRequested)
             {
-                Reset();
+                newGameManager.ShowAfterDelay(0.25f);
             }
             else
             {

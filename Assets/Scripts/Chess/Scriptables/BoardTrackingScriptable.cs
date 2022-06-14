@@ -1,25 +1,25 @@
 using System;
-using System.Collections.Generic;
 
 using UnityEngine;
-
-using Chess.Pieces;
 
 namespace Chess
 {
     [CreateAssetMenu(fileName = "Data", menuName = "Holo Chess/Board Tracking", order = 2)]
-    public class BoardTrackingScriptable : BoardSetupScriptable
+    public class BoardTrackingScriptable : BoardScriptable
     {
-        // [Serializable]
-        // public class Moves
-        // {
-        //     public List<MoveData> collection;
+        [Serializable]
+        public class Data
+        {
+            public BoardSetupObject.Setup setup;
+            public BoardTrackingObject.Tracking tracking;
 
-        //     public _Moves() => collection = new List<MoveData>();
-        // }
-
-        // private _Moves moves;
-
-        // public _Moves Moves { get { return moves; } }
+            public Data()
+            {
+                setup = new BoardSetupObject.Setup();
+                tracking = new BoardTrackingObject.Tracking();
+            }
+        }
+        
+        public Data data;
     }
 }

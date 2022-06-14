@@ -62,7 +62,7 @@ namespace Chess
         
         public void OnEvent(NewGameManager.Mode mode)
         {
-            uiManager.Hide();
+            Hide();
 
             switch (mode)
             {
