@@ -20,59 +20,7 @@ namespace Chess
             Exit
         }
 
-        // private GameObject activeChild;
-
-        // Start is called before the first frame update
-        // void Start() => ShowPanel(PanelType.Launch);
-
-        public void ShowPanel(PanelType type)
-        {
-        //     if (transform.childCount > 0)
-        //     {
-        //         var child = transform.GetChild(0).gameObject;
-        //         Destroy(child);
-        //     }
-
-        //     GameObject instance = null;
-
-        //     switch(type)
-        //     {
-        //         case PanelType.Launch:
-        //             instance = Instantiate(launchPanel);
-        //             break;
-                
-        //         case PanelType.Main:
-        //             instance = Instantiate(mainPanel);
-        //             break;
-
-        //         case PanelType.Settings:
-        //             instance = Instantiate(settingsPanel);
-        //             break;
-
-        //         case PanelType.Exit:
-        //             instance = Instantiate(exitPanel);
-        //             break;
-        //     }
-
-        //     instance.transform.parent = transform;
-        //     instance.transform.localPosition = Vector3.zero;
-
-            // GameObject child = null;
-
-            // for (int itr = 0; itr < transform.childCount; itr++)
-            // {
-            //     child = transform.GetChild(itr).gameObject;
-            //     child.GetComponent<BasePanelUIManager>().ResetButtons();
-            //     child.SetActive(false);
-            // }
-
-            StartCoroutine(SwitchPanelCoroutine(type));
-
-            // child = transform.GetChild((int) type).gameObject;
-            // child.SetActive(true);
-
-            // activeChild = child;
-        }
+        public void ShowPanel(PanelType type) => StartCoroutine(SwitchPanelCoroutine(type));
 
         private bool TryGetActiveChild(out GameObject gameObject)
         {
@@ -99,16 +47,8 @@ namespace Chess
                 yield return HidePanelCoroutine(activeChild);
             }
 
-            // if (activeChild != null)
-            // {
-            //     activeChild.GetComponent<BasePanelUIManager>().ResetButtons();
-            //     yield return HidePanelCoroutine(activeChild);
-            // }
-
             var child = transform.GetChild((int) type).gameObject;
             yield return ShowPanelCoroutine(child);
-
-            // activeChild = child;
         }
 
         private IEnumerator ShowPanelCoroutine(GameObject child)

@@ -43,13 +43,6 @@ namespace Chess
         public void OnPointerEnter(BaseEventData eventData)
         {
             var gameObject = ((PointerEventData) eventData).pointerEnter;
-            // var manager = gameObject.GetComponent<ButtonScaleFXManager>() as ButtonScaleFXManager;
-            // manager.ScaleUp(1f, 1.1f);
-
-            // AudioSource.PlayClipAtPoint(onHoverClip, Vector3.zero, 1.0f);
-
-            // selectedObject = gameObject;
-
             StartCoroutine(ScaleUpButtonCoroutine(gameObject));
         }
 
@@ -66,11 +59,6 @@ namespace Chess
         public void OnPointerExit(BaseEventData eventData)
         {   
             var gameObject = ((PointerEventData) eventData).pointerEnter;
-            // var manager = gameObject.GetComponent<ButtonScaleFXManager>() as ButtonScaleFXManager;
-            // manager.ScaleDown(1.1f, 1f);
-
-            // selectedObject = null;
-
             StartCoroutine(ScaleDownButtonCoroutine(gameObject));
         }
 
