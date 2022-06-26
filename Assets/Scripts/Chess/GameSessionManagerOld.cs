@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using UnityEngine;
 
 using Chess.Scriptable;
@@ -36,3 +37,4 @@ namespace Chess
         // public void SubmitMove(GameSessionScriptable.Move move) => scriptable.AddMove(move);
     }
 }
+#endif
