@@ -6,7 +6,7 @@ namespace Chess
         {
             base.OnClickButton();
 
-            if (selectedObject.name.Equals("Exit Button"))
+            if (selectedButton.name.Equals("Exit Button"))
             {
                 canvasManager.ShowPanel(CanvasUIManager.PanelType.Exit);
             }

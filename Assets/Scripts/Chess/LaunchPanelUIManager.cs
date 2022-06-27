@@ -6,7 +6,7 @@ namespace Chess
         {
             base.OnClickButton();
 
-            if (selectedObject.name.Equals("Start Button"))
+            if (selectedButton.name.Equals("Start Button"))
             {
                 canvasManager.ShowPanel(CanvasUIManager.PanelType.Main);
             }

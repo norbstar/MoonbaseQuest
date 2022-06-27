@@ -18,7 +18,7 @@ namespace Chess
         [SerializeField] protected AudioClip onHoverClip;
         [SerializeField] protected AudioClip onSelectClip;
 
-        protected GameObject selectedObject;
+        protected GameObject selectedButton;
 
         private ScaleFXManager scaleFXManager;
 
@@ -42,34 +42,43 @@ namespace Chess
 
         public void OnPointerEnter(BaseEventData eventData)
         {
-            var gameObject = ((PointerEventData) eventData).pointerEnter;
-            StartCoroutine(ScaleUpButtonCoroutine(gameObject));
+            var button = ((PointerEventData) eventData).pointerEnter;
+            StartCoroutine(ScaleUpButtonCoroutine(button));
         }
 
-        private IEnumerator ScaleUpButtonCoroutine(GameObject gameObject)
+        private IEnumerator ScaleUpButtonCoroutine(GameObject button)
         {
-            var manager = gameObject.GetComponent<ScaleFXManager>() as ScaleFXManager;
+            var manager = button.GetComponent<ScaleFXManager>() as ScaleFXManager;
             yield return manager.ScaleUp(1f, 1.1f);
             
-            AudioSource.PlayClipAtPoint(onHoverClip, Vector3.zero, 1.0f);
+            if (onHoverClip != null)
+            {
+                AudioSource.PlayClipAtPoint(onHoverClip, Vector3.zero, 1.0f);
+            }
 
-            selectedObject = gameObject;
+            selectedButton = button;
         }
 
         public void OnPointerExit(BaseEventData eventData)
         {   
-            var gameObject = ((PointerEventData) eventData).pointerEnter;
-            StartCoroutine(ScaleDownButtonCoroutine(gameObject));
+            var button = ((PointerEventData) eventData).pointerEnter;
+            StartCoroutine(ScaleDownButtonCoroutine(button));
         }
 
-        private IEnumerator ScaleDownButtonCoroutine(GameObject gameObject)
+        private IEnumerator ScaleDownButtonCoroutine(GameObject button)
         {
-            var manager = gameObject.GetComponent<ScaleFXManager>() as ScaleFXManager;
+            var manager = button.GetComponent<ScaleFXManager>() as ScaleFXManager;
             yield return manager.ScaleDown(1.1f, 1f);
             
-            selectedObject = null;
+            selectedButton = null;
         }
 
-        public virtual void OnClickButton() => AudioSource.PlayClipAtPoint(onSelectClip, Vector3.zero, 1.0f);
+        public virtual void OnClickButton()
+        {
+            if (onSelectClip != null)
+            {
+                AudioSource.PlayClipAtPoint(onSelectClip, Vector3.zero, 1.0f);
+            }
+        }
     }
 }

@@ -8,11 +8,11 @@ namespace Chess
         {
             base.OnClickButton();
 
-            if (selectedObject.name.Equals("Confirm Button"))
+            if (selectedButton.name.Equals("Confirm Button"))
             {
                 Application.Quit();
             }
-            else if (selectedObject.name.Equals("Back Button"))
+            else if (selectedButton.name.Equals("Back Button"))
             {
                 canvasManager.ShowPanel(CanvasUIManager.PanelType.Main);
             }

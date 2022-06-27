@@ -6,7 +6,7 @@ namespace Chess
         {
             base.OnClickButton();
 
-            if (selectedObject.name.Equals("Back Button"))
+            if (selectedButton.name.Equals("Back Button"))
             {
                 // TODO
             }
