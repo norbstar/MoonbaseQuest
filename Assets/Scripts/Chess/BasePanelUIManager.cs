@@ -30,8 +30,11 @@ namespace Chess
         {
             for (int itr = 0; itr < buttons.transform.childCount; itr++)
             {
-                var child = buttons.transform.GetChild(itr);
-                child.transform.localScale = new Vector3(1f, 1f, 1f);
+                var button = buttons.transform.GetChild(itr);
+                button.transform.localScale = new Vector3(1f, 1f, 1f);
+
+                var manager = button.GetComponent<ButtonUIManager>() as ButtonUIManager;
+                manager.HeaderColor = manager.HeaderDefaultColor;
             }
         }
 
@@ -43,34 +46,40 @@ namespace Chess
         public void OnPointerEnter(BaseEventData eventData)
         {
             var button = ((PointerEventData) eventData).pointerEnter;
-            StartCoroutine(ScaleUpButtonCoroutine(button));
+            selectedButton = button;
+            
+            StartCoroutine(OnPointerEnterCoroutine(button));
         }
 
-        private IEnumerator ScaleUpButtonCoroutine(GameObject button)
-        {
-            var manager = button.GetComponent<ScaleFXManager>() as ScaleFXManager;
-            yield return manager.ScaleUp(1f, 1.1f);
+        private IEnumerator OnPointerEnterCoroutine(GameObject button)
+        {   
+            var manager = button.GetComponent<ButtonUIManager>() as ButtonUIManager;
+            manager.HeaderColor = manager.HeaderHighlightColor;
+            
+            var scaleFXManager = manager.ScaleFXManager;
+            yield return scaleFXManager.ScaleUp(1f, 1.1f);
             
             if (onHoverClip != null)
             {
                 AudioSource.PlayClipAtPoint(onHoverClip, Vector3.zero, 1.0f);
             }
-
-            selectedButton = button;
         }
 
         public void OnPointerExit(BaseEventData eventData)
-        {   
+        {
             var button = ((PointerEventData) eventData).pointerEnter;
-            StartCoroutine(ScaleDownButtonCoroutine(button));
+            selectedButton = null;
+            
+            StartCoroutine(OnPointerExitCoroutine(button));
         }
 
-        private IEnumerator ScaleDownButtonCoroutine(GameObject button)
+        private IEnumerator OnPointerExitCoroutine(GameObject button)
         {
-            var manager = button.GetComponent<ScaleFXManager>() as ScaleFXManager;
-            yield return manager.ScaleDown(1.1f, 1f);
-            
-            selectedButton = null;
+            var manager = button.GetComponent<ButtonUIManager>() as ButtonUIManager;
+            manager.HeaderColor = manager.HeaderDefaultColor;
+
+            var scaleFXManager = manager.ScaleFXManager;
+            yield return scaleFXManager.ScaleDown(1.1f, 1f);
         }
 
         public virtual void OnClickButton()
