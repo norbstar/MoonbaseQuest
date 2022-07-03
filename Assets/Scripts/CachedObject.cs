@@ -2,11 +2,13 @@ using UnityEngine;
 
 public abstract class CachedObject<T> : MonoBehaviour
 {
+    private static CachedObject<T> instance;
+
     protected virtual void Awake()
     {
-        int instances = FindObjectsOfType<CachedObject<T>>().Length;
+        var instances = FindObjectsOfType<CachedObject<T>>();
 
-        if (instances > 1)
+        if (instances.Length > 1)
         {
             gameObject.SetActive(false);
             Destroy(gameObject);
@@ -14,6 +16,9 @@ public abstract class CachedObject<T> : MonoBehaviour
         else
         {
             DontDestroyOnLoad(gameObject);
+            instance = instances[0];
         }
     }
+
+    public static CachedObject<T> Instance { get { return instance; } }
 }
