@@ -9,7 +9,7 @@ namespace Chess
     public class BasePanelUIManager : MonoBehaviour
     {
         [Header("Components")]
-        [SerializeField] GameObject buttons;
+        [SerializeField] protected GameObject buttons;
 
         [Header("Manager")]
         [SerializeField] protected CanvasUIManager canvasManager;
@@ -38,10 +38,12 @@ namespace Chess
             }
         }
 
-        public IEnumerator ScaleUpPanelCoroutine()
-        {
-            yield return scaleFXManager.ScaleUp(1f, 1.1f);
-        }
+        // public GameObject GetButtonByIndex(int index) => buttons.transform.GetChild(index).gameObject;
+
+        // public IEnumerator ScaleUpPanelCoroutine()
+        // {
+        //     yield return scaleFXManager.ScaleUp(1f, 1.1f);
+        // }
 
         public void OnPointerEnter(BaseEventData eventData)
         {

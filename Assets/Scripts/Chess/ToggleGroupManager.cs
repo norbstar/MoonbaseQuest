@@ -23,7 +23,7 @@ public class ToggleGroupManager : MonoBehaviour
         }
     }
 
-    public void TurnOnByIndex(int index)
+    public void SetByIndex(int index)
     {
         for (int itr = 0; itr < group.Count; itr++)
         {

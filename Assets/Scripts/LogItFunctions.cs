@@ -99,9 +99,9 @@ public class LogItFunctions
         float? lastTimestamp = ExtractTimestamp(GetLastMessage(context));
         string path = Path.Combine(Application.persistentDataPath, $"{context}.log");
 
-        var debugCanvas = GameObject.Find("Debug Canvas");
-        var manager = debugCanvas.GetComponent<DebugCanvasUIManager>() as DebugCanvasUIManager;
-        manager.textUI.text = $"Writing to {path}";
+        // var debugCanvas = GameObject.Find("Debug Canvas");
+        // var manager = debugCanvas.GetComponent<DebugCanvasUIManager>() as DebugCanvasUIManager;
+        // manager.textUI.text = $"Writing to {path}";
         
         StreamWriter sw = new StreamWriter(path, true);
         

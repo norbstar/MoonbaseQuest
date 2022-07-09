@@ -8,7 +8,7 @@ namespace Chess
         {
             base.OnClickButton();
 
-            if (selectedButton.name.Equals("Forget It Button"))
+            if (selectedButton.name.Equals("Back Button"))
             {
                 canvasManager.ShowPanel(CanvasUIManager.PanelType.Main);
             }

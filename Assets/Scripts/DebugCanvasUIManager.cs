@@ -10,8 +10,8 @@ public class DebugCanvasUIManager : MonoBehaviour
     [SerializeField] public TextMeshProUGUI textUI;
     
     // Start is called before the first frame update
-    void Start()
-    {
-        textUI.text = Path.Combine(Application.persistentDataPath, $"file.log");
-    }
+    // void Start()
+    // {
+    //     textUI.text = Path.Combine(Application.persistentDataPath, $"file.log");
+    // }
 }

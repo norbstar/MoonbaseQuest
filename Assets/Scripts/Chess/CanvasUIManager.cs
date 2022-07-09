@@ -10,6 +10,7 @@ namespace Chess
          [Header("Components")]
          [SerializeField] BasePanelUIManager launchPanel;
          [SerializeField] BasePanelUIManager mainPanel;
+         [SerializeField] BasePanelUIManager gamePanel;
          [SerializeField] BasePanelUIManager settingsPanel;
          [SerializeField] BasePanelUIManager exitPanel;
 
@@ -17,6 +18,7 @@ namespace Chess
         {
             Launch,
             Main,
+            Game,
             Settings,
             Exit
         }
@@ -29,6 +31,7 @@ namespace Chess
 
             panels.Add(launchPanel);
             panels.Add(mainPanel);
+            panels.Add(gamePanel);
             panels.Add(settingsPanel);
             panels.Add(exitPanel);
         }
