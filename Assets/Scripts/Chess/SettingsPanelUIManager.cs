@@ -39,9 +39,20 @@ namespace Chess
 
             if (onButtonSelectClip != null)
             {
-                numberManager.OnClickClip = onButtonSelectClip;
-                intentManager.OnClickClip = onButtonSelectClip;
-                explitivesManager.OnClickClip = onButtonSelectClip;
+                if (numberManager.OnSelectClip == null)
+                {
+                    numberManager.OnSelectClip = onButtonSelectClip;
+                }
+
+                if (intentManager.OnSelectClip != null)
+                {
+                    intentManager.OnSelectClip = onButtonSelectClip;
+                }
+
+                if (explitivesManager.OnSelectClip != null)
+                {
+                    explitivesManager.OnSelectClip = onButtonSelectClip;
+                }
             }
         }
 
