@@ -15,14 +15,15 @@ namespace Chess
         [SerializeField] protected CanvasUIManager canvasManager;
 
         [Header("Audio")]
-        [SerializeField] protected AudioClip onHoverClip;
-        [SerializeField] protected AudioClip onSelectClip;
+        [SerializeField] protected AudioClip onButtonHoverClip;
+        [SerializeField] protected AudioClip onButtonSelectClip;
+        [SerializeField] protected AudioClip onToggleSelectClip;
 
         protected GameObject selectedButton;
 
         private ScaleFXManager scaleFXManager;
 
-        void Start() => ResolveDependencies();
+        public virtual void Start() => ResolveDependencies();
 
         private void ResolveDependencies() => scaleFXManager = GetComponent<ScaleFXManager>() as ScaleFXManager;
 
@@ -34,16 +35,9 @@ namespace Chess
                 button.transform.localScale = new Vector3(1f, 1f, 1f);
 
                 var manager = button.GetComponent<ButtonUIManager>() as ButtonUIManager;
-                manager.HeaderColor = manager.HeaderDefaultColor;
+                manager.HeaderColor = manager.DefaultHeaderColor;
             }
         }
-
-        // public GameObject GetButtonByIndex(int index) => buttons.transform.GetChild(index).gameObject;
-
-        // public IEnumerator ScaleUpPanelCoroutine()
-        // {
-        //     yield return scaleFXManager.ScaleUp(1f, 1.1f);
-        // }
 
         public void OnPointerEnter(BaseEventData eventData)
         {
@@ -61,9 +55,9 @@ namespace Chess
             var scaleFXManager = manager.ScaleFXManager;
             yield return scaleFXManager.ScaleUp(1f, 1.1f);
             
-            if (onHoverClip != null)
+            if (onButtonHoverClip != null)
             {
-                AudioSource.PlayClipAtPoint(onHoverClip, Vector3.zero, 1.0f);
+                AudioSource.PlayClipAtPoint(onButtonHoverClip, Vector3.zero, 1.0f);
             }
         }
 
@@ -78,7 +72,7 @@ namespace Chess
         private IEnumerator OnPointerExitCoroutine(GameObject button)
         {
             var manager = button.GetComponent<ButtonUIManager>() as ButtonUIManager;
-            manager.HeaderColor = manager.HeaderDefaultColor;
+            manager.HeaderColor = manager.DefaultHeaderColor;
 
             var scaleFXManager = manager.ScaleFXManager;
             yield return scaleFXManager.ScaleDown(1.1f, 1f);
@@ -86,9 +80,9 @@ namespace Chess
 
         public virtual void OnClickButton()
         {
-            if (onSelectClip != null)
+            if (onButtonSelectClip != null)
             {
-                AudioSource.PlayClipAtPoint(onSelectClip, Vector3.zero, 1.0f);
+                AudioSource.PlayClipAtPoint(onButtonSelectClip, Vector3.zero, 1.0f);
             }
         }
     }

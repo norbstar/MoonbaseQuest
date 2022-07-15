@@ -20,8 +20,8 @@ namespace Chess
         [SerializeField] Color headerHighlightColor;
         public Color HeaderHighlightColor { get { return headerHighlightColor; } }
 
-        private Color headerDefaultColor;
-        public Color HeaderDefaultColor { get { return headerDefaultColor; } }
+        private Color defaultHeaderColor;
+        public Color DefaultHeaderColor { get { return defaultHeaderColor; } }
 
         private ScaleFXManager scaleFXManager;
         public ScaleFXManager ScaleFXManager { get { return scaleFXManager; } }
@@ -30,7 +30,10 @@ namespace Chess
         {
             ResolveDependencies();
 
-            headerDefaultColor = header.color;
+            if (header != null)
+            {
+                defaultHeaderColor = header.color;
+            }
         }
 
         private void ResolveDependencies() => scaleFXManager = GetComponent<ScaleFXManager>() as ScaleFXManager;

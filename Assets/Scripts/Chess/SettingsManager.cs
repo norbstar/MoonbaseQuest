@@ -100,21 +100,7 @@ namespace Chess
             }
         }
 
-        public void OnInteractionModeChange(int index)
-        {
-            interactionMode = (Settings.Mode) index;
-
-            // switch (index)
-            // {
-            //     case (int) Settings.Mode.Remote:
-            //         interactionMode = Settings.Mode.Remote;
-            //         break;
-
-            //     case (int) Settings.Mode.Direct:
-            //         interactionMode = Settings.Mode.Direct;
-            //         break;
-            // }
-        }
+        public void OnInteractionModeChange(int index) => interactionMode = (Settings.Mode) index;
 
         public void OnPlayAsChange(int index) => set = (Set) index;
 
@@ -122,16 +108,6 @@ namespace Chess
 
         public void OnOppositionSkillLevelChange(int index) => skill = (Settings.Skill) index;
 
-        public void OnSceneChange(int index)
-        {
-            scene = (Settings.Scene) index;
-            
-            // switch (index)
-            // {
-            //     case (int) Settings.Scene.Lounge:
-            //         scene = Settings.Scene.Lounge;
-            //         break;
-            // }
-        }
+        public void OnSceneChange(int index) => scene = (Settings.Scene) index;
     }
 }

@@ -7,17 +7,11 @@ using UnityEngine.EventSystems;
 
 namespace Chess
 {
-    public class SettingsPanelUIManager : BasePanelUIManager
+    public class InGamePanelUIManager : BasePanelUIManager
     {
         [Header("Custom Components")]
         [SerializeField] GameObject panelBase;
         [SerializeField] ToggleGroupManager interactionModeManager;
-        [SerializeField] ToggleGroupManager playAsManager;
-        [SerializeField] ToggleGroupManager playOrderManager;
-        [SerializeField] ToggleGroupManager oppositionSkillLevelManager;
-        [SerializeField] ButtonGroupManager numberManager;
-        [SerializeField] ButtonGroupManager intentManager;
-        [SerializeField] ButtonGroupManager explitivesManager;
 
         [Header("Config")]
         [SerializeField] float rotationSpeed = 5f;
@@ -32,33 +26,14 @@ namespace Chess
             if (onToggleSelectClip != null)
             {
                 interactionModeManager.OnToggleClip = onToggleSelectClip;
-                playAsManager.OnToggleClip = onToggleSelectClip;
-                playOrderManager.OnToggleClip = onToggleSelectClip;
-                oppositionSkillLevelManager.OnToggleClip = onToggleSelectClip;
-            }
-
-            if (onButtonSelectClip != null)
-            {
-                numberManager.OnClickClip = onButtonSelectClip;
-                intentManager.OnClickClip = onButtonSelectClip;
-                explitivesManager.OnClickClip = onButtonSelectClip;
             }
         }
 
         void OnEnable()
         {
             interactionModeManager.EventReceived += OnInteractionModeEvent;
-            playAsManager.EventReceived += OnPlayAsEvent;
-            playOrderManager.EventReceived += OnPlayOrderEvent;
-            oppositionSkillLevelManager.EventReceived += OnOppositionSkillLevelEvent;
-            numberManager.EventReceived += OnNumberEvent;
-            intentManager.EventReceived += OnIntentEvent;
-            explitivesManager.EventReceived += OnIntentEvent;
 
             interactionModeManager.SetByIndex((int) ((SettingsManager) SettingsManager.Instance).InteractionMode);
-            playAsManager.SetByIndex((int) ((SettingsManager) SettingsManager.Instance).Set);
-            playOrderManager.SetByIndex((int) (((SettingsManager) SettingsManager.Instance).PlayFirst ? 0 : 1));
-            oppositionSkillLevelManager.SetByIndex((int) ((SettingsManager) SettingsManager.Instance).Skill);
             
             if (panelBase != null)
             {
@@ -69,12 +44,6 @@ namespace Chess
         void OnDisable()
         {
             interactionModeManager.EventReceived -= OnInteractionModeEvent;
-            playAsManager.EventReceived -= OnPlayAsEvent;
-            playOrderManager.EventReceived -= OnPlayOrderEvent;
-            oppositionSkillLevelManager.EventReceived -= OnOppositionSkillLevelEvent;
-            numberManager.EventReceived -= OnNumberEvent;
-            intentManager.EventReceived -= OnIntentEvent;
-            explitivesManager.EventReceived -= OnIntentEvent;
         }
 
         private void OnInteractionModeEvent(List<Toggle> group) { }
@@ -85,10 +54,6 @@ namespace Chess
 
         private void OnOppositionSkillLevelEvent(List<Toggle> group) { }
         
-        private void OnNumberEvent(List<UnityEngine.UI.Button> group) { }
-
-        private void OnIntentEvent(List<UnityEngine.UI.Button> group) { }
-
         public void OnPanelPointerEnter(BaseEventData eventData)
         {
             if (monitoring) return;
@@ -181,26 +146,12 @@ namespace Chess
         {
             base.OnClickButton();
 
-            if (selectedButton.name.Equals("Back Button"))
+            if (selectedButton.name.Equals("Back To Game Button"))
             {
-                canvasManager.ShowPanel(CanvasUIManager.PanelType.Main);
+                canvasManager.ClosePanel();
             }
-            else if (selectedButton.name.Equals("Apply Button"))
+            else if (selectedButton.name.Equals("Abandon Game Button"))
             {
-                int index;
-
-                index = interactionModeManager.Group.FindIndex(t => t.isOn);
-                ((SettingsManager) SettingsManager.Instance).OnInteractionModeChange(index);
-                
-                index = playAsManager.Group.FindIndex(t => t.isOn);
-                ((SettingsManager) SettingsManager.Instance).OnPlayAsChange(index);
-
-                index = playOrderManager.Group.FindIndex(t => t.isOn);
-                ((SettingsManager) SettingsManager.Instance).OnPlayOrderFirstChange(index);
-
-                index = oppositionSkillLevelManager.Group.FindIndex(t => t.isOn);
-                ((SettingsManager) SettingsManager.Instance).OnOppositionSkillLevelChange(index);
-                
                 canvasManager.ShowPanel(CanvasUIManager.PanelType.Main);
             }
         }

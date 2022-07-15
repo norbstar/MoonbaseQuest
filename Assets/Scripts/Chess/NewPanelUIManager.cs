@@ -10,6 +10,19 @@ namespace Chess
         [SerializeField] ToggleGroupManager playOrderManager;
         [SerializeField] ToggleGroupManager oppositionSkillLevelManager;
         
+        public override void Start()
+        {
+            base.Start();
+
+            if (onToggleSelectClip != null)
+            {
+                interactionModeManager.OnToggleClip = onToggleSelectClip;
+                playAsManager.OnToggleClip = onToggleSelectClip;
+                playOrderManager.OnToggleClip = onToggleSelectClip;
+                oppositionSkillLevelManager.OnToggleClip = onToggleSelectClip;
+            }
+        }
+        
         void OnEnable()
         {
             interactionModeManager.SetByIndex((int) ((SettingsManager) SettingsManager.Instance).InteractionMode);
