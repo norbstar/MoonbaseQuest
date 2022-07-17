@@ -22,6 +22,7 @@ public class HybridHandController : HandController
 
     [Header("Config")]
     [SerializeField] private bool enableTracking = true;
+    [SerializeField] private bool persistLine = false;
 
     private MeshCollider meshCollider;
     private OnCollisionHandler collisionHandler;
@@ -113,7 +114,12 @@ public class HybridHandController : HandController
             }
 
             hitPrefabInstance?.SetActive(false);
-            spawnPoint.EnableLine = false;
+
+            if (!persistLine)
+            {
+                spawnPoint.EnableLine = false;
+            }
+
             lastObjectHit = null;
             return;
         }
@@ -131,7 +137,11 @@ public class HybridHandController : HandController
 
             hitPrefabInstance.SetActive(true);                
             spawnPoint.ConfigLine(point, vector);
-            spawnPoint.EnableLine = true;
+
+            if (!persistLine)
+            {
+                spawnPoint.EnableLine = true;
+            }
         }
 
         if (!GameObject.ReferenceEquals(objectHit, lastObjectHit))
