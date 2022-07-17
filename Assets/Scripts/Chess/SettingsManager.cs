@@ -33,7 +33,7 @@ namespace Chess
 
         [SerializeField] Settings.Skill skill = Settings.Skill.Easy;
 
-        [SerializeField] Settings.Scene scene;
+        // [SerializeField] Settings.Scene scene;
 
         public Settings.Mode InteractionMode
         {
@@ -87,18 +87,18 @@ namespace Chess
             }
         }
 
-        public Settings.Scene Scene
-        {
-            get
-            {
-                return scene;
-            }
+        // public Settings.Scene Scene
+        // {
+        //     get
+        //     {
+        //         return scene;
+        //     }
 
-            set
-            {
-                scene = value;
-            }
-        }
+        //     set
+        //     {
+        //         scene = value;
+        //     }
+        // }
 
         public void OnInteractionModeChange(int index) => interactionMode = (Settings.Mode) index;
 
@@ -108,6 +108,6 @@ namespace Chess
 
         public void OnOppositionSkillLevelChange(int index) => skill = (Settings.Skill) index;
 
-        public void OnSceneChange(int index) => scene = (Settings.Scene) index;
+        // public void OnSceneChange(int index) => scene = (Settings.Scene) index;
     }
 }

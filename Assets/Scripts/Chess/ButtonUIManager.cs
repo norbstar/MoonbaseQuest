@@ -9,7 +9,7 @@ namespace Chess
     public class ButtonUIManager : MonoBehaviour
     {
         [Header("Components")]
-         [SerializeField] Image header;
+        [SerializeField] Image header;
         public Image Header { get { return header; } }
         [SerializeField] Image icon;
         public Image Icon { get { return icon; } }

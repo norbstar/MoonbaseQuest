@@ -4,7 +4,8 @@ namespace Chess
 {
     public class NewPanelUIManager : BasePanelUIManager
     {
-        [Header("Components")]
+        [Header("Custom Components")]
+        [SerializeField] GamePanelUIManager gamePanel;
         [SerializeField] ToggleGroupManager interactionModeManager;
         [SerializeField] ToggleGroupManager playAsManager;
         [SerializeField] ToggleGroupManager playOrderManager;
@@ -37,7 +38,7 @@ namespace Chess
 
             if (selectedButton.name.Equals("Scene Button"))
             {
-                // TODO
+                gamePanel.ScenePanel.gameObject.SetActive(true);
             }
             else if (selectedButton.name.Equals("Launch Button"))
             {

@@ -35,7 +35,11 @@ namespace Chess
                 button.transform.localScale = new Vector3(1f, 1f, 1f);
 
                 var manager = button.GetComponent<ButtonUIManager>() as ButtonUIManager;
-                manager.HeaderColor = manager.DefaultHeaderColor;
+
+                if (manager.Header != null)
+                {
+                    manager.HeaderColor = manager.DefaultHeaderColor;
+                }
             }
         }
 
@@ -50,7 +54,11 @@ namespace Chess
         private IEnumerator OnPointerEnterCoroutine(GameObject button)
         {   
             var manager = button.GetComponent<ButtonUIManager>() as ButtonUIManager;
-            manager.HeaderColor = manager.HeaderHighlightColor;
+
+            if (manager.Header != null)
+            {
+                manager.HeaderColor = manager.HeaderHighlightColor;
+            }
             
             var scaleFXManager = manager.ScaleFXManager;
             yield return scaleFXManager.ScaleUp(1f, 1.1f);
@@ -72,7 +80,11 @@ namespace Chess
         private IEnumerator OnPointerExitCoroutine(GameObject button)
         {
             var manager = button.GetComponent<ButtonUIManager>() as ButtonUIManager;
-            manager.HeaderColor = manager.DefaultHeaderColor;
+
+            if (manager.Header != null)
+            {
+                manager.HeaderColor = manager.DefaultHeaderColor;
+            }
 
             var scaleFXManager = manager.ScaleFXManager;
             yield return scaleFXManager.ScaleDown(1.1f, 1f);

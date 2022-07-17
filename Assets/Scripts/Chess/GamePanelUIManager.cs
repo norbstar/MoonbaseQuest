@@ -1,8 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
 
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 namespace Chess
@@ -10,6 +8,7 @@ namespace Chess
     public class GamePanelUIManager : BasePanelUIManager
     {
         [Header("Custom Components")]
+        [SerializeField] ScenePanelUIManager scenePanel;
         [SerializeField] GameObject panelBase;
         [SerializeField] NewPanelUIManager newPanel;
         [SerializeField] SavedPanelUIManager savedPanel;
@@ -68,6 +67,8 @@ namespace Chess
             
             coroutine = StartCoroutine(RotatePanelBaseCoroutine(angle));
         }
+
+        public ScenePanelUIManager ScenePanel { get { return scenePanel; } }
 
         private float EulerAngle(float angle)
         {
