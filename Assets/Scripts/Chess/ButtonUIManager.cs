@@ -26,6 +26,7 @@ namespace Chess
         private ScaleFXManager scaleFXManager;
         public ScaleFXManager ScaleFXManager { get { return scaleFXManager; } }
 
+        // Start is called before the first frame update
         void Start()
         {
             ResolveDependencies();

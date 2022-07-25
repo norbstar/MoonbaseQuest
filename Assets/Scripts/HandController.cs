@@ -64,10 +64,7 @@ public class HandController : GizmoManager
     private DebugCanvas debugCanvas;
     private Actuation actuation, lastActuation;
 
-    public virtual void Awake()
-    {
-        ResolveDependencies();
-    }
+    public virtual void Awake() => ResolveDependencies();
 
     private void ResolveDependencies()
     {
