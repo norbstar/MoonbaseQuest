@@ -1,62 +1,65 @@
 using UnityEngine;
 using UnityEngine.XR;
 
-public class SceneManager : BaseManager
+namespace Assets
 {
-    // private DebugCanvas debugCanvas;
-
-    private static InputDeviceCharacteristics RightHand = (InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Right);
-    private static InputDeviceCharacteristics LeftHand = (InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Left);
-
-    // Start is called before the first frame update
-    // void Start()
-    // {
-    //     ResolveDependencies();
-    // }
-
-    // private void ResolveDependencies()
-    // {
-    //     var obj = FindObjectOfType<DebugCanvas>();
-    //     debugCanvas = obj.GetComponent<DebugCanvas>() as DebugCanvas;
-    // }
-
-    void OnEnable()
+    public class SceneManager : BaseManager
     {
-        InputDevices.deviceConnected += OnDeviceConnected;
-        InputDevices.deviceDisconnected += OnDeviceDisconnected;
-    }
+        // private DebugCanvas debugCanvas;
 
-    void OnDisable()
-    {
-        InputDevices.deviceConnected -= OnDeviceConnected;
-        InputDevices.deviceDisconnected -= OnDeviceDisconnected;
-    }
+        private static InputDeviceCharacteristics RightHand = (InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Right);
+        private static InputDeviceCharacteristics LeftHand = (InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Left);
 
-    private void OnDeviceConnected(InputDevice device)
-    {
-        Log($"{device.name}.Connected");
+        // Start is called before the first frame update
+        // void Start()
+        // {
+        //     ResolveDependencies();
+        // }
 
-        if ((int) device.characteristics == (int) LeftHand)
+        // private void ResolveDependencies()
+        // {
+        //     var obj = FindObjectOfType<DebugCanvas>();
+        //     debugCanvas = obj.GetComponent<DebugCanvas>() as DebugCanvas;
+        // }
+
+        void OnEnable()
         {
-            Log($"{device.name}.Identified as Left Hand");
+            InputDevices.deviceConnected += OnDeviceConnected;
+            InputDevices.deviceDisconnected += OnDeviceDisconnected;
         }
-        else if ((int) device.characteristics == (int) RightHand)
-        {
-            Log($"{device.name}.Identified as Right Hand");
-        }
-    }
 
-    private void OnDeviceDisconnected(InputDevice device)
-    {
-        Log($"{device.name}.Disconnected");
-
-        if ((int) device.characteristics == (int) LeftHand)
+        void OnDisable()
         {
-            Log($"{device.name}.Identified as Left Hand");
+            InputDevices.deviceConnected -= OnDeviceConnected;
+            InputDevices.deviceDisconnected -= OnDeviceDisconnected;
         }
-        else if ((int) device.characteristics == (int) RightHand)
+
+        private void OnDeviceConnected(InputDevice device)
         {
-            Log($"{device.name}.Identified as Right Hand");
+            Log($"{device.name}.Connected");
+
+            if ((int) device.characteristics == (int) LeftHand)
+            {
+                Log($"{device.name}.Identified as Left Hand");
+            }
+            else if ((int) device.characteristics == (int) RightHand)
+            {
+                Log($"{device.name}.Identified as Right Hand");
+            }
+        }
+
+        private void OnDeviceDisconnected(InputDevice device)
+        {
+            Log($"{device.name}.Disconnected");
+
+            if ((int) device.characteristics == (int) LeftHand)
+            {
+                Log($"{device.name}.Identified as Left Hand");
+            }
+            else if ((int) device.characteristics == (int) RightHand)
+            {
+                Log($"{device.name}.Identified as Right Hand");
+            }
         }
     }
 }
