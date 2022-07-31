@@ -1,15 +1,15 @@
-using System.Collections.Generic;
-
-using UnityEngine;
-
 namespace Chess
 {
     public class FadePanelUIManager : BasePanelUIManager
     {
-        [Header("Custom Config")]
-        [SerializeField] ImageFader imageFader;
+        public enum Button
+        {
+            FadeIn,
+            FadeOut
+        }
 
-        private void OnSelectEvent(List<UnityEngine.UI.Button> group) { }
+        public delegate void OnClickEvent(Button button);
+        public static event OnClickEvent EventReceived;
 
         public override void OnClickButton()
         {
@@ -17,11 +17,11 @@ namespace Chess
 
             if (selectedButton.name.Equals("Fade In Button"))
             {
-                imageFader.FadeIn();
+                EventReceived?.Invoke(Button.FadeIn);
             }
             else if (selectedButton.name.Equals("Fade Out Button"))
             {
-                imageFader.FadeOut();
+                EventReceived?.Invoke(Button.FadeOut);
             }
         }
     }

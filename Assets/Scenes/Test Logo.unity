@@ -5812,7 +5812,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &315019294
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5930,7 +5930,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 2.75}
+  m_AnchoredPosition: {x: 34.8, y: 2.75}
   m_SizeDelta: {x: 300, y: 160}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &316029726
@@ -6310,7 +6310,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -9468,8 +9468,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buttons: {fileID: 209047578}
   canvasManager: {fileID: 5345293996491508757}
-  onHoverClip: {fileID: 8300000, guid: 29474e3e810dc8e4aa971f02f12851c3, type: 3}
-  onSelectClip: {fileID: 8300000, guid: 65c6b9d4bab84b2469ee7978d75831d1, type: 3}
+  onButtonHoverClip: {fileID: 0}
+  onButtonSelectClip: {fileID: 0}
+  onToggleSelectClip: {fileID: 0}
+  enableHaptics: 0
+  panelBase: {fileID: 0}
+  interactionModeManager: {fileID: 0}
+  playAsManager: {fileID: 0}
+  playOrderManager: {fileID: 0}
+  oppositionSkillLevelManager: {fileID: 0}
+  numberManager: {fileID: 0}
+  intentManager: {fileID: 0}
+  explitivesManager: {fileID: 0}
+  rotationSpeed: 5
 --- !u!114 &458907162
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24503,7 +24514,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -32389,8 +32400,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buttons: {fileID: 1389184165}
   canvasManager: {fileID: 5345293996491508757}
-  onHoverClip: {fileID: 8300000, guid: 29474e3e810dc8e4aa971f02f12851c3, type: 3}
-  onSelectClip: {fileID: 8300000, guid: 65c6b9d4bab84b2469ee7978d75831d1, type: 3}
+  onButtonHoverClip: {fileID: 0}
+  onButtonSelectClip: {fileID: 0}
+  onToggleSelectClip: {fileID: 0}
+  enableHaptics: 0
 --- !u!114 &1600455185
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37274,8 +37287,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buttons: {fileID: 290757743}
   canvasManager: {fileID: 5345293996491508757}
-  onHoverClip: {fileID: 8300000, guid: 29474e3e810dc8e4aa971f02f12851c3, type: 3}
-  onSelectClip: {fileID: 8300000, guid: 65c6b9d4bab84b2469ee7978d75831d1, type: 3}
+  onButtonHoverClip: {fileID: 0}
+  onButtonSelectClip: {fileID: 0}
+  onToggleSelectClip: {fileID: 0}
+  enableHaptics: 0
 --- !u!114 &1838077818
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -44121,10 +44136,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0f93ff179c4edb4197da13a58356884, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  launchPanel: {fileID: 3358202702140684574, guid: 113140b8b6291514da94262e04125ffa, type: 3}
-  mainPanel: {fileID: 1600455182}
-  settingsPanel: {fileID: 458907157}
-  exitPanel: {fileID: 1838077815}
+  launchPanel: {fileID: 0}
+  mainPanel: {fileID: 0}
+  gamePanel: {fileID: 0}
+  inGamePanel: {fileID: 0}
+  settingsPanel: {fileID: 0}
+  exitPanel: {fileID: 0}
+  shortcutPanel: {fileID: 0}
 --- !u!114 &5345293996491508760
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -64227,8 +64245,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buttons: {fileID: 7720097644992413769}
   canvasManager: {fileID: 5345293996491508757}
-  onHoverClip: {fileID: 8300000, guid: 29474e3e810dc8e4aa971f02f12851c3, type: 3}
-  onSelectClip: {fileID: 8300000, guid: 65c6b9d4bab84b2469ee7978d75831d1, type: 3}
+  onButtonHoverClip: {fileID: 0}
+  onButtonSelectClip: {fileID: 0}
+  onToggleSelectClip: {fileID: 0}
+  enableHaptics: 0
 --- !u!114 &7720097644601160849
 MonoBehaviour:
   m_ObjectHideFlags: 0

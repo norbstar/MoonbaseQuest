@@ -28,8 +28,8 @@ namespace Chess
 
             set
             {
-                value.interactable = false;
                 selected = value;
+                selected.interactable = false;
             }
         }
 
@@ -63,17 +63,19 @@ namespace Chess
                 });
             }
 
-            Selected = GetByIndex(defaultSelection);
+            SetByIndex(defaultSelection);
         }
 
-        public void SetByIndex(int index)
+        private void SetByIndex(int index)
         {
             for (int itr = 0; itr < group.Count; itr++)
             {
                 var button = group[itr];
+
                 if (itr == index)
                 {
                     button.Select();
+                    Selected = button;
                 }
             }
         }
@@ -88,7 +90,7 @@ namespace Chess
             }
 
             Selected = button;
-            EventReceived(group);
+            EventReceived?.Invoke(group);
         }
     }
 }

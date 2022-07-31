@@ -25,10 +25,8 @@ namespace Chess
         private Coroutine coroutine;
         private bool monitoring;
 
-        public override void Start()
+        public void Start()
         {
-            base.Start();
-
             if (onToggleSelectClip != null)
             {
                 interactionModeManager.OnToggleClip = onToggleSelectClip;

@@ -1,12 +1,17 @@
-using System.Collections.Generic;
-
-using UnityEngine;
-
 namespace Chess
 {
     public class ShortcutPanelUIManager : BasePanelUIManager
     {
-        private void OnSelectEvent(List<UnityEngine.UI.Button> group) { }
+        public enum Button
+        {
+            Game,
+            Settings,
+            About,
+            Exit
+        }
+
+        public delegate void OnClickEvent(Button button);
+        public static event OnClickEvent EventReceived;
 
         public override void OnClickButton()
         {
@@ -14,19 +19,19 @@ namespace Chess
 
             if (selectedButton.name.Equals("Game Button"))
             {
-                // TODO
+                EventReceived?.Invoke(Button.Game);
             }
             else if (selectedButton.name.Equals("Settings Button"))
             {
-                // TODO
+                EventReceived?.Invoke(Button.Settings);
             }
             else if (selectedButton.name.Equals("About Button"))
             {
-                // TODO
+                EventReceived?.Invoke(Button.About);
             }
             else if (selectedButton.name.Equals("Exit Button"))
             {
-                Application.Quit();
+                EventReceived?.Invoke(Button.Exit);
             }
         }
     }

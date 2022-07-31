@@ -2,7 +2,6 @@ using System.Collections;
 
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.UI;
 
@@ -27,15 +26,6 @@ namespace Chess
         public bool EnableHaptics { get { return enableHaptics; } }
 
         protected GameObject selectedButton;
-
-        private ScaleFXManager scaleFXManager;
-
-        public virtual void Start() => ResolveDependencies();
-
-        private void ResolveDependencies()
-        {
-            scaleFXManager = GetComponent<ScaleFXManager>() as ScaleFXManager;
-        }
 
         public void ResetButtons()
         {

@@ -2920,8 +2920,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_LineWidth: 0.0025
-  m_OverrideInteractorLineLength: 0
-  m_LineLength: 2.5
+  m_OverrideInteractorLineLength: 1
+  m_LineLength: 25
   m_WidthCurve:
     serializedVersion: 2
     m_Curve:
@@ -3680,7 +3680,6 @@ MonoBehaviour:
   onButtonSelectClip: {fileID: 8300000, guid: c84c529e4ccb7144ea9af253580dff35, type: 3}
   onToggleSelectClip: {fileID: 8300000, guid: c84c529e4ccb7144ea9af253580dff35, type: 3}
   enableHaptics: 1
-  imageFader: {fileID: 1962524197}
 --- !u!114 &839290588
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4856,7 +4855,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1548219601}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 25}
+  m_LocalPosition: {x: 0, y: 0, z: 20}
   m_LocalScale: {x: 0.35, y: 0.35, z: 0.35}
   m_Children:
   - {fileID: 839290586}
@@ -5537,7 +5536,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1943054216
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5795,6 +5794,7 @@ GameObject:
   - component: {fileID: 1962524199}
   - component: {fileID: 1962524198}
   - component: {fileID: 1962524197}
+  - component: {fileID: 1962524200}
   m_Layer: 5
   m_Name: Fader
   m_TagString: Untagged
@@ -5849,7 +5849,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -5874,6 +5874,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1962524195}
   m_CullTransparentMesh: 1
+--- !u!114 &1962524200
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1962524195}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bfdaa8e1b1d53a469bcccfc5c2d23f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1965571495
 GameObject:
   m_ObjectHideFlags: 0
