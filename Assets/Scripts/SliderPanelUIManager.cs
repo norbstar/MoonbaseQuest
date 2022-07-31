@@ -11,6 +11,8 @@ public class SliderPanelUIManager : MonoBehaviour
     [SerializeField] Slider slider;
     public float Value { get { return slider.value; } set { slider.value = value; } }
 
+    [SerializeField] Toggle toggle;
+
     [Header("Components")]
     [SerializeField] PointerEventHandler eventHandler;
 
@@ -22,7 +24,7 @@ public class SliderPanelUIManager : MonoBehaviour
     public bool EnableHaptics { get { return enableHaptics; } }
 
     public delegate void OnModifyEvent(float value);
-    public event OnModifyEvent EventReceived;
+    public static event OnModifyEvent EventReceived;
 
     // Start is called before the first frame update
     void Start()
@@ -30,6 +32,12 @@ public class SliderPanelUIManager : MonoBehaviour
         slider.onValueChanged.AddListener(delegate {
             OnValueChanged(slider.value);
         });
+
+        toggle.onValueChanged.AddListener(delegate {
+            OnToggleChanged(toggle.isOn);
+        });
+
+        toggle.isOn = (slider.value == slider.minValue);
     }
 
     void OnEnable() => eventHandler.EventReceived += OnPointerEvent;
@@ -97,7 +105,25 @@ public class SliderPanelUIManager : MonoBehaviour
         yield return null;
     }
 
-    public void OnValueChanged(float value) => EventReceived?.Invoke(slider.value);
+    public void OnValueChanged(float value)
+    {
+        toggle.isOn = (value == slider.minValue);
+
+        if (!toggle.isOn && !toggle.interactable)
+        {
+            toggle.interactable = true;
+        }
+
+        EventReceived?.Invoke(slider.value);
+    }
+
+    public void OnToggleChanged(bool isOn)
+    {
+        if (!isOn) return;
+
+        toggle.interactable = false;
+        slider.value = slider.minValue;
+    }
 
     private void OnPointerExit(PointerEventData eventData) => StartCoroutine(OnPointerExitCoroutine(eventData));
 

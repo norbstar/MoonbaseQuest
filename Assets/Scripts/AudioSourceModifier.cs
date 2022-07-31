@@ -3,7 +3,7 @@ using UnityEngine;
 [RequireComponent(typeof(AudioSource))]
 public class AudioSourceModifier : MonoBehaviour
 {
-    [SerializeField] SliderPanelUIManager sliderPanelUIManager;
+    [SerializeField] SliderPanelUIManager source;
 
     private AudioSource audioSource;
 
@@ -12,14 +12,14 @@ public class AudioSourceModifier : MonoBehaviour
     {
         ResolveDependencies();
 
-        sliderPanelUIManager.Value = audioSource.volume;
+        source.Value = audioSource.volume;
     }
 
     private void ResolveDependencies() => audioSource = GetComponent<AudioSource>() as AudioSource;
 
-    void OnEnable() => sliderPanelUIManager.EventReceived += OnModifyEvent;
+    void OnEnable() => SliderPanelUIManager.EventReceived += OnModifyEvent;
 
-    void OnDisable() => sliderPanelUIManager.EventReceived -= OnModifyEvent;
+    void OnDisable() => SliderPanelUIManager.EventReceived -= OnModifyEvent;
 
     private void OnModifyEvent(float value) => audioSource.volume = value;
 }
