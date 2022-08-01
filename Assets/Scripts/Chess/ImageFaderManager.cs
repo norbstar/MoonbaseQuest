@@ -15,15 +15,15 @@ namespace Chess
 
         void OnDisable() => FadePanelUIManager.EventReceived -= OnFadePanelUIEvent;
 
-        public void OnFadePanelUIEvent(FadePanelUIManager.Button button)
+        public void OnFadePanelUIEvent(FadePanelUIManager.Identity identity)
         {
-            switch (button)
+            switch (identity)
             {
-                case FadePanelUIManager.Button.FadeIn:
+                case FadePanelUIManager.Identity.FadeIn:
                     imageFader.FadeIn();
                     break;
 
-                case FadePanelUIManager.Button.FadeOut:
+                case FadePanelUIManager.Identity.FadeOut:
                     imageFader.FadeOut();
                     break;
             }

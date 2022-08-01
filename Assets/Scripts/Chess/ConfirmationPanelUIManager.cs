@@ -1,27 +1,33 @@
+using UnityEngine;
+
+using UnityButton = UnityEngine.UI.Button;
+
 namespace Chess
 {
-    public class ConfirmationPanelUIManager : BasePanelUIManager
+    public class ConfirmationPanelUIManager : ButtonPanelUIManager
     {
-        public enum Button
+        public enum Identity
         {
             Yes,
             No
         }
 
-        public delegate void OnClickEvent(Button button);
+        public delegate void OnClickEvent(Identity identity);
         public static event OnClickEvent EventReceived;
 
-        public override void OnClickButton()
+        public override void OnClickButton(UnityButton button)
         {
-            base.OnClickButton();
+            base.OnClickButton(button);
 
-            if (selectedButton.name.Equals("No Button"))
+            var name = button.name;
+
+            if (name.Equals("No Button"))
             {
-                EventReceived?.Invoke(Button.No);
+                EventReceived?.Invoke(Identity.No);
             }
-            else if (selectedButton.name.Equals("Yes Button"))
+            else if (name.Equals("Yes Button"))
             {
-                EventReceived?.Invoke(Button.Yes);
+                EventReceived?.Invoke(Identity.Yes);
             }
         }
     }

@@ -1,27 +1,33 @@
+using UnityEngine;
+
+using UnityButton = UnityEngine.UI.Button;
+
 namespace Chess
 {
-    public class FadePanelUIManager : BasePanelUIManager
+    public class FadePanelUIManager : ButtonPanelUIManager
     {
-        public enum Button
+        public enum Identity
         {
             FadeIn,
             FadeOut
         }
 
-        public delegate void OnClickEvent(Button button);
+        public delegate void OnClickEvent(Identity identity);
         public static event OnClickEvent EventReceived;
 
-        public override void OnClickButton()
+        public override void OnClickButton(UnityButton button)
         {
-            base.OnClickButton();
+            base.OnClickButton(button);
 
-            if (selectedButton.name.Equals("Fade In Button"))
+            var name = button.name;
+
+            if (name.Equals("Fade In Button"))
             {
-                EventReceived?.Invoke(Button.FadeIn);
+                EventReceived?.Invoke(Identity.FadeIn);
             }
-            else if (selectedButton.name.Equals("Fade Out Button"))
+            else if (name.Equals("Fade Out Button"))
             {
-                EventReceived?.Invoke(Button.FadeOut);
+                EventReceived?.Invoke(Identity.FadeOut);
             }
         }
     }

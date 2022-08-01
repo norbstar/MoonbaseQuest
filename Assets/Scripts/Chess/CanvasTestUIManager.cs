@@ -31,11 +31,11 @@ namespace Chess
 
         private void OnPlayModeEvent(PlayModePanelUIManager.Button button) { }
 
-        private void OnFadeEvent(FadePanelUIManager.Button button) { }
+        private void OnFadeEvent(FadePanelUIManager.Identity identity) { }
 
-        private void OnShortcutEvent(ShortcutPanelUIManager.Identity button)
+        private void OnShortcutEvent(ShortcutPanelUIManager.Identity identity)
         {
-            switch (button)
+            switch (identity)
             {
                 case ShortcutPanelUIManager.Identity.Game:
                     break;
@@ -52,15 +52,15 @@ namespace Chess
             }
         }
 
-        private void OnConfirmationEvent(ConfirmationPanelUIManager.Button button)
+        private void OnConfirmationEvent(ConfirmationPanelUIManager.Identity identity)
         {
-            switch (button)
+            switch (identity)
             {
-                case ConfirmationPanelUIManager.Button.No:
+                case ConfirmationPanelUIManager.Identity.No:
                     confirmationPanel.gameObject.SetActive(false);
                     break;
 
-                case ConfirmationPanelUIManager.Button.Yes:
+                case ConfirmationPanelUIManager.Identity.Yes:
                     Application.Quit();
                     break;
             }
