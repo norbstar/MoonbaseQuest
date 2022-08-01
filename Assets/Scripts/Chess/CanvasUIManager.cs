@@ -14,7 +14,7 @@ namespace Chess
          [SerializeField] InGamePanelUIManager inGamePanel;
          [SerializeField] SettingsPanelUIManager settingsPanel;
          [SerializeField] ExitPanelUIManager exitPanel;
-         [SerializeField] ShortcutPanelUIManager shortcutPanel;
+        //  [SerializeField] ShortcutPanelUIManager shortcutPanel;
 
         // [Header("Timings")]
         // [SerializeField] float initialDelaySec = 2.5f;
@@ -47,7 +47,7 @@ namespace Chess
             panels.Add(inGamePanel);
             panels.Add(settingsPanel);
             panels.Add(exitPanel);
-            panels.Add(shortcutPanel);
+            // panels.Add(shortcutPanel);
         }
 
         // private void ResolveDependencies() => canvasGroup = GetComponent<CanvasGroup>() as CanvasGroup;
@@ -131,9 +131,9 @@ namespace Chess
                         isShown = GameObject.ReferenceEquals(activePanel, exitPanel.gameObject);
                         break;
 
-                    case PanelType.Shortcuts:
-                        isShown = GameObject.ReferenceEquals(activePanel, shortcutPanel.gameObject);
-                        break;
+                    // case PanelType.Shortcuts:
+                    //     isShown = GameObject.ReferenceEquals(activePanel, shortcutPanel.gameObject);
+                    //     break;
                 }
             }
 

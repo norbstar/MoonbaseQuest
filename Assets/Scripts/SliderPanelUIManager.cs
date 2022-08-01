@@ -58,7 +58,7 @@ public class SliderPanelUIManager : MonoBehaviour
         return (rayInteractor != null);
     }
 
-    private void OnPointerEvent(PointerEventHandler.Event evt, PointerEventData eventData)
+    private void OnPointerEvent(GameObject gameObject, PointerEventHandler.Event evt, PointerEventData eventData)
     {
         switch (evt)
         {
@@ -103,6 +103,14 @@ public class SliderPanelUIManager : MonoBehaviour
         yield return null;
     }
 
+    private void OnPointerExit(PointerEventData eventData) => StartCoroutine(OnPointerExitCoroutine(eventData));
+
+    private IEnumerator OnPointerExitCoroutine(PointerEventData eventData)
+    {
+        var manager = slider.handleRect.gameObject.GetComponent<ScaleFXManager>() as ScaleFXManager;
+        yield return manager.ScaleDown(1.1f, 1f);
+    }
+
     public void OnValueChanged(float value)
     {
         toggle.isOn = (value == slider.minValue);
@@ -121,13 +129,5 @@ public class SliderPanelUIManager : MonoBehaviour
 
         toggle.interactable = false;
         slider.value = slider.minValue;
-    }
-
-    private void OnPointerExit(PointerEventData eventData) => StartCoroutine(OnPointerExitCoroutine(eventData));
-
-    private IEnumerator OnPointerExitCoroutine(PointerEventData eventData)
-    {
-        var manager = slider.handleRect.gameObject.GetComponent<ScaleFXManager>() as ScaleFXManager;
-        yield return manager.ScaleDown(1.1f, 1f);
     }
 }

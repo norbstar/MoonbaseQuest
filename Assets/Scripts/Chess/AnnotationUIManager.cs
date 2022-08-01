@@ -3,11 +3,19 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+using TMPro;
+
 namespace Chess
 {
     public class AnnotationUIManager : MonoBehaviour
     {
+        [Header("Components")]
+        [SerializeField] TextMeshProUGUI textUI;
+
+        [Header("Config")]
         [SerializeField] float onsetDelay = 0.5f;
+
+        public string Text { get { return textUI.text; } }
 
         private GameObject asset;
         private Coroutine coroutine;
@@ -27,11 +35,13 @@ namespace Chess
 
         public void OnPointerExit(BaseEventData eventData) => Hide();
 
-        public void OnClickButton() => Hide();
-
-        private void Hide()
+        public void Hide()
         {
-            StopCoroutine(coroutine);
+            if (coroutine != null)
+            {
+                StopCoroutine(coroutine);
+            }
+
             asset.SetActive(false);
         }
     }

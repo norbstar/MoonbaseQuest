@@ -7,7 +7,6 @@ using UnityEngine.XR.Interaction.Toolkit.UI;
 
 namespace Chess
 {
-    [RequireComponent(typeof(ScaleFXManager))]
     public class BasePanelUIManager : MonoBehaviour
     {
         [Header("Components")]

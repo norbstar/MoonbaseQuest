@@ -15,6 +15,8 @@ namespace Chess
         public Image Icon { get { return icon; } }
         [SerializeField] TextMeshProUGUI textUI;
         public TextMeshProUGUI TextUI { get { return textUI; } }
+        [SerializeField] AnnotationUIManager annotation;
+        public AnnotationUIManager Annotation { get { return annotation; } }
 
         [Header("Config")]
         [SerializeField] Color headerHighlightColor;

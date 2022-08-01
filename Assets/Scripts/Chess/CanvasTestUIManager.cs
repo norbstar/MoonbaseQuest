@@ -33,20 +33,20 @@ namespace Chess
 
         private void OnFadeEvent(FadePanelUIManager.Button button) { }
 
-        private void OnShortcutEvent(ShortcutPanelUIManager.Button button)
+        private void OnShortcutEvent(ShortcutPanelUIManager.Identity button)
         {
             switch (button)
             {
-                case ShortcutPanelUIManager.Button.Game:
+                case ShortcutPanelUIManager.Identity.Game:
                     break;
 
-                case ShortcutPanelUIManager.Button.Settings:
+                case ShortcutPanelUIManager.Identity.Settings:
                     break;
 
-                case ShortcutPanelUIManager.Button.About:
+                case ShortcutPanelUIManager.Identity.About:
                     break;
 
-                case ShortcutPanelUIManager.Button.Exit:
+                case ShortcutPanelUIManager.Identity.Exit:
                     confirmationPanel.gameObject.SetActive(true);
                     break;
             }

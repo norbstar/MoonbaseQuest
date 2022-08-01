@@ -177,8 +177,6 @@ GameObject:
   - component: {fileID: 4808452}
   - component: {fileID: 4808457}
   - component: {fileID: 4808456}
-  - component: {fileID: 4808455}
-  - component: {fileID: 4808454}
   - component: {fileID: 4808453}
   m_Layer: 5
   m_Name: Fader Panel
@@ -226,32 +224,6 @@ MonoBehaviour:
   onButtonSelectClip: {fileID: 8300000, guid: c84c529e4ccb7144ea9af253580dff35, type: 3}
   onToggleSelectClip: {fileID: 8300000, guid: c84c529e4ccb7144ea9af253580dff35, type: 3}
   enableHaptics: 1
---- !u!114 &4808454
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4808451}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5335dc2c4d714a341b2ffc5711861435, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &4808455
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4808451}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ee4762bdca5d9194ca65cfcdbaa535eb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  autoEnable: 0
-  duration: 1
 --- !u!114 &4808456
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -549,6 +521,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7769bdc8b4dffae44a700d1d9b0aee0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  textUI: {fileID: 1004100977}
   onsetDelay: 0.4
 --- !u!222 &41030165
 CanvasRenderer:
@@ -943,12 +916,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25548f3592417f840be4110cfdb0ea1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  buttons: {fileID: 1848155423}
-  canvasManager: {fileID: 1403386115}
-  onButtonHoverClip: {fileID: 8300000, guid: 5918e1159f1004249a91f32a9648c402, type: 3}
-  onButtonSelectClip: {fileID: 8300000, guid: c84c529e4ccb7144ea9af253580dff35, type: 3}
-  onToggleSelectClip: {fileID: 8300000, guid: c84c529e4ccb7144ea9af253580dff35, type: 3}
+  group: {fileID: 0}
+  onHoverClip: {fileID: 0}
+  onSelectClip: {fileID: 0}
   enableHaptics: 1
+  dialogManager: {fileID: 0}
 --- !u!114 &65853467
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1388,6 +1360,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 0}
   textUI: {fileID: 1093553578}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &105884234
 MonoBehaviour:
@@ -1651,6 +1624,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 0}
   textUI: {fileID: 54135832}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &117709369
 MonoBehaviour:
@@ -2114,6 +2088,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 0}
   textUI: {fileID: 1593508167}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &120946304
 MonoBehaviour:
@@ -2331,8 +2306,6 @@ GameObject:
   - component: {fileID: 125240521}
   - component: {fileID: 125240526}
   - component: {fileID: 125240525}
-  - component: {fileID: 125240524}
-  - component: {fileID: 125240523}
   - component: {fileID: 125240522}
   m_Layer: 5
   m_Name: Play Mode Panel
@@ -2381,32 +2354,6 @@ MonoBehaviour:
   onButtonSelectClip: {fileID: 8300000, guid: c84c529e4ccb7144ea9af253580dff35, type: 3}
   onToggleSelectClip: {fileID: 8300000, guid: c84c529e4ccb7144ea9af253580dff35, type: 3}
   enableHaptics: 1
---- !u!114 &125240523
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 125240520}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5335dc2c4d714a341b2ffc5711861435, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &125240524
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 125240520}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ee4762bdca5d9194ca65cfcdbaa535eb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  autoEnable: 0
-  duration: 1
 --- !u!114 &125240525
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2655,6 +2602,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 1938428852}
   textUI: {fileID: 0}
+  annotation: {fileID: 692685273}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &174895075
 MonoBehaviour:
@@ -3079,6 +3027,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 0}
   textUI: {fileID: 866800652}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &186804522
 MonoBehaviour:
@@ -3364,147 +3313,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 191663325}
   m_CullTransparentMesh: 1
---- !u!1 &216871156
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 216871158}
-  - component: {fileID: 216871157}
-  - component: {fileID: 216871159}
-  m_Layer: 0
-  m_Name: Soundtrack
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!82 &216871157
-AudioSource:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 216871156}
-  m_Enabled: 1
-  serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 6e3c25005ae7b8840a09e18bab22c74f, type: 3}
-  m_PlayOnAwake: 1
-  m_Volume: 0.25
-  m_Pitch: 1
-  Loop: 1
-  Mute: 0
-  Spatialize: 0
-  SpatializePostEffects: 0
-  Priority: 128
-  DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 500
-  Pan2D: 0
-  rolloffMode: 0
-  BypassEffects: 0
-  BypassListenerEffects: 0
-  BypassReverbZones: 0
-  rolloffCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  panLevelCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  spreadCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  reverbZoneMixCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
---- !u!4 &216871158
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 216871156}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 15
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &216871159
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 216871156}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea8b3165c58706346970bf6329e08e00, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  source: {fileID: 1843857241}
 --- !u!1 &217263442
 GameObject:
   m_ObjectHideFlags: 0
@@ -4263,6 +4071,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 0}
   textUI: {fileID: 2081918175}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &261646777
 MonoBehaviour:
@@ -5130,6 +4939,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 0}
   textUI: {fileID: 1042820402}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &313860244
 MonoBehaviour:
@@ -5948,6 +5758,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7769bdc8b4dffae44a700d1d9b0aee0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  textUI: {fileID: 816403152}
   onsetDelay: 0.4
 --- !u!222 &356107703
 CanvasRenderer:
@@ -6149,6 +5960,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 0}
   textUI: {fileID: 1395826262}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &378979236
 MonoBehaviour:
@@ -6513,6 +6325,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 1590446525}
   textUI: {fileID: 0}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &393402849
 MonoBehaviour:
@@ -7043,7 +6856,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Player VS Player
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 08d1228322053fd42be18ec982b5cf6f, type: 2}
   m_sharedMaterial: {fileID: -215954790126548375, guid: 08d1228322053fd42be18ec982b5cf6f, type: 2}
@@ -7178,6 +6991,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 899448207}
   textUI: {fileID: 0}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &416692010
 MonoBehaviour:
@@ -7955,6 +7769,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 0}
   textUI: {fileID: 756177574}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &479999513
 MonoBehaviour:
@@ -8230,8 +8045,6 @@ GameObject:
   - component: {fileID: 495116761}
   - component: {fileID: 495116766}
   - component: {fileID: 495116765}
-  - component: {fileID: 495116764}
-  - component: {fileID: 495116763}
   - component: {fileID: 495116762}
   m_Layer: 5
   m_Name: Confirmation Panel
@@ -8279,32 +8092,6 @@ MonoBehaviour:
   onButtonSelectClip: {fileID: 8300000, guid: c84c529e4ccb7144ea9af253580dff35, type: 3}
   onToggleSelectClip: {fileID: 8300000, guid: c84c529e4ccb7144ea9af253580dff35, type: 3}
   enableHaptics: 1
---- !u!114 &495116763
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 495116760}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5335dc2c4d714a341b2ffc5711861435, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &495116764
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 495116760}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ee4762bdca5d9194ca65cfcdbaa535eb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  autoEnable: 0
-  duration: 1
 --- !u!114 &495116765
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9122,6 +8909,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 1826709173}
   textUI: {fileID: 0}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &535711860
 MonoBehaviour:
@@ -9342,12 +9130,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25548f3592417f840be4110cfdb0ea1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  buttons: {fileID: 937531057}
-  canvasManager: {fileID: 0}
-  onButtonHoverClip: {fileID: 8300000, guid: 5918e1159f1004249a91f32a9648c402, type: 3}
-  onButtonSelectClip: {fileID: 8300000, guid: c84c529e4ccb7144ea9af253580dff35, type: 3}
-  onToggleSelectClip: {fileID: 8300000, guid: c84c529e4ccb7144ea9af253580dff35, type: 3}
+  group: {fileID: 0}
+  onHoverClip: {fileID: 0}
+  onSelectClip: {fileID: 0}
   enableHaptics: 1
+  dialogManager: {fileID: 0}
 --- !u!114 &542145310
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9701,6 +9488,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7769bdc8b4dffae44a700d1d9b0aee0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  textUI: {fileID: 686005045}
   onsetDelay: 0.4
 --- !u!222 &577761137
 CanvasRenderer:
@@ -10035,6 +9823,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7769bdc8b4dffae44a700d1d9b0aee0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  textUI: {fileID: 662619937}
   onsetDelay: 0.4
 --- !u!222 &592512235
 CanvasRenderer:
@@ -10409,6 +10198,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 0}
   textUI: {fileID: 263949863}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &629189988
 MonoBehaviour:
@@ -10597,6 +10387,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 0}
   textUI: {fileID: 1805108411}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &644616190
 MonoBehaviour:
@@ -10777,6 +10568,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7769bdc8b4dffae44a700d1d9b0aee0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  textUI: {fileID: 0}
   onsetDelay: 0.25
 --- !u!222 &650930586
 CanvasRenderer:
@@ -11084,6 +10876,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 0}
   textUI: {fileID: 328714949}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &663064868
 MonoBehaviour:
@@ -11273,6 +11066,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 435635204}
   textUI: {fileID: 0}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &672474159
 MonoBehaviour:
@@ -11533,6 +11327,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 0}
   textUI: {fileID: 1331054578}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &676098177
 MonoBehaviour:
@@ -11904,6 +11699,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7769bdc8b4dffae44a700d1d9b0aee0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  textUI: {fileID: 246862556}
   onsetDelay: 0.4
 --- !u!222 &692685274
 CanvasRenderer:
@@ -11963,7 +11759,7 @@ GameObject:
   - component: {fileID: 698744087}
   - component: {fileID: 698744086}
   m_Layer: 5
-  m_Name: Image
+  m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11996,7 +11792,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 698744082}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -12344,6 +12140,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 2027364684}
   textUI: {fileID: 0}
+  annotation: {fileID: 356107702}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &708902381
 MonoBehaviour:
@@ -13170,6 +12967,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 2092675554}
   textUI: {fileID: 0}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &735675270
 MonoBehaviour:
@@ -14897,6 +14695,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 0}
   textUI: {fileID: 1154220116}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &789774901
 MonoBehaviour:
@@ -15595,8 +15394,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd457b4d9f72a4147b691b57884cc1fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  image: {fileID: 813494226}
+  background: {fileID: 0}
   textUI: {fileID: 756983538}
+  onsetDelay: 0.5
 --- !u!114 &813494226
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16272,6 +16072,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7769bdc8b4dffae44a700d1d9b0aee0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  textUI: {fileID: 0}
   onsetDelay: 0.4
 --- !u!1 &847988345
 GameObject:
@@ -16332,6 +16133,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 909836503}
   textUI: {fileID: 0}
+  annotation: {fileID: 1878444428}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &847988348
 MonoBehaviour:
@@ -16936,6 +16738,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 112665892}
   textUI: {fileID: 0}
+  annotation: {fileID: 2123408604}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &871371723
 MonoBehaviour:
@@ -17331,6 +17134,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 2145345249}
   textUI: {fileID: 0}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &898086888
 MonoBehaviour:
@@ -17871,6 +17675,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 0}
   textUI: {fileID: 2054410499}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &903664795
 MonoBehaviour:
@@ -18202,6 +18007,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7769bdc8b4dffae44a700d1d9b0aee0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  textUI: {fileID: 0}
   onsetDelay: 0.25
 --- !u!222 &922355671
 CanvasRenderer:
@@ -18269,6 +18075,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 0}
   textUI: {fileID: 1299011458}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &925506974
 MonoBehaviour:
@@ -18876,6 +18683,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 275143136}
   textUI: {fileID: 0}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &988548733
 MonoBehaviour:
@@ -19680,7 +19488,7 @@ RectTransform:
   - {fileID: 1482995650}
   - {fileID: 1113408096}
   m_Father: {fileID: 1231841149}
-  m_RootOrder: 4
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 15, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -19699,12 +19507,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25548f3592417f840be4110cfdb0ea1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  buttons: {fileID: 1113408095}
-  canvasManager: {fileID: 0}
-  onButtonHoverClip: {fileID: 8300000, guid: 5918e1159f1004249a91f32a9648c402, type: 3}
-  onButtonSelectClip: {fileID: 8300000, guid: c84c529e4ccb7144ea9af253580dff35, type: 3}
-  onToggleSelectClip: {fileID: 8300000, guid: c84c529e4ccb7144ea9af253580dff35, type: 3}
+  group: {fileID: 0}
+  onHoverClip: {fileID: 0}
+  onSelectClip: {fileID: 0}
   enableHaptics: 1
+  dialogManager: {fileID: 0}
 --- !u!114 &1025470269
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19897,12 +19704,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25548f3592417f840be4110cfdb0ea1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  buttons: {fileID: 2082431519}
-  canvasManager: {fileID: 1403386115}
-  onButtonHoverClip: {fileID: 0}
-  onButtonSelectClip: {fileID: 8300000, guid: 40c2314bf76c8594a96f09cd6f03779b, type: 3}
-  onToggleSelectClip: {fileID: 8300000, guid: 40c2314bf76c8594a96f09cd6f03779b, type: 3}
+  group: {fileID: 0}
+  onHoverClip: {fileID: 0}
+  onSelectClip: {fileID: 0}
   enableHaptics: 0
+  dialogManager: {fileID: 0}
 --- !u!114 &1033730816
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20159,6 +19965,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 0}
   textUI: {fileID: 1528652929}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &1040539097
 MonoBehaviour:
@@ -20481,6 +20288,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 0}
   textUI: {fileID: 1896136768}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &1047037904
 MonoBehaviour:
@@ -20921,6 +20729,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 0}
   textUI: {fileID: 1048879313}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &1077791465
 MonoBehaviour:
@@ -21478,6 +21287,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7769bdc8b4dffae44a700d1d9b0aee0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  textUI: {fileID: 0}
   onsetDelay: 0.4
 --- !u!222 &1109660223
 CanvasRenderer:
@@ -21902,9 +21712,9 @@ GameObject:
   - component: {fileID: 1157470845}
   - component: {fileID: 1157470844}
   - component: {fileID: 1157470843}
-  - component: {fileID: 1157470842}
   - component: {fileID: 1157470841}
   - component: {fileID: 1157470840}
+  - component: {fileID: 1157470846}
   - component: {fileID: 1157470839}
   m_Layer: 5
   m_Name: Game Button
@@ -21949,6 +21759,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 23696331}
   textUI: {fileID: 0}
+  annotation: {fileID: 577761136}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &1157470840
 MonoBehaviour:
@@ -21976,75 +21787,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   autoEnable: 0
   duration: 0.1
---- !u!114 &1157470842
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1157470837}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Delegates:
-  - eventID: 0
-    callback:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 1694254764}
-          m_TargetAssemblyTypeName: Chess.BasePanelUIManager, Assembly-CSharp
-          m_MethodName: OnPointerEnter
-          m_Mode: 0
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-        - m_Target: {fileID: 577761136}
-          m_TargetAssemblyTypeName: Chess.AnnotationUIManager, Assembly-CSharp
-          m_MethodName: OnPointerEnter
-          m_Mode: 0
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-  - eventID: 1
-    callback:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 1694254764}
-          m_TargetAssemblyTypeName: Chess.BasePanelUIManager, Assembly-CSharp
-          m_MethodName: OnPointerExit
-          m_Mode: 0
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-        - m_Target: {fileID: 577761136}
-          m_TargetAssemblyTypeName: Chess.AnnotationUIManager, Assembly-CSharp
-          m_MethodName: OnPointerExit
-          m_Mode: 0
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
 --- !u!114 &1157470843
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22088,31 +21830,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 23696331}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1694254764}
-        m_TargetAssemblyTypeName: Chess.ShortcutPanelUIManager, Assembly-CSharp
-        m_MethodName: OnClickButton
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 577761136}
-        m_TargetAssemblyTypeName: Chess.AnnotationUIManager, Assembly-CSharp
-        m_MethodName: OnClickButton
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1157470844
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22151,6 +21869,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1157470837}
   m_CullTransparentMesh: 1
+--- !u!114 &1157470846
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1157470837}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45c436f6f8d2986469f290ae23f49c09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1162069898
 GameObject:
   m_ObjectHideFlags: 0
@@ -22316,6 +22046,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 0}
   textUI: {fileID: 1260142353}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &1164585974
 MonoBehaviour:
@@ -22504,6 +22235,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 0}
   textUI: {fileID: 894861215}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &1165853625
 MonoBehaviour:
@@ -22692,6 +22424,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 0}
   textUI: {fileID: 294719693}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &1176390488
 MonoBehaviour:
@@ -22880,6 +22613,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 0}
   textUI: {fileID: 773877176}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &1178369637
 MonoBehaviour:
@@ -23068,6 +22802,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 784305521}
   textUI: {fileID: 0}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &1179192992
 MonoBehaviour:
@@ -23418,6 +23153,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7769bdc8b4dffae44a700d1d9b0aee0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  textUI: {fileID: 0}
   onsetDelay: 0.4
 --- !u!222 &1209979704
 CanvasRenderer:
@@ -23486,6 +23222,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 1602293235}
   textUI: {fileID: 0}
+  annotation: {fileID: 1249415187}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &1219487852
 MonoBehaviour:
@@ -23738,6 +23475,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7769bdc8b4dffae44a700d1d9b0aee0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  textUI: {fileID: 1946914547}
   onsetDelay: 0.4
 --- !u!222 &1220813297
 CanvasRenderer:
@@ -24114,6 +23852,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 0}
   textUI: {fileID: 1223084903}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &1227778844
 MonoBehaviour:
@@ -24283,11 +24022,11 @@ RectTransform:
   - {fileID: 4808452}
   - {fileID: 1694254763}
   - {fileID: 495116761}
-  - {fileID: 1025470267}
   - {fileID: 1843857240}
+  - {fileID: 1520064947}
   - {fileID: 542145308}
   - {fileID: 2007805567}
-  - {fileID: 1520064947}
+  - {fileID: 1025470267}
   - {fileID: 391817029}
   - {fileID: 1693300208}
   m_Father: {fileID: 971861714}
@@ -24730,6 +24469,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7769bdc8b4dffae44a700d1d9b0aee0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  textUI: {fileID: 179669675}
   onsetDelay: 0.4
 --- !u!222 &1249415188
 CanvasRenderer:
@@ -24923,6 +24663,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7769bdc8b4dffae44a700d1d9b0aee0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  textUI: {fileID: 0}
   onsetDelay: 0.25
 --- !u!222 &1275081692
 CanvasRenderer:
@@ -24990,6 +24731,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 0}
   textUI: {fileID: 217263444}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &1290627156
 MonoBehaviour:
@@ -25688,6 +25430,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 0}
   textUI: {fileID: 294204592}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &1326721851
 MonoBehaviour:
@@ -26643,7 +26386,6 @@ MonoBehaviour:
   inGamePanel: {fileID: 0}
   settingsPanel: {fileID: 0}
   exitPanel: {fileID: 0}
-  shortcutPanel: {fileID: 65853466}
 --- !u!114 &1403386116
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -26850,6 +26592,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7769bdc8b4dffae44a700d1d9b0aee0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  textUI: {fileID: 423772003}
   onsetDelay: 0.4
 --- !u!222 &1408905598
 CanvasRenderer:
@@ -26907,9 +26650,9 @@ GameObject:
   - component: {fileID: 1438915974}
   - component: {fileID: 1438915973}
   - component: {fileID: 1438915972}
-  - component: {fileID: 1438915971}
   - component: {fileID: 1438915970}
   - component: {fileID: 1438915969}
+  - component: {fileID: 1438915975}
   - component: {fileID: 1438915968}
   m_Layer: 5
   m_Name: Settings Button
@@ -26954,6 +26697,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 1582174804}
   textUI: {fileID: 0}
+  annotation: {fileID: 1508355377}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &1438915969
 MonoBehaviour:
@@ -26981,75 +26725,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   autoEnable: 0
   duration: 0.1
---- !u!114 &1438915971
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1438915966}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Delegates:
-  - eventID: 0
-    callback:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 1694254764}
-          m_TargetAssemblyTypeName: Chess.BasePanelUIManager, Assembly-CSharp
-          m_MethodName: OnPointerEnter
-          m_Mode: 0
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-        - m_Target: {fileID: 1508355377}
-          m_TargetAssemblyTypeName: Chess.AnnotationUIManager, Assembly-CSharp
-          m_MethodName: OnPointerEnter
-          m_Mode: 0
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-  - eventID: 1
-    callback:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 1694254764}
-          m_TargetAssemblyTypeName: Chess.BasePanelUIManager, Assembly-CSharp
-          m_MethodName: OnPointerExit
-          m_Mode: 0
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-        - m_Target: {fileID: 1508355377}
-          m_TargetAssemblyTypeName: Chess.AnnotationUIManager, Assembly-CSharp
-          m_MethodName: OnPointerExit
-          m_Mode: 0
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
 --- !u!114 &1438915972
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27093,31 +26768,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1582174804}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1694254764}
-        m_TargetAssemblyTypeName: Chess.ShortcutPanelUIManager, Assembly-CSharp
-        m_MethodName: OnClickButton
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 1508355377}
-        m_TargetAssemblyTypeName: Chess.AnnotationUIManager, Assembly-CSharp
-        m_MethodName: OnClickButton
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1438915973
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27156,6 +26807,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1438915966}
   m_CullTransparentMesh: 1
+--- !u!114 &1438915975
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1438915966}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45c436f6f8d2986469f290ae23f49c09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1443947988
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -27193,7 +26856,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1383247279661892248, guid: 166f67312c9f736419aeb8f83066b4d4, type: 3}
       propertyPath: m_RootOrder
-      value: 5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 1383247279661892248, guid: 166f67312c9f736419aeb8f83066b4d4, type: 3}
       propertyPath: m_AnchorMax.x
@@ -27998,6 +27661,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7769bdc8b4dffae44a700d1d9b0aee0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  textUI: {fileID: 446543524}
   onsetDelay: 0.4
 --- !u!222 &1508355378
 CanvasRenderer:
@@ -28019,6 +27683,7 @@ GameObject:
   - component: {fileID: 1520064946}
   - component: {fileID: 1520064945}
   - component: {fileID: 1520064944}
+  - component: {fileID: 1520064948}
   m_Layer: 5
   m_Name: Dialog Canvas
   m_TagString: Untagged
@@ -28100,13 +27765,28 @@ RectTransform:
   m_Children:
   - {fileID: 698744083}
   m_Father: {fileID: 1231841149}
-  m_RootOrder: 8
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 24.999998, y: 6}
   m_SizeDelta: {x: 16, y: 3}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1520064948
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1520064943}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd457b4d9f72a4147b691b57884cc1fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  background: {fileID: 698744084}
+  textUI: {fileID: 409436403}
+  onsetDelay: 0.5
 --- !u!1 &1528652927
 GameObject:
   m_ObjectHideFlags: 0
@@ -28451,6 +28131,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 659838283}
   textUI: {fileID: 0}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &1560951942
 MonoBehaviour:
@@ -29134,6 +28815,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 551493189}
   textUI: {fileID: 0}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &1592325508
 MonoBehaviour:
@@ -29484,6 +29166,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7769bdc8b4dffae44a700d1d9b0aee0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  textUI: {fileID: 0}
   onsetDelay: 0.25
 --- !u!222 &1593966762
 CanvasRenderer:
@@ -29768,9 +29451,9 @@ GameObject:
   - component: {fileID: 1625930304}
   - component: {fileID: 1625930303}
   - component: {fileID: 1625930302}
-  - component: {fileID: 1625930301}
   - component: {fileID: 1625930300}
   - component: {fileID: 1625930299}
+  - component: {fileID: 1625930305}
   - component: {fileID: 1625930298}
   m_Layer: 5
   m_Name: About Button
@@ -29815,6 +29498,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 1685446585}
   textUI: {fileID: 0}
+  annotation: {fileID: 1408905597}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &1625930299
 MonoBehaviour:
@@ -29842,75 +29526,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   autoEnable: 0
   duration: 0.1
---- !u!114 &1625930301
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1625930296}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Delegates:
-  - eventID: 0
-    callback:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 1694254764}
-          m_TargetAssemblyTypeName: Chess.BasePanelUIManager, Assembly-CSharp
-          m_MethodName: OnPointerEnter
-          m_Mode: 0
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-        - m_Target: {fileID: 1408905597}
-          m_TargetAssemblyTypeName: Chess.AnnotationUIManager, Assembly-CSharp
-          m_MethodName: OnPointerEnter
-          m_Mode: 0
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-  - eventID: 1
-    callback:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 1694254764}
-          m_TargetAssemblyTypeName: Chess.BasePanelUIManager, Assembly-CSharp
-          m_MethodName: OnPointerExit
-          m_Mode: 0
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-        - m_Target: {fileID: 1408905597}
-          m_TargetAssemblyTypeName: Chess.AnnotationUIManager, Assembly-CSharp
-          m_MethodName: OnPointerExit
-          m_Mode: 0
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
 --- !u!114 &1625930302
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29954,31 +29569,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1685446585}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1694254764}
-        m_TargetAssemblyTypeName: Chess.ShortcutPanelUIManager, Assembly-CSharp
-        m_MethodName: OnClickButton
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 1408905597}
-        m_TargetAssemblyTypeName: Chess.AnnotationUIManager, Assembly-CSharp
-        m_MethodName: OnClickButton
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1625930303
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -30017,6 +29608,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1625930296}
   m_CullTransparentMesh: 1
+--- !u!114 &1625930305
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1625930296}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45c436f6f8d2986469f290ae23f49c09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1634386557
 GameObject:
   m_ObjectHideFlags: 0
@@ -30209,6 +29812,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 0}
   textUI: {fileID: 105313376}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &1646884798
 MonoBehaviour:
@@ -30782,8 +30386,6 @@ GameObject:
   - component: {fileID: 1694254763}
   - component: {fileID: 1694254768}
   - component: {fileID: 1694254767}
-  - component: {fileID: 1694254766}
-  - component: {fileID: 1694254765}
   - component: {fileID: 1694254764}
   m_Layer: 5
   m_Name: Shortcut Panel
@@ -30825,38 +30427,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25548f3592417f840be4110cfdb0ea1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  buttons: {fileID: 1770032708}
-  canvasManager: {fileID: 0}
-  onButtonHoverClip: {fileID: 8300000, guid: 5918e1159f1004249a91f32a9648c402, type: 3}
-  onButtonSelectClip: {fileID: 8300000, guid: c84c529e4ccb7144ea9af253580dff35, type: 3}
-  onToggleSelectClip: {fileID: 8300000, guid: c84c529e4ccb7144ea9af253580dff35, type: 3}
+  group: {fileID: 1770032708}
+  onHoverClip: {fileID: 8300000, guid: 5918e1159f1004249a91f32a9648c402, type: 3}
+  onSelectClip: {fileID: 8300000, guid: c84c529e4ccb7144ea9af253580dff35, type: 3}
   enableHaptics: 1
---- !u!114 &1694254765
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1694254762}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5335dc2c4d714a341b2ffc5711861435, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1694254766
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1694254762}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ee4762bdca5d9194ca65cfcdbaa535eb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  autoEnable: 0
-  duration: 1
+  dialogManager: {fileID: 1520064948}
 --- !u!114 &1694254767
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31087,6 +30662,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 0}
   textUI: {fileID: 1872413612}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &1698972538
 MonoBehaviour:
@@ -31267,6 +30843,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7769bdc8b4dffae44a700d1d9b0aee0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  textUI: {fileID: 0}
   onsetDelay: 0.4
 --- !u!222 &1704963734
 CanvasRenderer:
@@ -31395,7 +30972,7 @@ GameObject:
   - component: {fileID: 1770032709}
   - component: {fileID: 1770032710}
   m_Layer: 5
-  m_Name: Buttons
+  m_Name: Group
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -31650,6 +31227,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 1892732001}
   textUI: {fileID: 0}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &1771065447
 MonoBehaviour:
@@ -31988,8 +31566,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd457b4d9f72a4147b691b57884cc1fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  image: {fileID: 1781307909}
+  background: {fileID: 0}
   textUI: {fileID: 1838310411}
+  onsetDelay: 0.5
 --- !u!114 &1781307909
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -33644,6 +33223,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7769bdc8b4dffae44a700d1d9b0aee0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  textUI: {fileID: 1942089816}
   onsetDelay: 0.4
 --- !u!222 &1878444429
 CanvasRenderer:
@@ -34237,6 +33817,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 811940438}
   textUI: {fileID: 0}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &1896156767
 MonoBehaviour:
@@ -34461,6 +34042,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 0}
   textUI: {fileID: 759535272}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &1896367285
 MonoBehaviour:
@@ -34649,6 +34231,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 0}
   textUI: {fileID: 28675270}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &1932175925
 MonoBehaviour:
@@ -35046,6 +34629,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 0}
   textUI: {fileID: 1234955626}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &1940260988
 MonoBehaviour:
@@ -35567,6 +35151,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 517366017}
   textUI: {fileID: 0}
+  annotation: {fileID: 592512234}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &1947235206
 MonoBehaviour:
@@ -35827,6 +35412,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 0}
   textUI: {fileID: 492957399}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &1962754714
 MonoBehaviour:
@@ -36535,7 +36121,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Shortcuts
+  m_text: Navigation
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 08d1228322053fd42be18ec982b5cf6f, type: 2}
   m_sharedMaterial: {fileID: -215954790126548375, guid: 08d1228322053fd42be18ec982b5cf6f, type: 2}
@@ -36836,6 +36422,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 851477452}
   textUI: {fileID: 0}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &2034345553
 MonoBehaviour:
@@ -37354,9 +36941,9 @@ GameObject:
   - component: {fileID: 2082138188}
   - component: {fileID: 2082138187}
   - component: {fileID: 2082138186}
-  - component: {fileID: 2082138185}
   - component: {fileID: 2082138184}
   - component: {fileID: 2082138183}
+  - component: {fileID: 2082138189}
   - component: {fileID: 2082138182}
   m_Layer: 5
   m_Name: Exit Button
@@ -37401,6 +36988,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 2003978664}
   textUI: {fileID: 0}
+  annotation: {fileID: 1220813296}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &2082138183
 MonoBehaviour:
@@ -37428,75 +37016,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   autoEnable: 0
   duration: 0.1
---- !u!114 &2082138185
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2082138180}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Delegates:
-  - eventID: 0
-    callback:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 1694254764}
-          m_TargetAssemblyTypeName: Chess.BasePanelUIManager, Assembly-CSharp
-          m_MethodName: OnPointerEnter
-          m_Mode: 0
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-        - m_Target: {fileID: 1220813296}
-          m_TargetAssemblyTypeName: Chess.AnnotationUIManager, Assembly-CSharp
-          m_MethodName: OnPointerEnter
-          m_Mode: 0
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-  - eventID: 1
-    callback:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 1694254764}
-          m_TargetAssemblyTypeName: Chess.BasePanelUIManager, Assembly-CSharp
-          m_MethodName: OnPointerExit
-          m_Mode: 0
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-        - m_Target: {fileID: 1220813296}
-          m_TargetAssemblyTypeName: Chess.AnnotationUIManager, Assembly-CSharp
-          m_MethodName: OnPointerExit
-          m_Mode: 0
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
 --- !u!114 &2082138186
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37540,31 +37059,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2003978664}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1694254764}
-        m_TargetAssemblyTypeName: Chess.ShortcutPanelUIManager, Assembly-CSharp
-        m_MethodName: OnClickButton
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 1220813296}
-        m_TargetAssemblyTypeName: Chess.AnnotationUIManager, Assembly-CSharp
-        m_MethodName: OnClickButton
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &2082138187
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37603,6 +37098,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2082138180}
   m_CullTransparentMesh: 1
+--- !u!114 &2082138189
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2082138180}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45c436f6f8d2986469f290ae23f49c09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2082431519
 GameObject:
   m_ObjectHideFlags: 0
@@ -38098,6 +37605,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 144312962}
   textUI: {fileID: 0}
+  annotation: {fileID: 0}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &2099917673
 MonoBehaviour:
@@ -38318,6 +37826,7 @@ MonoBehaviour:
   header: {fileID: 0}
   icon: {fileID: 345770238}
   textUI: {fileID: 0}
+  annotation: {fileID: 41030164}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
 --- !u!114 &2105533662
 MonoBehaviour:
@@ -38613,6 +38122,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7769bdc8b4dffae44a700d1d9b0aee0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  textUI: {fileID: 2094061163}
   onsetDelay: 0.4
 --- !u!222 &2123408605
 CanvasRenderer:
@@ -38697,3 +38207,64 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2145345247}
   m_CullTransparentMesh: 1
+--- !u!1001 &4264163875338420832
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 4264163875134681748, guid: d92999efb67ba5a45959e1bc02182380, type: 3}
+      propertyPath: m_Name
+      value: Audio Source Monitor
+      objectReference: {fileID: 0}
+    - target: {fileID: 4264163875134681750, guid: d92999efb67ba5a45959e1bc02182380, type: 3}
+      propertyPath: m_RootOrder
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 4264163875134681750, guid: d92999efb67ba5a45959e1bc02182380, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4264163875134681750, guid: d92999efb67ba5a45959e1bc02182380, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4264163875134681750, guid: d92999efb67ba5a45959e1bc02182380, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4264163875134681750, guid: d92999efb67ba5a45959e1bc02182380, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4264163875134681750, guid: d92999efb67ba5a45959e1bc02182380, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4264163875134681750, guid: d92999efb67ba5a45959e1bc02182380, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4264163875134681750, guid: d92999efb67ba5a45959e1bc02182380, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4264163875134681750, guid: d92999efb67ba5a45959e1bc02182380, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4264163875134681750, guid: d92999efb67ba5a45959e1bc02182380, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4264163875134681750, guid: d92999efb67ba5a45959e1bc02182380, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4264163875134681751, guid: d92999efb67ba5a45959e1bc02182380, type: 3}
+      propertyPath: source
+      value: 
+      objectReference: {fileID: 1843857241}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: d92999efb67ba5a45959e1bc02182380, type: 3}
