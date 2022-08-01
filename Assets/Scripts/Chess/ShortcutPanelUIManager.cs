@@ -27,8 +27,8 @@ namespace Chess
         public float PostAnnotationDelay { get { return postAnnotationDelay; } }
 
         [Header("Receivers")]
-        // [SerializeField] List<TextReceiver> receivers;
-        [SerializeField] DialogPanelUIManager dialogManager;
+        [SerializeField] List<TextReceiver> receivers;
+        // [SerializeField] DialogPanelUIManager dialogManager;
 
         public delegate void OnClickEvent(Identity button);
         public static event OnClickEvent EventReceived;
@@ -179,7 +179,12 @@ namespace Chess
             yield return new WaitForSeconds(postAnnotationDelay);
 
             var manager = gameObject.GetComponent<ButtonUIManager>() as ButtonUIManager;
-            dialogManager.Text = manager.Annotation.Text;
+            // dialogManager.Text = manager.Annotation.Text;
+
+            foreach (ITextReceiver receiver in receivers)
+            {
+                receiver.OnText(manager.Annotation.Text);
+            }
         }
 
         private void OnPointerExit(GameObject gameObject, PointerEventData eventData)
@@ -191,7 +196,12 @@ namespace Chess
                 StopCoroutine(postAnnotationCoroutine);
             }
 
-            dialogManager.Reset();
+            // dialogManager.Reset();
+
+            foreach (ITextReceiver receiver in receivers)
+            {
+                receiver.OnText(string.Empty);
+            }
         }
 
         private IEnumerator OnPointerExitCoroutine(PointerEventData eventData, GameObject gameObject)
