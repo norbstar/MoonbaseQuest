@@ -28,7 +28,6 @@ namespace Chess
 
         [Header("Receivers")]
         [SerializeField] List<TextReceiver> receivers;
-        // [SerializeField] DialogPanelUIManager dialogManager;
 
         public delegate void OnClickEvent(Identity button);
         public static event OnClickEvent EventReceived;
@@ -110,24 +109,15 @@ namespace Chess
             return (rayInteractor != null);
         }
 
-         private void OnPointerEvent(GameObject gameObject, PointerEventHandler.Event evt, PointerEventData eventData)
+        private void OnPointerEvent(GameObject gameObject, PointerEventHandler.Event evt, PointerEventData eventData)
         {
-            // var manager = gameObject.GetComponent<ButtonUIManager>() as ButtonUIManager;
-
             switch (evt)
             {
                 case PointerEventHandler.Event.Enter:
-                    // foreach (TextReceiver receiver in receivers)
-                    // {
-                    //     receiver.OnText(annotation.Text);
-                    // }
-
-                    // dialogManager.Text = manager.Annotation.Text;
                     OnPointerEnter(gameObject, eventData);
                     break;
 
                 case PointerEventHandler.Event.Exit:
-                    // dialogManager.Reset();
                     OnPointerExit(gameObject, eventData);
                     break;
             }
@@ -141,11 +131,6 @@ namespace Chess
             {
                 rayInteractor = interactor;
             }
-
-            // foreach (ITextReceiver receiver in receivers)
-            // {
-            //     receiver.OnText(eventData.button)
-            // }
 
             StartCoroutine(OnPointerEnterCoroutine(eventData, eventData.pointerEnter, rayInteractor));
             postAnnotationCoroutine = StartCoroutine(PostAnnotationCoroutine(gameObject));
@@ -179,9 +164,8 @@ namespace Chess
             yield return new WaitForSeconds(postAnnotationDelay);
 
             var manager = gameObject.GetComponent<ButtonUIManager>() as ButtonUIManager;
-            // dialogManager.Text = manager.Annotation.Text;
 
-            foreach (ITextReceiver receiver in receivers)
+            foreach (TextReceiver receiver in receivers)
             {
                 receiver.OnText(manager.Annotation.Text);
             }
@@ -196,9 +180,7 @@ namespace Chess
                 StopCoroutine(postAnnotationCoroutine);
             }
 
-            // dialogManager.Reset();
-
-            foreach (ITextReceiver receiver in receivers)
+             foreach (TextReceiver receiver in receivers)
             {
                 receiver.OnText(string.Empty);
             }

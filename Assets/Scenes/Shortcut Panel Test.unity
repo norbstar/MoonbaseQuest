@@ -920,7 +920,8 @@ MonoBehaviour:
   onHoverClip: {fileID: 0}
   onSelectClip: {fileID: 0}
   enableHaptics: 1
-  dialogManager: {fileID: 0}
+  postAnnotationDelay: 0.5
+  receivers: []
 --- !u!114 &65853467
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9134,7 +9135,8 @@ MonoBehaviour:
   onHoverClip: {fileID: 0}
   onSelectClip: {fileID: 0}
   enableHaptics: 1
-  dialogManager: {fileID: 0}
+  postAnnotationDelay: 0.5
+  receivers: []
 --- !u!114 &542145310
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19511,7 +19513,8 @@ MonoBehaviour:
   onHoverClip: {fileID: 0}
   onSelectClip: {fileID: 0}
   enableHaptics: 1
-  dialogManager: {fileID: 0}
+  postAnnotationDelay: 0.5
+  receivers: []
 --- !u!114 &1025470269
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19708,7 +19711,8 @@ MonoBehaviour:
   onHoverClip: {fileID: 0}
   onSelectClip: {fileID: 0}
   enableHaptics: 0
-  dialogManager: {fileID: 0}
+  postAnnotationDelay: 0.5
+  receivers: []
 --- !u!114 &1033730816
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27683,6 +27687,7 @@ GameObject:
   - component: {fileID: 1520064946}
   - component: {fileID: 1520064945}
   - component: {fileID: 1520064944}
+  - component: {fileID: 1520064949}
   - component: {fileID: 1520064948}
   m_Layer: 5
   m_Name: Dialog Canvas
@@ -27787,6 +27792,18 @@ MonoBehaviour:
   background: {fileID: 698744084}
   textUI: {fileID: 409436403}
   onsetDelay: 0.5
+--- !u!114 &1520064949
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1520064943}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db273f6a7c33c7e4890ca28dd657d6be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1528652927
 GameObject:
   m_ObjectHideFlags: 0
@@ -30431,7 +30448,9 @@ MonoBehaviour:
   onHoverClip: {fileID: 8300000, guid: 5918e1159f1004249a91f32a9648c402, type: 3}
   onSelectClip: {fileID: 8300000, guid: c84c529e4ccb7144ea9af253580dff35, type: 3}
   enableHaptics: 1
-  dialogManager: {fileID: 1520064948}
+  postAnnotationDelay: 0.5
+  receivers:
+  - {fileID: 1520064949}
 --- !u!114 &1694254767
 MonoBehaviour:
   m_ObjectHideFlags: 0

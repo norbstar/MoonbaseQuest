@@ -5,7 +5,8 @@ using TMPro;
 
 namespace Chess
 {
-    public class DialogPanelUIManager : TextReceiver
+    [RequireComponent(typeof(TextReceiver))]
+    public class DialogPanelUIManager : MonoBehaviour
     {
         [Header("Components")]
         [SerializeField] Image background;
@@ -27,13 +28,23 @@ namespace Chess
             }   
         }
 
+        private TextReceiver textReceiver;
+
+        void Awake() => ResolveDependencies();
+        
+        private void ResolveDependencies() => textReceiver = GetComponent<TextReceiver>() as TextReceiver;
+
+        void OnEnable() => textReceiver.EventReceived += OnText;
+
+        void OnDisable() => textReceiver.EventReceived -= OnText;
+
         private void Hide()
         {
             background.enabled = false;
             textUI.text = default(string);
         }
 
-        public override void OnText(string text)
+        private void OnText(string text)
         {
             if (text.Length > 0)
             {

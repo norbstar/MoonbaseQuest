@@ -1,6 +1,9 @@
 using UnityEngine;
 
-public class TextReceiver : MonoBehaviour, ITextReceiver
+public class TextReceiver : MonoBehaviour
 {
-    public virtual void OnText(string text) { }
+    public delegate void OnTextEvent(string text);
+    public event OnTextEvent EventReceived;
+
+    public void OnText(string text) => EventReceived?.Invoke(text);
 }
