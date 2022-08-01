@@ -29,7 +29,7 @@ namespace Chess
             SliderPanelUIManager.EventReceived -= OnVolumeEvent;
         }
 
-        private void OnPlayModeEvent(PlayModePanelUIManager.Button button) { }
+        private void OnPlayModeEvent(PlayModePanelUIManager.Identity identity) { }
 
         private void OnFadeEvent(FadePanelUIManager.Identity identity) { }
 

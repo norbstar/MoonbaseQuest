@@ -1,5 +1,3 @@
-using UnityEngine;
-
 using UnityButton = UnityEngine.UI.Button;
 
 namespace Chess

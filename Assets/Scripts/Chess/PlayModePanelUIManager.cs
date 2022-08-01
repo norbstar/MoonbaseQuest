@@ -1,32 +1,35 @@
+using UnityButton = UnityEngine.UI.Button;
+
 namespace Chess
 {
-    public class PlayModePanelUIManager : BasePanelUIManager
+    public class PlayModePanelUIManager : ButtonPanelUIManager
     {
-        public enum Button
+        public enum Identity
         {
             PVP,
             PVB,
             BVB
         }
-
-        public delegate void OnClickEvent(Button button);
+        public delegate void OnClickEvent(Identity identity);
         public static event OnClickEvent EventReceived;
 
-        public override void OnClickButton()
+        public override void OnClickButton(UnityButton button)
         {
-            base.OnClickButton();
+            base.OnClickButton(button);
 
-            if (selectedButton.name.Equals("PVP Button"))
+            var name = button.name;
+
+            if (name.Equals("PVP Button"))
             {
-                EventReceived?.Invoke(Button.PVP);
+                EventReceived?.Invoke(Identity.PVP);
             }
-            else if (selectedButton.name.Equals("PVB Button"))
+            else if (name.Equals("PVB Button"))
             {
-                EventReceived?.Invoke(Button.PVB);
+                EventReceived?.Invoke(Identity.PVB);
             }
-            else if (selectedButton.name.Equals("BVB Button"))
+            else if (name.Equals("BVB Button"))
             {
-                EventReceived?.Invoke(Button.BVB);
+                EventReceived?.Invoke(Identity.BVB);
             }
         }
     }
