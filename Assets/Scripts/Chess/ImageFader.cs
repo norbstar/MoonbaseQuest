@@ -37,20 +37,15 @@ namespace Chess
             float startTime = Time.time;            
             float endTime = startTime + fadeOutDurationSec;
 
-            Debug.Log("FadeCoroutine Start");
-
             while (!complete)
             {
                 fractionComplete = (Time.time - startTime) / fadeOutDurationSec;
-                Debug.Log($"FadeCoroutine FC : {fractionComplete}");
                 complete = (fractionComplete >= 1f);
                 
                 SetColorFromNormalizedValue((direction == Direction.In) ? fractionComplete : 1f - fractionComplete);
                 
                 yield return null;
             }
-
-            Debug.Log("FadeCoroutine End");
 
             if (destroyOnCompletion) Destroy(gameObject);
         }

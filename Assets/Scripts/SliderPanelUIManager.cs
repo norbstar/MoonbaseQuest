@@ -8,12 +8,10 @@ using UnityEngine.XR.Interaction.Toolkit.UI;
 
 public class SliderPanelUIManager : MonoBehaviour
 {
+    [Header("Components")]
     [SerializeField] Slider slider;
     public float Value { get { return slider.value; } set { slider.value = value; } }
-
     [SerializeField] Toggle toggle;
-
-    [Header("Components")]
     [SerializeField] PointerEventHandler eventHandler;
 
     [Header("Audio")]
