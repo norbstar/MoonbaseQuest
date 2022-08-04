@@ -10,6 +10,7 @@ namespace Chess
             PVB,
             BVB
         }
+        
         public delegate void OnClickEvent(Identity identity);
         public static event OnClickEvent EventReceived;
 

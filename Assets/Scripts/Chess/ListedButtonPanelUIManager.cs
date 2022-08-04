@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -11,10 +10,10 @@ using UnityButton = UnityEngine.UI.Button;
 
 namespace Chess
 {
-    public abstract class ButtonPanelUIManager : MonoBehaviour
+    public abstract class ListedButtonPanelUIManager : MonoBehaviour
     {
         [Header("Components")]
-        [SerializeField] protected GameObject group;
+        [SerializeField] protected List<UnityButton> buttons;
 
         [Header("Audio")]
         [SerializeField] protected AudioClip onHoverClip;
@@ -29,13 +28,8 @@ namespace Chess
         [Header("Posts")]
         [SerializeField] List<TextReceiver> receivers;
 
-        private List<UnityButton> buttons;
         private Coroutine postAnnotationCoroutine;
         private Vector3 defaultScale;
-
-        public virtual void Awake() => ResolveDependencies();
-
-        private void ResolveDependencies() => buttons = group.GetComponentsInChildren<UnityButton>().ToList();
 
         // Start is called before the first frame update
         void Start()
@@ -153,6 +147,7 @@ namespace Chess
             }
 
             var scaleFXManager = manager.ScaleFXManager;
+            transform.localScale = defaultScale * 1.1f;
             yield return scaleFXManager.ScaleUp(defaultScale.z, defaultScale.z * 1.1f);
             
             if (onHoverClip != null)
