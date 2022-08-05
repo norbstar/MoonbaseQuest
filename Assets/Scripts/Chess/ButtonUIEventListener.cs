@@ -2,14 +2,14 @@ using UnityEngine;
 
 namespace Chess
 {
-    [RequireComponent(typeof(ButtonUIManager))]
+    [RequireComponent(typeof(ButtonUI))]
     public class ButtonUIEventListener : MonoBehaviour
     {
-        private ButtonUIManager buttonUIManager;
+        private ButtonUI buttonUI;
 
         // Start is called before the first frame update
         void Start() => ResolveDependencies();   
 
-        private void ResolveDependencies() => buttonUIManager = GetComponent<ButtonUIManager>() as ButtonUIManager;
+        private void ResolveDependencies() => buttonUI = GetComponent<ButtonUI>() as ButtonUI;
     }
 }

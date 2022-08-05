@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using Chess;
 
 [RequireComponent(typeof(ScrollRect))]
-public class ScrollViewInCodeTest : ListedButtonPanelUIManager
+public class ScrollViewInCodeTest : CustomButtonGroupPanelUIManager
 {
     [Header("Config")]
     [SerializeField] float durationSec = 0.5f;

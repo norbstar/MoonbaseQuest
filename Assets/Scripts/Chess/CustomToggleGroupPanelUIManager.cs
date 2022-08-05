@@ -2,79 +2,59 @@ using System.Collections;
 using System.Collections.Generic;
 
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.UI;
 
-using UnityButton = UnityEngine.UI.Button;
-
 namespace Chess
 {
-    public abstract class ListedButtonPanelUIManager : MonoBehaviour
+    public class CustomToggleGroupPanelUIManager : MonoBehaviour
     {
         [Header("Components")]
-        [SerializeField] protected List<UnityButton> buttons;
-
+        [SerializeField] protected List<Toggle> toggles;
+        
         [Header("Audio")]
         [SerializeField] protected AudioClip onHoverClip;
-        [SerializeField] protected AudioClip onSelectClip;
-        
+        [SerializeField] protected AudioClip onToggleClip;
+
         [Header("Config")]
         [SerializeField] bool enableHaptics = false;
         public bool EnableHaptics { get { return enableHaptics; } }
         [SerializeField] float postAnnotationDelay = 0.5f;
         public float PostAnnotationDelay { get { return postAnnotationDelay; } }
-
+        
         [Header("Posts")]
         [SerializeField] List<TextReceiver> receivers;
 
         private Coroutine postAnnotationCoroutine;
-        private Vector3 defaultScale;
 
         // Start is called before the first frame update
         void Start()
         {
-            defaultScale = transform.localScale;
-
-            foreach (UnityButton button in buttons)
+            foreach (Toggle toggle in toggles)
             {
-                button.onClick.AddListener(delegate {
-                    OnClickButton(button);
+                toggle.onValueChanged.AddListener(delegate {
+                    OnToggle(toggle);
                 });
             }
         }
 
         void OnEnable()
         {
-            foreach (UnityButton button in buttons)
+            foreach (Toggle toggle in toggles)
             {
-                var eventHandler = button.GetComponent<PointerEventHandler>() as PointerEventHandler;
+                var eventHandler = toggle.GetComponent<PointerEventHandler>() as PointerEventHandler;
                 eventHandler.EventReceived += OnPointerEvent;
             }
         }
 
         void OnDisable()
         {
-            foreach (UnityButton button in buttons)
+            foreach (Toggle toggle in toggles)
             {
-                var eventHandler = button.GetComponent<PointerEventHandler>() as PointerEventHandler;
+                var eventHandler = toggle.GetComponent<PointerEventHandler>() as PointerEventHandler;
                 eventHandler.EventReceived -= OnPointerEvent;
-            }
-        }
-
-        public void ResetButtons()
-        {
-            foreach (UnityButton button in buttons)
-            {
-                var transform = button.transform;
-                transform.localScale = defaultScale;
-
-                var manager = transform.gameObject.GetComponent<ButtonUIManager>() as ButtonUIManager;
-
-                if (manager.Header != null)
-                {
-                    manager.HeaderColor = manager.DefaultHeaderColor;
-                }
             }
         }
 
@@ -89,7 +69,7 @@ namespace Chess
                 rayInteractor = null;
                 return false;
             }
-    
+
             rayInteractor = inputModule.GetInteractor(pointerID) as XRRayInteractor;
             return (rayInteractor != null);
         }
@@ -117,29 +97,14 @@ namespace Chess
                 rayInteractor = interactor;
             }
 
-            var manager = gameObject.GetComponent<ButtonUIManager>() as ButtonUIManager;
-
-            if (manager.OverridePointerEnterEvent)
-            {
-                OnPointerEnterOverride(eventData, eventData.pointerEnter, rayInteractor);
-            }
-            else
-            {
-                StartCoroutine(OnPointerEnterCoroutine(eventData, eventData.pointerEnter, rayInteractor));
-                postAnnotationCoroutine = StartCoroutine(PostAnnotationCoroutine(eventData.pointerEnter));
-            }
+            StartCoroutine(OnPointerEnterCoroutine(eventData, eventData.pointerEnter, rayInteractor));
+            postAnnotationCoroutine = StartCoroutine(PostAnnotationCoroutine(eventData.pointerEnter));
         }
-
-        protected virtual void OnPointerEnterOverride(PointerEventData eventData, GameObject gameObject, XRRayInteractor rayInteractor) { }
 
         private IEnumerator OnPointerEnterCoroutine(PointerEventData eventData, GameObject gameObject, XRRayInteractor rayInteractor)
         {
-            var manager = gameObject.GetComponent<ButtonUIManager>() as ButtonUIManager;
-
-            if (manager.Header != null)
-            {
-                manager.HeaderColor = manager.HeaderHighlightColor;
-            }
+            var rootResolver = gameObject.GetComponent<RootResolver>() as RootResolver;
+            var manager = rootResolver.Root.GetComponent<ToggleUI>() as ToggleUI;
 
             if (enableHaptics)
             {
@@ -147,8 +112,7 @@ namespace Chess
             }
 
             var scaleFXManager = manager.ScaleFXManager;
-            transform.localScale = defaultScale * 1.1f;
-            yield return scaleFXManager.ScaleUp(defaultScale.z, defaultScale.z * 1.1f);
+            yield return scaleFXManager.ScaleUp(1f, 1.1f);
             
             if (onHoverClip != null)
             {
@@ -160,44 +124,29 @@ namespace Chess
         {
             yield return new WaitForSeconds(postAnnotationDelay);
 
-            var manager = gameObject.GetComponent<ButtonUIManager>() as ButtonUIManager;
+            var rootResolver = gameObject.GetComponent<RootResolver>() as RootResolver;
+            var manager = rootResolver.Root.GetComponent<ToggleUI>() as ToggleUI;
             NotifyReceivers(manager.Annotation.Text);
         }
 
         private void OnPointerExit(GameObject gameObject, PointerEventData eventData)
         {
-            var manager = gameObject.GetComponent<ButtonUIManager>() as ButtonUIManager;
-
-            if (manager.OverridePointerExitEvent)
+            StartCoroutine(OnPointerExitCoroutine(eventData, eventData.pointerEnter));
+            
+            if (postAnnotationCoroutine != null)
             {
-                OnPointerExitOverride(eventData, eventData.pointerEnter);
+                StopCoroutine(postAnnotationCoroutine);
             }
-            else
-            {
-                StartCoroutine(OnPointerExitCoroutine(eventData, eventData.pointerEnter));
-                
-                if (postAnnotationCoroutine != null)
-                {
-                    StopCoroutine(postAnnotationCoroutine);
-                }
 
-                NotifyReceivers(string.Empty);
-            }
+            NotifyReceivers(string.Empty);
         }
-
-        protected virtual void OnPointerExitOverride(PointerEventData eventData, GameObject gameObject) { }
 
         private IEnumerator OnPointerExitCoroutine(PointerEventData eventData, GameObject gameObject)
         {
-            var manager = gameObject.GetComponent<ButtonUIManager>() as ButtonUIManager;
-
-            if (manager.Header != null)
-            {
-                manager.HeaderColor = manager.DefaultHeaderColor;
-            }
-
+            var rootResolver = gameObject.GetComponent<RootResolver>() as RootResolver;
+            var manager = rootResolver.Root.GetComponent<ToggleUI>() as ToggleUI;
             var scaleFXManager = manager.ScaleFXManager;
-            yield return scaleFXManager.ScaleDown(defaultScale.z * 1.1f, defaultScale.z);
+            yield return scaleFXManager.ScaleDown(1.1f, 1f);
         }
 
         protected void NotifyReceivers(string text)
@@ -208,11 +157,11 @@ namespace Chess
             }
         }
 
-        public virtual void OnClickButton(UnityButton button)
+        public virtual void OnToggle(Toggle toggle)
         {
-            if (onSelectClip != null)
+            if (onToggleClip != null)
             {
-                AudioSource.PlayClipAtPoint(onSelectClip, Vector3.zero, 1.0f);
+                AudioSource.PlayClipAtPoint(onToggleClip, Vector3.zero, 1.0f);
             }
 
             NotifyReceivers(string.Empty);

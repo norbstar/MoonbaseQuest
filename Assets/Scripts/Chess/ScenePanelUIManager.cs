@@ -9,17 +9,6 @@ namespace Chess
         [Header("Custom Components")]
         [SerializeField] ButtonGroupManager selectManager;
 
-        public void Start()
-        {
-            if (onButtonSelectClip != null)
-            {
-                if (selectManager.OnSelectClip == null)
-                {
-                    selectManager.OnSelectClip = onButtonSelectClip;
-                }
-            }
-        }
-
         void OnEnable()
         {
             selectManager.EventReceived += OnSelectEvent;

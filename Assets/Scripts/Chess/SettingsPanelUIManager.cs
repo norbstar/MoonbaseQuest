@@ -34,24 +34,6 @@ namespace Chess
                 playOrderManager.OnToggleClip = onToggleSelectClip;
                 oppositionSkillLevelManager.OnToggleClip = onToggleSelectClip;
             }
-
-            if (onButtonSelectClip != null)
-            {
-                if (numberManager.OnSelectClip == null)
-                {
-                    numberManager.OnSelectClip = onButtonSelectClip;
-                }
-
-                if (intentManager.OnSelectClip != null)
-                {
-                    intentManager.OnSelectClip = onButtonSelectClip;
-                }
-
-                if (explitivesManager.OnSelectClip != null)
-                {
-                    explitivesManager.OnSelectClip = onButtonSelectClip;
-                }
-            }
         }
 
         void OnEnable()

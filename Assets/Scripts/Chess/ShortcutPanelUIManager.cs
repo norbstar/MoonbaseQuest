@@ -2,7 +2,7 @@ using UnityButton = UnityEngine.UI.Button;
 
 namespace Chess
 {
-    public class ShortcutPanelUIManager : ButtonPanelUIManager
+    public class ShortcutPanelUIManager : ButtonGroupPanelUIManager
     {
         public enum Identity
         {

@@ -10,9 +10,11 @@ using UnityButton = UnityEngine.UI.Button;
 
 namespace Chess
 {
-    [RequireComponent(typeof(UnityButton))]
-    public class ButtonUIManager : MonoBehaviour
+    public abstract class CustomButtonGroupPanelUIManager : MonoBehaviour
     {
+        [Header("Components")]
+        [SerializeField] protected List<UnityButton> buttons;
+
         [Header("Audio")]
         [SerializeField] protected AudioClip onHoverClip;
         [SerializeField] protected AudioClip onSelectClip;
@@ -25,57 +27,54 @@ namespace Chess
 
         [Header("Posts")]
         [SerializeField] List<TextReceiver> receivers;
-        
-        public enum Event
-        {
-            OnPointerEnter,
-            OnPointerExit,
-            OnClick
-        }
 
-        public delegate void OnButtonEvent(GameObject gameObject, Event evt);
-        public event OnButtonEvent EventReceived;
-
-        private UnityButton button;
         private Coroutine postAnnotationCoroutine;
         private Vector3 defaultScale;
-
-        void Awake() => ResolveDependencies();
-
-        private void ResolveDependencies() => button = GetComponent<UnityButton>() as UnityButton;
 
         // Start is called before the first frame update
         void Start()
         {
             defaultScale = transform.localScale;
 
-            button.onClick.AddListener(delegate {
-                OnClickButton(button);
-            });
+            foreach (UnityButton button in buttons)
+            {
+                button.onClick.AddListener(delegate {
+                    OnClickButton(button);
+                });
+            }
         }
 
         void OnEnable()
         {
-            var eventHandler = button.GetComponent<PointerEventHandler>() as PointerEventHandler;
-            eventHandler.EventReceived += OnPointerEvent;
+            foreach (UnityButton button in buttons)
+            {
+                var eventHandler = button.GetComponent<PointerEventHandler>() as PointerEventHandler;
+                eventHandler.EventReceived += OnPointerEvent;
+            }
         }
 
         void OnDisable()
         {
-            var eventHandler = button.GetComponent<PointerEventHandler>() as PointerEventHandler;
-            eventHandler.EventReceived -= OnPointerEvent;
+            foreach (UnityButton button in buttons)
+            {
+                var eventHandler = button.GetComponent<PointerEventHandler>() as PointerEventHandler;
+                eventHandler.EventReceived -= OnPointerEvent;
+            }
         }
 
         public void ResetButtons()
         {
-            var transform = button.transform;
-            transform.localScale = defaultScale;
-
-            var manager = transform.gameObject.GetComponent<ButtonUI>() as ButtonUI;
-
-            if (manager.Header != null)
+            foreach (UnityButton button in buttons)
             {
-                manager.HeaderColor = manager.DefaultHeaderColor;
+                var transform = button.transform;
+                transform.localScale = defaultScale;
+
+                var manager = transform.gameObject.GetComponent<ButtonUI>() as ButtonUI;
+
+                if (manager.Header != null)
+                {
+                    manager.HeaderColor = manager.DefaultHeaderColor;
+                }
             }
         }
 
@@ -129,8 +128,6 @@ namespace Chess
                 StartCoroutine(OnPointerEnterCoroutine(eventData, eventData.pointerEnter, rayInteractor));
                 postAnnotationCoroutine = StartCoroutine(PostAnnotationCoroutine(eventData.pointerEnter));
             }
-
-            EventReceived?.Invoke(gameObject, Event.OnPointerEnter);
         }
 
         protected virtual void OnPointerEnterOverride(PointerEventData eventData, GameObject gameObject, XRRayInteractor rayInteractor) { }
@@ -186,8 +183,6 @@ namespace Chess
 
                 NotifyReceivers(string.Empty);
             }
-
-            EventReceived?.Invoke(gameObject, Event.OnPointerExit);
         }
 
         protected virtual void OnPointerExitOverride(PointerEventData eventData, GameObject gameObject) { }
@@ -221,7 +216,6 @@ namespace Chess
             }
 
             NotifyReceivers(string.Empty);
-            EventReceived?.Invoke(gameObject, Event.OnClick);
         }
     }
 }

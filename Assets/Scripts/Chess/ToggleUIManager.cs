@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,11 +9,8 @@ using UnityEngine.XR.Interaction.Toolkit.UI;
 
 namespace Chess
 {
-    public class ToggleGroupPanelUIManager : MonoBehaviour
+    public class ToggleUIManager : MonoBehaviour
     {
-        [Header("Components")]
-        [SerializeField] protected GameObject group;
-        
         [Header("Audio")]
         [SerializeField] protected AudioClip onHoverClip;
         [SerializeField] protected AudioClip onToggleClip;
@@ -28,40 +24,27 @@ namespace Chess
         [Header("Posts")]
         [SerializeField] List<TextReceiver> receivers;
 
-        private List<Toggle> toggles;
+        private Toggle toggle;
         private Coroutine postAnnotationCoroutine;
-
-        void Awake() => ResolveDependencies();
-
-        private void ResolveDependencies() => toggles = group.GetComponentsInChildren<Toggle>().ToList();
 
         // Start is called before the first frame update
         void Start()
         {
-            foreach (Toggle toggle in toggles)
-            {
-                toggle.onValueChanged.AddListener(delegate {
-                    OnToggle(toggle);
-                });
-            }
+            toggle.onValueChanged.AddListener(delegate {
+                OnToggle(toggle);
+            });
         }
 
         void OnEnable()
         {
-            foreach (Toggle toggle in toggles)
-            {
-                var eventHandler = toggle.GetComponent<PointerEventHandler>() as PointerEventHandler;
-                eventHandler.EventReceived += OnPointerEvent;
-            }
+            var eventHandler = toggle.GetComponent<PointerEventHandler>() as PointerEventHandler;
+            eventHandler.EventReceived += OnPointerEvent;
         }
 
         void OnDisable()
         {
-            foreach (Toggle toggle in toggles)
-            {
-                var eventHandler = toggle.GetComponent<PointerEventHandler>() as PointerEventHandler;
-                eventHandler.EventReceived -= OnPointerEvent;
-            }
+            var eventHandler = toggle.GetComponent<PointerEventHandler>() as PointerEventHandler;
+            eventHandler.EventReceived -= OnPointerEvent;
         }
 
         private XRUIInputModule GetXRInputModule() => EventSystem.current.currentInputModule as XRUIInputModule;
@@ -110,7 +93,7 @@ namespace Chess
         private IEnumerator OnPointerEnterCoroutine(PointerEventData eventData, GameObject gameObject, XRRayInteractor rayInteractor)
         {
             var rootResolver = gameObject.GetComponent<RootResolver>() as RootResolver;
-            var manager = rootResolver.Root.GetComponent<ToggleUIManager>() as ToggleUIManager;
+            var manager = rootResolver.Root.GetComponent<ToggleUI>() as ToggleUI;
 
             if (enableHaptics)
             {
@@ -131,7 +114,7 @@ namespace Chess
             yield return new WaitForSeconds(postAnnotationDelay);
 
             var rootResolver = gameObject.GetComponent<RootResolver>() as RootResolver;
-            var manager = rootResolver.Root.GetComponent<ToggleUIManager>() as ToggleUIManager;
+            var manager = rootResolver.Root.GetComponent<ToggleUI>() as ToggleUI;
             NotifyReceivers(manager.Annotation.Text);
         }
 
@@ -150,7 +133,7 @@ namespace Chess
         private IEnumerator OnPointerExitCoroutine(PointerEventData eventData, GameObject gameObject)
         {
             var rootResolver = gameObject.GetComponent<RootResolver>() as RootResolver;
-            var manager = rootResolver.Root.GetComponent<ToggleUIManager>() as ToggleUIManager;
+            var manager = rootResolver.Root.GetComponent<ToggleUI>() as ToggleUI;
             var scaleFXManager = manager.ScaleFXManager;
             yield return scaleFXManager.ScaleDown(1.1f, 1f);
         }

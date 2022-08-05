@@ -10,9 +10,6 @@ namespace Chess
         [SerializeField] List<UnityEngine.UI.Button> group;
         public List<UnityEngine.UI.Button> Group { get { return group; } }
 
-        [Header("Audio")]
-        [SerializeField] AudioClip onSelectClip;
-
         [Header("Config")]
         [SerializeField] int defaultSelection = 0;
 
@@ -35,30 +32,12 @@ namespace Chess
 
         private UnityEngine.UI.Button selected;
 
-        public AudioClip OnSelectClip
-        {
-            get
-            {
-                return onSelectClip;
-            }
-
-            set
-            {
-                onSelectClip = value;
-            }
-        }
-
         // Start is called before the first frame update
         void Start()
         {
             foreach (UnityEngine.UI.Button button in group)
             {
                 button.onClick.AddListener(delegate {
-                    if (onSelectClip != null)
-                    {
-                        AudioSource.PlayClipAtPoint(onSelectClip, Vector3.zero, 1.0f);
-                    }
-
                     OnValueChanged(button);
                 });
             }

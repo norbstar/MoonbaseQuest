@@ -33,7 +33,7 @@ namespace Chess
                 var transform = buttons.transform.GetChild(itr);
                 transform.localScale = new Vector3(1f, 1f, 1f);
 
-                var manager = transform.gameObject.GetComponent<ButtonUIManager>() as ButtonUIManager;
+                var manager = transform.gameObject.GetComponent<ButtonUI>() as ButtonUI;
 
                 if (manager.Header != null)
                 {
@@ -77,7 +77,7 @@ namespace Chess
 
         private IEnumerator OnPointerEnterCoroutine(GameObject gameObject, XRRayInteractor rayInteractor)
         {   
-            var manager = gameObject.GetComponent<ButtonUIManager>() as ButtonUIManager;
+            var manager = gameObject.GetComponent<ButtonUI>() as ButtonUI;
 
             if (manager.Header != null)
             {
@@ -108,7 +108,7 @@ namespace Chess
 
         private IEnumerator OnPointerExitCoroutine(GameObject gameObject)
         {
-            var manager = gameObject.GetComponent<ButtonUIManager>() as ButtonUIManager;
+            var manager = gameObject.GetComponent<ButtonUI>() as ButtonUI;
 
             if (manager.Header != null)
             {

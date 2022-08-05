@@ -11,7 +11,7 @@ using UnityButton = UnityEngine.UI.Button;
 
 namespace Chess
 {
-    public abstract class ButtonPanelUIManager : MonoBehaviour
+    public abstract class ButtonGroupPanelUIManager : MonoBehaviour
     {
         [Header("Components")]
         [SerializeField] protected GameObject group;
@@ -75,7 +75,7 @@ namespace Chess
                 var transform = button.transform;
                 transform.localScale = defaultScale;
 
-                var manager = transform.gameObject.GetComponent<ButtonUIManager>() as ButtonUIManager;
+                var manager = transform.gameObject.GetComponent<ButtonUI>() as ButtonUI;
 
                 if (manager.Header != null)
                 {
@@ -123,7 +123,7 @@ namespace Chess
                 rayInteractor = interactor;
             }
 
-            var manager = gameObject.GetComponent<ButtonUIManager>() as ButtonUIManager;
+            var manager = gameObject.GetComponent<ButtonUI>() as ButtonUI;
 
             if (manager.OverridePointerEnterEvent)
             {
@@ -140,7 +140,7 @@ namespace Chess
 
         private IEnumerator OnPointerEnterCoroutine(PointerEventData eventData, GameObject gameObject, XRRayInteractor rayInteractor)
         {
-            var manager = gameObject.GetComponent<ButtonUIManager>() as ButtonUIManager;
+            var manager = gameObject.GetComponent<ButtonUI>() as ButtonUI;
 
             if (manager.Header != null)
             {
@@ -165,13 +165,13 @@ namespace Chess
         {
             yield return new WaitForSeconds(postAnnotationDelay);
 
-            var manager = gameObject.GetComponent<ButtonUIManager>() as ButtonUIManager;
+            var manager = gameObject.GetComponent<ButtonUI>() as ButtonUI;
             NotifyReceivers(manager.Annotation.Text);
         }
 
         private void OnPointerExit(GameObject gameObject, PointerEventData eventData)
         {
-            var manager = gameObject.GetComponent<ButtonUIManager>() as ButtonUIManager;
+            var manager = gameObject.GetComponent<ButtonUI>() as ButtonUI;
 
             if (manager.OverridePointerExitEvent)
             {
@@ -194,7 +194,7 @@ namespace Chess
 
         private IEnumerator OnPointerExitCoroutine(PointerEventData eventData, GameObject gameObject)
         {
-            var manager = gameObject.GetComponent<ButtonUIManager>() as ButtonUIManager;
+            var manager = gameObject.GetComponent<ButtonUI>() as ButtonUI;
 
             if (manager.Header != null)
             {

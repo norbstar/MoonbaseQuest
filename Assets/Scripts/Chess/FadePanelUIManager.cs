@@ -2,7 +2,7 @@ using UnityButton = UnityEngine.UI.Button;
 
 namespace Chess
 {
-    public class FadePanelUIManager : ButtonPanelUIManager
+    public class FadePanelUIManager : ButtonGroupPanelUIManager
     {
         public enum Identity
         {

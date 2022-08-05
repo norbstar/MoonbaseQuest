@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Chess
 {
     [RequireComponent(typeof(ScaleFXManager))]
-    public class ToggleUIManager : MonoBehaviour
+    public class ToggleUI : MonoBehaviour
     {
         [Header("Components")]
         [SerializeField] AnnotationUIManager annotation;

@@ -9,7 +9,7 @@ using UnityButton = UnityEngine.UI.Button;
 
 namespace Chess
 {
-    public class SwitchPanelUIManager : ListedButtonPanelUIManager
+    public class SwitchPanelUIManager : CustomButtonGroupPanelUIManager
     {
         [Header("Config")]
         [SerializeField] float durationSec = 0.5f;
