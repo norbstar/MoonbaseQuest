@@ -21,7 +21,7 @@ namespace Chess
         }
 
         public delegate void OnSelectEvent(Identity identity);
-        public static event OnSelectEvent EventReceived;
+        public event OnSelectEvent EventReceived;
 
         void OnEnable()
         {
@@ -38,11 +38,49 @@ namespace Chess
         private void OnButtonEvent(GameObject gameObject, ButtonUIManager.Event evt)
         {
             Debug.Log($"OnButtonEvent GameObject : {gameObject.name} Event : {evt}");
+            
+            if (TryGet.TryGetRootResolver(button.gameObject, out GameObject rootGameObject))
+            {
+                var scrollRect = rootGameObject.GetComponent<ScrollRect>() as ScrollRect;
+                
+                switch (evt)
+                {
+                    case ButtonUIManager.Event.OnPointerEnter:
+                        StartCoroutine(ScrollToBottomCoroutine(scrollRect));
+                        break;
+
+                    // case ButtonUIManager.Event.OnPointerExit:
+                    //     StartCoroutine(ScrollToTopCoroutine(scrollRect));
+                    //     break;
+
+                    case ButtonUIManager.Event.OnClick:
+                        break;
+                }
+            }
         }
 
         private void OnAltButtonEvent(GameObject gameObject, ButtonUIManager.Event evt)
         {
             Debug.Log($"OnAltButtonEvent GameObject : {gameObject.name} Event : {evt}");
+
+            if (TryGet.TryGetRootResolver(button.gameObject, out GameObject rootGameObject))
+            {
+                var scrollRect = rootGameObject.GetComponent<ScrollRect>() as ScrollRect;
+                
+                switch (evt)
+                {
+                    // case ButtonUIManager.Event.OnPointerEnter:
+                    //     StartCoroutine(ScrollToBottomCoroutine(scrollRect));
+                    //     break;
+
+                    case ButtonUIManager.Event.OnPointerExit:
+                        StartCoroutine(ScrollToTopCoroutine(scrollRect));
+                        break;
+
+                    case ButtonUIManager.Event.OnClick:
+                        break;
+                }
+            }
         }
 
         private IEnumerator ScrollToTopCoroutine(ScrollRect scrollRect)

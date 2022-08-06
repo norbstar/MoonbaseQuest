@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,8 +10,11 @@ using UnityButton = UnityEngine.UI.Button;
 
 namespace Chess
 {
-    public class SwitchPanelUIManager : CustomButtonGroupPanelUIManager
+    public class SwitchPanelUIManager : MonoBehaviour
     {
+        [Header("Components")]
+        [SerializeField] List<SwitchUIManager> switches;
+
         [Header("Config")]
         [SerializeField] float durationSec = 0.5f;
 
@@ -21,9 +25,30 @@ namespace Chess
         }
 
         public delegate void OnSelectEvent(Identity identity);
-        public static event OnSelectEvent EventReceived;
+        public event OnSelectEvent EventReceived;
 
-        protected override void OnPointerEnterOverride(PointerEventData eventData, GameObject gameObject, XRRayInteractor rayInteractor)
+        void OnEnable()
+        {
+            foreach (SwitchUIManager instance in switches)
+            {
+                instance.EventReceived += OnEvent;
+            }
+        }
+
+        void OnDisable()
+        {
+            foreach (SwitchUIManager instance in switches)
+            {
+                instance.EventReceived -= OnEvent;
+            }
+        }
+
+        public void OnEvent(SwitchUIManager.Identity identity)
+        {
+            // TODO
+        }
+
+        protected void OnPointerEnterOverride(PointerEventData eventData, GameObject gameObject, XRRayInteractor rayInteractor)
         {
             // var manager = gameObject.GetComponent<ButtonUIManager>() as ButtonUIManager;
             Debug.Log($"OnPointerEnterOverride {gameObject.name}");
@@ -43,7 +68,7 @@ namespace Chess
             }
         }
 
-        protected override void OnPointerExitOverride(PointerEventData eventData, GameObject gameObject)
+        protected void OnPointerExitOverride(PointerEventData eventData, GameObject gameObject)
         {
             // var manager = gameObject.GetComponent<ButtonUIManager>() as ButtonUIManager;
             Debug.Log($"OnPointerExitOverride {gameObject.name}");
@@ -99,10 +124,8 @@ namespace Chess
             }
         }
 
-        public override void OnClickButton(UnityButton button)
+        public void OnClickButton(UnityButton button)
         {
-            base.OnClickButton(button);
-
             var name = button.name;
             // StartCoroutine(ScrollToBottom());
             // scrollRect.ScrollToBottom();

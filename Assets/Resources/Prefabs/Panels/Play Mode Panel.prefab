@@ -171,7 +171,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 235, y: 30}
+  m_SizeDelta: {x: 102, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &7051833576569502456
 MonoBehaviour:
@@ -186,12 +186,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Padding:
-    m_Left: 60
+    m_Left: 0
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 0
-  m_Spacing: 12
+  m_ChildAlignment: 4
+  m_Spacing: 6
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
@@ -940,6 +940,8 @@ MonoBehaviour:
   onHoverClip: {fileID: 8300000, guid: 5918e1159f1004249a91f32a9648c402, type: 3}
   onSelectClip: {fileID: 8300000, guid: c84c529e4ccb7144ea9af253580dff35, type: 3}
   enableHaptics: 1
+  deselectOnSelect: 1
+  deselectionDelay: 0.25
   postAnnotationDelay: 0.5
   receivers:
   - {fileID: 0}
@@ -1539,7 +1541,6 @@ MonoBehaviour:
   - {fileID: 7051833577400890064}
   - {fileID: 7051833576701459625}
   - {fileID: 7051833578280806710}
-  onSelectClip: {fileID: 8300000, guid: 42f42dfc57ab20a4e9cbaa3b9439841f, type: 3}
   defaultSelection: 0
 --- !u!1 &7051833577867191897
 GameObject:

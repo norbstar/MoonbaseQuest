@@ -22,6 +22,9 @@ namespace Chess
         [Header("Config")]
         [SerializeField] bool enableHaptics = false;
         public bool EnableHaptics { get { return enableHaptics; } }
+        [SerializeField] bool deselectOnSelect = true;
+        [SerializeField] float deselectionDelay = 0.25f;
+        public float DeselectionDelay { get { return deselectionDelay; } }
         [SerializeField] float postAnnotationDelay = 0.5f;
         public float PostAnnotationDelay { get { return postAnnotationDelay; } }
 
@@ -215,7 +218,18 @@ namespace Chess
                 AudioSource.PlayClipAtPoint(onSelectClip, Vector3.zero, 1.0f);
             }
 
+            if (deselectOnSelect)
+            {
+                StartCoroutine(DeselectCoroutine(deselectionDelay));
+            }
+
             NotifyReceivers(string.Empty);
+        }
+
+        private IEnumerator DeselectCoroutine(float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
         }
     }
 }
