@@ -8,16 +8,11 @@ namespace Chess
 {
     public class FlipPanelUIManager : BaseButtonGroupPanelUIManager
     {
-        [Header("Custom Components")]
+        [Header("Components")]
         [SerializeField] UnityButton offButton;
         [SerializeField] UnityButton onButton;
 
-        public override void Awake()
-        {
-            base.Awake();
-            
-            Buttons = new List<UnityButton>() { offButton, onButton };
-        }
+        protected override List<UnityButton> ResolveButtons() => new List<UnityButton>() { offButton, onButton };
 
         public override void OnClickButton(UnityButton button)
         {

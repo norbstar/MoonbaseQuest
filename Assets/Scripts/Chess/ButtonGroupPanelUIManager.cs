@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Collections.Generic;
 
 using UnityEngine;
 using UnityButton = UnityEngine.UI.Button;
@@ -10,12 +11,6 @@ namespace Chess
         [Header("Components")]
         [SerializeField] protected GameObject group;
 
-        public override void Awake()
-        {
-            base.Awake();
-            ResolveDependencies();
-        }
-
-        private void ResolveDependencies() => Buttons = group.GetComponentsInChildren<UnityButton>().ToList();
+        protected override List<UnityButton> ResolveButtons() => group.GetComponentsInChildren<UnityButton>().ToList();
     }
 }

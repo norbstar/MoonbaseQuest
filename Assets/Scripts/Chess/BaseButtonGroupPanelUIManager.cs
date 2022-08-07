@@ -28,32 +28,25 @@ namespace Chess
         [Header("Posts")]
         [SerializeField] List<TextReceiver> receivers;
 
-        public List<UnityButton> Buttons
-        {
-            get
-            {
-                return buttons;
-            }
-            
-            set
-            {
-                buttons = value;
-
-                foreach (UnityButton button in buttons)
-                {
-                    button.onClick.AddListener(delegate {
-                        OnClickButton(button);
-                    });
-                }
-            }
-        }
-
-        private List<UnityButton> buttons;
+        protected List<UnityButton> buttons;
         private Coroutine postAnnotationCoroutine;
         private Vector3 defaultScale;
 
-        public virtual void Awake() => defaultScale = transform.localScale;
+        void Awake()
+        {
+            defaultScale = transform.localScale;
+            buttons = ResolveButtons();
 
+            foreach (UnityButton button in buttons)
+            {
+                button.onClick.AddListener(delegate {
+                    OnClickButton(button);
+                });
+            }
+        }
+
+        protected abstract List<UnityButton> ResolveButtons();
+        
         void OnEnable()
         {
             foreach (UnityButton button in buttons)
