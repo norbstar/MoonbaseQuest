@@ -33,8 +33,8 @@ public class SmokeGrenadeInteractableManager : FocusableInteractableManager
     protected override void Awake()
     {
         base.Awake();
-
         ResolveDependencies();
+        
         particleSystem.Stop();
     }
 

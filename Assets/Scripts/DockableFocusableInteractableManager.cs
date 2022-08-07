@@ -9,10 +9,7 @@ public class DockableFocusableInteractableManager : DockableInteractableManager,
 
     private int hasFocusCount;
 
-    protected override void Awake()
-    {
-        base.Awake();
-    }
+    protected override void Awake() => base.Awake();
 
     public void GainedFocus(GameObject focusObject, Vector3 focalPoint)
     {

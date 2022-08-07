@@ -50,8 +50,8 @@ public class CustomSmokeGrenadeInteractableManager : FocusableInteractableManage
     protected override void Awake()
     {
         base.Awake();
-
         ResolveDependencies();
+        
         particleSystem.Stop();
 
         Configure();

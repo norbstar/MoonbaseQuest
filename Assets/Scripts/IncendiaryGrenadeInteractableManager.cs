@@ -32,7 +32,6 @@ public class IncendiaryGrenadeInteractableManager : FocusableInteractableManager
     protected override void Awake()
     {
         base.Awake();
-
         ResolveDependencies();
     }
 

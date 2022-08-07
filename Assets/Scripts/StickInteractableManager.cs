@@ -35,7 +35,6 @@ public abstract class StickInteractableManager : FocusableInteractableManager, I
     protected override void Awake()
     {
         base.Awake();
-        
         ResolveDependencies();
     }
 

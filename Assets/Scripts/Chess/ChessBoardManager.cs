@@ -62,6 +62,7 @@ namespace Chess
         public override void Awake()
         {
             base.Awake();
+            
             previews = new List<GameObject>();
         }
 

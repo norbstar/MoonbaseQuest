@@ -13,7 +13,11 @@ public class ScrollViewInCodeTest : CustomButtonGroupPanelUIManager
 
     private ScrollRect scrollRect;
 
-    public void Awake() => ResolveDependencies();
+    public override void Awake()
+    {
+        base.Awake();
+        ResolveDependencies();
+    }
 
     private void ResolveDependencies() => scrollRect = GetComponent<ScrollRect>() as ScrollRect;
 

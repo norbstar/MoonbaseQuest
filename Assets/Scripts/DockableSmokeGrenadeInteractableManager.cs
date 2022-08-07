@@ -33,8 +33,8 @@ public class DockableSmokeGrenadeInteractableManager : DockableFocusableInteract
     protected override void Awake()
     {
         base.Awake();
-        
         ResolveDependencies();
+        
         particleSystem.Stop();
     }
 

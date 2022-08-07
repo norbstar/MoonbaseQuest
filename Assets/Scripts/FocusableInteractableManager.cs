@@ -9,11 +9,6 @@ public class FocusableInteractableManager : InteractableManager, IFocus
 
     private int hasFocusCount;
 
-    protected override void Awake()
-    {
-        base.Awake();
-    }
-
     public void GainedFocus(GameObject focusObject, Vector3 focalPoint)
     {
         if (!HasFocus)

@@ -15,7 +15,6 @@ public class ClimbInteractable : XRBaseInteractable
     protected override void Awake()
     {
         base.Awake();
-        
         ResolveDependencies();
     }
 
