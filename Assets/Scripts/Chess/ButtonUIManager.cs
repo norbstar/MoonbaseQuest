@@ -44,7 +44,7 @@ namespace Chess
         private Coroutine postAnnotationCoroutine;
         private Vector3 defaultScale;
 
-        void Awake() => ResolveDependencies();
+        public virtual void Awake() => ResolveDependencies();
 
         private void ResolveDependencies() => button = GetComponent<UnityButton>() as UnityButton;
 
@@ -105,6 +105,14 @@ namespace Chess
             {
                 case PointerEventHandler.Event.Enter:
                     OnPointerEnter(gameObject, eventData);
+                    break;
+
+                case PointerEventHandler.Event.Down:
+                    OnPointerDown(gameObject, eventData);
+                    break;
+
+                case PointerEventHandler.Event.Up:
+                    OnPointerUp(gameObject, eventData);
                     break;
 
                 case PointerEventHandler.Event.Exit:
@@ -170,6 +178,34 @@ namespace Chess
             var manager = gameObject.GetComponent<ButtonUI>() as ButtonUI;
             NotifyReceivers(manager.Annotation.Text);
         }
+
+        private void OnPointerDown(GameObject gameObject, PointerEventData eventData)
+        {
+            XRRayInteractor rayInteractor = null;
+            
+            if (TryGetXRRayInteractor(eventData.pointerId, out var interactor))
+            {
+                rayInteractor = interactor;
+            }
+
+            OnPointerDownOverride(eventData, eventData.pointerEnter, rayInteractor);
+        }
+
+        protected virtual void OnPointerDownOverride(PointerEventData eventData, GameObject gameObject, XRRayInteractor rayInteractor) { }
+        
+        private void OnPointerUp(GameObject gameObject, PointerEventData eventData)
+        {
+            XRRayInteractor rayInteractor = null;
+            
+            if (TryGetXRRayInteractor(eventData.pointerId, out var interactor))
+            {
+                rayInteractor = interactor;
+            }
+
+            OnPointerDownOverride(eventData, eventData.pointerEnter, rayInteractor);
+        }
+
+        protected virtual void OnPointerUpOverride(PointerEventData eventData, GameObject gameObject, XRRayInteractor rayInteractor) { }
 
         private void OnPointerExit(GameObject gameObject, PointerEventData eventData)
         {

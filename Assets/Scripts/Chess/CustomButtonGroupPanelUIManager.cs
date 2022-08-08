@@ -8,8 +8,8 @@ namespace Chess
     public abstract class CustomButtonGroupPanelUIManager : BaseButtonGroupPanelUIManager
     {
         [Header("Components")]
-        [SerializeField] protected List<UnityButton> customButtons;
+        [SerializeField] protected List<UnityButton> buttonSet;
 
-        protected override List<UnityButton> ResolveButtons() => customButtons;
+        protected override List<UnityButton> ResolveButtons() => buttonSet;
     }
 }

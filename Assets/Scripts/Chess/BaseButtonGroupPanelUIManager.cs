@@ -25,8 +25,8 @@ namespace Chess
         [SerializeField] float postAnnotationDelay = 0.5f;
         public float PostAnnotationDelay { get { return postAnnotationDelay; } }
 
-        [Header("Posts")]
-        [SerializeField] List<TextReceiver> receivers;
+        [Header("Notifications")]
+        [SerializeField] List<TextReceiver> textReceivers;
 
         protected List<UnityButton> buttons;
         private Coroutine postAnnotationCoroutine;
@@ -46,7 +46,7 @@ namespace Chess
         }
 
         protected abstract List<UnityButton> ResolveButtons();
-        
+
         void OnEnable()
         {
             foreach (UnityButton button in buttons)
@@ -204,7 +204,7 @@ namespace Chess
 
         protected void NotifyReceivers(string text)
         {
-            foreach (TextReceiver receiver in receivers)
+            foreach (TextReceiver receiver in textReceivers)
             {
                 receiver.OnText(text);
             }
