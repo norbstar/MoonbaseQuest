@@ -21,11 +21,6 @@ namespace Chess
         [Header("Config")]
         [SerializeField] Color headerHighlightColor;
         public Color HeaderHighlightColor { get { return headerHighlightColor; } }
-        [SerializeField] bool overridePointerEnterEvent = false;
-        public bool OverridePointerEnterEvent { get  { return overridePointerEnterEvent; } }
-        [SerializeField] bool overridePointerExitEvent = false;
-        public bool OverridePointerExitEvent { get  { return overridePointerExitEvent; } }
-
         private Color defaultHeaderColor;
         public Color DefaultHeaderColor { get { return defaultHeaderColor; } }
 

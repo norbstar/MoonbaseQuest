@@ -28,6 +28,18 @@ namespace Chess
         [Header("Notifications")]
         [SerializeField] List<TextReceiver> textReceivers;
 
+        public enum Event
+        {
+            OnPointerEnter,
+            OnPointerDown,
+            OnPointerUp,
+            OnPointerExit,
+            OnClick
+        }
+
+        public delegate void OnButtonEvent(GameObject gameObject, Event evt);
+        public event OnButtonEvent EventReceived;
+
         protected List<UnityButton> buttons;
         private Coroutine postAnnotationCoroutine;
         private Vector3 defaultScale;
@@ -105,6 +117,14 @@ namespace Chess
                     OnPointerEnter(gameObject, eventData);
                     break;
 
+                case PointerEventHandler.Event.Down:
+                    OnPointerDown(gameObject, eventData);
+                    break;
+
+                case PointerEventHandler.Event.Up:
+                    OnPointerUp(gameObject, eventData);
+                    break;
+
                 case PointerEventHandler.Event.Exit:
                     OnPointerExit(gameObject, eventData);
                     break;
@@ -120,20 +140,15 @@ namespace Chess
                 rayInteractor = interactor;
             }
 
-            var manager = gameObject.GetComponent<ButtonUI>() as ButtonUI;
-
-            if (manager.OverridePointerEnterEvent)
-            {
-                OnPointerEnterOverride(eventData, eventData.pointerEnter, rayInteractor);
-            }
-            else
-            {
-                StartCoroutine(OnPointerEnterCoroutine(eventData, eventData.pointerEnter, rayInteractor));
-                postAnnotationCoroutine = StartCoroutine(PostAnnotationCoroutine(eventData.pointerEnter));
-            }
+            OnPointerEnter(eventData, eventData.pointerEnter, rayInteractor);
+            PostEvent(Event.OnPointerEnter);
         }
 
-        protected virtual void OnPointerEnterOverride(PointerEventData eventData, GameObject gameObject, XRRayInteractor rayInteractor) { }
+        protected virtual void OnPointerEnter(PointerEventData eventData, GameObject gameObject, XRRayInteractor rayInteractor)
+        {
+            StartCoroutine(OnPointerEnterCoroutine(eventData, eventData.pointerEnter, rayInteractor));
+            postAnnotationCoroutine = StartCoroutine(PostAnnotationCoroutine(eventData.pointerEnter));
+        }
 
         private IEnumerator OnPointerEnterCoroutine(PointerEventData eventData, GameObject gameObject, XRRayInteractor rayInteractor)
         {
@@ -158,38 +173,62 @@ namespace Chess
             }
         }
 
-        private IEnumerator PostAnnotationCoroutine(GameObject gameObject)
+        private void OnPointerDown(GameObject gameObject, PointerEventData eventData)
         {
-            yield return new WaitForSeconds(postAnnotationDelay);
+            XRRayInteractor rayInteractor = null;
+            
+            if (TryGetXRRayInteractor(eventData.pointerId, out var interactor))
+            {
+                rayInteractor = interactor;
+            }
 
-            var manager = gameObject.GetComponent<ButtonUI>() as ButtonUI;
-            NotifyReceivers(manager.Annotation.Text);
+            OnPointerDown(eventData, eventData.pointerEnter, rayInteractor);
+            PostEvent(Event.OnPointerDown);
         }
+
+        protected virtual void OnPointerDown(PointerEventData eventData, GameObject gameObject, XRRayInteractor rayInteractor) { }
+        
+        private void OnPointerUp(GameObject gameObject, PointerEventData eventData)
+        {
+            XRRayInteractor rayInteractor = null;
+            
+            if (TryGetXRRayInteractor(eventData.pointerId, out var interactor))
+            {
+                rayInteractor = interactor;
+            }
+
+            OnPointerDown(eventData, eventData.pointerEnter, rayInteractor);
+            PostEvent(Event.OnPointerUp);
+        }
+
+        protected virtual void OnPointerUp(PointerEventData eventData, GameObject gameObject, XRRayInteractor rayInteractor) { }
 
         private void OnPointerExit(GameObject gameObject, PointerEventData eventData)
         {
-            var manager = gameObject.GetComponent<ButtonUI>() as ButtonUI;
-
-            if (manager.OverridePointerExitEvent)
+            XRRayInteractor rayInteractor = null;
+            
+            if (TryGetXRRayInteractor(eventData.pointerId, out var interactor))
             {
-                OnPointerExitOverride(eventData, eventData.pointerEnter);
+                rayInteractor = interactor;
             }
-            else
-            {
-                StartCoroutine(OnPointerExitCoroutine(eventData, eventData.pointerEnter));
-                
-                if (postAnnotationCoroutine != null)
-                {
-                    StopCoroutine(postAnnotationCoroutine);
-                }
 
-                NotifyReceivers(string.Empty);
-            }
+            OnPointerExit(eventData, eventData.pointerEnter, rayInteractor);
+            PostEvent(Event.OnPointerExit);
         }
 
-        protected virtual void OnPointerExitOverride(PointerEventData eventData, GameObject gameObject) { }
+        protected virtual void OnPointerExit(PointerEventData eventData, GameObject gameObject, XRRayInteractor rayInteractor)
+        {
+            StartCoroutine(OnPointerExitCoroutine(eventData, eventData.pointerEnter, rayInteractor));
+                
+            if (postAnnotationCoroutine != null)
+            {
+                StopCoroutine(postAnnotationCoroutine);
+            }
 
-        private IEnumerator OnPointerExitCoroutine(PointerEventData eventData, GameObject gameObject)
+            NotifyReceivers(string.Empty);
+        }
+
+        private IEnumerator OnPointerExitCoroutine(PointerEventData eventData, GameObject gameObject, XRRayInteractor rayInteractor)
         {
             var manager = gameObject.GetComponent<ButtonUI>() as ButtonUI;
 
@@ -201,6 +240,16 @@ namespace Chess
             var scaleFXManager = manager.ScaleFXManager;
             yield return scaleFXManager.ScaleDown(defaultScale.z * 1.1f, defaultScale.z);
         }
+
+        private IEnumerator PostAnnotationCoroutine(GameObject gameObject)
+        {
+            yield return new WaitForSeconds(postAnnotationDelay);
+
+            var manager = gameObject.GetComponent<ButtonUI>() as ButtonUI;
+            NotifyReceivers(manager.Annotation.Text);
+        }
+
+        protected void PostEvent(Event evt) => EventReceived?.Invoke(gameObject, evt);
 
         protected void NotifyReceivers(string text)
         {

@@ -27,32 +27,42 @@ namespace Chess
             progress.fillAmount = 0f;
         }
 
-        protected override void OnPointerDownOverride(PointerEventData eventData, GameObject gameObject, XRRayInteractor rayInteractor) => coroutine = StartCoroutine(ManageProgressCoroutine());
-
-        protected override void OnPointerUpOverride(PointerEventData eventData, GameObject gameObject, XRRayInteractor rayInteractor) => CancelProgress();
-
-        protected override void OnPointerExitOverride(PointerEventData eventData, GameObject gameObject)
+        protected override void OnPointerDown(PointerEventData eventData, GameObject gameObject, XRRayInteractor rayInteractor)
         {
-            base.OnPointerExitOverride(eventData, gameObject);
-            CancelProgress();
+            base.OnPointerDown(eventData, gameObject, rayInteractor);
+            coroutine = StartCoroutine(ManageProgressCoroutine());
         }
 
-        private void CancelProgress()
+        protected override void OnPointerUp(PointerEventData eventData, GameObject gameObject, XRRayInteractor rayInteractor)
         {
-            Debug.Log("CancelProgress");
-            StopCoroutine(coroutine);
-            progress.fillAmount = 0f;
+            base.OnPointerUp(eventData, gameObject, rayInteractor);
+            Cancel();
         }
 
-        public override void OnClickButton(UnityButton button)
+        protected override void OnPointerExit(PointerEventData eventData, GameObject gameObject, XRRayInteractor rayInteractor)
         {
-            if (onSelectClip != null)
+            base.OnPointerExit(eventData, gameObject, rayInteractor);
+            Cancel();
+        }
+
+        private void Cancel()
+        {
+            if (coroutine != null)
             {
-                AudioSource.PlayClipAtPoint(onSelectClip, Vector3.zero, 1.0f);
+                StopCoroutine(coroutine);
+            }
+
+            NotifyReceivers(string.Empty);
+
+            if (deselectOnSelect)
+            {
+                StartCoroutine(DeselectCoroutine(deselectionDelay));
             }
 
             progress.fillAmount = 0f;
         }
+
+        public override void OnClickButton(UnityButton button) => progress.fillAmount = 0f;
 
         private IEnumerator ManageProgressCoroutine()
         {
@@ -69,6 +79,13 @@ namespace Chess
 
                 yield return null;
             }
+
+            if (onSelectClip != null)
+            {
+                AudioSource.PlayClipAtPoint(onSelectClip, Vector3.zero, 1.0f);
+            }
+
+            PostEvent(Event.OnClick);
         }
     }
 }

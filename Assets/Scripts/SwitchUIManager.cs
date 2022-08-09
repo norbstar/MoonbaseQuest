@@ -74,6 +74,7 @@ namespace Chess
                     //     break;
 
                     case ButtonUIManager.Event.OnPointerExit:
+
                         StartCoroutine(ScrollToTopCoroutine(scrollRect));
                         break;
 
