@@ -4,13 +4,13 @@ using UnityEngine;
 
 namespace Chess
 {
-    public class SpherePropagator : BaseSpherePropagator
+    public class SpherePropagatorSyncedToScale : BaseSpherePropagator
     {
         [Header("Config")]
         [SerializeField] GameObject sphere;
-        [SerializeField] [Range(0f, 100f)] float scale = 5f;
         public float Scale { get { return scale; } }
 
+        private float scale = 5f;
         private int defaultLayerMask;
         private List<OpacityModifierByProximity> modifiers;
 
@@ -24,7 +24,7 @@ namespace Chess
 
         void FixedUpdate()
         {
-            sphere.transform.localScale = Vector3.one * scale;
+            scale = sphere.transform.localScale.z;
             radius = scale * 0.5f;
             Collider[] hits = Physics.OverlapSphere(transform.TransformPoint(Vector3.zero), radius);
             // Debug.Log($"Has Hits : {hits.Length > 0}");

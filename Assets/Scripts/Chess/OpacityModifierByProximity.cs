@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 using UnityEngine;
 
 namespace Chess
@@ -5,21 +7,27 @@ namespace Chess
     [RequireComponent(typeof(Renderer))]
     public class OpacityModifierByProximity : MonoBehaviour
     {
+        // [Header("Components")]
+        // [SerializeField] List<Material> materials;
+
         [Header("Config")]
         [SerializeField] float range = 1f;
 
         private new Renderer renderer;
-        private SpherePropagator propagator;
+        private BaseSpherePropagator propagator;
 
         void Awake()
         {
             ResolveDependencies();
-            renderer.material = Instantiate(Resources.Load("Materials/Transparent Blue") as Material);
+            var name = renderer.material.name.Replace(" (Instance)","");
+            Debug.Log($"{renderer.material.name} -> {name}");
+            renderer.material = Instantiate(Resources.Load($"Materials/{name}") as Material);
+            // renderer.material = Instantiate(Resources.Load("Materials/Transparent Blue") as Material);
         }
 
         private void ResolveDependencies() => renderer = GetComponent<Renderer>() as Renderer;
         
-        public void RegisterWithSource(SpherePropagator propagator) => this.propagator = propagator;
+        public void RegisterWithSource(BaseSpherePropagator propagator) => this.propagator = propagator;
 
         public void UnregisterWithSource() => this.propagator = null;
 
