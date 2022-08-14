@@ -17,7 +17,7 @@ namespace Chess
             FadePanelUIManager.EventReceived += OnFadeEvent;
             ShortcutPanelUIManager.EventReceived += OnShortcutEvent;
             ConfirmationPanelUIManager.EventReceived += OnConfirmationEvent;
-            SliderPanelUIManager.EventReceived += OnVolumeEvent;
+            SliderPanelUIManager.EventReceived += OnSliderEvent;
         }
 
         void OnDisable()
@@ -26,7 +26,7 @@ namespace Chess
             FadePanelUIManager.EventReceived -= OnFadeEvent;
             ShortcutPanelUIManager.EventReceived -= OnShortcutEvent;
             ConfirmationPanelUIManager.EventReceived -= OnConfirmationEvent;
-            SliderPanelUIManager.EventReceived -= OnVolumeEvent;
+            SliderPanelUIManager.EventReceived -= OnSliderEvent;
         }
 
         private void OnPlayModeEvent(PlayModePanelUIManager.Identity identity) { }
@@ -66,6 +66,6 @@ namespace Chess
             }
         }
 
-        private void OnVolumeEvent(float value) { }
+        private void OnSliderEvent(float value) { }
     }
 }

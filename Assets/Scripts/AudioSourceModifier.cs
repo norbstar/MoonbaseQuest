@@ -17,9 +17,9 @@ public class AudioSourceModifier : MonoBehaviour
 
     private void ResolveDependencies() => audioSource = GetComponent<AudioSource>() as AudioSource;
 
-    void OnEnable() => SliderPanelUIManager.EventReceived += OnModifyEvent;
+    void OnEnable() => SliderPanelUIManager.EventReceived += OnSliderEvent;
 
-    void OnDisable() => SliderPanelUIManager.EventReceived -= OnModifyEvent;
+    void OnDisable() => SliderPanelUIManager.EventReceived -= OnSliderEvent;
 
-    private void OnModifyEvent(float value) => audioSource.volume = value;
+    private void OnSliderEvent(float value) => audioSource.volume = value;
 }

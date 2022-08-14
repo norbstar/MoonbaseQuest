@@ -150,15 +150,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4412fe1f77ad6034f90dfe62f8b07291, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  group: {fileID: 5346837096307553138}
   onHoverClip: {fileID: 8300000, guid: 5918e1159f1004249a91f32a9648c402, type: 3}
   onSelectClip: {fileID: 8300000, guid: c84c529e4ccb7144ea9af253580dff35, type: 3}
   enableHaptics: 1
   deselectOnSelect: 1
   deselectionDelay: 0.25
   postAnnotationDelay: 0.5
-  receivers:
+  textReceivers:
   - {fileID: 0}
+  group: {fileID: 5346837096307553138}
 --- !u!1 &5346837096198821765
 GameObject:
   m_ObjectHideFlags: 0
@@ -689,8 +689,6 @@ MonoBehaviour:
   textUI: {fileID: 0}
   annotation: {fileID: 5346837097387202293}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
-  overridePointerEnterEvent: 0
-  overridePointerExitEvent: 0
 --- !u!1 &5346837096695390124
 GameObject:
   m_ObjectHideFlags: 0
@@ -1217,8 +1215,6 @@ MonoBehaviour:
   textUI: {fileID: 0}
   annotation: {fileID: 5346837095818317165}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
-  overridePointerEnterEvent: 0
-  overridePointerExitEvent: 0
 --- !u!1 &5346837097721507631
 GameObject:
   m_ObjectHideFlags: 0

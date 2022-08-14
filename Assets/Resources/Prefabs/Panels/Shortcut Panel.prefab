@@ -870,8 +870,6 @@ MonoBehaviour:
   textUI: {fileID: 0}
   annotation: {fileID: 1071435017725807682}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
-  overridePointerEnterEvent: 0
-  overridePointerExitEvent: 0
 --- !u!1 &1071435017557348360
 GameObject:
   m_ObjectHideFlags: 0
@@ -1248,8 +1246,6 @@ MonoBehaviour:
   textUI: {fileID: 0}
   annotation: {fileID: 1071435017281752579}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
-  overridePointerEnterEvent: 0
-  overridePointerExitEvent: 0
 --- !u!1 &1071435017975333021
 GameObject:
   m_ObjectHideFlags: 0
@@ -1700,8 +1696,6 @@ MonoBehaviour:
   textUI: {fileID: 0}
   annotation: {fileID: 1071435017975332995}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
-  overridePointerEnterEvent: 0
-  overridePointerExitEvent: 0
 --- !u!1 &1071435018239182835
 GameObject:
   m_ObjectHideFlags: 0
@@ -1727,7 +1721,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1071435018239182835}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.11999998, y: 0.11999999, z: 0.11999999}
   m_Children: []
@@ -1926,15 +1920,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25548f3592417f840be4110cfdb0ea1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  group: {fileID: 1071435018524503863}
   onHoverClip: {fileID: 8300000, guid: 5918e1159f1004249a91f32a9648c402, type: 3}
   onSelectClip: {fileID: 8300000, guid: c84c529e4ccb7144ea9af253580dff35, type: 3}
   enableHaptics: 1
   deselectOnSelect: 1
   deselectionDelay: 0.25
   postAnnotationDelay: 0.5
-  receivers:
+  textReceivers:
   - {fileID: 0}
+  group: {fileID: 1071435018524503863}
 --- !u!1 &1071435018318659103
 GameObject:
   m_ObjectHideFlags: 0
@@ -2267,8 +2261,6 @@ MonoBehaviour:
   textUI: {fileID: 0}
   annotation: {fileID: 1071435017557348366}
   headerHighlightColor: {r: 1, g: 0, b: 0.3647059, a: 1}
-  overridePointerEnterEvent: 0
-  overridePointerExitEvent: 0
 --- !u!1 &1071435018482208894
 GameObject:
   m_ObjectHideFlags: 0
