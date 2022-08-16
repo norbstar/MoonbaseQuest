@@ -239,7 +239,11 @@ namespace Chess
             yield return new WaitForSeconds(postAnnotationDelay);
 
             var manager = gameObject.GetComponent<ButtonUI>() as ButtonUI;
-            NotifyReceivers(manager.Annotation.Text);
+
+            if (manager.Annotation != null)
+            {
+                NotifyReceivers(manager.Annotation.Text);
+            }
         }
 
         protected void PostEvent(Event evt) => EventReceived?.Invoke(gameObject, evt);

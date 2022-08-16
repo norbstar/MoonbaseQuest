@@ -3,12 +3,12 @@ using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(CanvasGroup))]
-public class CanvasGroupFader : MonoBehaviour
+public class CanvasGroupInFader : MonoBehaviour
 {
     [Header("Config")]
     [SerializeField] bool autoStart = false;
     [SerializeField] float initialDelaySec = 2.5f;
-    [SerializeField] float fadeInDurationSec = 0.5f;
+    [SerializeField] float fadeDurationSec = 0.5f;
 
     private CanvasGroup canvasGroup;
 
@@ -26,15 +26,17 @@ public class CanvasGroupFader : MonoBehaviour
         }
     }
 
+    public void FadeIn() => StartCoroutine(FadeInCanvasGroupCoroutine());
+
     private IEnumerator FadeInCanvasGroupCoroutine()
     {
         bool complete = false;           
         float startTime = Time.time;            
-        float endTime = startTime + fadeInDurationSec;
+        float endTime = startTime + fadeDurationSec;
 
         while (!complete)
         {
-            float fractionComplete = (Time.time - startTime) / fadeInDurationSec;
+            float fractionComplete = (Time.time - startTime) / fadeDurationSec;
             complete = (fractionComplete >= 1f);
             
             canvasGroup.alpha = Mathf.Lerp(0f, 1f, fractionComplete);
