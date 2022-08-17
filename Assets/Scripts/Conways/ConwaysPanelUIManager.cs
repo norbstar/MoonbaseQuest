@@ -155,13 +155,13 @@ namespace Conways
                     break;
 
                 case (int) GridSize.Medium:
-                    textUI.text = "10x10";
-                    AllocateCells(10);
+                    textUI.text = "11x11";
+                    AllocateCells(11);
                     break;
 
                 case (int) GridSize.Large:
-                    textUI.text = "15x15";
-                    AllocateCells(15);
+                    textUI.text = "21x21";
+                    AllocateCells(21);
                     break;
             }
         }
