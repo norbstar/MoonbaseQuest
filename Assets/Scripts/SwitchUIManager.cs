@@ -37,8 +37,6 @@ namespace Chess
 
         private void OnButtonEvent(GameObject gameObject, ButtonUIManager.Event evt)
         {
-            Debug.Log($"OnButtonEvent GameObject : {gameObject.name} Event : {evt}");
-            
             if (TryGet.TryGetRootResolver(button.gameObject, out GameObject rootGameObject))
             {
                 var scrollRect = rootGameObject.GetComponent<ScrollRect>() as ScrollRect;
@@ -61,8 +59,6 @@ namespace Chess
 
         private void OnAltButtonEvent(GameObject gameObject, ButtonUIManager.Event evt)
         {
-            Debug.Log($"OnAltButtonEvent GameObject : {gameObject.name} Event : {evt}");
-
             if (TryGet.TryGetRootResolver(button.gameObject, out GameObject rootGameObject))
             {
                 var scrollRect = rootGameObject.GetComponent<ScrollRect>() as ScrollRect;

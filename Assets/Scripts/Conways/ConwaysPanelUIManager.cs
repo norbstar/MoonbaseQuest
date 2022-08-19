@@ -193,6 +193,8 @@ namespace Conways
             {
                 Destroy(game.transform.GetChild(itr).gameObject);
             }
+
+            game.Reset();
         }
 
         private void OnClickButton(Button button)
