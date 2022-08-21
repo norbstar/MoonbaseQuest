@@ -227,7 +227,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scrollbar: {fileID: 6801085997177919167}
   eventHandler: {fileID: 7105051495771818479}
-  onHoverClip: {fileID: 8300000, guid: 5918e1159f1004249a91f32a9648c402, type: 3}
+  onHoverClip: {fileID: 0}
   enableHaptics: 1
   scrollRect: {fileID: 6801085997070502865}
   acceptButton: {fileID: 5655077928043198873}
@@ -733,8 +733,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c2ed75bd88a3bc48a35876c872c3ba9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  onHoverClip: {fileID: 8300000, guid: 5918e1159f1004249a91f32a9648c402, type: 3}
-  onSelectClip: {fileID: 8300000, guid: c84c529e4ccb7144ea9af253580dff35, type: 3}
+  onHoverClip: {fileID: 0}
+  onSelectClip: {fileID: 8300000, guid: 33ffe6133d61633498ca1b349fd9f847, type: 3}
   enableHaptics: 1
   deselectOnSelect: 1
   deselectionDelay: 0.25
@@ -897,7 +897,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6801085997070502870}
   - component: {fileID: 6801085997070502867}
-  - component: {fileID: 6801085997070502864}
+  - component: {fileID: 6414133971352641003}
   - component: {fileID: 6801085997070502865}
   m_Layer: 5
   m_Name: Scroll View
@@ -935,7 +935,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6801085997070502871}
   m_CullTransparentMesh: 1
---- !u!114 &6801085997070502864
+--- !u!114 &6414133971352641003
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -948,14 +948,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.5019608}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 21300000, guid: bb834890e0cd334409b985dfdd660ce4, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -964,7 +964,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
+  m_PixelsPerUnitMultiplier: 10
 --- !u!114 &6801085997070502865
 MonoBehaviour:
   m_ObjectHideFlags: 0
