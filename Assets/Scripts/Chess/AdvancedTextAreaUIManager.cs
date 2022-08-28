@@ -24,6 +24,8 @@ namespace Chess
         public delegate void OnClickEvent(Identity identity);
         public event OnClickEvent EventReceived;
 
+        private Coroutine coroutine;
+
         protected override void OnEnable()
         {
             base.OnEnable();
@@ -45,7 +47,7 @@ namespace Chess
             switch (evt)
             {
                 case ButtonUIManager.Event.OnClick:
-                    StartCoroutine(ScrollToTopCoroutine());
+                    ScrollToTop();
                     EventReceived?.Invoke(Identity.TopButton);
                     break;
             }
@@ -56,10 +58,20 @@ namespace Chess
             switch (evt)
             {
                 case ButtonUIManager.Event.OnClick:
-                    StartCoroutine(ScrollToBottomCoroutine());
+                    ScrollToBottom();
                     EventReceived?.Invoke(Identity.BottomButton);
                     break;
             }
+        }
+
+        private void ScrollToTop()
+        {
+            if (coroutine != null)
+            {
+                StopCoroutine(coroutine);
+            }
+
+            coroutine = StartCoroutine(ScrollToTopCoroutine());
         }
 
         private IEnumerator ScrollToTopCoroutine()
@@ -77,6 +89,16 @@ namespace Chess
                 
                 yield return null;
             }
+        }
+
+        private void ScrollToBottom()
+        {
+            if (coroutine != null)
+            {
+                StopCoroutine(coroutine);
+            }
+
+            coroutine = StartCoroutine(ScrollToBottomCoroutine());
         }
 
         private IEnumerator ScrollToBottomCoroutine()

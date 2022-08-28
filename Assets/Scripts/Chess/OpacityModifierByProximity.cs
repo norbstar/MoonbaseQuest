@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+// using System.Collections.Generic;
 
 using UnityEngine;
 
@@ -21,6 +21,7 @@ namespace Chess
             ResolveDependencies();
             var name = renderer.material.name.Replace(" (Instance)","");
             Debug.Log($"{renderer.material.name} -> {name}");
+            
             renderer.material = Instantiate(Resources.Load($"Materials/{name}") as Material);
             // renderer.material = Instantiate(Resources.Load("Materials/Transparent Blue") as Material);
         }

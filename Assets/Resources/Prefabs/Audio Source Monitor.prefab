@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4264163875134681750}
   - component: {fileID: 4264163875134681749}
   - component: {fileID: 4264163875134681751}
+  - component: {fileID: 1047069360}
   m_Layer: 0
   m_Name: Audio Source Monitor
   m_TagString: Untagged
@@ -42,9 +43,9 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 6e3c25005ae7b8840a09e18bab22c74f, type: 3}
+  m_audioClip: {fileID: 8300000, guid: d47d1fa76bae6e04ebd17fbd58ce8e3a, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.25
+  m_Volume: 0
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -141,3 +142,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   source: {fileID: 0}
+--- !u!320 &1047069360
+PlayableDirector:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4264163875134681748}
+  m_Enabled: 0
+  serializedVersion: 3
+  m_PlayableAsset: {fileID: 11400000, guid: fe85dff8698bc08419fb2ed5b7bd5440, type: 2}
+  m_InitialState: 1
+  m_WrapMode: 1
+  m_DirectorUpdateMode: 1
+  m_InitialTime: 0
+  m_SceneBindings:
+  - key: {fileID: 948029624115523619, guid: fe85dff8698bc08419fb2ed5b7bd5440, type: 2}
+    value: {fileID: 4264163875134681749}
+  m_ExposedReferences:
+    m_References: []
