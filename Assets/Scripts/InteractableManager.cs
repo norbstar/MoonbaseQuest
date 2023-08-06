@@ -32,8 +32,12 @@ public class InteractableManager : GizmoManager, IInteractable
 
     public delegate void Event(InteractableManager interactable, EventType type);
     public static event Event EventReceived;
+
+    public delegate void IsHeldStatusChangeEvent(bool isHeld, HandController isHeldBy);
+    public static event IsHeldStatusChangeEvent IsHeldStatusChangeEventReceived;
     
     public bool IsHeld { get { return isHeld; } }
+    public HandController IsHeldBy { get { return isHeldBy; } }
     public bool IsDocked { get { return isDocked; } }
     public List<Collider> Colliders { get { return interactable.colliders; } }
     public bool EnableGravityOnGrab { get { return enableGravityOnGrab; } }
@@ -45,6 +49,7 @@ public class InteractableManager : GizmoManager, IInteractable
 
     protected Cache cache;
     private bool isHeld, isDocked;
+    private HandController isHeldBy;
 
     protected virtual void Awake()
     {
@@ -79,7 +84,7 @@ public class InteractableManager : GizmoManager, IInteractable
     public void OnHoverEntered(HoverEnterEventArgs args)
     {
         var interactor = args.interactorObject.transform.gameObject;
-        Log($"{Time.time} {gameObject.name} {className} OnHoverEntered:GameObject :{interactor.name}");
+        Log($"{Time.time} {gameObject.name} {className} OnHoverEntered GameObject: {interactor.name}");
 
         if (TryGet.TryGetIdentifyController(interactor, out HandController controller))
         {
@@ -93,7 +98,7 @@ public class InteractableManager : GizmoManager, IInteractable
     public void OnHoverExited(HoverExitEventArgs args)
     {
         var interactor = args.interactorObject.transform.gameObject;
-        Log($"{Time.time} {gameObject.name} {className} OnHoverExited:GameObject :{interactor.name}");
+        Log($"{Time.time} {gameObject.name} {className} OnHoverExited GameObject :{interactor.name}");
         
         if (TryGet.TryGetIdentifyController(interactor, out HandController controller))
         {
@@ -106,13 +111,15 @@ public class InteractableManager : GizmoManager, IInteractable
 
     public void OnSelectEntered(SelectEnterEventArgs args)
     {
-        interactor = args.interactorObject.transform.gameObject;
-        Log($"{Time.time} {gameObject.name} {className} OnSelectEntered:GameObject : {interactor.name}");
+        var interactor = args.interactorObject.transform.gameObject;
 
         if (TryGet.TryGetIdentifyController(interactor, out HandController controller))
         {
             controller.SetHolding(this, true);
             isHeld = true;
+            isHeldBy = controller;
+
+            Log($"{Time.time} {gameObject.name} {className} OnSelectEntered GameObject: {interactor.name} IsHeld: {isHeld} IsHeldBy: {isHeldBy}");
 
             OnSelectEntered(args, controller);
         }
@@ -136,8 +143,7 @@ public class InteractableManager : GizmoManager, IInteractable
 
     public void OnSelectExited(SelectExitEventArgs args)
     {
-        interactor = args.interactorObject.transform.gameObject;
-        Log($"{Time.time} {gameObject.name} {className} OnSelectExited:GameObject : {interactor.name}");
+        var interactor = args.interactorObject.transform.gameObject;
 
         if (gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidBody))
         {
@@ -149,6 +155,9 @@ public class InteractableManager : GizmoManager, IInteractable
         {
             controller.SetHolding(this, false);
             isHeld = false;
+            isHeldBy = null;
+
+            Log($"{Time.time} {gameObject.name} {className} OnSelectExited GameObject: {interactor.name} IsHeld: {isHeld} IsHeldBy: {isHeldBy}");
             
             OnSelectExited(args, controller);
         }
@@ -157,15 +166,13 @@ public class InteractableManager : GizmoManager, IInteractable
         {
             EventReceived(this, EventType.OnSelectExited);
         }
-        
-        interactor = null;
     }
 
     protected virtual void OnSelectExited(SelectExitEventArgs args, HandController controller) { }
 
     public void OnDockStatusChange(bool isDocked)
     {
-        Log($"{Time.time} {gameObject.name} {className} OnDockStatusChange:Is Docked : {isDocked}");
+        Log($"{Time.time} {gameObject.name} {className} OnDockStatusChange Is Docked: {isDocked}");
 
         this.isDocked = isDocked;
         focusableUI.SetActive(!isDocked);

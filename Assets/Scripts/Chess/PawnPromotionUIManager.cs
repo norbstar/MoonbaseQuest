@@ -48,7 +48,7 @@ namespace Chess
 
         void OnEnable()
         {
-            HandController.ActuationEventReceived += OnActuation;
+            HandController.InputChangeEventReceived += OnActuation;
 
             foreach (Element element in elements)
             {
@@ -58,7 +58,7 @@ namespace Chess
 
         void OnDisable()
         {
-            HandController.ActuationEventReceived -= OnActuation;
+            HandController.InputChangeEventReceived -= OnActuation;
 
             foreach (Element element in elements)
             {
@@ -95,11 +95,11 @@ namespace Chess
             }
         }
 
-        public void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics)
+        public void OnActuation(HandController controller, Enum.ControllerEnums.Input actuation, InputDeviceCharacteristics characteristics)
         {
             if (inFocusElement == null) return;
 
-            if (actuation.HasFlag(Actuation.Trigger))
+            if (actuation.HasFlag(Enum.ControllerEnums.Input.Trigger))
             {
                 AudioSource.PlayClipAtPoint(onSelectAudioClip, transform.position, 1.0f);
                 PieceManager piece = ResolvePieceBySet(set, inFocusElement.type);

@@ -651,7 +651,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Grip
+  m_text: Hold
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 08d1228322053fd42be18ec982b5cf6f, type: 2}
   m_sharedMaterial: {fileID: -215954790126548375, guid: 08d1228322053fd42be18ec982b5cf6f, type: 2}
@@ -1518,7 +1518,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enableLogging: 0
-  grip: {fileID: 456105909941114641}
+  confineLoggingToEditor: 0
+  hold: {fileID: 456105909941114641}
   pinch: {fileID: 456105910720707122}
   point: {fileID: 456105911430591555}
   claw: {fileID: 456105911638085771}
@@ -1538,7 +1539,7 @@ GameObject:
   - component: {fileID: 456105911380302501}
   - component: {fileID: 456105911380302490}
   m_Layer: 5
-  m_Name: Grip Canvas
+  m_Name: Hold Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

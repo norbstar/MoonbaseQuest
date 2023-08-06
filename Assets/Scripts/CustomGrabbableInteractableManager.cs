@@ -7,7 +7,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 using static Enum.ControllerEnums;
 
 [RequireComponent(typeof(XRGrabInteractable))]
-public class CustomGrabbableInteractableManager : FocusableInteractableManager, IActuation
+public class CustomGrabbableInteractableManager : FocusableInteractableManager, IInputChange
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
@@ -28,7 +28,7 @@ public class CustomGrabbableInteractableManager : FocusableInteractableManager, 
 
     void OnEnable()
     {
-        HandController.RawDataEventReceived += OnRawData;
+        HandController.RawInputEventReceived += OnRawData;
         
         brush = SpawnBrush();
         var brushScale = brush.transform.localScale;
@@ -49,11 +49,11 @@ public class CustomGrabbableInteractableManager : FocusableInteractableManager, 
 
     void OnDisable()
     {
-        HandController.RawDataEventReceived -= OnRawData;
+        HandController.RawInputEventReceived -= OnRawData;
         RemoveHierarchy();
     }
 
-    private void OnRawData(HandController.RawData rawData, InputDeviceCharacteristics characteristics)
+    private void OnRawData(HandController.RawInput rawData, InputDeviceCharacteristics characteristics)
     {
         Log($"{Time.time} {gameObject.name} {className} OnRawData");
 
@@ -79,13 +79,13 @@ public class CustomGrabbableInteractableManager : FocusableInteractableManager, 
         }
     }
 
-    public void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics, object value = null)
+    public void OnInputChange(Enum.ControllerEnums.Input input, InputDeviceCharacteristics characteristics, object value = null)
     {
-        Log($"{Time.time} {gameObject.name} {className} OnActuation:Actuation : {actuation} Value : {value}");
+        Log($"{Time.time} {gameObject.name} {className} OnInputChange:Input : {input} Value : {value}");
 
         if (!IsHeld) return;
 
-        if (actuation.HasFlag(Actuation.Button_AX))
+        if (input.HasFlag(Enum.ControllerEnums.Input.Button_AX))
         {
             RemoveHierarchy();
         }

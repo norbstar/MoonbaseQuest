@@ -7,14 +7,14 @@ namespace Enum
     public class HandEnums : MonoBehaviour
     {
         [Flags]
-        public enum State
+        public enum Action
         {
             None = 0,
-            Grip = 1,
-            Pinch = 2,
-            Point = 4,
-            Claw = 8,
-            Hover = 16
+            Holding = 1,
+            Pinching = 2,
+            Pointing = 4,
+            Clawing = 8,
+            Hovering = 16
         }
     }
 }

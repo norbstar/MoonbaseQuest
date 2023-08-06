@@ -3,9 +3,6 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.XR;
 
-using static Enum.ControllerEnums;
-using static Enum.HandEnums;
-
 public class LeftControllerCanvasManager : ControllerCanvasManager
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
@@ -15,55 +12,55 @@ public class LeftControllerCanvasManager : ControllerCanvasManager
     [SerializeField] GameObject xButton;
     [SerializeField] GameObject yButton;
 
-    private void SetMenuButtonState(Actuation actuation)
+    private void SetMenuButtonState(Enum.ControllerEnums.Input actuation)
     {
-        if (actuation.HasFlag(Actuation.Menu_Oculus) && !menuButton.activeSelf)
+        if (actuation.HasFlag(Enum.ControllerEnums.Input.Menu_Oculus) && !menuButton.activeSelf)
         {
             menuButton.SetActive(true);
         }
 
-        if (!actuation.HasFlag(Actuation.Menu_Oculus) && menuButton.activeSelf)
+        if (!actuation.HasFlag(Enum.ControllerEnums.Input.Menu_Oculus) && menuButton.activeSelf)
         {
             menuButton.SetActive(false);
         }
     }
 
-    private void SetXButtonState(Actuation actuation)
+    private void SetXButtonState(Enum.ControllerEnums.Input actuation)
     {
-        if (actuation.HasFlag(Actuation.Button_AX) && !xButton.activeSelf)
+        if (actuation.HasFlag(Enum.ControllerEnums.Input.Button_AX) && !xButton.activeSelf)
         {
             xButton.SetActive(true);
         }
 
-        if (!actuation.HasFlag(Actuation.Button_AX) && xButton.activeSelf)
+        if (!actuation.HasFlag(Enum.ControllerEnums.Input.Button_AX) && xButton.activeSelf)
         {
             xButton.SetActive(false);
         }
     }
     
-    private void SetYButtonState(Actuation actuation)
+    private void SetYButtonState(Enum.ControllerEnums.Input actuation)
     {
-        if (actuation.HasFlag(Actuation.Button_BY) && !yButton.activeSelf)
+        if (actuation.HasFlag(Enum.ControllerEnums.Input.Button_BY) && !yButton.activeSelf)
         {
             yButton.SetActive(true);
         }
 
-        if (!actuation.HasFlag(Actuation.Button_BY) && yButton.activeSelf)
+        if (!actuation.HasFlag(Enum.ControllerEnums.Input.Button_BY) && yButton.activeSelf)
         {
             yButton.SetActive(false);
         }
     }
 
-    public override void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics)
+    public override void OnActuation(HandController controller, Enum.ControllerEnums.Input actuation, InputDeviceCharacteristics characteristics)
     {
         if ((int) characteristics == (int) HandController.LeftHand)
         {
-            Log($"{Time.time} {gameObject.name} {className} OnActuation:Actuation : {actuation}");
+            Log($"{gameObject.name} {className} OnActuation:Actuation : {actuation}");
             SetActuation(actuation);
         }
     }
 
-    public override void SetActuation(Actuation actuation)
+    public override void SetActuation(Enum.ControllerEnums.Input actuation)
     {
         base.SetActuation(actuation);
 
@@ -72,21 +69,22 @@ public class LeftControllerCanvasManager : ControllerCanvasManager
         SetYButtonState(actuation);
     }
 
-    public override void OnRawData(HandController.RawData rawData, InputDeviceCharacteristics characteristics)
+    public override void OnRawData(HandController.RawInput rawData, InputDeviceCharacteristics characteristics)
     {
         if ((int) characteristics == (int) HandController.LeftHand)
         {
-            Log($"{Time.time} {gameObject.name} {className} OnThumbstickRaw:Value : {rawData.thumbstickValue}");
+            Log($"{gameObject.name} {className} OnRawData Value: {rawData.thumbstickValue}");
             SetThumbstickRaw(rawData.thumbstickValue);
         }
     }
 
-    public override void OnState(Enum.HandEnums.State state, InputDeviceCharacteristics characteristics)
+    public override void OnActionEvent(Enum.HandEnums.Action action, InputDeviceCharacteristics characteristics, IInteractable interactable)
     {
+        Log($"{gameObject.name} {className} OnActionEvent Action: {action} Characteristics: {characteristics}");
+        
         if ((int) characteristics == (int) HandController.LeftHand)
         {
-            Log($"{Time.time} {gameObject.name} {className} OnState:State : {state}");
-            SetState(state);
+            SetAction(action);
         }
     }
 }

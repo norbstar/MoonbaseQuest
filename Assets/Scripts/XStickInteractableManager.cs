@@ -43,7 +43,7 @@ public class XStickInteractableManager : StickInteractableManager
         }
     }
 
-    public override void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics, object value = null)
+    public override void OnInputChange(Enum.ControllerEnums.Input actuation, InputDeviceCharacteristics characteristics, object value = null)
     {
         Log($"{Time.time} {gameObject.name} {className} OnActuation:Actuation : {actuation} Value : {value}");
     }

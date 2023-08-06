@@ -13,7 +13,7 @@ using static Enum.ControllerEnums;
 
 [RequireComponent(typeof(XRGrabInteractable))]
 [RequireComponent(typeof(CurveCreator))]
-public class GunInteractableManager : FocusableInteractableManager, IActuation, IRawData
+public class GunInteractableManager : FocusableInteractableManager, IInputChange, IRawInput
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
@@ -464,9 +464,9 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
         }
     }
 
-    public void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics, object value = null)
+    public void OnInputChange(Enum.ControllerEnums.Input input, InputDeviceCharacteristics characteristics, object value = null)
     {
-        Log($"{Time.time} {gameObject.name} {className} OnActuation:Actuation : {actuation} Value : {value}");
+        Log($"{Time.time} {gameObject.name} {className} OnInputChange:Input : {input} Value : {value}");
 
         if (!IsHeld) return;
         
@@ -483,38 +483,38 @@ public class GunInteractableManager : FocusableInteractableManager, IActuation, 
 
         if (actuate)
         {
-            if (actuation.HasFlag(Actuation.Thumbstick_Left) || actuation.HasFlag(Actuation.Thumbstick_Right))
+            if (input.HasFlag(Enum.ControllerEnums.Input.Thumbstick_Left) || input.HasFlag(Enum.ControllerEnums.Input.Thumbstick_Right))
             {
-                HandleUINagivation(actuation);
+                HandleUINagivation(input);
             }
 
-            if (enableQuickHome && actuation.HasFlag(Actuation.Thumbstick_Down) && !IsHUDShown((int) Interactables.Gun.HUDManager.Identity.Home))
+            if (enableQuickHome && input.HasFlag(Enum.ControllerEnums.Input.Thumbstick_Down) && !IsHUDShown((int)Interactables.Gun.HUDManager.Identity.Home))
             {
-                ShowHUD((int) Interactables.Gun.HUDManager.Identity.Home);
+                ShowHUD((int)Interactables.Gun.HUDManager.Identity.Home);
             }
 
             lastActuation = Time.unscaledTime;
         }
 
-        hudContainerManager.HUDManager.OnActuation(actuation, characteristics);
+        hudContainerManager.HUDManager.OnInputChange(input, characteristics);
     }
 
-    public void OnRawData(HandController.RawData rawData)
+    public void OnRawInput(HandController.RawInput rawInput)
     {
-        Log($"{Time.time} {gameObject.name} {className} OnRawData:RawData : {rawData}");
+        Log($"{Time.time} {gameObject.name} {className} OnRawInput:RawInput : {rawInput}");
 
         if (!IsHeld) return;
 
         // TODO
     }
 
-    private void HandleUINagivation(Actuation actuation)
+    private void HandleUINagivation(Enum.ControllerEnums.Input actuation)
     {
         Log($"{Time.time} {gameObject.name} {className} HandleUINagivation:Actuation : {actuation}");
 
         int idx = default(int);
 
-        if ((actuation.HasFlag(Actuation.Thumbstick_Left) && (hudsManager.TryGetPreviousIndex(out idx))) || (actuation.HasFlag(Actuation.Thumbstick_Right) && (hudsManager.TryGetNextIndex(out idx))))
+        if ((actuation.HasFlag(Enum.ControllerEnums.Input.Thumbstick_Left) && (hudsManager.TryGetPreviousIndex(out idx))) || (actuation.HasFlag(Enum.ControllerEnums.Input.Thumbstick_Right) && (hudsManager.TryGetNextIndex(out idx))))
         {
             ShowHUD(idx);
         }

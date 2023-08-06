@@ -5,7 +5,7 @@ using static Enum.ControllerEnums;
 
 namespace Interactables.Gun
 {
-    public abstract class HUDManager : BaseManager, IActuation
+    public abstract class HUDManager : BaseManager, IInputChange
     {
         public enum Identity
         {
@@ -28,6 +28,6 @@ namespace Interactables.Gun
 
         public abstract void HideHUD();
         
-        public abstract void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics, object value = null);
+        public abstract void OnInputChange(Enum.ControllerEnums.Input input, InputDeviceCharacteristics characteristics, object value = null);
     }
 }

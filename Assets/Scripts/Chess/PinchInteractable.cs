@@ -20,7 +20,7 @@ namespace Chess
         [SerializeField] Transform leftHandAttachTransform;
         [SerializeField] Transform rightHandAttachTransform;
 
-        public delegate void Event(GameObject gameObject, Actuation actuation);
+        public delegate void Event(GameObject gameObject, Enum.ControllerEnums.Input actuation);
         public event Event EventReceived;
 
         private MeshCollider meshCollider;
@@ -46,12 +46,12 @@ namespace Chess
         void OnEnable()
         {
             hoverZone.EventReceived += OnHover;
-            HandController.ActuationEventReceived += OnActuation;
+            HandController.InputChangeEventReceived += OnActuation;
         }
 
         void OnDisable()
         {
-            HandController.ActuationEventReceived -= OnActuation;
+            HandController.InputChangeEventReceived -= OnActuation;
         }
 
         void Update()
@@ -110,11 +110,11 @@ namespace Chess
             }
         }
 
-        public void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics)
+        public void OnActuation(HandController controller, Enum.ControllerEnums.Input actuation, InputDeviceCharacteristics characteristics)
         {
             // Debug.Log($"OnActuation Actuation : {actuation}");
 
-            if (actuation.HasFlag(Actuation.Trigger))
+            if (actuation.HasFlag(Enum.ControllerEnums.Input.Trigger))
             {
                 if (characteristics == isHoveringCharacteristics)
                 {

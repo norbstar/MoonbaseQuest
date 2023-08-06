@@ -7,7 +7,7 @@ namespace Enum
     public class ControllerEnums : MonoBehaviour
     {
         [Flags]
-        public enum Actuation
+        public enum Input
         {
             None = 0,
             Trigger = 1,

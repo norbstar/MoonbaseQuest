@@ -30,11 +30,11 @@ namespace Interactables.Gun
             canvasManager.gameObject.SetActive(false);
         }
 
-        public override void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics, object value = null)
+        public override void OnInputChange(Enum.ControllerEnums.Input actuation, InputDeviceCharacteristics characteristics, object value = null)
         {
             Log($"{Time.time} {gameObject.name} {className} OnActuation:Actuation : {actuation}");
 
-            if (actuation.HasFlag(Actuation.Button_AX))
+            if (actuation.HasFlag(Enum.ControllerEnums.Input.Button_AX))
             {
                 AlternateIntent();
             }

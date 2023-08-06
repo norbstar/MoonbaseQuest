@@ -81,11 +81,11 @@ namespace Chess
             }
         }
 
-        private void OnInteractableEvent(GameObject gameObject, Actuation actuation)
+        private void OnInteractableEvent(GameObject gameObject, Enum.ControllerEnums.Input actuation)
         {
             Debug.Log($"OnInteractableEvent : {gameObject.name} Actuation : {actuation}");
 
-            if (!actuation.HasFlag(Actuation.Trigger))
+            if (!actuation.HasFlag(Enum.ControllerEnums.Input.Trigger))
             {
                 DockInteractable(gameObject);
                 HideOutline();

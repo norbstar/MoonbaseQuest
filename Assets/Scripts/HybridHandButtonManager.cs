@@ -25,12 +25,12 @@ public class HybridHandButtonManager : SimpleHandButtonManager, IFocus
 
     void OnEnable()
     {
-        HandController.ActuationEventReceived += OnActuation;
+        HandController.InputChangeEventReceived += OnActuation;
     }
 
     void OnDisable()
     {
-        HandController.ActuationEventReceived -= OnActuation;
+        HandController.InputChangeEventReceived -= OnActuation;
     }
 
     public void GainedFocus(GameObject gameObject, Vector3 focalPoint)
@@ -43,7 +43,7 @@ public class HybridHandButtonManager : SimpleHandButtonManager, IFocus
     // as once one looses focus, all that remain are untracked
     public void LostFocus(GameObject gameObject) => hasFocus = false;
 
-    private void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics)
+    private void OnActuation(HandController controller, Enum.ControllerEnums.Input actuation, InputDeviceCharacteristics characteristics)
     {
         if (!hasFocus)
         {
@@ -51,7 +51,7 @@ public class HybridHandButtonManager : SimpleHandButtonManager, IFocus
             return;
         }
 
-        bool isPressed = actuation.HasFlag(Actuation.Trigger);
+        bool isPressed = actuation.HasFlag(Enum.ControllerEnums.Input.Trigger);
         
         if (isPressed && !lastIsPressed)
         {

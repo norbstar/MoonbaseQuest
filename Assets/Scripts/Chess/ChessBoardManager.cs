@@ -78,7 +78,7 @@ namespace Chess
 
         void OnEnable()
         {
-            HandController.ActuationEventReceived += OnActuation;
+            HandController.InputChangeEventReceived += OnActuation;
             ButtonEventManager.EventReceived += OnButtonEvent;
             PreviewManager.EventReceived += OnPreviewEvent;
             NewGameManager.EventReceived += OnNewGameEvent;
@@ -88,7 +88,7 @@ namespace Chess
 
         void OnDisable()
         {
-            HandController.ActuationEventReceived -= OnActuation;
+            HandController.InputChangeEventReceived -= OnActuation;
             ButtonEventManager.EventReceived -= OnButtonEvent;
             PreviewManager.EventReceived -= OnPreviewEvent;
             NewGameManager.EventReceived -= OnNewGameEvent;
@@ -171,15 +171,15 @@ namespace Chess
             return result;
         }
 
-        public void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics)
+        public void OnActuation(HandController controller, Enum.ControllerEnums.Input actuation, InputDeviceCharacteristics characteristics)
         {
             if ((Stage == Stage.Evaluating) || (inFocusPiece == null)) return;
 
-            if (actuation.HasFlag(Actuation.Button_AX))
+            if (actuation.HasFlag(Enum.ControllerEnums.Input.Button_AX))
             {
                 ProcessIntent();
             }
-            else if (actuation.HasFlag(Actuation.Button_BY))
+            else if (actuation.HasFlag(Enum.ControllerEnums.Input.Button_BY))
             {
                 if (Stage == Stage.Selected)
                 {

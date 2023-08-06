@@ -7,9 +7,7 @@ using UnityEngine.XR;
 
 using TMPro;
 
-using static Enum.ControllerEnums;
-
-public class AnalyticsTerminalCanvas : MonoBehaviour
+public class AnalyticsTerminalCanvas : BaseManager
 {
     [SerializeField] TextMeshProUGUI textUI;
     [SerializeField] float refreshInterval = 0.25f;
@@ -24,29 +22,26 @@ public class AnalyticsTerminalCanvas : MonoBehaviour
         textUI.text = string.Empty;
     }
 
-    private void ResolveDependencies()
-    {
-        gameManager = GameManager.GetInstance();
-    }
+    private void ResolveDependencies() => gameManager = GameManager.GetInstance();
 
     // Start is called before the first frame update
     void Start()
     {
-        Debug.Log($"Config.RefreshInterval:{refreshInterval} secs");
+        Log($"Config.RefreshInterval:{refreshInterval} secs");
         StartCoroutine(MonitorLogs());
     }
 
     void OnEnable()
     {
         Application.logMessageReceived += Log;
-        HandController.ActuationEventReceived += OnActuation;
+        HandController.InputChangeEventReceived += OnActuation;
         ClearButtonFace.EventReceived += OnEvent;
     }
 
     void OnDisable()
     {
         Application.logMessageReceived -= Log;
-        HandController.ActuationEventReceived -= OnActuation;
+        HandController.InputChangeEventReceived -= OnActuation;
         ClearButtonFace.EventReceived -= OnEvent;
     }
 
@@ -67,6 +62,8 @@ public class AnalyticsTerminalCanvas : MonoBehaviour
                 break;
         }
     }
+
+    public void ClearLog() => elements.Clear();
 
     private void LogMessage(string logString)
     {
@@ -126,15 +123,15 @@ public class AnalyticsTerminalCanvas : MonoBehaviour
         }
     }
 
-    public void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics)
+    public void OnActuation(HandController controller, Enum.ControllerEnums.Input actuation, InputDeviceCharacteristics characteristics)
     {
         if ((int) characteristics == (int) HandController.LeftHand)
         {
-            Debug.Log($"OnActuation Left Hand: {actuation}");
+            Log($"OnActuation Left Hand: {actuation}");
         }
         else if ((int) characteristics == (int) HandController.RightHand)
         {
-            Debug.Log($"OnActuation Right Hand : {actuation}");
+            Log($"OnActuation Right Hand : {actuation}");
         }
     }
 
@@ -150,6 +147,6 @@ public class AnalyticsTerminalCanvas : MonoBehaviour
 
     void OnApplicationQuit()
     {
-        Debug.Log($"Application terminated after {Time.time} seconds");
+        Log($"Application terminated after {Time.time} seconds");
     }
 }

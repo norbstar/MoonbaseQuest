@@ -7,7 +7,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 using static Enum.ControllerEnums;
 
 [RequireComponent(typeof(XRGrabInteractable))]
-public abstract class StickInteractableManager : FocusableInteractableManager, IActuation
+public abstract class StickInteractableManager : FocusableInteractableManager, IInputChange
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
     
@@ -87,5 +87,5 @@ public abstract class StickInteractableManager : FocusableInteractableManager, I
         return eulerAngle;
     }
 
-    public abstract void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics, object value = null);
+    public abstract void OnInputChange(Enum.ControllerEnums.Input input, InputDeviceCharacteristics characteristics, object value = null);
 }

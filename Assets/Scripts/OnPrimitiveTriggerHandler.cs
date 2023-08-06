@@ -8,7 +8,7 @@ public class OnPrimitiveTriggerHandler : MonoBehaviour
     public void OnTriggerEnter(Collider collider)
     {
         GameObject trigger = collider.gameObject;
-        
+
         if (TryGet.TryGetRootResolver(trigger, out GameObject rootGameObject))
         {
             EventReceived?.Invoke(TriggerEventType.OnTriggerEnter, rootGameObject);

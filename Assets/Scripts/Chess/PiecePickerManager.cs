@@ -31,7 +31,7 @@ namespace Chess
 
         void OnEnable()
         {
-            HandController.ActuationEventReceived += OnActuation;
+            HandController.InputChangeEventReceived += OnActuation;
 
             foreach (PieceManager piece in pieces)
             {
@@ -41,7 +41,7 @@ namespace Chess
 
         void OnDisable()
         {
-            HandController.ActuationEventReceived -= OnActuation;
+            HandController.InputChangeEventReceived -= OnActuation;
 
             foreach (PieceManager piece in pieces)
             {
@@ -79,11 +79,11 @@ namespace Chess
             }
         }
 
-        public void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics)
+        public void OnActuation(HandController controller, Enum.ControllerEnums.Input actuation, InputDeviceCharacteristics characteristics)
         {
             if (inFocusPiece == null) return;
 
-            if (actuation.HasFlag(Actuation.Button_AX))
+            if (actuation.HasFlag(Enum.ControllerEnums.Input.Button_AX))
             {
                 PieceManager piece = ResolvePieceBySet(inFocusPiece.Set, inFocusPiece.Type);
                 EventReceived?.Invoke(piece);

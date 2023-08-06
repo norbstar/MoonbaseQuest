@@ -8,7 +8,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 using static Enum.ControllerEnums;
 
 [RequireComponent(typeof(XRGrabInteractable))]
-public class LaserSightInteractableManager : FocusableInteractableManager, IActuation
+public class LaserSightInteractableManager : FocusableInteractableManager, IInputChange
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
@@ -84,13 +84,13 @@ public class LaserSightInteractableManager : FocusableInteractableManager, IActu
         }  
     }
 
-    public void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics, object value = null)
+    public void OnInputChange(Enum.ControllerEnums.Input input, InputDeviceCharacteristics characteristics, object value = null)
     {
-        Log($"{Time.time} {gameObject.name} {className} OnActuation:Actuation : {actuation} Value : {value}");
+        Log($"{Time.time} {gameObject.name} {className} OnInputChange:Input : {input} Value : {value}");
 
         if (!IsHeld) return;
 
-        if (actuation.HasFlag(Actuation.Button_AX))
+        if (input.HasFlag(Enum.ControllerEnums.Input.Button_AX))
         {
             AlternateState();
         }

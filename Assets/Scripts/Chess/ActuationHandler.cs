@@ -13,13 +13,13 @@ public class ActuationHandler : MonoBehaviour
     public delegate void IntentEvent(Intent intent);
     public event IntentEvent IntentEventReceived;
 
-    void OnEnable() => HandController.ActuationEventReceived += OnActuation;
+    void OnEnable() => HandController.InputChangeEventReceived += OnActuation;
 
-    void OnDisable() => HandController.ActuationEventReceived -= OnActuation;
+    void OnDisable() => HandController.InputChangeEventReceived -= OnActuation;
 
-    public void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics)
+    public void OnActuation(HandController controller, Enum.ControllerEnums.Input actuation, InputDeviceCharacteristics characteristics)
     {
-        if (actuation.HasFlag(Actuation.Menu_Oculus))
+        if (actuation.HasFlag(Enum.ControllerEnums.Input.Menu_Oculus))
         {
             IntentEventReceived?.Invoke(Intent.ToggleOculusMenu);
         }

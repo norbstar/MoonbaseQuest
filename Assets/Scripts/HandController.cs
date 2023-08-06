@@ -6,8 +6,6 @@ using UnityEngine;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 
-using static Enum.ControllerEnums;
-
 [RequireComponent(typeof(XRController))]
 public class HandController : GizmoManager
 {
@@ -16,21 +14,27 @@ public class HandController : GizmoManager
     public static InputDeviceCharacteristics RightHand = (InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Right);
     public static InputDeviceCharacteristics LeftHand = (InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Left);
 
-    public delegate void ActuationEvent(Actuation actuation, InputDeviceCharacteristics characteristics);
-    public static event ActuationEvent ActuationEventReceived;
+    public delegate void InputChangeEvent(HandController controller, Enum.ControllerEnums.Input input, InputDeviceCharacteristics characteristics);
+    public static event InputChangeEvent InputChangeEventReceived;
 
-    public class RawData
+    public class RawInput
     {
         public float triggerValue, gripValue;
         public bool buttonAXValue, buttonBYValue, thumbstickClickValue, menuButtonValue;
         public Vector2 thumbstickValue;
     }
 
-    public delegate void RawDataEvent(RawData rawData, InputDeviceCharacteristics characteristics);
-    public static event RawDataEvent RawDataEventReceived;
+    public delegate void RawInputEvent(RawInput rawData, InputDeviceCharacteristics characteristics);
+    public static event RawInputEvent RawInputEventReceived;
 
-    public delegate void StateEvent(Enum.HandEnums.State state, InputDeviceCharacteristics characteristics);
-    public static event StateEvent StateEventReceived;
+    public delegate void ActionEvent(Enum.HandEnums.Action action, InputDeviceCharacteristics characteristics, IInteractable interactable);
+    public static event ActionEvent ActionEventReceived;
+
+    // public delegate void HoveringEvent(bool isHovering, IInteractable interactable, InputDeviceCharacteristics characteristics);
+    // public static event HoveringEvent HoveringEventReceived;
+
+    // public delegate void HoldingEvent(bool isHolding, IInteractable interactable, InputDeviceCharacteristics characteristics);
+    // public static event HoldingEvent HoldingEventReceived;
 
     [Header("Mapping")]
     [SerializeField] InputDeviceCharacteristics characteristics;
@@ -58,17 +62,20 @@ public class HandController : GizmoManager
     private TrackingMainCameraManager cameraManager;
     private InputDevice controller;
     private XRController xrController;
+    private Transform modelParent;
     private bool isHovering = false;
     private bool isHolding = false;
     private IInteractable interactable;
     private DebugCanvas debugCanvas;
-    private Actuation actuation, lastActuation;
+    private Enum.ControllerEnums.Input input, lastInput;
 
     public virtual void Awake() => ResolveDependencies();
 
     private void ResolveDependencies()
     {
         xrController = GetComponent<XRController>() as XRController;
+        modelParent = xrController.modelParent;
+
         cameraManager = camera.GetComponent<TrackingMainCameraManager>() as TrackingMainCameraManager;
 
         var obj = FindObjectOfType<DebugCanvas>();
@@ -104,38 +111,42 @@ public class HandController : GizmoManager
         if (controller.isValid)
         {
             Log($"{Time.time} {gameObject.name} {className} ResolveController:{controller.name}.Detected");
-            SetActuation(Actuation.None);
+            SetInput(Enum.ControllerEnums.Input.None);
         }
     }
 
-    private Actuation HandleTrigger(float value, Actuation actuation)
+    public void ShowModel() => modelParent.gameObject.SetActive(true);
+
+    public void HideModel() => modelParent.gameObject.SetActive(false);
+
+    private Enum.ControllerEnums.Input HandleTrigger(float value, Enum.ControllerEnums.Input actuation)
     {
         var handAnimationController = xrController.model.GetComponent<HandAnimationController>() as HandAnimationController;
         handAnimationController?.SetFloat("Trigger", value);
 
         if (value >= triggerThreshold)
         {
-            if (!actuation.HasFlag(Actuation.Trigger))
+            if (!actuation.HasFlag(Enum.ControllerEnums.Input.Trigger))
             {
-                actuation |= Actuation.Trigger;
+                actuation |= Enum.ControllerEnums.Input.Trigger;
             }
         }
         else
         {
-            actuation &= ~Actuation.Trigger;
+            actuation &= ~Enum.ControllerEnums.Input.Trigger;
         }
 
         return actuation;
     }
 
-    private Actuation HandleGrip(float value, Actuation actuation)
+    private Enum.ControllerEnums.Input HandleGrip(float value, Enum.ControllerEnums.Input actuation)
     {
         var handAnimationController = xrController.model.GetComponent<HandAnimationController>() as HandAnimationController;
         handAnimationController?.SetFloat("Grip", value);
 
         if (value >= gripThreshold)
         {
-            if (enableTeleport && (!isHovering) && (!actuation.HasFlag(Actuation.Grip)) && (cameraManager.TryGetObjectHit(out GameObject obj)))
+            if (enableTeleport && (!isHovering) && (!actuation.HasFlag(Enum.ControllerEnums.Input.Grip)) && (cameraManager.TryGetObjectHit(out GameObject obj)))
             {
                 if (obj.TryGetComponent<IInteractable>(out IInteractable interactable))
                 {
@@ -143,169 +154,169 @@ public class HandController : GizmoManager
                 }
             }
 
-            if (!actuation.HasFlag(Actuation.Grip))
+            if (!actuation.HasFlag(Enum.ControllerEnums.Input.Grip))
             {
-                actuation |= Actuation.Grip;
+                actuation |= Enum.ControllerEnums.Input.Grip;
             }
         }
         else
         {
-            actuation &= ~Actuation.Grip;
+            actuation &= ~Enum.ControllerEnums.Input.Grip;
         }
 
         return actuation;
     }
 
-    private Actuation HandleAXButton(bool value, Actuation actuation)
+    private Enum.ControllerEnums.Input HandleAXButton(bool value, Enum.ControllerEnums.Input actuation)
     {
         if (value)
         {
-            if (!actuation.HasFlag(Actuation.Button_AX))
+            if (!actuation.HasFlag(Enum.ControllerEnums.Input.Button_AX))
             {
-                actuation |= Actuation.Button_AX;
+                actuation |= Enum.ControllerEnums.Input.Button_AX;
             }
         }
         else
         {
-            actuation &= ~Actuation.Button_AX;
+            actuation &= ~Enum.ControllerEnums.Input.Button_AX;
         }
 
         return actuation;
     }
 
-    private Actuation HandleAXTouch(bool value, Actuation actuation)
+    private Enum.ControllerEnums.Input HandleAXTouch(bool value, Enum.ControllerEnums.Input actuation)
     {
         if (value)
         {
-            if (!actuation.HasFlag(Actuation.Touch_AX))
+            if (!actuation.HasFlag(Enum.ControllerEnums.Input.Touch_AX))
             {
-                actuation |= Actuation.Touch_AX;
+                actuation |= Enum.ControllerEnums.Input.Touch_AX;
             }
         }
         else
         {
-            actuation &= ~Actuation.Touch_AX;
+            actuation &= ~Enum.ControllerEnums.Input.Touch_AX;
         }
 
         return actuation;
     }
 
-    private Actuation HandleBYButton(bool value, Actuation actuation)
+    private Enum.ControllerEnums.Input HandleBYButton(bool value, Enum.ControllerEnums.Input actuation)
     {
         if (value)
         {
-            if (!actuation.HasFlag(Actuation.Button_BY))
+            if (!actuation.HasFlag(Enum.ControllerEnums.Input.Button_BY))
             {
-                actuation |= Actuation.Button_BY;
+                actuation |= Enum.ControllerEnums.Input.Button_BY;
             }
         }
         else
         {
-            actuation &= ~Actuation.Button_BY;
+            actuation &= ~Enum.ControllerEnums.Input.Button_BY;
         }
 
         return actuation;
     }
 
-        private Actuation HandleBYTouch(bool value, Actuation actuation)
+        private Enum.ControllerEnums.Input HandleBYTouch(bool value, Enum.ControllerEnums.Input actuation)
     {
         if (value)
         {
-            if (!actuation.HasFlag(Actuation.Touch_BY))
+            if (!actuation.HasFlag(Enum.ControllerEnums.Input.Touch_BY))
             {
-                actuation |= Actuation.Touch_BY;
+                actuation |= Enum.ControllerEnums.Input.Touch_BY;
             }
         }
         else
         {
-            actuation &= ~Actuation.Touch_BY;
+            actuation &= ~Enum.ControllerEnums.Input.Touch_BY;
         }
 
         return actuation;
     }
 
-    private Actuation Handle2DAxis(Vector2 value, Actuation actuation)
+    private Enum.ControllerEnums.Input Handle2DAxis(Vector2 value, Enum.ControllerEnums.Input actuation)
     {
         if (value.x <= -thumbstickThreshold.x)
         {
-            if (!actuation.HasFlag(Actuation.Thumbstick_Left))
+            if (!actuation.HasFlag(Enum.ControllerEnums.Input.Thumbstick_Left))
             {
-                actuation |= Actuation.Thumbstick_Left;
+                actuation |= Enum.ControllerEnums.Input.Thumbstick_Left;
             }
         }
         else
         {
-            actuation &= ~Actuation.Thumbstick_Left;
+            actuation &= ~Enum.ControllerEnums.Input.Thumbstick_Left;
         }
         
         if (value.x > thumbstickThreshold.x)
         {
-            if (!actuation.HasFlag(Actuation.Thumbstick_Right))
+            if (!actuation.HasFlag(Enum.ControllerEnums.Input.Thumbstick_Right))
             {
-                actuation |= Actuation.Thumbstick_Right;
+                actuation |= Enum.ControllerEnums.Input.Thumbstick_Right;
             }
         }
         else
         {
-            actuation &= ~Actuation.Thumbstick_Right;
+            actuation &= ~Enum.ControllerEnums.Input.Thumbstick_Right;
         }
 
         if (value.y > thumbstickThreshold.y)
         {
-            if (!actuation.HasFlag(Actuation.Thumbstick_Up))
+            if (!actuation.HasFlag(Enum.ControllerEnums.Input.Thumbstick_Up))
             {
-                actuation |= Actuation.Thumbstick_Up;
+                actuation |= Enum.ControllerEnums.Input.Thumbstick_Up;
             }
         }
         else
         {
-            actuation &= ~Actuation.Thumbstick_Up;
+            actuation &= ~Enum.ControllerEnums.Input.Thumbstick_Up;
         }
         
         if (value.y <= -thumbstickThreshold.y)
         {
-            if (!actuation.HasFlag(Actuation.Thumbstick_Down))
+            if (!actuation.HasFlag(Enum.ControllerEnums.Input.Thumbstick_Down))
             {
-                actuation |= Actuation.Thumbstick_Down;
+                actuation |= Enum.ControllerEnums.Input.Thumbstick_Down;
             }
         }
         else
         {
-            actuation &= ~Actuation.Thumbstick_Down;
+            actuation &= ~Enum.ControllerEnums.Input.Thumbstick_Down;
         }
 
         return actuation;
     }
 
-    private Actuation Handle2DAxisClick(bool value, Actuation actuation)
+    private Enum.ControllerEnums.Input Handle2DAxisClick(bool value, Enum.ControllerEnums.Input actuation)
     {
         if (value)
         {
-            if (!actuation.HasFlag(Actuation.Thumbstick_Click))
+            if (!actuation.HasFlag(Enum.ControllerEnums.Input.Thumbstick_Click))
             {
-                actuation |= Actuation.Thumbstick_Click;
+                actuation |= Enum.ControllerEnums.Input.Thumbstick_Click;
             }
         }
         else
         {
-            actuation &= ~Actuation.Thumbstick_Click;
+            actuation &= ~Enum.ControllerEnums.Input.Thumbstick_Click;
         }
 
         return actuation;
     }
 
-    private Actuation HandleMenuButton(bool value, Actuation actuation)
+    private Enum.ControllerEnums.Input HandleMenuButton(bool value, Enum.ControllerEnums.Input actuation)
     {
         if (value)
         {
-            if (!actuation.HasFlag(Actuation.Menu_Oculus))
+            if (!actuation.HasFlag(Enum.ControllerEnums.Input.Menu_Oculus))
             {
-                actuation |= Actuation.Menu_Oculus;
+                actuation |= Enum.ControllerEnums.Input.Menu_Oculus;
             }
         }
         else
         {
-            actuation &= ~Actuation.Menu_Oculus;
+            actuation &= ~Enum.ControllerEnums.Input.Menu_Oculus;
         }
 
         return actuation;
@@ -320,11 +331,9 @@ public class HandController : GizmoManager
             if (!controller.isValid) return;
         }
 
-        lastActuation = actuation;
+        lastInput = input;
 
         Log($"{this.gameObject.name} {className}.Update:Interactable : {interactable != null}");
-
-        var gameObject = interactable?.GetGameObject();
 
         float triggerValue, gripValue;
         bool buttonAXValue, touchAXValue, buttonBYValue, touchBYValue, thumbstickClickValue, menuButtonValue;
@@ -332,139 +341,153 @@ public class HandController : GizmoManager
 
         if (controller.TryGetFeatureValue(CommonUsages.trigger, out triggerValue))
         {
-            actuation = HandleTrigger(triggerValue, actuation);
+            input = HandleTrigger(triggerValue, input);
         }
 
         if (controller.TryGetFeatureValue(CommonUsages.grip, out gripValue))
         {
-            actuation = HandleGrip(gripValue, actuation);
+            input = HandleGrip(gripValue, input);
         }
 
         if (controller.TryGetFeatureValue(CommonUsages.primaryButton, out buttonAXValue))
         {
-            actuation = HandleAXButton(buttonAXValue, actuation);
+            input = HandleAXButton(buttonAXValue, input);
         }
 
         if (controller.TryGetFeatureValue(CommonUsages.primaryTouch, out touchAXValue))
         {
-            actuation = HandleAXTouch(touchAXValue, actuation);
+            input = HandleAXTouch(touchAXValue, input);
         }
 
         if (controller.TryGetFeatureValue(CommonUsages.secondaryButton, out buttonBYValue))
         {
-            actuation = HandleBYButton(buttonBYValue, actuation);
+            input = HandleBYButton(buttonBYValue, input);
         }
 
         if (controller.TryGetFeatureValue(CommonUsages.secondaryTouch, out touchBYValue))
         {
-            actuation = HandleBYTouch(touchBYValue, actuation);
+            input = HandleBYTouch(touchBYValue, input);
         }
 
         if (controller.TryGetFeatureValue(CommonUsages.primary2DAxis, out thumbstickValue))
         {
-            actuation = Handle2DAxis(thumbstickValue, actuation);
+            input = Handle2DAxis(thumbstickValue, input);
         }
 
         if (controller.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out thumbstickClickValue))
         {
-            actuation = Handle2DAxisClick(thumbstickClickValue, actuation);
+            input = Handle2DAxisClick(thumbstickClickValue, input);
         }
 
         if (controller.TryGetFeatureValue(CommonUsages.menuButton, out menuButtonValue))
         {
-            actuation = HandleMenuButton(menuButtonValue, actuation);
+            input = HandleMenuButton(menuButtonValue, input);
         }
 
-        if (actuation != lastActuation)
-        {
-            gameObject?.GetComponent<IActuation>()?.OnActuation(actuation, characteristics);
-
-            // if (gameObject?.TryGetComponent<IActuation>(out IActuation callback))
-            // {
-            //     callback.OnActuation(actuation, characteristics);
-            // }
-
-            bool pinching = (ActuationContains(Actuation.Trigger));
-            bool gripping = (ActuationContains(Actuation.Grip));
-            IsPinchingOrGripping(pinching | gripping);
-
-            if (ActuationEventReceived != null)
-            {
-                ActuationEventReceived.Invoke(actuation, characteristics);
-            }
-        }
-        
-        if (RawDataEventReceived != null)
-        {
-            var rawData = new RawData
-            {
-                triggerValue = triggerValue,
-                gripValue = gripValue,
-                buttonAXValue = buttonAXValue,
-                buttonBYValue = buttonBYValue,
-                thumbstickClickValue = thumbstickClickValue,
-                menuButtonValue = menuButtonValue,
-                thumbstickValue = thumbstickValue
-            };
-
-            gameObject?.GetComponent<IRawData>()?.OnRawData(rawData);
-            
-            // if (gameObject?.TryGetComponent<IRawData>(out IRawData callback))
-            // {
-            //     callback.OnRawData(rawData);
-            // }
-
-            RawDataEventReceived.Invoke(rawData, characteristics);
-        }
-        
-        UpdateState();
+        PollInputChange();
+        PushRawInput(triggerValue, gripValue, buttonAXValue, touchAXValue, buttonBYValue, touchBYValue, thumbstickClickValue, menuButtonValue, thumbstickValue);
+        PollIsPinchingOrGripping();
+        PushAction();
     }
 
     protected virtual void IsPinchingOrGripping(bool pinchingOrGripping) { }
 
-    private bool ActuationContains(Actuation thisActuation)
+    public bool InputContains(Enum.ControllerEnums.Input thisInput) => (input & thisInput) == thisInput;
+
+    private void PollInputChange()
     {
-        return (actuation & thisActuation) == thisActuation;
+        if (input == lastInput) return;
+
+        var gameObject = interactable?.GetGameObject();
+        gameObject?.GetComponent<IInputChange>()?.OnInputChange(input, characteristics);
+
+        // if (gameObject?.TryGetComponent<IInputChange>(out IInputChange callback))
+        // {
+        //     callback.OnInputChange(actuation, characteristics);
+        // }
+
+        if (InputChangeEventReceived != null)
+        {
+            InputChangeEventReceived.Invoke(this, input, characteristics);
+        }
     }
 
-    private void UpdateState()
+    private void PushRawInput(float triggerValue, float gripValue, bool buttonAXValue, bool touchAXValue, bool buttonBYValue, bool touchBYValue, bool thumbstickClickValue, bool menuButtonValue, Vector2 thumbstickValue)
     {
-        var state = Enum.HandEnums.State.None;
+        if (RawInputEventReceived == null) return;
 
-        if (isHovering)
+        var rawInput = new RawInput
         {
-            state |= Enum.HandEnums.State.Hover;
-        }
-        else
-        {
-            state &= ~Enum.HandEnums.State.Hover;
-        }
+            triggerValue = triggerValue,
+            gripValue = gripValue,
+            buttonAXValue = buttonAXValue,
+            buttonBYValue = buttonBYValue,
+            thumbstickClickValue = thumbstickClickValue,
+            menuButtonValue = menuButtonValue,
+            thumbstickValue = thumbstickValue
+        };
+
+        var gameObject = interactable?.GetGameObject();
+        gameObject?.GetComponent<IRawInput>()?.OnRawInput(rawInput);
+        
+        // if (gameObject?.TryGetComponent<IRawInput>(out IRawInput callback))
+        // {
+        //     callback.OnRawInput(rawInput);
+        // }
+
+        RawInputEventReceived.Invoke(rawInput, characteristics);
+    }
+
+    private void PollIsPinchingOrGripping()
+    {
+        bool pinching = (InputContains(Enum.ControllerEnums.Input.Trigger));
+        bool gripping = (InputContains(Enum.ControllerEnums.Input.Grip));
+
+        IsPinchingOrGripping(pinching | gripping);
+    }
+
+    private void PushAction()
+    {
+        var action = Enum.HandEnums.Action.None;
 
         if (isHolding)
         {
-            state |= Enum.HandEnums.State.Grip;
+            action |= Enum.HandEnums.Action.Holding;
         }
         else
         {
-            state &= ~Enum.HandEnums.State.Grip;
+            action &= ~Enum.HandEnums.Action.Holding;
         }
 
-        if (StateEventReceived != null)
+        if (isHovering)
         {
-            StateEventReceived.Invoke(state, characteristics);
+            action |= Enum.HandEnums.Action.Hovering;
+        }
+        else
+        {
+            action &= ~Enum.HandEnums.Action.Hovering;
+        }
+
+        if (ActionEventReceived != null)
+        {
+            Log($"{gameObject.name} {className} PushAction Action: {action}");
+            ActionEventReceived.Invoke(action, characteristics, interactable);
         }
     }
 
-    private void SetActuation(Actuation actuation)
-    {
-        this.actuation = actuation;
-    }
+    private void SetInput(Enum.ControllerEnums.Input input) => this.input = input;
 
     public void SetHovering(IInteractable interactable, bool isHovering)
     {
         Log($"{Time.time} {gameObject.name} {className}.SetHovering:Game Object : {interactable.GetGameObject().name} Is Hovering : {isHovering}");
 
         this.isHovering = isHovering;
+
+        // if (HoveringEventReceived != null)
+        // {
+        //     HoveringEventReceived.Invoke(isHovering, interactable, characteristics);
+        // }
+
         NotifyOpposingController(Enum.ControllerEnums.State.Hovering, isHovering, interactable);
     }
 
@@ -474,6 +497,12 @@ public class HandController : GizmoManager
  
         this.isHolding = isHolding;
         this.interactable = (isHolding) ? interactable : null;
+
+        // if (HoldingEventReceived != null)
+        // {
+        //     HoldingEventReceived.Invoke(isHolding, interactable, characteristics);
+        // }
+
         NotifyOpposingController(Enum.ControllerEnums.State.Holding, isHolding, interactable);
     }
 

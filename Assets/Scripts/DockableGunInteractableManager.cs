@@ -11,7 +11,7 @@ using static Enum.GunInteractableEnums;
 
 [RequireComponent(typeof(XRGrabInteractable))]
 [RequireComponent(typeof(CurveCreator))]
-public class DockableGunInteractableManager : DockableFocusableInteractableManager, IActuation
+public class DockableGunInteractableManager : DockableFocusableInteractableManager, IInputChange
 {
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
@@ -370,23 +370,23 @@ public class DockableGunInteractableManager : DockableFocusableInteractableManag
         }
     }
 
-    public void OnActuation(Actuation actuation, InputDeviceCharacteristics characteristics, object value = null)
+    public void OnInputChange(Enum.ControllerEnums.Input input, InputDeviceCharacteristics characteristics, object value = null)
     {
         if (!IsHeld) return;
 
-        if (actuation.HasFlag(Actuation.Thumbstick_Left))
+        if (input.HasFlag(Enum.ControllerEnums.Input.Thumbstick_Left))
         {
             SetMode(Mode.Manual);
         }
-        else if (actuation.HasFlag(Actuation.Thumbstick_Right))
+        else if (input.HasFlag(Enum.ControllerEnums.Input.Thumbstick_Right))
         {
             SetMode(Mode.Auto);
         }
-        else if (actuation.HasFlag(Actuation.Thumbstick_Up))
+        else if (input.HasFlag(Enum.ControllerEnums.Input.Thumbstick_Up))
         {
             SetIntent(Intent.Engaged);
         }
-        else if (actuation.HasFlag(Actuation.Thumbstick_Down))
+        else if (input.HasFlag(Enum.ControllerEnums.Input.Thumbstick_Down))
         {
             SetIntent(Intent.Disengaged);
         }
