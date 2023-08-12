@@ -7,7 +7,7 @@ public class SphereManager : MonoBehaviour
     private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
     [Header("Components")]
-    [SerializeField] OnTriggerHandler triggerHandler;
+    [SerializeField] OnModifiedTriggerHandler triggerHandler;
 
     // Start is called before the first frame update
     void Start()
@@ -25,15 +25,15 @@ public class SphereManager : MonoBehaviour
         
     }
 
-    private void OnTriggerEvent(OnTriggerHandler.EventType type, GameObject gameObject)
+    private void OnTriggerEvent(OnModifiedTriggerHandler.EventType type, GameObject gameObject)
     {
         switch (type)
         {
-            case OnTriggerHandler.EventType.OnTriggerEnter:
+            case OnModifiedTriggerHandler.EventType.OnTriggerEnter:
                 Debug.Log($"{Time.time} {gameObject.name} {className} OnTriggerEnter");
                 break;
 
-            case OnTriggerHandler.EventType.OnTriggerExit:
+            case OnModifiedTriggerHandler.EventType.OnTriggerExit:
                 Debug.Log($"{Time.time} {gameObject.name} {className} OnTriggerExit");
                 break;
         }

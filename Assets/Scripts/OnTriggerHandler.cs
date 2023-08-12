@@ -2,46 +2,26 @@ using UnityEngine;
 
 public class OnTriggerHandler : MonoBehaviour
 {
-    public enum EventType
-    {
-        OnTriggerEnter,
-        OnTriggerExit
-    }
-
-    public delegate void Event(EventType type, GameObject gameObject);
+    public delegate void Event(TriggerEventType type, GameObject gameObject);
     public event Event EventReceived;
-
-    private int enterInstanceId, exitInstanceId;
 
     public void OnTriggerEnter(Collider collider)
     {
         GameObject trigger = collider.gameObject;
-        int instanceId = trigger.GetInstanceID();
-        
-        if (instanceId != enterInstanceId)
-        {
-            enterInstanceId = instanceId;
 
-            if (TryGet.TryGetRootResolver(trigger, out GameObject rootGameObject))
-            {
-                EventReceived?.Invoke(EventType.OnTriggerEnter, rootGameObject);
-            }
+        if (TryGet.TryGetRootResolver(trigger, out GameObject rootGameObject))
+        {
+            EventReceived?.Invoke(TriggerEventType.OnTriggerEnter, rootGameObject);
         }
     }
 
     public void OnTriggerExit(Collider collider)
     {
         GameObject trigger = collider.gameObject;
-        int instanceId = trigger.GetInstanceID();
 
-        if (instanceId != exitInstanceId)
+        if (TryGet.TryGetRootResolver(trigger, out GameObject rootGameObject))
         {
-            exitInstanceId = instanceId;
-            
-            if (TryGet.TryGetRootResolver(trigger, out GameObject rootGameObject))
-            {
-                EventReceived?.Invoke(EventType.OnTriggerExit, rootGameObject);
-            }
+            EventReceived?.Invoke(TriggerEventType.OnTriggerExit, rootGameObject);
         }
     }
 }

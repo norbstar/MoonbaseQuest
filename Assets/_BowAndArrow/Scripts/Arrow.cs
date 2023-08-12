@@ -19,9 +19,6 @@ public class Arrow : MonoBehaviour
 
     private bool isVisible;
 
-    // Start is called before the first frame update
-    void Start() => Hide();
-    
     private void SetAlpha(Material material, float alpha) => material.color = new Color(material.color.r, material.color.g, material.color.b, alpha);
 
     private IEnumerator Co_Fade(FadeType fadeType)

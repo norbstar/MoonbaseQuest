@@ -10,7 +10,7 @@ namespace Chess
     public class PinchInteractable : MonoBehaviour
     {
         [Header("Components")]
-        [SerializeField] OnPrimitiveTriggerHandler hoverZone;
+        [SerializeField] OnTriggerHandler hoverZone;
 
         [Header("Controllers")]
         [SerializeField] HandController leftHandController;
