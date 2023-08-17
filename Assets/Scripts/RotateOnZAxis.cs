@@ -4,13 +4,13 @@ public class RotateOnZAxis : MonoBehaviour
 {
     [SerializeField] GameObject target;
 
-    private GameObject child;
+    // private GameObject child;
 
-    void Awake()
-    {
-        child = transform.GetChild(0).gameObject;
-        // Debug.Log($"Child: {child.name}");
-    }
+    // void Awake()
+    // {
+    //     child = transform.GetChild(0).gameObject;
+    //     // Debug.Log($"Child: {child.name}");
+    // }
 
     // Update is called once per frame
     void Update()

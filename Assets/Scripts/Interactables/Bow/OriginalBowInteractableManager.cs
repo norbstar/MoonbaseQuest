@@ -40,6 +40,7 @@ namespace Interactables.Bow
 
         private const float lineWidth = 0.01f;
         
+#if false
         void Awake() => stage = Stage.Default;
 
         // Start is called before the first frame update
@@ -347,5 +348,6 @@ namespace Interactables.Bow
         //     Log($"{gameObject.name} {className} OnTriggerExit Collider: {collider.gameObject.name}");
         //     StartCoroutine(Co_HideAndDestroy());
         // }
+#endif
     }
 }

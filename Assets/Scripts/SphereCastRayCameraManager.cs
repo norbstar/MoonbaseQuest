@@ -16,10 +16,7 @@ public class SphereCastRayCameraManager : GizmoManager
     private IFocus lastFocus;
     private int defaultLayerMask;
 
-    void Awake()
-    {
-        defaultLayerMask = LayerMask.GetMask("Default");
-    }
+    void Awake() => defaultLayerMask = LayerMask.GetMask("Default");
 
     void FixedUpdate()
     {
