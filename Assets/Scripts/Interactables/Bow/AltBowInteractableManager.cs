@@ -1,18 +1,19 @@
 // using System.Collections;
 using System.Collections.Generic;
-// using System.Reflection;
+using System.Reflection;
 
 using UnityEngine;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.InputSystem;
 
 namespace Interactables.Bow
 {
     [RequireComponent(typeof(XRGrabInteractable))]
     [RequireComponent(typeof(Animator))]
-    public class BowInteractableManager : FocusableInteractableManager
+    public class AltBowInteractableManager : FocusableInteractableManager
     {
-        // private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
+        private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
         [Header("Components")]
         [SerializeField] OnProximityHandler proximityHandler;
@@ -20,12 +21,17 @@ namespace Interactables.Bow
         [SerializeField] LineRendererHelper lineRendererHelper;
         [SerializeField] Transform start;
         [SerializeField] Transform end;
-        [SerializeField] Arrow arrow;
+        [SerializeField] Transform arrowAttachTransform;
         // [SerializeField] float pullRange = 0.25f;
 
+        [Header("Prefabs")]
+        [SerializeField] GameObject arrowPrefab;
+
         [Header("Config")]
+        [SerializeField] int startingArrowCount = 5;
         [SerializeField] bool enableHaptics;
         [SerializeField] bool showLineRenderer;
+        [SerializeField] InputAction fireAction;
 
         // [SerializeField] GameObject target;
 
@@ -34,6 +40,9 @@ namespace Interactables.Bow
         private HandController leftController, rightController, opposingController, triggeredBy;
         // private InputDevice leftDevice, rightDevice;
         private Status status;
+        // private int arrowCount;
+        private Arrow arrow;
+        private float pullValue;
 
         protected override void Awake()
         {
@@ -42,8 +51,11 @@ namespace Interactables.Bow
             bowParts = transform.GetChild(0).gameObject;
             animator = GetComponent<Animator>();
             status = Status.None;
+            // arrowCount = startingArrowCount;
             // arrow.Hide();
-            arrow.Alpha = 0f;
+            // arrow.Alpha = 0f;
+
+            FabricateArrow();
         }
 
         // Start is called before the first frame update
@@ -74,6 +86,7 @@ namespace Interactables.Bow
             HandController.InputChangeEventReceived += OnActuation;
             actuationHandler.EventReceived += OnActuatorEvent;
             proximityHandler.EventReceived += OnProximityHandler;
+            fireAction.Enable();
         }
 
         void OnDisable()
@@ -81,6 +94,7 @@ namespace Interactables.Bow
             HandController.InputChangeEventReceived -= OnActuation;
             actuationHandler.EventReceived -= OnActuatorEvent;
             proximityHandler.EventReceived -= OnProximityHandler;
+            fireAction.Disable();
         }
 
         private float CalculatePull()
@@ -97,15 +111,13 @@ namespace Interactables.Bow
             direction.Normalize();
 
             Vector3 difference = triggeredBy.transform.position - start.position;
-            float pull = Vector3.Dot(difference, direction) / magnitude;
-
-            return pull;
+            return Mathf.Clamp01(Vector3.Dot(difference, direction) / magnitude);
         }
 
         // Update is called once per frame
         void Update()
         {
-            // Log($"{gameObject.name} {className} Update Status: {status}");
+            // Log($"{className} Update Status: {status}");
 
             // actuationHandler.gameObject.SetActive(IsHeld);
 
@@ -123,7 +135,7 @@ namespace Interactables.Bow
                 // transform.rotation = rotation;
 
                 // transform.LookAt(triggeredBy.transform.position);
-                transform.LookAt(transform.position - (triggeredBy.transform.position - transform.position));
+                // transform.LookAt(transform.position - (triggeredBy.transform.position - transform.position));
                 
                 // Quaternion rotation = transform.localRotation;
                 // rotation.z = triggeredBy.transform.localRotation.z;
@@ -136,13 +148,12 @@ namespace Interactables.Bow
                 // rotation.z = IsHeldBy.transform.localRotation.z;
                 // bowParts.transform.localRotation = rotation;
 
-                Vector3 rotation = bowParts.transform.localEulerAngles;
-                rotation.z = IsHeldBy.transform.localEulerAngles.z;
-                bowParts.transform.localEulerAngles = rotation;
+                // Vector3 rotation = bowParts.transform.localEulerAngles;
+                // rotation.z = IsHeldBy.transform.localEulerAngles.z;
+                // bowParts.transform.localEulerAngles = rotation;
 
-                var pull = CalculatePull();
-                float blendValue = Mathf.Clamp01(pull);
-                animator.SetFloat("Blend", blendValue);
+                pullValue = 1f;//CalculatePull();
+                animator.SetFloat("Blend", pullValue);
 
                 if (enableHaptics)
                 {
@@ -163,21 +174,53 @@ namespace Interactables.Bow
 
             // transform.LookAt(target.transform.position);
             // transform.LookAt(transform.position - (target.transform.position - transform.position));
+
+            if (fireAction.triggered)
+            {
+                Fire();
+            }
+        }
+
+        private void Fire()
+        {
+            var instance = Instantiate(arrowPrefab, arrowAttachTransform);
+            arrow = instance.GetComponent<Arrow>();
+            arrow.Fire(1f);
         }
 
         private void AddStatus(Status status) => this.status |= status;
 
         private void RevokeStatus(Status status) => this.status &= ~status;
 
-        private void FireArrow()
+        private void FabricateArrow()
         {
-            if (!enableHaptics) return;
-            triggeredBy.SetImpulse(0.5f);
+            // if (arrowCount == 0) return;
+
+            var instance = Instantiate(arrowPrefab, arrowAttachTransform);
+            arrow = instance.GetComponent<Arrow>();
+            arrow.Alpha = 0f;
+
+            // Log($"{className} {Time.time} FabricateArrow Instance ID: {instance.GetInstanceID()}");
+        }
+
+        private void TriggerArrow()
+        {
+            // Log($"{className} {Time.time} TriggerArrow PullValue: {pullValue}");
+
+            arrow.Fire(1f/*pullValue*/);
+
+            if (enableHaptics)
+            {
+                triggeredBy.SetImpulse(0.5f);
+            }
+
+            // --arrowCount;
+            FabricateArrow();
         }
 
         // private IEnumerator Co_FireArrow(HandController controller)
         // {
-        //     // Log($"{gameObject.name} {className} Co_FireArrow Controller: {controller.name}");
+        //     // Log($"{className} {Time.time} Co_FireArrow Controller: {controller.name}");
 
         //     yield return Co_HideArrow();
         //     RevokeStatus(Status.Actuating);
@@ -187,23 +230,26 @@ namespace Interactables.Bow
         //     AddStatus(Status.Firing);
         // }
 
+        private void ResetBowOrientation() => bowParts.transform.localEulerAngles = Vector3.zero;
+
         private void FireArrow(HandController controller)
         {
-            // Log($"{gameObject.name} {className} Co_FireArrow Controller: {controller.name}");
+            // Log($"{Time.time} FireArrow Controller: {controller.gameObject.name}");
+
+            // Log($"{className} {Time.time} Co_FireArrow Controller: {controller.name}");
 
             // arrow.Hide();
-            arrow.Alpha = 0f;
+            // arrow.Alpha = 0f;
             RevokeStatus(Status.Actuating);
             controller.ShowModel();
-
-            FireArrow();
-            AddStatus(Status.Firing);
-            bowParts.transform.localEulerAngles = Vector3.zero;
+            TriggerArrow();
+            // AddStatus(Status.Firing);
+            ResetBowOrientation();
         }
 
         private void OnTriggering(bool canActuate, HandController controller)
         {
-            // Log($"{gameObject.name} {className} OnTriggering CanActuate: {canActuate} Controller: {controller.name}");
+            // Log($"{className} {Time.time} OnTriggering CanActuate: {canActuate} Controller: {controller.name}");
 
             if (canActuate)
             {
@@ -215,18 +261,21 @@ namespace Interactables.Bow
 
         private void OnReleasing(bool actuating, HandController controller)
         {
-            // Log($"{gameObject.name} {className} OnReleasing Actuating: {actuating} Controller: {controller.name}");
+            Log($"{className} {Time.time} OnReleasing Actuating: {actuating} Controller: {controller.name}");
 
-            if (actuating)
+            // if (actuating && pullValue > 0f)
             {
                 // StartCoroutine(Co_FireArrow(controller));
-                FireArrow(controller);
+                // FireArrow(controller);
+                // RevokeStatus(Status.Actuating);
+                // controller.ShowModel();
+                Fire();
             }
         }
 
         private void OnActuation(HandController controller, Enum.ControllerEnums.Input actuation, InputDeviceCharacteristics characteristics)
         {
-            // Log($"{gameObject.name} {className} OnActuation Controller: {controller.name} Actuation: {actuation}");
+            // Log($"{className} {Time.time} OnActuation Controller: {controller.name} Actuation: {actuation}");
 
             if (!IsHeld) return;
 
@@ -275,7 +324,7 @@ namespace Interactables.Bow
 
         public override void OnHoldStatusChange(bool isHeld, HandController isHeldBy)
         {
-            // Log($"{gameObject.name} {className} OnHoldStatusChange IsHeld: {isHeld} IsHeldBy: {isHeldBy}");
+            // Log($"{className} {Time.time} OnHoldStatusChange IsHeld: {isHeld} IsHeldBy: {isHeldBy}");
 
             if (isHeld)
             {
@@ -300,14 +349,14 @@ namespace Interactables.Bow
 
         // private IEnumerator Co_ShowArrow()
         // {
-        //     Log($"{gameObject.name} {className} Co_ShowArrow");
+        //     Log($"{className} {Time.time} Co_ShowArrow");
 
         //     yield return arrow?.Co_Show();
         // }
 
         // private IEnumerator Co_PrepActuation(HandController controller)
         // {
-        //     Log($"{gameObject.name} {className} Co_PrepActuation Controller: {controller.name}");
+        //     Log($"{className} {Time.time} Co_PrepActuation Controller: {controller.name}");
 
         //     yield return Co_ShowArrow();
         //     AddStatus(Status.CanActuate);
@@ -316,7 +365,7 @@ namespace Interactables.Bow
 
         private void PrepActuation(HandController controller)
         {
-            // Log($"{gameObject.name} {className} Co_PrepActuation Controller: {controller.name}");
+            // Log($"{className} {Time.time} Co_PrepActuation Controller: {controller.name}");
 
             // actuationHandler.gameObject.SetActive(false);
             triggeredBy = controller;
@@ -325,7 +374,7 @@ namespace Interactables.Bow
 
         private void OnActuatorEnter(GameObject trigger)
         {
-            // Log($"{gameObject.name} {className} OnActuatorEnter Collider: {trigger.name}");
+            // Log($"{className} {Time.time} OnActuatorEnter Collider: {trigger.name}");
 
             if (!IsHeld || !trigger.tag.Equals("Hand")) return;
 
@@ -357,14 +406,14 @@ namespace Interactables.Bow
 
         // private IEnumerator Co_HideArrow()
         // {
-        //     Log($"{gameObject.name} {className} Co_HideArrow");
+        //     Log($"{className} {Time.time} Co_HideArrow");
 
         //     yield return arrow?.Co_Hide();
         // }
 
         // private IEnumerator Co_ResetAcutation()
         // {
-        //     Log($"{gameObject.name} {className} Co_ResetAcutation");
+        //     Log($"{className} {Time.time} Co_ResetAcutation");
 
         //     if (!status.HasFlag(Status.Actuating))
         //     {
@@ -377,7 +426,7 @@ namespace Interactables.Bow
 
         private void ResetAcutation()
         {
-            // Log($"{gameObject.name} {className} Co_ResetAcutation");
+            // Log($"{className} {Time.time} Co_ResetAcutation");
 
             // if (!status.HasFlag(Status.Actuating))
             // {
@@ -392,7 +441,7 @@ namespace Interactables.Bow
 
         private void OnActuatorExit(GameObject trigger)
         {
-            // Log($"{gameObject.name} {className} OnActuatorExit Collider: {trigger.name}");
+            // Log($"{className} {Time.time} OnActuatorExit Collider: {trigger.name}");
 
             // StartCoroutine(Co_ResetAcutation());
             ResetAcutation();
@@ -414,7 +463,7 @@ namespace Interactables.Bow
 
         private void OnProximityHandler(float distance, GameObject gameObject)
         {
-            // Debug.Log($"OnProximityHandler:Status Radius: {proximityHandler.Radius}");
+            // Debug.Log($"{className} {Time.time} OnProximityHandler:Status Radius: {proximityHandler.Radius}");
 
             // Log($"{this.gameObject.name} {className} OnProximityHandler:Stats IsHeld: {IsHeld} OpposingCtrl: {opposingController} Distance: {distance} GameObject: {gameObject.name}");
 

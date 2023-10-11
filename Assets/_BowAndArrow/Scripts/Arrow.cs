@@ -1,26 +1,25 @@
-﻿// using System.Collections;
+﻿using System.Reflection;
 
 using UnityEngine;
 
-public class Arrow : MonoBehaviour
+[RequireComponent(typeof(Rigidbody))]
+public class Arrow : BaseManager
 {
-    // private enum FadeType
-    // {
-    //     FadeIn,
-    //     FadeOut
-    // }
+    private static string className = MethodBase.GetCurrentMethod().DeclaringType.Name;
 
-    [Header("Renderers")]
-    [SerializeField] MeshRenderer shaft;
-    [SerializeField] MeshRenderer tip;
+    [Header("Components")]
+    [SerializeField] Transform tip;
 
-    // [Header("Config")]
-    // [SerializeField] float fadeDurationSec = 0.25f;
+    [Header("Audio")]
+    [SerializeField] AudioClip releaseClip;
 
-    // private bool isVisible;
-    
-    // public bool IsVisible { get { return isVisible; } }
+    [Header("Config")]
+    [SerializeField] float speed = 2000f;
 
+    private MeshRenderer[] renderers;
+    private new Rigidbody rigidbody;
+    private bool inMotion;
+    private Vector3 lastPosition;
     private float alpha;
 
     public float Alpha
@@ -32,77 +31,72 @@ public class Arrow : MonoBehaviour
 
         set
         {
-            alpha = value;
-            UpdateMaterials();
+            SetAlpha(value);
         }
     }
 
-    private void SetMatrialAlpha(Material material, float alpha) => material.color = new Color(material.color.r, material.color.g, material.color.b, alpha);
+    void Awake()
+    {
+        renderers = transform.GetChild(0).GetComponentsInChildren<MeshRenderer>();
+        rigidbody = GetComponent<Rigidbody>();
+        lastPosition = transform.position;
+    }
+
+    private void SetAlpha(Material material, float alpha) => material.color = new Color(material.color.r, material.color.g, material.color.b, alpha);
     
-    private void UpdateMaterials()
+    private void SetAlpha(float alpha)
     {
-        SetMatrialAlpha(shaft.material, alpha);
-        SetMatrialAlpha(tip.material, alpha);
+        this.alpha = alpha;
+
+        foreach (MeshRenderer renderer in renderers)
+        {
+            SetAlpha(renderer.material, alpha);    
+        }
     }
 
-    // private IEnumerator Co_Fade(FadeType fadeType)
-    // {
-    //     bool complete = false;           
-    //     float startTime = Time.time;            
+    public void Show() => SetAlpha(1f);
 
-    //     while (!complete)
-    //     {
-    //         float fractionComplete = (Time.time - startTime) / fadeDurationSec;
-    //         complete = (fractionComplete >= 1f);
-    //         float value = default(float);
+    public void Hide() => SetAlpha(0f);
 
-    //         switch (fadeType)
-    //         {
-    //             case FadeType.FadeIn:
-    //                 value = Mathf.Lerp(0f, 1f, fractionComplete);
-    //                 break;
-
-    //             case FadeType.FadeOut:
-    //                 value = Mathf.Lerp(1f, 0f, fractionComplete);
-    //                 break;
-    //         }
-            
-    //         SetMatrialAlpha(shaft.material, value);
-    //         SetMatrialAlpha(tip.material, value);
-
-    //         yield return null;
-    //     }
-    // }
-
-    public void Show()
+    void FixedUpdate()
     {
-        Alpha = 1f;
-        SetMatrialAlpha(shaft.material, alpha);
-        SetMatrialAlpha(tip.material, alpha);
+        if (!inMotion) return;
+
+        // rigidbody.MoveRotation(Quaternion.LookRotation(rigidbody.velocity, transform.up));
+
+        if (Physics.Linecast(lastPosition, tip.position))
+        {
+            Stop();
+        }
+
+        lastPosition = tip.position;
     }
 
-    // public IEnumerator Co_Show()
-    // {
-    //     SetMatrialAlpha(shaft.material, 1f);
-    //     SetMatrialAlpha(tip.material, 1f);
-        
-    //     yield return Co_Fade(FadeType.FadeIn);
-    //     isVisible = true;
-    // }
-
-    public void Hide()
+    private void Stop()
     {
-        Alpha = 0f;
-        SetMatrialAlpha(shaft.material, alpha);
-        SetMatrialAlpha(tip.material, alpha);
+        // Log($"{className} {Time.time} Stop");
+
+        inMotion = false;
+        rigidbody.isKinematic = true;
+        rigidbody.useGravity = false;
     }
 
-    // public IEnumerator Co_Hide()
-    // {
-    //     yield return Co_Fade(FadeType.FadeOut);
+    public void Fire(float pullValue)
+    {
+        Log($"{className} {Time.time} Fire PullValue: {pullValue}");
 
-    //     SetMatrialAlpha(shaft.material, 0f);
-    //     SetMatrialAlpha(tip.material, 0f);
-    //     isVisible = true;
-    // }
+        inMotion = true;
+        transform.parent = null;
+        rigidbody.isKinematic = false;
+        rigidbody.useGravity = true;
+
+        var force = transform.forward * 2000;//(pullValue * speed);
+        // Log($"{className} {Time.time} PullValue: {pullValue} Fire Force: {force}");
+
+        rigidbody.AddForce(force);
+
+        AudioSource.PlayClipAtPoint(releaseClip, transform.position, 1.0f);
+
+        Destroy(gameObject, 5f);
+    }
 }

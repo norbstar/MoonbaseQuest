@@ -6,9 +6,8 @@ namespace Interactables.Bow
     public enum Status
     {
         None = 0,
-        IsHeld = 1,
-        CanActuate = 2,
-        Actuating = 4,
-        Firing = 8
+        CanActuate = 1,
+        Actuating = 2,
+        Firing = 4
     }
 }
