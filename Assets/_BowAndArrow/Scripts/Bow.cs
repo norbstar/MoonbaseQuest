@@ -20,7 +20,7 @@ public class Bow : MonoBehaviour
 
     private void Awake() => animator = GetComponent<Animator>();
 
-    private void Start () => Co_CreateArrow(0f);
+    private void Start () => StartCoroutine(Co_CreateArrow(0f));
 
     private IEnumerator Co_CreateArrow(float waitTime)
     {
