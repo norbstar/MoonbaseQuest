@@ -23,9 +23,11 @@ namespace Helicopter
         [SerializeField] Vector3 velocity;
     
         private const float ROTAR_SPEED_SCALE_FACTOR = 15f;
-        private const float ROTAR_SPEED_TAKE_OFF_THRESHOLD = 750f;
+        private const float ROTAR_SPEED_LEVEL_THRESHOLD = 750f;
         private const float CAPPED_ROTAR_SPEED = 1000f;
         private const float MAX_ROTAR_SPEED = 1500f;
+        private const float MIN_STABILISATION_THRESHOLD = -0.15f;
+        private const float MAX_STABILISATION_THRESHOLD = 0.15f;
 
         private AudioSource audioSource;
         private Rigidbody rigidbody;
@@ -77,6 +79,18 @@ namespace Helicopter
         // Update is called once per frame
         void Update()
         {
+            var rotarSpeedAction = actionMap.Helicopter.RotarSpeed;
+
+            if (rotarSpeedAction.IsPressed())
+            {
+                switch (state)
+                {
+                    case State.StabilisingElevation:
+                        state = State.Active;
+                        break;
+                }
+            }
+
             switch (state)
             {
                 case State.EngagingPower:
@@ -122,7 +136,7 @@ namespace Helicopter
         {
             rotarSpeed = engagePowerCurveFn.Get();
 
-            if (rotarSpeed == ROTAR_SPEED_TAKE_OFF_THRESHOLD)
+            if (rotarSpeed == ROTAR_SPEED_LEVEL_THRESHOLD)
             {
                 state = State.Active;
             }
@@ -142,6 +156,7 @@ namespace Helicopter
         private void OnStabiliseElevation(InputAction.CallbackContext context)
         {
             if (state != State.Active) return;
+
             state = State.StabilisingElevation;
         }
 
@@ -150,11 +165,30 @@ namespace Helicopter
             var clampedYVelocity = Mathf.Clamp(rigidbody.velocity.y, -10f, 10f);
             var normalisedValue = clampedYVelocity.Remap(-10f, 10f, -1f, 1f);
             rotarSpeed = Mathf.Clamp(stabiliseElevationCurveFn.Get(normalisedValue), 0f, CAPPED_ROTAR_SPEED);
+
+            // if ((rigidbody.velocity.y > MIN_STABILISATION_THRESHOLD) && (rigidbody.velocity.y < MAX_STABILISATION_THRESHOLD))
+            // {
+            //     OnStabilised();
+            // }
         }
+
+        // private void OnStabilised()
+        // {
+        //     rotarSpeed = ROTAR_SPEED_LEVEL_THRESHOLD;
+        //     state = State.Active;
+        // }
 
         private void OnCutPower(InputAction.CallbackContext context)
         {
+            switch (state)
+            {
+                case State.StabilisingElevation:
+                    state = State.Active;
+                    break;
+            }
+
             if (state != State.Active) return;
+
             cutPowerCurveFn.Exec();
             state = State.CuttingPower;
         }
