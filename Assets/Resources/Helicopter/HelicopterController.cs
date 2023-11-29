@@ -26,8 +26,6 @@ namespace Helicopter
         public const float ROTAR_SPEED_LEVEL_THRESHOLD = 750f;
         public const float CAPPED_ROTAR_SPEED = 1000f;
         public const float MAX_ROTAR_SPEED = 1500f;
-        public const float MIN_STABILISATION_THRESHOLD = -0.15f;
-        public const float MAX_STABILISATION_THRESHOLD = 0.15f;
 
         private AudioSource audioSource;
         private Rigidbody rigidbody;
@@ -37,6 +35,7 @@ namespace Helicopter
         private HelicopterInputActionMap actionMap;
         private State state;
         private Vector3 maxForce;
+        private float lastYVelocity;
 
         private void ResolveComponents()
         {
@@ -56,8 +55,6 @@ namespace Helicopter
             engagePowerCurveFn.Init(this);
             stabiliseElevationCurveFn.Init(this);
             cutPowerCurveFn.Init(this);
-
-            // Debug.Log($"Min: {-Physics.gravity.y} Max: {Physics.gravity.y}");
         }
 
         // Start is called before the first frame update
@@ -163,23 +160,19 @@ namespace Helicopter
 
         private void OnStabilisingElevation()
         {
-            // var clampedYVelocity = Mathf.Clamp(rigidbody.velocity.y, -10f, 10f);
-            // var normalisedValue = clampedYVelocity.Remap(-10f, 10f, -1f, 1f);
-            // rotarSpeed = Mathf.Clamp(stabiliseElevationCurveFn.Get(normalisedValue), 0f, CAPPED_ROTAR_SPEED);
-
             rotarSpeed = stabiliseElevationCurveFn.Get();
 
-            // if ((rigidbody.velocity.y > MIN_STABILISATION_THRESHOLD) && (rigidbody.velocity.y < MAX_STABILISATION_THRESHOLD))
-            // {
-            //     OnStabilised();
-            // }
+            if (rigidbody.velocity.y == velocity.y)
+            {
+                OnStabilised();
+            }
         }
 
-        // private void OnStabilised()
-        // {
-        //     rotarSpeed = ROTAR_SPEED_LEVEL_THRESHOLD;
-        //     state = State.Active;
-        // }
+        private void OnStabilised()
+        {
+            rotarSpeed = ROTAR_SPEED_LEVEL_THRESHOLD;
+            state = State.Active;
+        }
 
         private void OnCutPower(InputAction.CallbackContext context)
         {
