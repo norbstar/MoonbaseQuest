@@ -5,7 +5,8 @@ namespace Helicopter
     public interface IHelicopterCurveFunctionInput : ICurveFunctionInput
     {
         float GetRotarSpeed();
-        float GetElevation();
+        float GetAltitude();
         Vector3 GetVelocity();
+        Vector3 GetPosition();        
     }
 }

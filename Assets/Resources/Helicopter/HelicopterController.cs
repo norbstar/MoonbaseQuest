@@ -26,6 +26,8 @@ namespace Helicopter
         public const float ROTAR_SPEED_LEVEL_THRESHOLD = 750f;
         public const float CAPPED_ROTAR_SPEED = 1000f;
         public const float MAX_ROTAR_SPEED = 1500f;
+        public const float MIN_ALTITUDE = 2.6f;
+        public const float MAX_ALTITUDE = 50f;
 
         private AudioSource audioSource;
         private Rigidbody rigidbody;
@@ -35,7 +37,7 @@ namespace Helicopter
         private HelicopterInputActionMap actionMap;
         private State state;
         private Vector3 maxForce;
-        private float lastYVelocity;
+        private float lastElevation;
 
         private void ResolveComponents()
         {
@@ -114,6 +116,13 @@ namespace Helicopter
             audioSource.volume = rotarSpeed / CAPPED_ROTAR_SPEED;
 
             velocity = rigidbody.velocity;
+
+            if (transform.position.y > MAX_ALTITUDE)
+            {
+                transform.position = new Vector3(transform.position.x, MAX_ALTITUDE, transform.position.z);
+            }
+
+            lastElevation = transform.position.y;
         }
 
         void FixedUpdate()
@@ -162,7 +171,7 @@ namespace Helicopter
         {
             rotarSpeed = stabiliseElevationCurveFn.Get();
 
-            if (rigidbody.velocity.y == velocity.y)
+            if (transform.position.y == lastElevation)
             {
                 OnStabilised();
             }
@@ -201,8 +210,10 @@ namespace Helicopter
 
         public float GetRotarSpeed() => rotarSpeed;
         
-        public float GetElevation() => transform.position.y;
+        public float GetAltitude() => transform.position.y;
         
         public Vector3 GetVelocity() => rigidbody.velocity;
+
+        public Vector3 GetPosition() => transform.position;
     }
 }
