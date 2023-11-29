@@ -22,12 +22,12 @@ namespace Helicopter
         [SerializeField] float rotarSpeed;
         [SerializeField] Vector3 velocity;
     
-        private const float ROTAR_SPEED_SCALE_FACTOR = 15f;
-        private const float ROTAR_SPEED_LEVEL_THRESHOLD = 750f;
-        private const float CAPPED_ROTAR_SPEED = 1000f;
-        private const float MAX_ROTAR_SPEED = 1500f;
-        private const float MIN_STABILISATION_THRESHOLD = -0.15f;
-        private const float MAX_STABILISATION_THRESHOLD = 0.15f;
+        public const float ROTAR_SPEED_SCALE_FACTOR = 15f;
+        public const float ROTAR_SPEED_LEVEL_THRESHOLD = 750f;
+        public const float CAPPED_ROTAR_SPEED = 1000f;
+        public const float MAX_ROTAR_SPEED = 1500f;
+        public const float MIN_STABILISATION_THRESHOLD = -0.15f;
+        public const float MAX_STABILISATION_THRESHOLD = 0.15f;
 
         private AudioSource audioSource;
         private Rigidbody rigidbody;
@@ -54,6 +54,7 @@ namespace Helicopter
             maxForce = -Physics.gravity * 2f;
 
             engagePowerCurveFn.Init(this);
+            stabiliseElevationCurveFn.Init(this);
             cutPowerCurveFn.Init(this);
 
             // Debug.Log($"Min: {-Physics.gravity.y} Max: {Physics.gravity.y}");
@@ -162,9 +163,11 @@ namespace Helicopter
 
         private void OnStabilisingElevation()
         {
-            var clampedYVelocity = Mathf.Clamp(rigidbody.velocity.y, -10f, 10f);
-            var normalisedValue = clampedYVelocity.Remap(-10f, 10f, -1f, 1f);
-            rotarSpeed = Mathf.Clamp(stabiliseElevationCurveFn.Get(normalisedValue), 0f, CAPPED_ROTAR_SPEED);
+            // var clampedYVelocity = Mathf.Clamp(rigidbody.velocity.y, -10f, 10f);
+            // var normalisedValue = clampedYVelocity.Remap(-10f, 10f, -1f, 1f);
+            // rotarSpeed = Mathf.Clamp(stabiliseElevationCurveFn.Get(normalisedValue), 0f, CAPPED_ROTAR_SPEED);
+
+            rotarSpeed = stabiliseElevationCurveFn.Get();
 
             // if ((rigidbody.velocity.y > MIN_STABILISATION_THRESHOLD) && (rigidbody.velocity.y < MAX_STABILISATION_THRESHOLD))
             // {
@@ -207,6 +210,6 @@ namespace Helicopter
         
         public float GetElevation() => transform.position.y;
         
-        public Vector3 GetVelcoity() => rigidbody.velocity;
+        public Vector3 GetVelocity() => rigidbody.velocity;
     }
 }

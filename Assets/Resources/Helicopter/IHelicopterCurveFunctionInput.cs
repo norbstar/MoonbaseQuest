@@ -6,6 +6,6 @@ namespace Helicopter
     {
         float GetRotarSpeed();
         float GetElevation();
-        Vector3 GetVelcoity();
+        Vector3 GetVelocity();
     }
 }
