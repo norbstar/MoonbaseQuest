@@ -6,14 +6,15 @@ using UnityEngine;
 namespace Helicopter
 {
     public class HelicopterCutPowerCurveFunction : CurveFunction
-    {       
+    {
+        private float rotarSpeed;
+
+        public void SetRotarSpeed(float rotarSpeed) => this.rotarSpeed = rotarSpeed;
+
         public override float Get()
         {
-            // var elevation = ((IHelicopterCurveFunctionInput) input).GetElevation();
-            // Debug.Log($"Elevation: {elevation}");
-
             var value = curve.Evaluate(Time.time - startSec.Value);
-            return value;
+            return value * rotarSpeed;
         }
     }
 }

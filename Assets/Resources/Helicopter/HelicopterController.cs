@@ -32,8 +32,8 @@ namespace Helicopter
         private AudioSource audioSource;
         private Rigidbody rigidbody;
         private HelicopterEngagePowerCurveFunction engagePowerCurveFn;
-        private HelicopterCutPowerCurveFunction cutPowerCurveFn;
         private HelicopterStabiliseElevationCurveFunction stabiliseElevationCurveFn;
+        private HelicopterCutPowerCurveFunction cutPowerCurveFn;
         private HelicopterInputActionMap actionMap;
         private State state;
         private Vector3 maxForce;
@@ -194,6 +194,7 @@ namespace Helicopter
 
             if (state != State.Active) return;
 
+            cutPowerCurveFn.SetRotarSpeed(rotarSpeed);
             cutPowerCurveFn.Exec();
             state = State.CuttingPower;
         }
