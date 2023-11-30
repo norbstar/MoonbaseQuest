@@ -12,7 +12,6 @@ namespace Helicopter
         [SerializeField] HelicopterController helicopterController;
 
         private CameraZoomCurveFunction cameraZoomCurveFn;
-        private float stdElevation;
 
         private void ResolveComponents()
         {
@@ -22,12 +21,10 @@ namespace Helicopter
         void Awake()
         {
             ResolveComponents();
-            stdElevation = helicopterController.GetAltitude();
-
             cameraZoomCurveFn.Init(helicopterController);
         }
 
         // Update is called once per frame
-        void Update() => transform.localPosition = new Vector3(0f, 30f, -30f) * cameraZoomCurveFn.Get();
+        void Update() => transform.localPosition = new Vector3(0f, 35f, -35f) * cameraZoomCurveFn.Get();
     }
 }

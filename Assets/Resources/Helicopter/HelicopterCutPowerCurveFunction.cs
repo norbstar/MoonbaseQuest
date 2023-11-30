@@ -7,14 +7,24 @@ namespace Helicopter
 {
     public class HelicopterCutPowerCurveFunction : CurveFunction
     {
-        private float rotarSpeed;
+        // public const float PERCENTAGE_DROPOFF_NORMAL = 0.1f;
 
-        public void SetRotarSpeed(float rotarSpeed) => this.rotarSpeed = rotarSpeed;
+        // private float altitude;
+
+        // public void SetAltitude(float altitude) => this.altitude = altitude - HelicopterController.MIN_ALTITUDE;
 
         public override float Get()
         {
-            var value = curve.Evaluate(Time.time - startSec.Value);
-            return value * rotarSpeed;
+            // var properties = ((IHelicopterCurveFunctionInput) input).GetProperties();
+            // var distance = properties.position.y - HelicopterController.MIN_ALTITUDE;
+            // var normal = distance / altitude;
+            // Debug.Log($"Altitude: {altitude} Distance: {distance} Normal: {normal}");
+            // return curve.Evaluate(normal) * HelicopterController.ROTAR_SPEED_LEVEL_THRESHOLD - (HelicopterController.ROTAR_SPEED_LEVEL_THRESHOLD * PERCENTAGE_DROPOFF_NORMAL);
+
+            // return HelicopterController.ROTAR_SPEED_LEVEL_THRESHOLD - (HelicopterController.ROTAR_SPEED_LEVEL_THRESHOLD * PERCENTAGE_DROPOFF_NORMAL);
+
+            // Interrogate curve
+            return curve.Evaluate(Time.time - startSec.Value);
         }
     }
 }

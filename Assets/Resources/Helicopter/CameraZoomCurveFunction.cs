@@ -9,8 +9,11 @@ namespace Helicopter
     {
         public override float Get()
         {
-            var positionY = ((IHelicopterCurveFunctionInput) input).GetPosition().y;
-            var normalisedValue = positionY.Remap(HelicopterController.MIN_ALTITUDE, HelicopterController.MAX_ALTITUDE, 0f, 1f);
+            // Prep data
+            var properties = ((IHelicopterCurveFunctionInput) input).GetProperties();
+            var normalisedValue = properties.position.y.Remap(HelicopterController.MIN_ALTITUDE, HelicopterController.MAX_ALTITUDE, 0f, 1f);
+
+            // Interrogate curve
             return curve.Evaluate(normalisedValue);
         }
     }

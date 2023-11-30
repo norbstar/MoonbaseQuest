@@ -9,8 +9,7 @@ namespace Helicopter
     {
         public override float Get()
         {
-            var value = curve.Evaluate(Time.time - startSec.Value);
-            return value * HelicopterController.ROTAR_SPEED_LEVEL_THRESHOLD;
-        }
+            // Interrogate curve
+            return curve.Evaluate(Time.time - startSec.Value) * HelicopterController.ROTAR_SPEED_LEVEL_THRESHOLD;
     }
 }

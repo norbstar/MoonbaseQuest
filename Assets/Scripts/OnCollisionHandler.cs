@@ -9,6 +9,7 @@ public class OnCollisionHandler : MonoBehaviour
 
     public void OnCollisonEnter(Collision collision)
     {
+        Debug.Log("dfgfsdg");
         GameObject trigger = collision.gameObject;
         int instanceId = trigger.GetInstanceID();
 

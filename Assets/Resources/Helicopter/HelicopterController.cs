@@ -26,11 +26,11 @@ namespace Helicopter
         public const float ROTAR_SPEED_LEVEL_THRESHOLD = 750f;
         public const float CAPPED_ROTAR_SPEED = 1000f;
         public const float MAX_ROTAR_SPEED = 1500f;
-        public const float MIN_ALTITUDE = 2.6f;
+        public const float MIN_ALTITUDE = 2.65f;
         public const float MAX_ALTITUDE = 50f;
 
-        private AudioSource audioSource;
         private Rigidbody rigidbody;
+        private AudioSource audioSource;
         private HelicopterEngagePowerCurveFunction engagePowerCurveFn;
         private HelicopterStabiliseElevationCurveFunction stabiliseElevationCurveFn;
         private HelicopterCutPowerCurveFunction cutPowerCurveFn;
@@ -194,7 +194,7 @@ namespace Helicopter
 
             if (state != State.Active) return;
 
-            cutPowerCurveFn.SetRotarSpeed(rotarSpeed);
+            // cutPowerCurveFn.SetAltitude(transform.position.y);
             cutPowerCurveFn.Exec();
             state = State.CuttingPower;
         }
@@ -203,18 +203,30 @@ namespace Helicopter
         {
             rotarSpeed = cutPowerCurveFn.Get();
 
-            if (rotarSpeed == 0f)
+            if (Mathf.Abs(transform.position.y - MIN_ALTITUDE) < 0.1f)
             {
-                state = State.Idle;
+                rotarSpeed = ROTAR_SPEED_LEVEL_THRESHOLD;
+                state = State.Active;
             }
         }
 
-        public float GetRotarSpeed() => rotarSpeed;
+        private float GetRotarSpeed() => rotarSpeed;
         
-        public float GetAltitude() => transform.position.y;
+        private float GetAltitude() => transform.position.y;
         
-        public Vector3 GetVelocity() => rigidbody.velocity;
+        private Vector3 GetVelocity() => rigidbody.velocity;
 
-        public Vector3 GetPosition() => transform.position;
+        private Vector3 GetPosition() => transform.position;
+
+        public HelicopterProperties GetProperties()
+        {
+            return new HelicopterProperties
+            {
+                rotarSpeed = GetRotarSpeed(),
+                altitude = GetAltitude(),
+                velocity = GetVelocity(),
+                position = GetPosition()
+            };
+        }
     }
 }

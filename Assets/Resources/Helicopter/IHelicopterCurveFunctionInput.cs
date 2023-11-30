@@ -2,11 +2,16 @@ using UnityEngine;
 
 namespace Helicopter
 {
+    public class HelicopterProperties
+    {
+        public float rotarSpeed;
+        public float altitude;
+        public Vector3 velocity;
+        public Vector3 position;
+    }
+    
     public interface IHelicopterCurveFunctionInput : ICurveFunctionInput
     {
-        float GetRotarSpeed();
-        float GetAltitude();
-        Vector3 GetVelocity();
-        Vector3 GetPosition();        
+        HelicopterProperties GetProperties();
     }
 }
