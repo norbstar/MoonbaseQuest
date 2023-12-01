@@ -8,11 +8,10 @@ namespace Helicopter
     public enum State
     {
         Idle,
-        EngagePower,
         EngagingPower,
         Active,
         StabilisingElevation,
-        CutPower,
+        StabilisingDescent,
         CuttingPower
     }
 }

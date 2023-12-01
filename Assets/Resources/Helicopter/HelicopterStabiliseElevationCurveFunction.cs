@@ -21,7 +21,7 @@ namespace Helicopter
             var value = curve.Evaluate(normal);
 
             // Incorporate the return value when calculating the result
-            return Mathf.Clamp(value * HelicopterController.MAX_ROTAR_SPEED, 0f, HelicopterController.CAPPED_ROTAR_SPEED);
+            return Mathf.Clamp(value, 0f, HelicopterController.CAPPED_ROTAR_SPEED);
         }
     }
 }

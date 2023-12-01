@@ -85,7 +85,7 @@ namespace Helicopter
             // var startEngine = actionMap.Helicopter.StartEngine;
             // Debug.Log($"{startEngine.triggered}");
 
-            if (state == State.EngagePower)
+            if (state == State.EngagingPower)
             {
                 if (Mathf.Clamp(rotarSpeed + ROTAR_SPEED_SCALE_FACTOR, 0f, CAPPED_ROTAR_SPEED) < TAKE_OFF_ROTAR_SPEED_THRESHOLD)
                 {
@@ -107,7 +107,7 @@ namespace Helicopter
                     rotarSpeed = Mathf.Clamp(rotarSpeed += value * ROTAR_SPEED_SCALE_FACTOR, 0f, 1000f);
                 }
             }
-            else if (state == State.CutPower)
+            else if (state == State.CuttingPower)
             {
                 if (Mathf.Clamp(rotarSpeed - ROTAR_SPEED_SCALE_FACTOR, 0f, CAPPED_ROTAR_SPEED) > 0)
                 {
@@ -179,13 +179,13 @@ namespace Helicopter
         private void OnStartEngine(InputAction.CallbackContext context)
         {
             if (state != State.Idle) return;
-            state = State.EngagePower;
+            state = State.EngagingPower;
         }
 
         private void OnCutEngine(InputAction.CallbackContext context)
         {
             if (state != State.Active) return;
-            state = State.CutPower;
+            state = State.CuttingPower;
         }
 
         // private void OnSpeed(InputAction.CallbackContext context)

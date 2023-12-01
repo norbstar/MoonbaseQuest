@@ -5,5 +5,5 @@ using UnityEngine;
 
 namespace Helicopter
 {
-    public class HelicopterEngagePowerCurveFunction : CurveFunction { }
+    public class HelicopterStabiliseDescentCurveFunction : CurveFunction { }
 }

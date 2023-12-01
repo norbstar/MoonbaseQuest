@@ -72,7 +72,7 @@ namespace Helicopter
         // Update is called once per frame
         void Update()
         {
-            if (state == State.EngagePower)
+            if (state == State.EngagingPower)
             {
                 float newSpeed  = rotarSpeed + (TAKEOFF_LAND_ROTAR_SPEED_SCALE_FACTOR * Time.deltaTime);
 
@@ -96,7 +96,7 @@ namespace Helicopter
                     rotarSpeed = Mathf.Clamp(rotarSpeed += value * rotarSpeedScaleFactor, 0f, 1000f);
                 }
             }
-            else if (state == State.CutPower)
+            else if (state == State.CuttingPower)
             {
                 float newSpeed  = rotarSpeed - (TAKEOFF_LAND_ROTAR_SPEED_SCALE_FACTOR * Time.deltaTime);
 
@@ -127,7 +127,7 @@ namespace Helicopter
         private void OnStartEngine(InputAction.CallbackContext context)
         {
             if (state != State.Idle) return;
-            state = State.EngagePower;
+            state = State.EngagingPower;
 
             // StartCoroutine(Co_StartEngine());
         }
@@ -159,7 +159,7 @@ namespace Helicopter
         private void OnCutEngine(InputAction.CallbackContext context)
         {
             if (state != State.Active) return;
-            state = State.CutPower;
+            state = State.CuttingPower;
 
             // StartCoroutine(Co_CutEngine());
         }

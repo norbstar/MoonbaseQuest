@@ -33,11 +33,13 @@ namespace Helicopter
         private AudioSource audioSource;
         private HelicopterEngagePowerCurveFunction engagePowerCurveFn;
         private HelicopterStabiliseElevationCurveFunction stabiliseElevationCurveFn;
+        private HelicopterStabiliseDescentCurveFunction stabiliseDescentCurveFn;
         private HelicopterCutPowerCurveFunction cutPowerCurveFn;
         private HelicopterInputActionMap actionMap;
         private State state;
         private Vector3 maxForce;
         private float lastElevation;
+        private bool isDescending;
 
         private void ResolveComponents()
         {
@@ -46,6 +48,7 @@ namespace Helicopter
             engagePowerCurveFn = GetComponent<HelicopterEngagePowerCurveFunction>();
             cutPowerCurveFn = GetComponent<HelicopterCutPowerCurveFunction>();
             stabiliseElevationCurveFn = GetComponent<HelicopterStabiliseElevationCurveFunction>();
+            stabiliseDescentCurveFn = GetComponent<HelicopterStabiliseDescentCurveFunction>();
         }
 
         void Awake()
@@ -56,6 +59,7 @@ namespace Helicopter
 
             engagePowerCurveFn.Init(this);
             stabiliseElevationCurveFn.Init(this);
+            stabiliseDescentCurveFn.Init(this);
             cutPowerCurveFn.Init(this);
         }
 
@@ -70,8 +74,8 @@ namespace Helicopter
         {
             actionMap.Enable();
             actionMap.Helicopter.EngagePower.performed += OnEngagePower;
-            actionMap.Helicopter.CutPower.performed += OnCutPower;
             actionMap.Helicopter.StabiliseElevation.performed += OnStabiliseElevation;
+            actionMap.Helicopter.CutPower.performed += OnCutPower;
         }
 
         void OnDisable() => actionMap.Disable();
@@ -103,6 +107,10 @@ namespace Helicopter
 
                 case State.StabilisingElevation:
                     OnStabilisingElevation();
+                    break;
+
+                case State.StabilisingDescent:
+                    OnStabilisingDescent();
                     break;
 
                 case State.CuttingPower:
@@ -180,7 +188,30 @@ namespace Helicopter
         private void OnStabilised()
         {
             rotarSpeed = ROTAR_SPEED_LEVEL_THRESHOLD;
-            state = State.Active;
+            // state = (isDescending) ? State.StabilisingDescent : State.Active;
+
+            if (isDescending)
+            {
+                state = State.StabilisingDescent;
+                cutPowerCurveFn.Exec();
+            }
+            else
+            {
+                state = State.Active;
+            }
+        }
+
+        private void OnStabilisingDescent()
+        {
+            // rotarSpeed = stabiliseDescentCurveFn.Get();
+            rotarSpeed = cutPowerCurveFn.Get();
+
+            if (Mathf.Abs(transform.position.y - MIN_ALTITUDE) < 0.1f)
+            {
+                rotarSpeed = ROTAR_SPEED_LEVEL_THRESHOLD;
+                transform.position = new Vector3(transform.position.x, MIN_ALTITUDE, transform.position.z);
+                state = State.Active;
+            }
         }
 
         private void OnCutPower(InputAction.CallbackContext context)
@@ -195,19 +226,21 @@ namespace Helicopter
             if (state != State.Active) return;
 
             // cutPowerCurveFn.SetAltitude(transform.position.y);
-            cutPowerCurveFn.Exec();
-            state = State.CuttingPower;
+            // cutPowerCurveFn.Exec();
+            isDescending = true;
+            state = State.StabilisingElevation;
         }
 
         private void OnCuttingPower()
         {
-            rotarSpeed = cutPowerCurveFn.Get();
+            // rotarSpeed = cutPowerCurveFn.Get();
 
-            if (Mathf.Abs(transform.position.y - MIN_ALTITUDE) < 0.1f)
-            {
-                rotarSpeed = ROTAR_SPEED_LEVEL_THRESHOLD;
-                state = State.Active;
-            }
+            // if (Mathf.Abs(transform.position.y - MIN_ALTITUDE) < 0.1f)
+            // {
+            //     rotarSpeed = ROTAR_SPEED_LEVEL_THRESHOLD;
+            //     transform.position = new Vector3(transform.position.x, MIN_ALTITUDE, transform.position.z);
+            //     state = State.Active;
+            // }
         }
 
         private float GetRotarSpeed() => rotarSpeed;
