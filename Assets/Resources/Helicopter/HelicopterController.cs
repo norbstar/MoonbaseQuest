@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+using TMPro;
+
 namespace Helicopter
 {
     [RequireComponent(typeof(Rigidbody))]
@@ -16,6 +18,14 @@ namespace Helicopter
         [Header("Parts")]
         [SerializeField] Transform body;
         [SerializeField] Transform rotars;
+
+        [Header("UI")]
+        [SerializeField] TextMeshProUGUI stateTextUI;
+        [SerializeField] TextMeshProUGUI altitudeTextUI;
+        [SerializeField] TextMeshProUGUI lastAltitudeTextUI;
+        [SerializeField] TextMeshProUGUI velocityTextUI;
+        [SerializeField] TextMeshProUGUI velocityDeltaTextUI;
+        [SerializeField] TextMeshProUGUI rotarSpeedTextUI;
 
         [Header("Stats")]
         [Range(0f, 1000f)]
@@ -38,7 +48,7 @@ namespace Helicopter
         private HelicopterInputActionMap actionMap;
         private State state;
         private Vector3 maxForce;
-        private float lastElevation;
+        private float lastElevation, lastVelocity;
         private bool isDescending;
 
         private void ResolveComponents()
@@ -75,6 +85,7 @@ namespace Helicopter
             actionMap.Enable();
             actionMap.Helicopter.EngagePower.performed += OnEngagePower;
             actionMap.Helicopter.StabiliseElevation.performed += OnStabiliseElevation;
+            actionMap.Helicopter.StabiliseDescent.performed += OnStabiliseDescent;
             actionMap.Helicopter.CutPower.performed += OnCutPower;
         }
 
@@ -130,13 +141,21 @@ namespace Helicopter
                 transform.position = new Vector3(transform.position.x, MAX_ALTITUDE, transform.position.z);
             }
 
+            stateTextUI.text = $" State: {state.ToString()}";
+            altitudeTextUI.text = $"Altitude: {transform.position.z}";
+            lastAltitudeTextUI.text = $"Last Altitude: {transform.position.y}";
+            velocityTextUI.text = $"Velocity: {rigidbody.velocity}";
+            velocityDeltaTextUI.text = $"Velocity Delta: {rigidbody.velocity.y - lastVelocity}";
+            rotarSpeedTextUI.text = $"Rotar Speed: {rotarSpeed}";
+
             lastElevation = transform.position.y;
+            lastVelocity = rigidbody.velocity.y;
         }
 
         void FixedUpdate()
         {
             var upForce = (rotarSpeed / MAX_ROTAR_SPEED) * maxForce;
-            rigidbody.AddForce(upForce);
+            rigidbody.AddForce(upForce * 0.1f, ForceMode.VelocityChange);
         }
 
         private void OnEngagePower(InputAction.CallbackContext context)
@@ -188,10 +207,10 @@ namespace Helicopter
         private void OnStabilised()
         {
             rotarSpeed = ROTAR_SPEED_LEVEL_THRESHOLD;
-            // state = (isDescending) ? State.StabilisingDescent : State.Active;
 
             if (isDescending)
             {
+                isDescending = false;
                 state = State.StabilisingDescent;
                 cutPowerCurveFn.Exec();
             }
@@ -201,10 +220,26 @@ namespace Helicopter
             }
         }
 
+        
+        private void OnStabiliseDescent(InputAction.CallbackContext context)
+        {
+            switch (state)
+            {
+                case State.StabilisingElevation:
+                    state = State.Active;
+                    break;
+            }
+
+            if (state != State.Active) return;
+
+            isDescending = true;
+            state = State.StabilisingElevation;
+            stabiliseDescentCurveFn.Exec();
+        }
+
         private void OnStabilisingDescent()
         {
-            // rotarSpeed = stabiliseDescentCurveFn.Get();
-            rotarSpeed = cutPowerCurveFn.Get();
+            rotarSpeed = stabiliseDescentCurveFn.Get();
 
             if (Mathf.Abs(transform.position.y - MIN_ALTITUDE) < 0.1f)
             {
@@ -216,31 +251,22 @@ namespace Helicopter
 
         private void OnCutPower(InputAction.CallbackContext context)
         {
-            switch (state)
-            {
-                case State.StabilisingElevation:
-                    state = State.Active;
-                    break;
-            }
-
             if (state != State.Active) return;
 
-            // cutPowerCurveFn.SetAltitude(transform.position.y);
-            // cutPowerCurveFn.Exec();
-            isDescending = true;
-            state = State.StabilisingElevation;
+            cutPowerCurveFn.Exec();
+            state = State.CuttingPower;
         }
 
         private void OnCuttingPower()
         {
-            // rotarSpeed = cutPowerCurveFn.Get();
+            rotarSpeed = cutPowerCurveFn.Get();
 
-            // if (Mathf.Abs(transform.position.y - MIN_ALTITUDE) < 0.1f)
-            // {
-            //     rotarSpeed = ROTAR_SPEED_LEVEL_THRESHOLD;
-            //     transform.position = new Vector3(transform.position.x, MIN_ALTITUDE, transform.position.z);
-            //     state = State.Active;
-            // }
+            if (Mathf.Abs(transform.position.y - MIN_ALTITUDE) < 0.1f)
+            {
+                rotarSpeed = 0f;
+                transform.position = new Vector3(transform.position.x, MIN_ALTITUDE, transform.position.z);
+                state = State.Idle;
+            }
         }
 
         private float GetRotarSpeed() => rotarSpeed;

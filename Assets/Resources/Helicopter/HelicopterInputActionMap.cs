@@ -55,6 +55,15 @@ public partial class @HelicopterInputActionMap : IInputActionCollection2, IDispo
                     ""initialStateCheck"": false
                 },
                 {
+                    ""name"": ""Stabilise Descent"",
+                    ""type"": ""Button"",
+                    ""id"": ""cd3f74ca-d753-4b5e-a519-5fd601632ca9"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
                     ""name"": ""Rotar Speed"",
                     ""type"": ""Value"",
                     ""id"": ""151d71f4-a115-4ad6-a262-ee1a8c0a9d4d"",
@@ -161,7 +170,7 @@ public partial class @HelicopterInputActionMap : IInputActionCollection2, IDispo
                 {
                     ""name"": ""positive"",
                     ""id"": ""51c124cc-a077-4eef-85bd-5fee1eac8cf4"",
-                    ""path"": ""<Keyboard>/upArrow"",
+                    ""path"": ""<Keyboard>/w"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -172,7 +181,7 @@ public partial class @HelicopterInputActionMap : IInputActionCollection2, IDispo
                 {
                     ""name"": ""negative"",
                     ""id"": ""9bac0cf5-b6c7-4902-ac0e-cbd68e13043f"",
-                    ""path"": ""<Keyboard>/downArrow"",
+                    ""path"": ""<Keyboard>/s"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -194,7 +203,7 @@ public partial class @HelicopterInputActionMap : IInputActionCollection2, IDispo
                 {
                     ""name"": ""positive"",
                     ""id"": ""54cea3bc-7f9f-485d-80a3-654f05fcf273"",
-                    ""path"": ""<Keyboard>/rightArrow"",
+                    ""path"": ""<Keyboard>/d"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -205,7 +214,7 @@ public partial class @HelicopterInputActionMap : IInputActionCollection2, IDispo
                 {
                     ""name"": ""negative"",
                     ""id"": ""9986db1a-d963-4183-bceb-4f2a4ae492cc"",
-                    ""path"": ""<Keyboard>/leftArrow"",
+                    ""path"": ""<Keyboard>/a"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -227,7 +236,7 @@ public partial class @HelicopterInputActionMap : IInputActionCollection2, IDispo
                 {
                     ""name"": ""positive"",
                     ""id"": ""3c86d52e-fd2c-43cc-8e4d-84ec3ef0b18a"",
-                    ""path"": ""<Keyboard>/d"",
+                    ""path"": ""<Keyboard>/rightShift"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -238,7 +247,7 @@ public partial class @HelicopterInputActionMap : IInputActionCollection2, IDispo
                 {
                     ""name"": ""negative"",
                     ""id"": ""482f7278-9085-4421-95bf-105fbb1c3cec"",
-                    ""path"": ""<Keyboard>/a"",
+                    ""path"": ""<Keyboard>/leftShift"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -249,11 +258,22 @@ public partial class @HelicopterInputActionMap : IInputActionCollection2, IDispo
                 {
                     ""name"": """",
                     ""id"": ""04f8e682-e29e-41b9-8c33-d4ab7ec5ee62"",
-                    ""path"": ""<Keyboard>/shift"",
+                    ""path"": ""<Keyboard>/tab"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Stabilise Elevation"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2471388f-69ed-4b67-a673-60661fe55099"",
+                    ""path"": ""<Keyboard>/quote"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Stabilise Descent"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -267,6 +287,7 @@ public partial class @HelicopterInputActionMap : IInputActionCollection2, IDispo
         m_Helicopter_EngagePower = m_Helicopter.FindAction("Engage Power", throwIfNotFound: true);
         m_Helicopter_CutPower = m_Helicopter.FindAction("Cut Power", throwIfNotFound: true);
         m_Helicopter_StabiliseElevation = m_Helicopter.FindAction("Stabilise Elevation", throwIfNotFound: true);
+        m_Helicopter_StabiliseDescent = m_Helicopter.FindAction("Stabilise Descent", throwIfNotFound: true);
         m_Helicopter_RotarSpeed = m_Helicopter.FindAction("Rotar Speed", throwIfNotFound: true);
         m_Helicopter_Heading = m_Helicopter.FindAction("Heading", throwIfNotFound: true);
         m_Helicopter_Rotation = m_Helicopter.FindAction("Rotation", throwIfNotFound: true);
@@ -333,6 +354,7 @@ public partial class @HelicopterInputActionMap : IInputActionCollection2, IDispo
     private readonly InputAction m_Helicopter_EngagePower;
     private readonly InputAction m_Helicopter_CutPower;
     private readonly InputAction m_Helicopter_StabiliseElevation;
+    private readonly InputAction m_Helicopter_StabiliseDescent;
     private readonly InputAction m_Helicopter_RotarSpeed;
     private readonly InputAction m_Helicopter_Heading;
     private readonly InputAction m_Helicopter_Rotation;
@@ -344,6 +366,7 @@ public partial class @HelicopterInputActionMap : IInputActionCollection2, IDispo
         public InputAction @EngagePower => m_Wrapper.m_Helicopter_EngagePower;
         public InputAction @CutPower => m_Wrapper.m_Helicopter_CutPower;
         public InputAction @StabiliseElevation => m_Wrapper.m_Helicopter_StabiliseElevation;
+        public InputAction @StabiliseDescent => m_Wrapper.m_Helicopter_StabiliseDescent;
         public InputAction @RotarSpeed => m_Wrapper.m_Helicopter_RotarSpeed;
         public InputAction @Heading => m_Wrapper.m_Helicopter_Heading;
         public InputAction @Rotation => m_Wrapper.m_Helicopter_Rotation;
@@ -366,6 +389,9 @@ public partial class @HelicopterInputActionMap : IInputActionCollection2, IDispo
                 @StabiliseElevation.started -= m_Wrapper.m_HelicopterActionsCallbackInterface.OnStabiliseElevation;
                 @StabiliseElevation.performed -= m_Wrapper.m_HelicopterActionsCallbackInterface.OnStabiliseElevation;
                 @StabiliseElevation.canceled -= m_Wrapper.m_HelicopterActionsCallbackInterface.OnStabiliseElevation;
+                @StabiliseDescent.started -= m_Wrapper.m_HelicopterActionsCallbackInterface.OnStabiliseDescent;
+                @StabiliseDescent.performed -= m_Wrapper.m_HelicopterActionsCallbackInterface.OnStabiliseDescent;
+                @StabiliseDescent.canceled -= m_Wrapper.m_HelicopterActionsCallbackInterface.OnStabiliseDescent;
                 @RotarSpeed.started -= m_Wrapper.m_HelicopterActionsCallbackInterface.OnRotarSpeed;
                 @RotarSpeed.performed -= m_Wrapper.m_HelicopterActionsCallbackInterface.OnRotarSpeed;
                 @RotarSpeed.canceled -= m_Wrapper.m_HelicopterActionsCallbackInterface.OnRotarSpeed;
@@ -391,6 +417,9 @@ public partial class @HelicopterInputActionMap : IInputActionCollection2, IDispo
                 @StabiliseElevation.started += instance.OnStabiliseElevation;
                 @StabiliseElevation.performed += instance.OnStabiliseElevation;
                 @StabiliseElevation.canceled += instance.OnStabiliseElevation;
+                @StabiliseDescent.started += instance.OnStabiliseDescent;
+                @StabiliseDescent.performed += instance.OnStabiliseDescent;
+                @StabiliseDescent.canceled += instance.OnStabiliseDescent;
                 @RotarSpeed.started += instance.OnRotarSpeed;
                 @RotarSpeed.performed += instance.OnRotarSpeed;
                 @RotarSpeed.canceled += instance.OnRotarSpeed;
@@ -412,6 +441,7 @@ public partial class @HelicopterInputActionMap : IInputActionCollection2, IDispo
         void OnEngagePower(InputAction.CallbackContext context);
         void OnCutPower(InputAction.CallbackContext context);
         void OnStabiliseElevation(InputAction.CallbackContext context);
+        void OnStabiliseDescent(InputAction.CallbackContext context);
         void OnRotarSpeed(InputAction.CallbackContext context);
         void OnHeading(InputAction.CallbackContext context);
         void OnRotation(InputAction.CallbackContext context);

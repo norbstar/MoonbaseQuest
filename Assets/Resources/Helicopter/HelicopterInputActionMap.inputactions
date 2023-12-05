@@ -33,6 +33,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "Stabilise Descent",
+                    "type": "Button",
+                    "id": "cd3f74ca-d753-4b5e-a519-5fd601632ca9",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Rotar Speed",
                     "type": "Value",
                     "id": "151d71f4-a115-4ad6-a262-ee1a8c0a9d4d",
@@ -139,7 +148,7 @@
                 {
                     "name": "positive",
                     "id": "51c124cc-a077-4eef-85bd-5fee1eac8cf4",
-                    "path": "<Keyboard>/upArrow",
+                    "path": "<Keyboard>/w",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -150,7 +159,7 @@
                 {
                     "name": "negative",
                     "id": "9bac0cf5-b6c7-4902-ac0e-cbd68e13043f",
-                    "path": "<Keyboard>/downArrow",
+                    "path": "<Keyboard>/s",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -172,7 +181,7 @@
                 {
                     "name": "positive",
                     "id": "54cea3bc-7f9f-485d-80a3-654f05fcf273",
-                    "path": "<Keyboard>/rightArrow",
+                    "path": "<Keyboard>/d",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -183,7 +192,7 @@
                 {
                     "name": "negative",
                     "id": "9986db1a-d963-4183-bceb-4f2a4ae492cc",
-                    "path": "<Keyboard>/leftArrow",
+                    "path": "<Keyboard>/a",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -205,7 +214,7 @@
                 {
                     "name": "positive",
                     "id": "3c86d52e-fd2c-43cc-8e4d-84ec3ef0b18a",
-                    "path": "<Keyboard>/d",
+                    "path": "<Keyboard>/rightShift",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -216,7 +225,7 @@
                 {
                     "name": "negative",
                     "id": "482f7278-9085-4421-95bf-105fbb1c3cec",
-                    "path": "<Keyboard>/a",
+                    "path": "<Keyboard>/leftShift",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -227,11 +236,22 @@
                 {
                     "name": "",
                     "id": "04f8e682-e29e-41b9-8c33-d4ab7ec5ee62",
-                    "path": "<Keyboard>/shift",
+                    "path": "<Keyboard>/tab",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "Stabilise Elevation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2471388f-69ed-4b67-a673-60661fe55099",
+                    "path": "<Keyboard>/quote",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Stabilise Descent",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
